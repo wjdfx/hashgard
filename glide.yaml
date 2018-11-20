@@ -1,0 +1,44 @@
+package: hashgard
+import:
+- package: github.com/cosmos/cosmos-sdk
+  version: v0.26.0-hashgard
+  repo:    git@github.com:hashgard/cosmos-sdk
+  subpackages:
+  - baseapp
+  - client
+  - client/keys
+  - client/lcd
+  - client/lcd/statik
+  - client/rpc
+  - client/tx
+  - cmd/gaia/init
+  - codec
+  - server
+  - types
+  - version
+  - x/auth
+  - x/auth/client/cli
+  - x/bank
+  - x/bank/client/cli
+  - x/ibc
+  - x/ibc/client/cli
+  - x/slashing/client/cli
+  - x/stake/client/cli
+- package: github.com/spf13/cobra
+- package: github.com/spf13/viper
+- package: github.com/tendermint/tendermint
+  version: v0.26.1-rc3
+  subpackages:
+  - abci/types
+  - libs/cli
+  - libs/common
+  - libs/db
+  - libs/log
+  - p2p
+  - types
+- package: golang.org/x/crypto
+  repo:    git@github.com:tendermint/crypto
+testImport:
+- package: github.com/stretchr/testify
+  subpackages:
+  - require
