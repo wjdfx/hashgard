@@ -7,6 +7,8 @@ GCC := $(shell command -v gcc 2> /dev/null)
 LEDGER_ENABLED ?= true
 UNAME_S := $(shell uname -s)
 
+GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
+
 all: get_tools get_vendor_deps install
 
 ########################################
@@ -33,7 +35,10 @@ TMP_BUILD_TAGS := $(BUILD_TAGS)
 BUILD_TAGS = $(filter-out ledger, $(TMP_BUILD_TAGS))
 endif
 
-build: check-ledger
+update_gaia_lite_docs:
+	@statik -src=vendor/github.com/cosmos/cosmos-sdk/client/lcd/swagger-ui -dest=vendor/github.com/cosmos/cosmos-sdk/client/lcd -f
+
+build: check-ledger update_gaia_lite_docs
 ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/hashgard.exe ./cmd/hashgard
 	go build $(BUILD_FLAGS) -o build/hashgardcli.exe ./cmd/hashgardcli
@@ -45,7 +50,7 @@ endif
 build-linux:
 	LEDGER_ENABLED=false GOOS=linux GOARCH=amd64 $(MAKE) build
 
-install: check-ledger
+install: check-ledger update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/hashgard
 	go install $(BUILD_FLAGS) ./cmd/hashgardcli
 
@@ -53,16 +58,14 @@ install: check-ledger
 ########################################
 ### Tools & dependencies
 
-GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
-
 get_tools:
-	@echo "--> Installing tools"
-	ifdef GLIDE_CHECK
-		@echo "Glide is already installed."
-	else
-		@echo "Installing glide"
-		curl https://glide.sh/get | sh
-	endif
+ifdef GLIDE_CHECK
+	@echo "Glide is already installed."
+else
+	@echo "Installing glide"
+	curl https://glide.sh/get | sh
+endif
+	go get github.com/rakyll/statik
 
 get_vendor_deps:
 	@echo "--> Generating vendor directory via glide install"
