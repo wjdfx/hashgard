@@ -1,97 +1,135 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/tendermint/tendermint/p2p"
+
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	gaiaInit "github.com/cosmos/cosmos-sdk/cmd/gaia/init"
+
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/lcd"
-	_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
-	"github.com/cosmos/cosmos-sdk/client/rpc"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	
+	"github.com/cosmos/cosmos-sdk/codec"
+
 	"hashgard/app"
-	"hashgard/types"
-	
-	"github.com/cosmos/cosmos-sdk/version"
-	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	ibccmd "github.com/cosmos/cosmos-sdk/x/ibc/client/cli"
-	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
-	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
+
+	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/tendermint/tendermint/libs/common"
+	dbm "github.com/tendermint/tendermint/libs/db"
+	"github.com/tendermint/tendermint/libs/log"
+	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// rootCmd is the entry point for this binary
-var (
-	rootCmd = &cobra.Command{
-		Use:   "hashgardcli",
-		Short: "Hashgard light-client",
-	}
+const (
+	flagClientHome = "home-client"
 )
 
 func main() {
-	// disable sorting
-	cobra.EnableCommandSorting = false
-
-	// get the codec
 	cdc := app.MakeCodec()
+	ctx := server.NewDefaultContext()
 
-	// TODO: Setup keybase, viper object, etc. to be passed into
-	// the below functions and eliminate global vars, like we do
-	// with the cdc.
+	rootCmd := &cobra.Command{
+		Use:               "hashgard",
+		Short:             "Hashgard Daemon (server)",
+		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
+	}
 
-	// add standard rpc, and tx commands
-	rpc.AddCommands(rootCmd)
-	rootCmd.AddCommand(client.LineBreak)
-	tx.AddCommands(rootCmd, cdc)
-	rootCmd.AddCommand(client.LineBreak)
+	appInit := server.DefaultAppInit
+	rootCmd.AddCommand(InitCmd(ctx, cdc, appInit))
 
-	// add query/post commands (custom to binary)
-	rootCmd.AddCommand(
-		client.GetCommands(
-			stakecmd.GetCmdQueryValidator("stake", cdc),
-			stakecmd.GetCmdQueryValidators("stake", cdc),
-			stakecmd.GetCmdQueryValidatorUnbondingDelegations("stake", cdc),
-			stakecmd.GetCmdQueryValidatorRedelegations("stake", cdc),
-			stakecmd.GetCmdQueryDelegation("stake", cdc),
-			stakecmd.GetCmdQueryDelegations("stake", cdc),
-			stakecmd.GetCmdQueryPool("stake", cdc),
-			stakecmd.GetCmdQueryParams("stake", cdc),
-			stakecmd.GetCmdQueryUnbondingDelegation("stake", cdc),
-			stakecmd.GetCmdQueryUnbondingDelegations("stake", cdc),
-			stakecmd.GetCmdQueryRedelegation("stake", cdc),
-			stakecmd.GetCmdQueryRedelegations("stake", cdc),
-			slashingcmd.GetCmdQuerySigningInfo("slashing", cdc),
-			authcmd.GetAccountCmd("acc", cdc, types.GetAccountDecoder(cdc)),
-		)...)
-
-	rootCmd.AddCommand(
-		client.PostCommands(
-			bankcmd.SendTxCmd(cdc),
-			ibccmd.IBCTransferCmd(cdc),
-			ibccmd.IBCRelayCmd(cdc),
-			stakecmd.GetCmdCreateValidator(cdc),
-			stakecmd.GetCmdEditValidator(cdc),
-			stakecmd.GetCmdDelegate(cdc),
-			stakecmd.GetCmdUnbond("stake", cdc),
-			stakecmd.GetCmdRedelegate("stake", cdc),
-			slashingcmd.GetCmdUnjail(cdc),
-		)...)
-
-	// add proxy, version and key info
-	rootCmd.AddCommand(
-		client.LineBreak,
-		lcd.ServeCommand(cdc),
-		keys.Commands(),
-		client.LineBreak,
-		version.VersionCmd,
-	)
+	server.AddCommands(ctx, cdc, rootCmd, appInit,
+		newApp, exportAppStateAndTMValidators)
 
 	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
+	rootDir := os.ExpandEnv("$HOME/.hashgard")
+	executor := cli.PrepareBaseCmd(rootCmd, "BC", rootDir)
+
 	err := executor.Execute()
 	if err != nil {
 		// Note: Handle with #870
 		panic(err)
 	}
+}
+
+// get cmd to initialize all files for tendermint and application
+// nolint: errcheck
+func InitCmd(ctx *server.Context, cdc *codec.Codec, appInit server.AppInit) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "init",
+		Short: "Initialize genesis config, priv-validator file, and p2p-node file",
+		Args:  cobra.NoArgs,
+		RunE: func(_ *cobra.Command, _ []string) error {
+
+			config := ctx.Config
+			config.SetRoot(viper.GetString(cli.HomeFlag))
+			chainID := viper.GetString(client.FlagChainID)
+			if chainID == "" {
+				chainID = fmt.Sprintf("test-chain-%v", common.RandStr(6))
+			}
+
+			nodeKey, err := p2p.LoadOrGenNodeKey(config.NodeKeyFile())
+			if err != nil {
+				return err
+			}
+			nodeID := string(nodeKey.ID())
+
+			pk := gaiaInit.ReadOrCreatePrivValidator(config.PrivValidatorFile())
+			genTx, appMessage, validator, err := server.SimpleAppGenTx(cdc, pk)
+			if err != nil {
+				return err
+			}
+
+			appState, err := appInit.AppGenState(
+				cdc, tmtypes.GenesisDoc{}, []json.RawMessage{genTx})
+			if err != nil {
+				return err
+			}
+			appStateJSON, err := cdc.MarshalJSON(appState)
+			if err != nil {
+				return err
+			}
+
+			toPrint := struct {
+				ChainID    string          `json:"chain_id"`
+				NodeID     string          `json:"node_id"`
+				AppMessage json.RawMessage `json:"app_message"`
+			}{
+				chainID,
+				nodeID,
+				appMessage,
+			}
+			out, err := codec.MarshalJSONIndent(cdc, toPrint)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintf(os.Stderr, "%s\n", string(out))
+			return gaiaInit.ExportGenesisFile(config.GenesisFile(), chainID,
+				[]tmtypes.GenesisValidator{validator}, appStateJSON)
+		},
+	}
+
+	cmd.Flags().String(cli.HomeFlag, app.DefaultNodeHome, "node's home directory")
+	cmd.Flags().String(flagClientHome, app.DefaultCLIHome, "client's home directory")
+	cmd.Flags().String(client.FlagChainID, "",
+		"genesis file chain-id, if left blank will be randomly created")
+	cmd.Flags().String(client.FlagName, "", "validator's moniker")
+	cmd.MarkFlagRequired(client.FlagName)
+	return cmd
+}
+
+func newApp(logger log.Logger, db dbm.DB, storeTracer io.Writer) abci.Application {
+	return app.NewBasecoinApp(logger, db, baseapp.SetPruning(viper.GetString("pruning")))
+}
+
+func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, storeTracer io.Writer) (
+	json.RawMessage, []tmtypes.GenesisValidator, error) {
+	bapp := app.NewBasecoinApp(logger, db)
+	return bapp.ExportAppStateAndValidators()
 }

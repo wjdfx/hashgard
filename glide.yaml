@@ -1,8 +1,8 @@
 package: hashgard
 import:
 - package: github.com/cosmos/cosmos-sdk
-  version: v0.26.0-hashgard
-  repo:    git@github.com:hashgard/cosmos-sdk
+  version: v0.26.1-rc1-hashgard
+  repo:    git@github.com:hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
   - client
@@ -37,7 +37,7 @@ import:
   - p2p
   - types
 - package: golang.org/x/crypto
-  repo:    git@github.com:tendermint/crypto
+  repo:    git@github.com:tendermint/crypto.git
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
