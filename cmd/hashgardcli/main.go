@@ -8,8 +8,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 
-	"hashgard/app"
-	"hashgard/types"
+	"github.com/hashgard/hashgard/app"
+	"github.com/hashgard/hashgard/types"
 
 	"github.com/cosmos/cosmos-sdk/version"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"

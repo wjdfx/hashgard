@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 
-	"hashgard/app"
+	"github.com/hashgard/hashgard/app"
 
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
@@ -130,6 +130,6 @@ func newApp(logger log.Logger, db dbm.DB, storeTracer io.Writer) abci.Applicatio
 
 func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, storeTracer io.Writer) (
 	json.RawMessage, []tmtypes.GenesisValidator, error) {
-	bapp := app.NewBasecoinApp(logger, db)
-	return bapp.ExportAppStateAndValidators()
+	bApp := app.NewBasecoinApp(logger, db)
+	return bApp.ExportAppStateAndValidators()
 }
