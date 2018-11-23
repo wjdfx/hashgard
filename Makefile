@@ -9,7 +9,7 @@ UNAME_S := $(shell uname -s)
 
 GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
 
-all: get_tools get_vendor_deps install
+all: get_tools get_vendor_deps install test_lint test
 
 ########################################
 ### CI
@@ -56,7 +56,7 @@ install: check-ledger update_gaia_lite_docs
 
 
 ########################################
-### Tools & dependencies
+### Tools & Dependencies
 
 get_tools:
 ifdef GLIDE_CHECK
@@ -66,6 +66,7 @@ else
 	curl https://glide.sh/get | sh
 endif
 	go get github.com/rakyll/statik
+	go get github.com/alecthomas/gometalinter
 
 get_vendor_deps:
 	@echo "--> Generating vendor directory via glide install"
@@ -76,12 +77,28 @@ update_vendor_deps:
 	@echo "--> Running glide update"
 	@glide update
 
+
+########################################
+### Testing
+
+test_unit:
+	@VERSION=$(VERSION) go test $(PACKAGES_NOSIMULATION)
+
+test: test_unit
+
+test_lint:
+	gometalinter --config=tests/gometalinter.json ./...
+	!(gometalinter --exclude /usr/lib/go/src/ --exclude 'vendor/*' --disable-all --enable='errcheck' --vendor ./... )
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+
+test_cover:
+	@export VERSION=$(VERSION); bash tests/test_cover.sh
+
+
+
 # To avoid unintended conflicts with file names, always add to .PHONY
 # unless there is a reason not to.
 # https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
-.PHONY: build build_cosmos-sdk-cli build_examples install install_examples install_cosmos-sdk-cli install_debug dist \
-check_tools check_dev_tools get_tools get_dev_tools get_vendor_deps draw_deps test test_cli test_unit \
-test_cover test_lint benchmark devdoc_init devdoc devdoc_save devdoc_update \
-build-linux build-docker-gaiadnode localnet-start localnet-stop \
-format check-ledger test_sim_gaia_nondeterminism test_sim_modules test_sim_gaia_fast \
-test_sim_gaia_multi_seed test_sim_gaia_import_export update_tools update_dev_tools
+.PHONY: build install install_debug dist \
+get_tools get_dev_tools get_vendor_deps test test_cli test_unit \
+test_cover test_lint \
