@@ -11,7 +11,8 @@ import (
 	"github.com/hashgard/hashgard/app"
 	"github.com/hashgard/hashgard/types"
 
-	"github.com/cosmos/cosmos-sdk/version"
+	"github.com/hashgard/hashgard/version"
+
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	ibccmd "github.com/cosmos/cosmos-sdk/x/ibc/client/cli"
@@ -84,7 +85,7 @@ func main() {
 		lcd.ServeCommand(cdc),
 		keys.Commands(),
 		client.LineBreak,
-		version.VersionCmd,
+		version.ServeVersionCommand(cdc),
 	)
 
 	// prepare and add flags

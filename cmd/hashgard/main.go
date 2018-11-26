@@ -13,10 +13,11 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/server"
 
 	"github.com/hashgard/hashgard/app"
+	"github.com/hashgard/hashgard/version"
 
-	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -43,6 +44,10 @@ func main() {
 
 	appInit := server.DefaultAppInit
 	rootCmd.AddCommand(InitCmd(ctx, cdc, appInit))
+
+	rootCmd.AddCommand(
+		version.ServeVersionCommand(cdc),
+	)
 
 	server.AddCommands(ctx, cdc, rootCmd, appInit,
 		newApp, exportAppStateAndTMValidators)
