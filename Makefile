@@ -84,11 +84,11 @@ update_vendor_deps:
 test_unit:
 	@VERSION=$(VERSION) go test $(PACKAGES_NOSIMULATION)
 
-test: test_unit
+test: test_unit test_cover
 
 test_lint:
 	gometalinter --config=tests/gometalinter.json ./...
-	!(gometalinter --exclude /usr/lib/go/src/ --exclude 'vendor/*' --disable-all --enable='errcheck' --vendor ./... )
+	!(gometalinter --exclude /usr/lib/go/src/ --exclude 'vendor/*' --disable-all --enable='errcheck' --vendor ./... | grep -v "vendor/")
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 
 test_cover:

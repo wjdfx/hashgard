@@ -3,16 +3,13 @@ package app
 import (
 	"encoding/json"
 	"os"
+	"io"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
-
-	"github.com/hashgard/hashgard/types"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	"github.com/cosmos/cosmos-sdk/x/ibc"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -22,6 +19,7 @@ import (
 
 const (
 	appName = "HashgardApp"
+	FlagReplay = "replay"
 )
 
 // default home directories for expected binaries
@@ -30,42 +28,42 @@ var (
 	DefaultNodeHome = os.ExpandEnv("$HOME/.hashgard")
 )
 
-// BasecoinApp implements an extended ABCI application. It contains a BaseApp,
+// HashgardApp implements an extended ABCI application. It contains a BaseApp,
 // a codec for serialization, KVStore keys for multistore state management, and
 // various mappers and keepers to manage getting, setting, and serializing the
 // integral app types.
-type BasecoinApp struct {
+type HashgardApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
 	// keys to access the multistore
 	keyMain    *sdk.KVStoreKey
 	keyAccount *sdk.KVStoreKey
-	keyIBC     *sdk.KVStoreKey
 
 	// manage getting and setting accounts
 	accountKeeper       auth.AccountKeeper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	bankKeeper          bank.Keeper
-	ibcMapper           ibc.Mapper
 }
 
-// NewBasecoinApp returns a reference to a new BasecoinApp given a logger and
+// NewHashgardApp returns a reference to a new HashgardApp given a logger and
 // database. Internally, a codec is created along with all the necessary keys.
 // In addition, all necessary mappers and keepers are created, routes
 // registered, and finally the stores being mounted along with any necessary
 // chain initialization.
-func NewBasecoinApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.BaseApp)) *BasecoinApp {
+func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
 	// create and register app-level codec for TXs and accounts
 	cdc := MakeCodec()
 
+	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
+	bApp.SetCommitMultiStoreTracer(traceStore)
+
 	// create your application type
-	var app = &BasecoinApp{
-		cdc:        cdc,
+	var app = &HashgardApp{
 		BaseApp:    bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...),
+		cdc:        cdc,
 		keyMain:    sdk.NewKVStoreKey("main"),
 		keyAccount: sdk.NewKVStoreKey("acc"),
-		keyIBC:     sdk.NewKVStoreKey("ibc"),
 	}
 
 	// define and attach the mappers and keepers
@@ -73,31 +71,26 @@ func NewBasecoinApp(logger log.Logger, db dbm.DB, baseAppOptions ...func(*bam.Ba
 		cdc,
 		app.keyAccount, // target store
 		func() auth.Account {
-			return &types.AppAccount{}
+			return &AppAccount{}
 		},
 	)
 	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
-	app.ibcMapper = ibc.NewMapper(app.cdc, app.keyIBC, app.RegisterCodespace(ibc.DefaultCodespace))
 
 	// register message routes
 	app.Router().
-		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("ibc", ibc.NewHandler(app.ibcMapper, app.bankKeeper))
+		AddRoute("bank", bank.NewHandler(app.bankKeeper))
 
-	// perform initialization logic
+	// initialize BaseApp
+	app.MountStoresIAVL(app.keyMain, app.keyAccount)
 	app.SetInitChainer(app.initChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
 	app.SetEndBlocker(app.EndBlocker)
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 
-	// mount the multistore and load the latest state
-	app.MountStoresIAVL(app.keyMain, app.keyAccount, app.keyIBC)
 	err := app.LoadLatestVersion(app.keyMain)
 	if err != nil {
 		cmn.Exit(err.Error())
 	}
-
-	app.Seal()
 
 	return app
 }
@@ -110,11 +103,10 @@ func MakeCodec() *codec.Codec {
 	codec.RegisterCrypto(cdc)
 	sdk.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
-	ibc.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 
 	// register custom type
-	cdc.RegisterConcrete(&types.AppAccount{}, "hashgard/Account", nil)
+	cdc.RegisterConcrete(&AppAccount{}, "hashgard/Account", nil)
 
 	cdc.Seal()
 
@@ -123,13 +115,13 @@ func MakeCodec() *codec.Codec {
 
 // BeginBlocker reflects logic to run before any TXs application are processed
 // by the application.
-func (app *BasecoinApp) BeginBlocker(_ sdk.Context, _ abci.RequestBeginBlock) abci.ResponseBeginBlock {
+func (app *HashgardApp) BeginBlocker(_ sdk.Context, _ abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return abci.ResponseBeginBlock{}
 }
 
 // EndBlocker reflects logic to run after all TXs are processed by the
 // application.
-func (app *BasecoinApp) EndBlocker(_ sdk.Context, _ abci.RequestEndBlock) abci.ResponseEndBlock {
+func (app *HashgardApp) EndBlocker(_ sdk.Context, _ abci.RequestEndBlock) abci.ResponseEndBlock {
 	return abci.ResponseEndBlock{}
 }
 
@@ -138,16 +130,18 @@ func (app *BasecoinApp) EndBlocker(_ sdk.Context, _ abci.RequestEndBlock) abci.R
 // state provided by 'req' and attempt to deserialize said state. The state
 // should contain all the genesis accounts. These accounts will be added to the
 // application's account mapper.
-func (app *BasecoinApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 	stateJSON := req.AppStateBytes
 
-	genesisState := new(types.GenesisState)
-	err := app.cdc.UnmarshalJSON(stateJSON, genesisState)
+	var genesisState GenesisState
+
+	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
 		// TODO: https://github.com/cosmos/cosmos-sdk/issues/468
 		panic(err)
 	}
 
+	// load the accounts
 	for _, gacc := range genesisState.Accounts {
 		acc, err := gacc.ToAppAccount()
 		if err != nil {
@@ -159,18 +153,38 @@ func (app *BasecoinApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 		app.accountKeeper.SetAccount(ctx, acc)
 	}
 
-	return abci.ResponseInitChain{}
+
+	if len(genesisState.GenTxs) > 0 {
+		for _, genTx := range genesisState.GenTxs {
+			var tx auth.StdTx
+			err = app.cdc.UnmarshalJSON(genTx, &tx)
+			if err != nil {
+				panic(err)
+			}
+			bz := app.cdc.MustMarshalBinaryLengthPrefixed(tx)
+			res := app.BaseApp.DeliverTx(bz)
+			if !res.IsOK() {
+				panic(res.Log)
+			}
+		}
+
+		//validators = app.stakeKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
+	}
+
+	return abci.ResponseInitChain{
+		Validators: req.Validators,
+	}
 }
 
 // ExportAppStateAndValidators implements custom application logic that exposes
 // various parts of the application's state and set of validators. An error is
 // returned if any step getting the state or set of validators fails.
-func (app *BasecoinApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
+func (app *HashgardApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 	ctx := app.NewContext(true, abci.Header{})
-	accounts := []*types.GenesisAccount{}
+	accounts := []GenesisAccount{}
 
 	appendAccountsFn := func(acc auth.Account) bool {
-		account := &types.GenesisAccount{
+		account := GenesisAccount{
 			Address: acc.GetAddress(),
 			Coins:   acc.GetCoins(),
 		}
@@ -181,7 +195,7 @@ func (app *BasecoinApp) ExportAppStateAndValidators() (appState json.RawMessage,
 
 	app.accountKeeper.IterateAccounts(ctx, appendAccountsFn)
 
-	genState := types.GenesisState{Accounts: accounts}
+	genState := GenesisState{Accounts: accounts}
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
 		return nil, nil, err
