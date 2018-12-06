@@ -2,8 +2,8 @@ package app
 
 import (
 	"encoding/json"
-	"os"
 	"io"
+	"os"
 
 	bam "github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -153,23 +153,6 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 		app.accountKeeper.SetAccount(ctx, acc)
 	}
 
-
-	if len(genesisState.GenTxs) > 0 {
-		for _, genTx := range genesisState.GenTxs {
-			var tx auth.StdTx
-			err = app.cdc.UnmarshalJSON(genTx, &tx)
-			if err != nil {
-				panic(err)
-			}
-			bz := app.cdc.MustMarshalBinaryLengthPrefixed(tx)
-			res := app.BaseApp.DeliverTx(bz)
-			if !res.IsOK() {
-				panic(res.Log)
-			}
-		}
-
-		//validators = app.stakeKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
-	}
 
 	return abci.ResponseInitChain{
 		Validators: req.Validators,
