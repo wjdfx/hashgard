@@ -9,96 +9,118 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/mint"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
+	"github.com/cosmos/cosmos-sdk/x/stake"
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
+var (
+	// bonded tokens given to genesis validators/accounts
+	FreeFermionVal  = int64(100)
+	FreeFermionsAcc = sdk.NewInt(150)
+	Denom			= "gard"
+	SecondaryDenom	= "mygard"
+	StakeDenom       = "gard"
 
-var _ auth.Account = (*AppAccount)(nil)
+)
 
-// AppAccount is a custom extension for this application. It is an example of
-// extending auth.BaseAccount with custom fields. It is compatible with the
-// stock auth.AccountKeeper, since auth.AccountKeeper uses the flexible go-amino
-// library.
-type AppAccount struct {
-	auth.BaseAccount
+const (
+	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
+)
 
-	Name string `json:"name"`
-}
-
-// nolint
-func (acc AppAccount) GetName() string      { return acc.Name }
-func (acc *AppAccount) SetName(name string) { acc.Name = name }
-
-// NewAppAccount returns a reference to a new AppAccount given a name and an
-// auth.BaseAccount.
-func NewAppAccount(name string, baseAcct auth.BaseAccount) *AppAccount {
-	return &AppAccount{BaseAccount: baseAcct, Name: name}
-}
-
-// GetAccountDecoder returns the AccountDecoder function for the custom
-// AppAccount.
-func GetAccountDecoder(cdc *codec.Codec) auth.AccountDecoder {
-	return func(accBytes []byte) (auth.Account, error) {
-		if len(accBytes) == 0 {
-			return nil, sdk.ErrTxDecode("accBytes are empty")
-		}
-
-		acct := new(AppAccount)
-		err := cdc.UnmarshalBinaryBare(accBytes, &acct)
-		if err != nil {
-			panic(err)
-		}
-
-		return acct, err
-	}
-}
-
-// GenesisState reflects the genesis state of the application.
+// State to Unmarshal
 type GenesisState struct {
-	Accounts []GenesisAccount `json:"accounts"`
-	GenTxs       []json.RawMessage     `json:"gentxs"`
+	Accounts     		[]GenesisAccount			`json:"accounts"`
+	AuthData     		auth.GenesisState			`json:"auth"`
+	StakeData    		stake.GenesisState			`json:"stake"`
+	MintData     		mint.GenesisState			`json:"mint"`
+	DistributionData    distribution.GenesisState	`json:"distribution"`
+	SlashingData 		slashing.GenesisState		`json:"slashing"`
+	GenTxs       		[]json.RawMessage			`json:"gentxs"`
 }
 
-// GenesisAccount reflects a genesis account the application expects in it's
-// genesis state.
-type GenesisAccount struct {
-	Name    string         `json:"name"`
-	Address sdk.AccAddress `json:"address"`
-	Coins   sdk.Coins      `json:"coins"`
+func NewGenesisState(
+	accounts []GenesisAccount,
+	authData auth.GenesisState,
+	stakeData stake.GenesisState,
+	mintData mint.GenesisState,
+	distrData distribution.GenesisState,
+	slashingData slashing.GenesisState,
+) GenesisState {
+
+	return GenesisState{
+		Accounts:     accounts,
+		AuthData:     authData,
+		StakeData:    stakeData,
+		MintData:     mintData,
+		DistributionData:    distrData,
+		SlashingData: slashingData,
+	}
 }
 
 // NewDefaultGenesisState generates the default state for hashgard.
 func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
-		Accounts:     nil,
-		GenTxs:       nil,
+		Accounts:			nil,
+		StakeData:    		createStakeGenesisState(),
+		MintData:			createMintGenesisState(),
+		DistributionData:	distribution.DefaultGenesisState(),
+		SlashingData:		slashing.DefaultGenesisState(),
+		GenTxs:				nil,
 	}
 }
 
-// NewGenesisAccount returns a reference to a new GenesisAccount given an
-// AppAccount.
-func NewGenesisAccount(aa *AppAccount) *GenesisAccount {
-	return &GenesisAccount{
-		Name:    aa.Name,
-		Address: aa.Address,
-		Coins:   aa.Coins.Sort(),
+// nolint
+type GenesisAccount struct {
+	Address       sdk.AccAddress `json:"address"`
+	Coins         sdk.Coins      `json:"coins"`
+	Sequence      int64          `json:"sequence_number"`
+	AccountNumber int64          `json:"account_number"`
+}
+
+func NewGenesisAccount(acc *auth.BaseAccount) GenesisAccount {
+	return GenesisAccount{
+		Address:       acc.Address,
+		Coins:         acc.Coins,
+		AccountNumber: acc.AccountNumber,
+		Sequence:      acc.Sequence,
 	}
 }
 
-// ToAppAccount converts a GenesisAccount to an AppAccount.
-func (ga *GenesisAccount) ToAppAccount() (acc *AppAccount, err error) {
-	return &AppAccount{
-		Name: ga.Name,
-		BaseAccount: auth.BaseAccount{
-			Address: ga.Address,
-			Coins:   ga.Coins.Sort(),
-		},
-	}, nil
+func NewGenesisAccountI(acc auth.Account) GenesisAccount {
+	return GenesisAccount{
+		Address:       acc.GetAddress(),
+		Coins:         acc.GetCoins(),
+		AccountNumber: acc.GetAccountNumber(),
+		Sequence:      acc.GetSequence(),
+	}
+}
+
+// convert GenesisAccount to auth.BaseAccount
+func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
+	return &auth.BaseAccount{
+		Address:       ga.Address,
+		Coins:         ga.Coins.Sort(),
+		AccountNumber: ga.AccountNumber,
+		Sequence:      ga.Sequence,
+	}
+}
+
+func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
+	accAuth := auth.NewBaseAccountWithAddress(addr)
+	accAuth.Coins = []sdk.Coin{
+		{SecondaryDenom, sdk.NewInt(10000)},
+		{Denom, FreeFermionsAcc},
+	}
+	return NewGenesisAccount(&accAuth)
 }
 
 // get app init parameters for server init command
@@ -125,33 +147,76 @@ func HashgardAppGenStateJSON(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGen
 func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs []json.RawMessage) (genesisState GenesisState, err error) {
 
 
-	//if err = cdc.UnmarshalJSON(genDoc.AppState, &genesisState); err != nil {
-	//	return genesisState, err
-	//}
+	if err = cdc.UnmarshalJSON(genDoc.AppState, &genesisState); err != nil {
+		return genesisState, err
+	}
 
 	// if there are no gen txs to be processed, return the default empty state
 	if len(appGenTxs) == 0 {
 		return genesisState, errors.New("there must be at least one genesis tx")
 	}
 
-	var accounts = make([]GenesisAccount, 0)
-
-	for _, genTx := range appGenTxs {
-		var tx server.SimpleGenTx
-		err = cdc.UnmarshalJSON(genTx, &tx)
-		if err != nil {
-			return
+	stakeData := genesisState.StakeData
+	for i, genTx := range appGenTxs {
+		var tx auth.StdTx
+		if err := cdc.UnmarshalJSON(genTx, &tx); err != nil {
+			return genesisState, err
 		}
-
-		var account = GenesisAccount{Address:tx.Addr, Coins:[]sdk.Coin{{Denom:"gard", Amount: sdk.NewInt(100000000)}}}
-		accounts = append(accounts, account)
+		msgs := tx.GetMsgs()
+		if len(msgs) != 1 {
+			return genesisState, errors.New(
+				"must provide genesis StdTx with exactly 1 CreateValidator message")
+		}
+		if _, ok := msgs[0].(stake.MsgCreateValidator); !ok {
+			return genesisState, fmt.Errorf(
+				"Genesis transaction %v does not contain a MsgCreateValidator", i)
+		}
 	}
 
-	genesisState.Accounts = accounts
+	for _, acc := range genesisState.Accounts {
+		// create the genesis account, give'm few steaks and a buncha token with there name
+		for _, coin := range acc.Coins {
+			if coin.Denom == StakeDenom {
+				stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.
+					Add(sdk.NewDecFromInt(coin.Amount)) // increase the supply
+			}
+		}
+	}
 
+	genesisState.StakeData = stakeData
 	genesisState.GenTxs = appGenTxs
 
 	return genesisState, nil
+}
+
+// HashgardValidateGenesisState ensures that the genesis state obeys the expected invariants
+// TODO: No validators are both bonded and jailed (#2088)
+// TODO: Error if there is a duplicate validator (#1708)
+// TODO: Ensure all state machine parameters are in genesis (#1704)
+func HashgardValidateGenesisState(genesisState GenesisState) (err error) {
+	err = validateGenesisStateAccounts(genesisState.Accounts)
+	if err != nil {
+		return
+	}
+	// skip stakeData validation as genesis is created from txs
+	if len(genesisState.GenTxs) > 0 {
+		return nil
+	}
+	return stake.ValidateGenesis(genesisState.StakeData)
+}
+
+// Ensures that there are no duplicate accounts in the genesis state,
+func validateGenesisStateAccounts(accs []GenesisAccount) (err error) {
+	addrMap := make(map[string]bool, len(accs))
+	for i := 0; i < len(accs); i++ {
+		acc := accs[i]
+		strAddr := string(acc.Address)
+		if _, ok := addrMap[strAddr]; ok {
+			return fmt.Errorf("Duplicate account in genesis state: Address %v", acc.Address)
+		}
+		addrMap[strAddr] = true
+	}
+	return
 }
 
 // CollectStdTxs processes and validates application's genesis StdTxs and returns
@@ -215,23 +280,23 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 				"each genesis transaction must provide a single genesis message")
 		}
 
-		//// validate the validator address and funds against the accounts in the state
-		//msg := msgs[0].(stake.MsgCreateValidator)
-		//addr := string(sdk.AccAddress(msg.ValidatorAddr))
-		//acc, ok := addrMap[addr]
-		//if !ok {
-		//	return appGenTxs, persistentPeers, fmt.Errorf(
-		//		"account %v not in genesis.json: %+v", addr, addrMap)
-		//}
-		//if acc.Coins.AmountOf(msg.Delegation.Denom).LT(msg.Delegation.Amount) {
-		//	err = fmt.Errorf("insufficient fund for the delegation: %s < %s",
-		//		acc.Coins.AmountOf(msg.Delegation.Denom), msg.Delegation.Amount)
-		//}
-		//
-		//// exclude itself from persistent peers
-		//if msg.Description.Moniker != moniker {
-		//	addressesIPs = append(addressesIPs, nodeAddrIP)
-		//}
+		// validate the validator address and funds against the accounts in the state
+		msg := msgs[0].(stake.MsgCreateValidator)
+		addr := string(sdk.AccAddress(msg.ValidatorAddr))
+		acc, ok := addrMap[addr]
+		if !ok {
+			return appGenTxs, persistentPeers, fmt.Errorf(
+				"account %v not in genesis.json: %+v", addr, addrMap)
+		}
+		if acc.Coins.AmountOf(msg.Delegation.Denom).LT(msg.Delegation.Amount) {
+			err = fmt.Errorf("insufficient fund for the delegation: %s < %s",
+				acc.Coins.AmountOf(msg.Delegation.Denom), msg.Delegation.Amount)
+		}
+
+		// exclude itself from persistent peers
+		if msg.Description.Moniker != moniker {
+			addressesIPs = append(addressesIPs, nodeAddrIP)
+		}
 	}
 
 	sort.Strings(addressesIPs)
@@ -240,3 +305,29 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 	return appGenTxs, persistentPeers, nil
 }
 
+func createStakeGenesisState() stake.GenesisState {
+	return stake.GenesisState{
+		Pool: stake.Pool{
+			LooseTokens:  sdk.ZeroDec(),
+			BondedTokens: sdk.ZeroDec(),
+		},
+		Params: stake.Params{
+			UnbondingTime: defaultUnbondingTime,
+			MaxValidators: 100,
+			BondDenom:     StakeDenom,
+		},
+	}
+}
+
+func createMintGenesisState() mint.GenesisState {
+	return mint.GenesisState{
+		Minter: mint.InitialMinter(),
+		Params: mint.Params{
+			MintDenom:           StakeDenom,
+			InflationRateChange: sdk.NewDecWithPrec(13, 2),
+			InflationMax:        sdk.NewDecWithPrec(20, 2),
+			InflationMin:        sdk.NewDecWithPrec(7, 2),
+			GoalBonded:          sdk.NewDecWithPrec(67, 2),
+		},
+	}
+}

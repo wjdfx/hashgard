@@ -15,7 +15,10 @@ import (
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
 	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+	"os"
+	"path"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
@@ -39,8 +42,6 @@ var (
 )
 
 func main() {
-	// disable sorting
-	cobra.EnableCommandSorting = false
 
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(hashgardInit.Bech32PrefixAccAddr, hashgardInit.Bech32PrefixAccPub)
@@ -50,6 +51,9 @@ func main() {
 
 	// get the codec
 	cdc := app.MakeCodec()
+
+	// disable sorting
+	cobra.EnableCommandSorting = false
 
 	// TODO: setup keybase, viper object, etc. to be passed into
 	// the below functions and eliminate global vars, like we do
@@ -73,6 +77,7 @@ func main() {
 	tx.AddCommands(queryCmd, cdc)
 
 	queryCmd.AddCommand(client.LineBreak)
+
 	queryCmd.AddCommand(client.GetCommands(
 		authcmd.GetAccountCmd(storeAcc, cdc, authcmd.GetAccountDecoder(cdc)),
 		stakecmd.GetCmdQueryDelegation(storeStake, cdc),
@@ -87,12 +92,6 @@ func main() {
 		stakecmd.GetCmdQueryValidatorRedelegations(queryRouteStake, cdc),
 		stakecmd.GetCmdQueryParams(storeStake, cdc),
 		stakecmd.GetCmdQueryPool(storeStake, cdc),
-		govcmd.GetCmdQueryProposal(storeGov, cdc),
-		govcmd.GetCmdQueryProposals(storeGov, cdc),
-		govcmd.GetCmdQueryVote(storeGov, cdc),
-		govcmd.GetCmdQueryVotes(storeGov, cdc),
-		govcmd.GetCmdQueryDeposit(storeGov, cdc),
-		govcmd.GetCmdQueryDeposits(storeGov, cdc),
 		slashingcmd.GetCmdQuerySigningInfo(storeSlashing, cdc),
 	)...)
 
@@ -121,9 +120,7 @@ func main() {
 			distrcmd.GetCmdSetWithdrawAddr(cdc),
 			govcmd.GetCmdDeposit(cdc),
 			bankcmd.SendTxCmd(cdc),
-			govcmd.GetCmdSubmitProposal(cdc),
 			slashingcmd.GetCmdUnjail(cdc),
-			govcmd.GetCmdVote(cdc),
 		)...)
 
 	rootCmd.AddCommand(
@@ -142,9 +139,36 @@ func main() {
 
 	// prepare and add flags
 	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
-	err := executor.Execute()
+
+	err := initConfig(rootCmd)
+	if err != nil {
+		panic(err)
+	}
+
+	err = executor.Execute()
 	if err != nil {
 		// Note: Handle with #870
 		panic(err)
 	}
+}
+
+func initConfig(cmd *cobra.Command) error {
+	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)
+	if err != nil {
+		return err
+	}
+
+	cfgFile := path.Join(home, "config", "config.toml")
+	if _, err := os.Stat(cfgFile); err == nil {
+		viper.SetConfigFile(cfgFile)
+
+		if err := viper.ReadInConfig(); err != nil {
+			return err
+		}
+	}
+
+	if err := viper.BindPFlag(cli.EncodingFlag, cmd.PersistentFlags().Lookup(cli.EncodingFlag)); err != nil {
+		return err
+	}
+	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
 }

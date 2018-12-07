@@ -6,15 +6,14 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	cfg "github.com/tendermint/tendermint/config"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/common"
-	"github.com/cosmos/cosmos-sdk/client"
 
 	"github.com/hashgard/hashgard/app"
 )
@@ -60,41 +59,24 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec, appInit server.AppInit) *cob
 			}
 
 			// initialize node validator files
-			nodeID, pk, err := InitializeNodeValidatorFiles(config)
+			nodeID, _, err := InitializeNodeValidatorFiles(config)
 			if err != nil {
 				return err
 			}
-
-
-			// set
-			genTx, _, validator, err := server.SimpleAppGenTx(cdc, pk)
-			if err != nil {
-				return err
-			}
-
 
 			if viper.GetString(flagMoniker) != "" {
 				config.Moniker = viper.GetString(flagMoniker)
 			}
 
-			var appStateJSON json.RawMessage
+			var appState json.RawMessage
 			genFile := config.GenesisFile()
 
 			// initialize genesis.json file
-			if appStateJSON, err = initializeEmptyGenesis(cdc, genFile, chainID, viper.GetBool(flagOverwrite)); err != nil {
+			if appState, err = initializeEmptyGenesis(cdc, genFile, chainID, viper.GetBool(flagOverwrite)); err != nil {
 				return err
 			}
 
-			// add genTx to appState
-			var appState app.GenesisState
-			cdc.UnmarshalJSON(appStateJSON, &appState)
-			appState.GenTxs = append(appState.GenTxs, genTx)
-
-			if appStateJSON, err = codec.MarshalJSONIndent(cdc, appState); err != nil {
-				return err
-			}
-
-			if err = ExportGenesisFile(genFile, chainID, []tmtypes.GenesisValidator{validator}, appStateJSON); err != nil {
+			if err = ExportGenesisFile(genFile, chainID, nil, appState); err != nil {
 				return err
 			}
 
@@ -102,7 +84,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec, appInit server.AppInit) *cob
 				ChainID:    chainID,
 				Moniker:    config.Moniker,
 				NodeID:     nodeID,
-				AppMessage: appStateJSON,
+				AppMessage: appState,
 			}
 
 			// generate config.toml
@@ -113,10 +95,8 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec, appInit server.AppInit) *cob
 	}
 
 	cmd.Flags().String(cli.HomeFlag, app.DefaultNodeHome, "node's home directory")
-	cmd.Flags().String(flagClientHome, app.DefaultCLIHome, "client's home directory")
-	cmd.Flags().String(client.FlagChainID, "",
-		"genesis file chain-id, if left blank will be randomly created")
-	cmd.Flags().String(client.FlagName, "", "validator's moniker")
-	cmd.MarkFlagRequired(client.FlagName)
+	cmd.Flags().BoolP(flagOverwrite, "o", false, "overwrite the genesis.json file")
+	cmd.Flags().String(client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
+	cmd.Flags().String(flagMoniker, "", "set the validator's moniker")
 	return cmd
 }

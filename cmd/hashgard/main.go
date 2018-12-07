@@ -56,6 +56,9 @@ func main() {
 
 	rootCmd.AddCommand(
 		hashgardInit.InitCmd(ctx, cdc, app.HashgardAppInit()),
+		hashgardInit.CollectGenTxsCmd(ctx, cdc),
+		hashgardInit.GenTxCmd(ctx, cdc),
+		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
 		startCmd,
 		tendermintCmd,
 
@@ -72,15 +75,24 @@ func main() {
 
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", app.DefaultNodeHome)
-	executor.Execute()
-
+	err := executor.Execute()
+	if err != nil {
+		// handle with #870
+		panic(err)
+	}
 }
 
 func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application {
-	return app.NewHashgardApp(logger, db, traceStore, baseapp.SetPruning(viper.GetString("pruning")))
+	return app.NewHashgardApp(
+		logger,
+		db,
+		traceStore,
+		baseapp.SetPruning(viper.GetString("pruning")),
+		baseapp.SetMinimumFees(viper.GetString("minimum_fees")),
+	)
 }
 
 func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer) (json.RawMessage, []tmtypes.GenesisValidator, error) {
-	gApp := app.NewHashgardApp(logger, db, traceStore)
-	return gApp.ExportAppStateAndValidators()
+	hApp := app.NewHashgardApp(logger, db, traceStore)
+	return hApp.ExportAppStateAndValidators()
 }
