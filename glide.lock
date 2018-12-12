@@ -1,5 +1,5 @@
-hash: be46f5687d8c1abfc71e77f1c8f50eade91d5bc41140a5b2e2cfd504655b4f85
-updated: 2018-12-07T15:06:17.802685+08:00
+hash: ba28295d6e532f6f488e80e74ff27fa7d1ee2038afc5db69147a0c3862543761
+updated: 2018-12-12T11:01:27.598431+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,8 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: c446b5fa599f64d9c2fedbc149889f103a236aa8
-  repo: git@github.com:hashgard/cosmos-sdk.git
+  version: 68019bef65ae4192021ed022aaea62dc97c8ab0b
   subpackages:
   - baseapp
   - client
@@ -52,20 +51,23 @@ imports:
   - x/bank/client
   - x/bank/client/cli
   - x/bank/client/rest
+  - x/bank/simulation
   - x/distribution
   - x/distribution/client/cli
   - x/distribution/keeper
+  - x/distribution/simulation
   - x/distribution/tags
   - x/distribution/types
   - x/gov
-  - x/gov/client
   - x/gov/client/cli
   - x/gov/client/rest
+  - x/gov/client/utils
   - x/gov/tags
   - x/ibc
   - x/ibc/client/cli
   - x/mint
   - x/mock
+  - x/mock/simulation
   - x/params
   - x/params/subspace
   - x/slashing
@@ -76,6 +78,7 @@ imports:
   - x/stake/client/rest
   - x/stake/keeper
   - x/stake/querier
+  - x/stake/simulation
   - x/stake/tags
   - x/stake/types
 - name: github.com/cosmos/go-bip39
@@ -147,8 +150,6 @@ imports:
   version: c12348ce28de40eed0136aa2b644d0ee0650e56c
   subpackages:
   - pbutil
-- name: github.com/mitchellh/go-homedir
-  version: ae18d6b8b3205b561c79e8e5f69bff09736185f4
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
 - name: github.com/pelletier/go-toml
@@ -187,6 +188,8 @@ imports:
   - fs
 - name: github.com/rcrowley/go-metrics
   version: 3113b8401b8a98917cde58f8bbd42a1b1c03b1fd
+- name: github.com/rs/cors
+  version: a3460e445dd310dbefee993fe449f2ff9c08ae71
 - name: github.com/spf13/afero
   version: d40851caa0d747393da1ffb28f7f9d8b4eeffebd
   subpackages:
@@ -230,7 +233,7 @@ imports:
 - name: github.com/tendermint/iavl
   version: fa74114f764f9827c4ad5573f990ed25bf8c4bac
 - name: github.com/tendermint/tendermint
-  version: 48ab899923c564bbf2fa2f1244c11cb930e28132
+  version: 9c236ffd6c56add84f3c17930ae75c26c68d61ec
   subpackages:
   - abci/client
   - abci/example/code
@@ -260,7 +263,6 @@ imports:
   - libs/clist
   - libs/common
   - libs/db
-  - libs/errors
   - libs/events
   - libs/fail
   - libs/flowrate
@@ -295,8 +297,10 @@ imports:
   - version
 - name: github.com/ZondaX/hid-go
   version: 48b08affede2cea076a3cf13b2e3f72ed262b743
-- name: github.com/zondax/ledger-goclient
-  version: 58598458c11bc0ad1c1b8dac3dc3e11eaf270b79
+- name: github.com/zondax/ledger-cosmos-go
+  version: d4aed6d929a703bb555a2d79fe9c470afe61f648
+- name: github.com/ZondaX/ledger-go
+  version: c3225ab10c2f53397d4aa419a588466493572b22
 - name: golang.org/x/crypto
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
   repo: git@github.com:tendermint/crypto.git
