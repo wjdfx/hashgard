@@ -16,7 +16,7 @@ mkdir -p $GOPATH/src/github.com/hashgard
 cd $GOPATH/src/github.com/hashgard
 git clone http://gitlab.hashgard.com/public-chain/hashgard.git
 cd hashgard && git checkout master
-make get tools && make get_vendor_deps && make install
+make get_tools && make get_vendor_deps && make install
 ```
 
 NOTE: 如果无法正常下载依赖包，请设置合适的代理

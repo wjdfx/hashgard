@@ -117,7 +117,7 @@ func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
 func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	accAuth := auth.NewBaseAccountWithAddress(addr)
 	accAuth.Coins = []sdk.Coin{
-		{SecondaryDenom, sdk.NewInt(10000)},
+		{SecondaryDenom, sdk.NewInt(100)},
 		{Denom, FreeFermionsAcc},
 	}
 	return NewGenesisAccount(&accAuth)
