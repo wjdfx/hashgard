@@ -40,7 +40,7 @@ func makeGenesisState(t *testing.T, genTxs []auth.StdTx) GenesisState {
 		msg := msgs[0].(stake.MsgCreateValidator)
 
 		acc := auth.NewBaseAccountWithAddress(sdk.AccAddress(msg.ValidatorAddr))
-		acc.Coins = sdk.Coins{sdk.NewInt64Coin(bondDenom, 150)}
+		acc.Coins = sdk.Coins{sdk.NewInt64Coin(StakeDenom, 150)}
 		genAccs[i] = NewGenesisAccount(&acc)
 		stakeData.Pool.LooseTokens = stakeData.Pool.LooseTokens.Add(sdk.NewDec(150)) // increase the supply
 	}
@@ -94,7 +94,7 @@ func makeMsg(name string, pk crypto.PubKey) auth.StdTx {
 	comm := stakeTypes.CommissionMsg{}
 	msg := stake.NewMsgCreateValidator(
 		sdk.ValAddress(pk.Address()), pk,
-		sdk.NewInt64Coin(bondDenom, 50), desc, comm,
+		sdk.NewInt64Coin(StakeDenom, 50), desc, comm,
 	)
 	return auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, nil, "")
 }
@@ -129,5 +129,5 @@ func TestNewDefaultGenesisAccount(t *testing.T) {
 	addr := secp256k1.GenPrivKeySecp256k1([]byte("")).PubKey().Address()
 	acc := NewDefaultGenesisAccount(sdk.AccAddress(addr))
 	require.Equal(t, sdk.NewInt(1000), acc.Coins.AmountOf("fooToken"))
-	require.Equal(t, sdk.NewInt(150), acc.Coins.AmountOf(bondDenom))
+	require.Equal(t, sdk.NewInt(150), acc.Coins.AmountOf(StakeDenom))
 }

@@ -12,10 +12,10 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
@@ -26,14 +26,12 @@ var (
 	// bonded tokens given to genesis validators/accounts
 	FreeFermionVal  = int64(100)
 	FreeFermionsAcc = sdk.NewInt(150)
-	Denom			= "gard"
-	SecondaryDenom	= "mygard"
-	StakeDenom       = "gard"
-
 )
 
 const (
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
+	GasDenom	= "mygard"
+	StakeDenom       = "gard"
 )
 
 // State to Unmarshal
@@ -44,6 +42,7 @@ type GenesisState struct {
 	MintData     		mint.GenesisState			`json:"mint"`
 	DistributionData    distribution.GenesisState	`json:"distribution"`
 	SlashingData 		slashing.GenesisState		`json:"slashing"`
+	GovData				gov.GenesisState			`json:"gov"`
 	GenTxs       		[]json.RawMessage			`json:"gentxs"`
 }
 
@@ -54,6 +53,7 @@ func NewGenesisState(
 	mintData mint.GenesisState,
 	distrData distribution.GenesisState,
 	slashingData slashing.GenesisState,
+	govData gov.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -63,6 +63,7 @@ func NewGenesisState(
 		MintData:     mintData,
 		DistributionData:    distrData,
 		SlashingData: slashingData,
+		GovData:      govData,
 	}
 }
 
@@ -74,7 +75,35 @@ func NewDefaultGenesisState() GenesisState {
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
+		GovData:			gov.DefaultGenesisState(),
 		GenTxs:				nil,
+	}
+}
+
+func createStakeGenesisState() stake.GenesisState {
+	return stake.GenesisState{
+		Pool: stake.Pool{
+			LooseTokens:  sdk.ZeroDec(),
+			BondedTokens: sdk.ZeroDec(),
+		},
+		Params: stake.Params{
+			UnbondingTime: defaultUnbondingTime,
+			MaxValidators: 100,
+			BondDenom:     StakeDenom,
+		},
+	}
+}
+
+func createMintGenesisState() mint.GenesisState {
+	return mint.GenesisState{
+		Minter: mint.InitialMinter(sdk.NewDecWithPrec(13, 2)),
+		Params: mint.Params{
+			MintDenom:           StakeDenom,
+			InflationRateChange: sdk.NewDecWithPrec(13, 2),
+			InflationMax:        sdk.NewDecWithPrec(20, 2),
+			InflationMin:        sdk.NewDecWithPrec(7, 2),
+			GoalBonded:          sdk.NewDecWithPrec(67, 2),
+		},
 	}
 }
 
@@ -82,8 +111,8 @@ func NewDefaultGenesisState() GenesisState {
 type GenesisAccount struct {
 	Address       sdk.AccAddress `json:"address"`
 	Coins         sdk.Coins      `json:"coins"`
-	Sequence      int64          `json:"sequence_number"`
-	AccountNumber int64          `json:"account_number"`
+	Sequence      uint64          `json:"sequence_number"`
+	AccountNumber uint64          `json:"account_number"`
 }
 
 func NewGenesisAccount(acc *auth.BaseAccount) GenesisAccount {
@@ -116,19 +145,17 @@ func (ga *GenesisAccount) ToAccount() (acc *auth.BaseAccount) {
 
 func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	accAuth := auth.NewBaseAccountWithAddress(addr)
-	accAuth.Coins = []sdk.Coin{
-		{SecondaryDenom, sdk.NewInt(100)},
-		{Denom, FreeFermionsAcc},
+	coins := sdk.Coins{
+		sdk.NewCoin(GasDenom, sdk.NewInt(1000)),
+		sdk.NewCoin(StakeDenom, FreeFermionsAcc),
 	}
+
+	coins.Sort()
+
+	accAuth.Coins = coins
 	return NewGenesisAccount(&accAuth)
 }
 
-// get app init parameters for server init command
-func HashgardAppInit() server.AppInit {
-	return server.AppInit{
-		AppGenState: HashgardAppGenStateJSON,
-	}
-}
 
 // HashgardAppGenState but with JSON
 func HashgardAppGenStateJSON(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs []json.RawMessage) (appState json.RawMessage, err error) {
@@ -138,8 +165,7 @@ func HashgardAppGenStateJSON(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGen
 	if err != nil {
 		return nil, err
 	}
-	appState, err = codec.MarshalJSONIndent(cdc, genesisState)
-	return
+	return codec.MarshalJSONIndent(cdc, genesisState)
 }
 
 // Create the core parameters for genesis initialization for hashgard
@@ -185,7 +211,6 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 
 	genesisState.StakeData = stakeData
 	genesisState.GenTxs = appGenTxs
-
 	return genesisState, nil
 }
 
@@ -193,16 +218,38 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 // TODO: No validators are both bonded and jailed (#2088)
 // TODO: Error if there is a duplicate validator (#1708)
 // TODO: Ensure all state machine parameters are in genesis (#1704)
-func HashgardValidateGenesisState(genesisState GenesisState) (err error) {
-	err = validateGenesisStateAccounts(genesisState.Accounts)
+func HashgardValidateGenesisState(genesisState GenesisState) error {
+	err := validateGenesisStateAccounts(genesisState.Accounts)
 	if err != nil {
-		return
+		return err
 	}
 	// skip stakeData validation as genesis is created from txs
 	if len(genesisState.GenTxs) > 0 {
 		return nil
 	}
-	return stake.ValidateGenesis(genesisState.StakeData)
+
+	err = stake.ValidateGenesis(genesisState.StakeData)
+	if err != nil {
+		return err
+	}
+	err = mint.ValidateGenesis(genesisState.MintData)
+	if err != nil {
+		return err
+	}
+	err = distribution.ValidateGenesis(genesisState.DistributionData)
+	if err != nil {
+		return err
+	}
+	err = gov.ValidateGenesis(genesisState.GovData)
+	if err != nil {
+		return err
+	}
+	err = slashing.ValidateGenesis(genesisState.SlashingData)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Ensures that there are no duplicate accounts in the genesis state,
@@ -236,11 +283,11 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 	if err := cdc.UnmarshalJSON(genDoc.AppState, &appState); err != nil {
 		return appGenTxs, persistentPeers, err
 	}
+
 	addrMap := make(map[string]GenesisAccount, len(appState.Accounts))
 	for i := 0; i < len(appState.Accounts); i++ {
 		acc := appState.Accounts[i]
-		strAddr := string(acc.Address)
-		addrMap[strAddr] = acc
+		addrMap[acc.Address.String()] = acc
 	}
 
 	// addresses and IPs (and port) validator server info
@@ -280,17 +327,31 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 				"each genesis transaction must provide a single genesis message")
 		}
 
-		// validate the validator address and funds against the accounts in the state
 		msg := msgs[0].(stake.MsgCreateValidator)
-		addr := string(sdk.AccAddress(msg.ValidatorAddr))
-		acc, ok := addrMap[addr]
-		if !ok {
-			return appGenTxs, persistentPeers, fmt.Errorf(
-				"account %v not in genesis.json: %+v", addr, addrMap)
+		// validate delegator and validator addresses and funds against the accounts in the state
+		delAddr := msg.DelegatorAddr.String()
+		valAddr := sdk.AccAddress(msg.ValidatorAddr).String()
+
+		delAcc, delOk := addrMap[delAddr]
+		_, valOk := addrMap[valAddr]
+
+		accsNotInGenesis := []string{}
+		if !delOk {
+			accsNotInGenesis = append(accsNotInGenesis, delAddr)
 		}
-		if acc.Coins.AmountOf(msg.Delegation.Denom).LT(msg.Delegation.Amount) {
-			err = fmt.Errorf("insufficient fund for the delegation: %s < %s",
-				acc.Coins.AmountOf(msg.Delegation.Denom), msg.Delegation.Amount)
+		if !valOk {
+			accsNotInGenesis = append(accsNotInGenesis, valAddr)
+		}
+		if len(accsNotInGenesis) != 0 {
+			return appGenTxs, persistentPeers, fmt.Errorf(
+				"account(s) %v not in genesis.json: %+v", strings.Join(accsNotInGenesis, " "), addrMap)
+		}
+
+		if delAcc.Coins.AmountOf(msg.Delegation.Denom).LT(msg.Delegation.Amount) {
+			return appGenTxs, persistentPeers, fmt.Errorf(
+				"insufficient fund for delegation %v: %v < %v",
+				delAcc.Address, delAcc.Coins.AmountOf(msg.Delegation.Denom), msg.Delegation.Amount,
+			)
 		}
 
 		// exclude itself from persistent peers
@@ -303,31 +364,4 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 	persistentPeers = strings.Join(addressesIPs, ",")
 
 	return appGenTxs, persistentPeers, nil
-}
-
-func createStakeGenesisState() stake.GenesisState {
-	return stake.GenesisState{
-		Pool: stake.Pool{
-			LooseTokens:  sdk.ZeroDec(),
-			BondedTokens: sdk.ZeroDec(),
-		},
-		Params: stake.Params{
-			UnbondingTime: defaultUnbondingTime,
-			MaxValidators: 100,
-			BondDenom:     StakeDenom,
-		},
-	}
-}
-
-func createMintGenesisState() mint.GenesisState {
-	return mint.GenesisState{
-		Minter: mint.InitialMinter(),
-		Params: mint.Params{
-			MintDenom:           StakeDenom,
-			InflationRateChange: sdk.NewDecWithPrec(13, 2),
-			InflationMax:        sdk.NewDecWithPrec(20, 2),
-			InflationMin:        sdk.NewDecWithPrec(7, 2),
-			GoalBonded:          sdk.NewDecWithPrec(67, 2),
-		},
-	}
 }

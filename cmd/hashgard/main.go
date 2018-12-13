@@ -2,18 +2,19 @@ package main
 
 import (
 	"encoding/json"
+	"io"
+
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
-	"io"
 
 	"github.com/hashgard/hashgard/app"
 	"github.com/hashgard/hashgard/version"
@@ -55,8 +56,9 @@ func main() {
 	startCmd.Flags().Bool(app.FlagReplay, false, "Replay the last block")
 
 	rootCmd.AddCommand(
-		hashgardInit.InitCmd(ctx, cdc, app.HashgardAppInit()),
+		hashgardInit.InitCmd(ctx, cdc),
 		hashgardInit.CollectGenTxsCmd(ctx, cdc),
+		hashgardInit.TestnetFilesCmd(ctx, cdc),
 		hashgardInit.GenTxCmd(ctx, cdc),
 		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
 		startCmd,
@@ -67,11 +69,9 @@ func main() {
 		tendermintCmd,
 		server.ExportCmd(ctx, cdc, exportAppStateAndTMValidators),
 		client.LineBreak,
+		version.VersionCmd,
 	)
 
-	rootCmd.AddCommand(
-		version.ServeVersionCommand(cdc),
-	)
 
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", app.DefaultNodeHome)
@@ -92,7 +92,13 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 	)
 }
 
-func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer) (json.RawMessage, []tmtypes.GenesisValidator, error) {
+func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 	hApp := app.NewHashgardApp(logger, db, traceStore)
-	return hApp.ExportAppStateAndValidators()
+	if height != -1 {
+		err := hApp.LoadHeight(height)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+	return hApp.ExportAppStateAndValidators(forZeroHeight)
 }

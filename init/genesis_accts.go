@@ -1,6 +1,7 @@
 package init
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -49,11 +50,7 @@ func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command 
 				return err
 			}
 
-			acc := auth.NewBaseAccountWithAddress(addr)
-			acc.Coins = coins
-			appState.Accounts = append(appState.Accounts, app.NewGenesisAccount(&acc))
-
-			appStateJSON, err := cdc.MarshalJSON(appState)
+			appStateJSON, err := addGenesisAccount(cdc, appState, addr, coins)
 			if err != nil {
 				return err
 			}
@@ -64,4 +61,17 @@ func AddGenesisAccountCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command 
 
 	cmd.Flags().String(cli.HomeFlag, app.DefaultNodeHome, "node's home directory")
 	return cmd
+}
+
+func addGenesisAccount(cdc *codec.Codec, appState app.GenesisState, addr sdk.AccAddress, coins sdk.Coins) (json.RawMessage, error) {
+	for _, stateAcc := range appState.Accounts {
+		if stateAcc.Address.Equals(addr) {
+			return nil, fmt.Errorf("the application state already contains account %v", addr)
+		}
+	}
+
+	acc := auth.NewBaseAccountWithAddress(addr)
+	acc.Coins = coins
+	appState.Accounts = append(appState.Accounts, app.NewGenesisAccount(&acc))
+	return cdc.MarshalJSON(appState)
 }

@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -12,28 +11,29 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	abci "github.com/tendermint/tendermint/abci/types"
-	cmn "github.com/tendermint/tendermint/libs/common"
-	dbm "github.com/tendermint/tendermint/libs/db"
-	"github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/stake"
+	abci "github.com/tendermint/tendermint/abci/types"
+	cmn "github.com/tendermint/tendermint/libs/common"
+	dbm "github.com/tendermint/tendermint/libs/db"
+	"github.com/tendermint/tendermint/libs/log"
 )
 
 const (
 	appName = "HashgardApp"
 	FlagReplay = "replay"
-	DefaultKeyPass = "12345678"		// DefaultKeyPass contains key password for genesis transactions
+	// DefaultKeyPass contains key password for genesis transactions
+	DefaultKeyPass = "12345678"
 )
 
 // default home directories for expected binaries
 var (
-	DefaultCLIHome  = os.ExpandEnv("$HOME/.hashgardcli")
 	DefaultNodeHome = os.ExpandEnv("$HOME/.hashgard")
+	DefaultCLIHome  = os.ExpandEnv("$HOME/.hashgardcli")
 )
 
 // Extended ABCI application
@@ -50,6 +50,7 @@ type HashgardApp struct {
 	keyMint				*sdk.KVStoreKey
 	keyDistribution		*sdk.KVStoreKey
 	tkeyDistribution	*sdk.TransientStoreKey
+	keyGov           	*sdk.KVStoreKey
 	keyFeeCollection	*sdk.KVStoreKey
 	keyParams			*sdk.KVStoreKey
 	tkeyParams			*sdk.TransientStoreKey
@@ -62,12 +63,13 @@ type HashgardApp struct {
 	slashingKeeper      slashing.Keeper
 	mintKeeper          mint.Keeper
 	distributionKeeper  distribution.Keeper
+	govKeeper           gov.Keeper
 	paramsKeeper        params.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
 func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
-	// create and register app-level codec for TXs and accounts
+
 	cdc := MakeCodec()
 
 	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
@@ -75,7 +77,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 
 	// create your application type
 	var app = &HashgardApp{
-		BaseApp:    		bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...),
+		BaseApp:    		bApp,
 		cdc:        		cdc,
 		keyMain:    		sdk.NewKVStoreKey("main"),
 		keyAccount: 		sdk.NewKVStoreKey("acc"),
@@ -85,6 +87,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 		keyDistribution:	sdk.NewKVStoreKey("distribution"),
 		tkeyDistribution:	sdk.NewTransientStoreKey("transient_distribution"),
 		keySlashing:		sdk.NewKVStoreKey("slashing"),
+		keyGov:				sdk.NewKVStoreKey("gov"),
 		keyFeeCollection:	sdk.NewKVStoreKey("fee"),
 		keyParams:			sdk.NewKVStoreKey("params"),
 		tkeyParams:			sdk.NewTransientStoreKey("transient_params"),
@@ -93,17 +96,16 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 	// define the accountKeeper
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
-		app.keyAccount, // target store
-		auth.ProtoBaseAccount,
+		app.keyAccount,			// target store
+		auth.ProtoBaseAccount,	// prototype
 	)
-
-	// add handlers
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
 
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(
 		app.cdc,
 		app.keyFeeCollection,
 	)
+
+	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
 
 	app.paramsKeeper = params.NewKeeper(
 		app.cdc,
@@ -117,7 +119,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 		app.tkeyStake,
 		app.bankKeeper,
 		app.paramsKeeper.Subspace(stake.DefaultParamspace),
-		app.RegisterCodespace(stake.DefaultCodespace),
+		stake.DefaultCodespace,
 	)
 
 	app.mintKeeper = mint.NewKeeper(
@@ -135,7 +137,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 		app.bankKeeper,
 		&stakeKeeper,
 		app.feeCollectionKeeper,
-		app.RegisterCodespace(stake.DefaultCodespace),
+		distribution.DefaultCodespace,
 	)
 
 	app.slashingKeeper = slashing.NewKeeper(
@@ -143,13 +145,25 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 		app.keySlashing,
 		&stakeKeeper,
 		app.paramsKeeper.Subspace(slashing.DefaultParamspace),
-		app.RegisterCodespace(slashing.DefaultCodespace),
+		slashing.DefaultCodespace,
+	)
+
+	app.govKeeper = gov.NewKeeper(
+		app.cdc,
+		app.keyGov,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(gov.DefaultParamspace),
+		app.bankKeeper,
+		&stakeKeeper,
+		gov.DefaultCodespace,
 	)
 
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
-	app.stakeKeeper = *stakeKeeper.SetHooks(NewHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()))
+	app.stakeKeeper = *stakeKeeper.SetHooks(
+		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
+	)
 
 
 	// register message routes
@@ -157,21 +171,24 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
 		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
 		AddRoute("distribution", distribution.NewHandler(app.distributionKeeper)).
-		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper))
+		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper)).
+		AddRoute("gov", gov.NewHandler(app.govKeeper))
 
 	app.QueryRouter().
-		AddRoute("stake", stake.NewQuerier(app.stakeKeeper, app.cdc))
+		AddRoute("stake", stake.NewQuerier(app.stakeKeeper, app.cdc)).
+		AddRoute("gov", gov.NewQuerier(app.govKeeper))
 
 
 	// initialize BaseApp
-	app.MountStoresIAVL(
+	app.MountStores(
 		app.keyMain,
 		app.keyAccount,
+		app.keyFeeCollection,
 		app.keyStake,
 		app.keyMint,
 		app.keyDistribution,
 		app.keySlashing,
-		app.keyFeeCollection,
+		app.keyGov,
 		app.keyParams,
 	)
 	app.SetInitChainer(app.initChainer)
@@ -192,18 +209,18 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 	return app
 }
 
-// MakeCodec creates a new codec codec and registers all the necessary types
-// with the codec.
+// MakeCodec creates a new codec and registers all the necessary types with the codec.
 func MakeCodec() *codec.Codec {
 	cdc := codec.New()
 
 	codec.RegisterCrypto(cdc)
 	sdk.RegisterCodec(cdc)
-	bank.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
+	bank.RegisterCodec(cdc)
 	stake.RegisterCodec(cdc)
 	distribution.RegisterCodec(cdc)
 	slashing.RegisterCodec(cdc)
+	gov.RegisterCodec(cdc)
 
 	return cdc
 }
@@ -212,47 +229,43 @@ func MakeCodec() *codec.Codec {
 // by the application.
 func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 
-	tags := slashing.BeginBlocker(ctx, req, app.slashingKeeper)
-
 	// distribute rewards from previous block
 	distribution.BeginBlocker(ctx, req, app.distributionKeeper)
 
 	// mint new tokens for this new block
 	mint.BeginBlocker(ctx, app.mintKeeper)
 
+	// slash anyone who double signed.
+	// NOTE: This should happen after distr.BeginBlocker so that
+	// there is nothing left over in the validator fee pool,
+	// so as to keep the CanWithdrawInvariant invariant.
+	// TODO: This should really happen at EndBlocker.
+	tags := slashing.BeginBlocker(ctx, req, app.slashingKeeper)
+
 	return abci.ResponseBeginBlock{
 		Tags: tags.ToKVPairs(),
 	}
 }
 
-// EndBlocker reflects logic to run after all TXs are processed by the
-// application. Application updates every end block
+// EndBlocker reflects logic to run after all TXs are processed by the application.
+// Application updates every end block.
+// nolint: unparam
 func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 
-	validatorUpdates := stake.EndBlocker(ctx, app.stakeKeeper)
+	tags := gov.EndBlocker(ctx, app.govKeeper)
+	validatorUpdates, endBlockerTags := stake.EndBlocker(ctx, app.stakeKeeper)
+	tags = append(tags, endBlockerTags...)
+
+	app.assertRuntimeInvariants()
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
+		Tags:             tags,
 	}
 }
 
-// initChainer implements the custom application logic that the BaseApp will
-// invoke upon initialization. In this case, it will take the application's
-// state provided by 'req' and attempt to deserialize said state. The state
-// should contain all the genesis accounts. These accounts will be added to the
-// application's account mapper.
-// custom logic for hashgard
-func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	stateJSON := req.AppStateBytes
-	// TODO is this now the whole genesis file?
-
-	var genesisState GenesisState
-	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
-	if err != nil {
-		// TODO: https://github.com/cosmos/cosmos-sdk/issues/468
-		panic(err)
-	}
-
+// initialize store from a genesis state
+func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState GenesisState) []abci.ValidatorUpdate {
 	// sort by account number to maintain consistency
 	sort.Slice(genesisState.Accounts, func(i, j int) bool {
 		return genesisState.Accounts[i].AccountNumber < genesisState.Accounts[j].AccountNumber
@@ -276,6 +289,8 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakeData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
+	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
+
 	err = HashgardValidateGenesisState(genesisState)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
@@ -297,6 +312,22 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 
 		validators = app.stakeKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	}
+	return validators
+}
+
+// custom logic for hashgard initialization
+func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	stateJSON := req.AppStateBytes
+	// TODO is this now the whole genesis file?
+
+	var genesisState GenesisState
+	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
+	if err != nil {
+		// TODO: https://github.com/cosmos/cosmos-sdk/issues/468
+		panic(err)
+	}
+
+	validators := app.initFromGenesisState(ctx, genesisState)
 
 	// sanity check
 	if len(req.Validators) > 0 {
@@ -313,95 +344,68 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 		}
 	}
 
+	// assert runtime invariants
+	app.assertRuntimeInvariants()
 
 	return abci.ResponseInitChain{
 		Validators: validators,
 	}
 }
 
-// ExportAppStateAndValidators implements custom application logic that exposes
-// various parts of the application's state and set of validators. An error is
-// returned if any step getting the state or set of validators fails.
-func (app *HashgardApp) ExportAppStateAndValidators() (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
-	ctx := app.NewContext(true, abci.Header{})
-
-	// iterate to get the accounts
-	accounts := []GenesisAccount{}
-	appendAccountsFn := func(acc auth.Account) (stop bool) {
-		account := NewGenesisAccountI(acc)
-		accounts = append(accounts, account)
-		return false
-	}
-
-	app.accountKeeper.IterateAccounts(ctx, appendAccountsFn)
-
-	genState := NewGenesisState(
-		accounts,
-		auth.ExportGenesis(ctx, app.feeCollectionKeeper),
-		stake.ExportGenesis(ctx, app.stakeKeeper),
-		mint.ExportGenesis(ctx, app.mintKeeper),
-		distribution.ExportGenesis(ctx, app.distributionKeeper),
-		slashing.ExportGenesis(ctx, app.slashingKeeper),
-	)
-
-	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	validators = stake.WriteValidators(ctx, app.stakeKeeper)
-
-	return appState, validators, err
+// load a particular height
+func (app *HashgardApp) LoadHeight(height int64) error {
+	return app.LoadVersion(height, app.keyMain)
 }
 
 //______________________________________________________________________________________________
 
-// Combined Staking Hooks
-type Hooks struct {
+var _ sdk.StakingHooks = StakingHooks{}
+
+// StakingHooks contains combined distribution and slashing hooks needed for the
+// staking module.
+type StakingHooks struct {
 	dh distribution.Hooks
 	sh slashing.Hooks
 }
 
-func NewHooks(dh distribution.Hooks, sh slashing.Hooks) Hooks {
-	return Hooks{dh, sh}
+func NewStakingHooks(dh distribution.Hooks, sh slashing.Hooks) StakingHooks {
+	return StakingHooks{dh, sh}
 }
 
-var _ sdk.StakingHooks = Hooks{}
-
 // nolint
-func (h Hooks) OnValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorCreated(ctx, valAddr)
 	h.sh.OnValidatorCreated(ctx, valAddr)
 }
-func (h Hooks) OnValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorModified(ctx, valAddr)
 	h.sh.OnValidatorModified(ctx, valAddr)
 }
-func (h Hooks) OnValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorRemoved(ctx, consAddr, valAddr)
 	h.sh.OnValidatorRemoved(ctx, consAddr, valAddr)
 }
-func (h Hooks) OnValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorBonded(ctx, consAddr, valAddr)
 	h.sh.OnValidatorBonded(ctx, consAddr, valAddr)
 }
-func (h Hooks) OnValidatorPowerDidChange(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorPowerDidChange(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorPowerDidChange(ctx, consAddr, valAddr)
 	h.sh.OnValidatorPowerDidChange(ctx, consAddr, valAddr)
 }
-func (h Hooks) OnValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.OnValidatorBeginUnbonding(ctx, consAddr, valAddr)
 	h.sh.OnValidatorBeginUnbonding(ctx, consAddr, valAddr)
 }
-func (h Hooks) OnDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	h.dh.OnDelegationCreated(ctx, delAddr, valAddr)
 	h.sh.OnDelegationCreated(ctx, delAddr, valAddr)
 }
-func (h Hooks) OnDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	h.dh.OnDelegationSharesModified(ctx, delAddr, valAddr)
 	h.sh.OnDelegationSharesModified(ctx, delAddr, valAddr)
 }
-func (h Hooks) OnDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+func (h StakingHooks) OnDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
 	h.dh.OnDelegationRemoved(ctx, delAddr, valAddr)
 	h.sh.OnDelegationRemoved(ctx, delAddr, valAddr)
 }
