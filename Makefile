@@ -13,7 +13,7 @@ all: get_tools get_vendor_deps install
 ########################################
 ### Tools
 
-GLIDE = go get github.com/Masterminds/glide
+GLIDE = github.com/Masterminds/glide
 GOLINT = github.com/tendermint/lint/golint
 GOMETALINTER = gopkg.in/alecthomas/gometalinter.v2
 UNCONVERT = github.com/mdempsky/unconvert

@@ -75,7 +75,7 @@ func NewDefaultGenesisState() GenesisState {
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
-		GovData:			gov.DefaultGenesisState(),
+		GovData:			createGovGenesisState(),
 		GenTxs:				nil,
 	}
 }
@@ -103,6 +103,25 @@ func createMintGenesisState() mint.GenesisState {
 			InflationMax:        sdk.NewDecWithPrec(20, 2),
 			InflationMin:        sdk.NewDecWithPrec(7, 2),
 			GoalBonded:          sdk.NewDecWithPrec(67, 2),
+		},
+	}
+}
+
+func createGovGenesisState() gov.GenesisState {
+	return gov.GenesisState{
+		StartingProposalID: 1,
+		DepositParams: gov.DepositParams{
+			MinDeposit:       sdk.Coins{sdk.NewInt64Coin(StakeDenom, 10)},
+			MaxDepositPeriod: time.Duration(172800) * time.Second,
+		},
+		VotingParams: gov.VotingParams{
+			VotingPeriod: time.Duration(172800) * time.Second,
+		},
+		TallyParams: gov.TallyParams{
+			Quorum:            sdk.NewDecWithPrec(334, 3),
+			Threshold:         sdk.NewDecWithPrec(5, 1),
+			Veto:              sdk.NewDecWithPrec(334, 3),
+			GovernancePenalty: sdk.NewDecWithPrec(1, 2),
 		},
 	}
 }
