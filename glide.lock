@@ -1,5 +1,5 @@
 hash: ba28295d6e532f6f488e80e74ff27fa7d1ee2038afc5db69147a0c3862543761
-updated: 2018-12-12T11:01:27.598431+08:00
+updated: 2018-12-13T20:13:30.636348+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -39,6 +39,7 @@ imports:
   - crypto/keys/mintkey
   - server
   - server/config
+  - server/mock
   - store
   - tests
   - types
@@ -152,6 +153,8 @@ imports:
   - pbutil
 - name: github.com/mitchellh/mapstructure
   version: 3536a929edddb9a5b34bd6861dc4a9647cb459fe
+- name: github.com/otiai10/copy
+  version: 7e9a647135a142c2669943d4a4d29be015ce9392
 - name: github.com/pelletier/go-toml
   version: aa79e12a973495d00b01f2353330e5275d084731
 - name: github.com/pkg/errors

@@ -1,4 +1,38 @@
 .DS_Store/
 .idea/
+
+# Build
 vendor/
 build/
+
+# OS
+.DS_Store
+*.swp
+*.swo
+*.swl
+*.swm
+*.swn
+.vscode
+.idea
+
+# Data - ideally these don't exist
+client/lcd/keys/*
+client/lcd/statik/statik.go
+
+# Testing
+coverage.txt
+profile.out
+
+# Vagrant
+.vagrant/
+*.box
+*.log
+vagrant
+
+# Graphviz
+dependency-graph.png
+
+# Latex
+*.aux
+*.out
+*.synctex.gz
