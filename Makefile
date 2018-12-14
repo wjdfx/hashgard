@@ -2,7 +2,7 @@ PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 PACKAGES_MODULES=$(shell go list ./... | grep 'x')
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 
-VERSION := $(shell git describe --tags --long | sed 's/v\(.*\)/\1/')
+VERSION := $(subst v,,$(shell git describe --tags --long))
 COMMIT_HASH := $(shell git rev-parse --short HEAD)
 BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=${VERSION}"
 GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
