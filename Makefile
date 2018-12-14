@@ -155,8 +155,8 @@ endif
 
 
 update_tools:
-	@echo "Updating dep"
-	go get -u -v $(DEP)
+	@echo "Updating glide"
+	go get -u -v $(GLIDE)
 
 
 ########################################
@@ -179,6 +179,8 @@ update_vendor_deps:
 update_gaia_lite_docs:
 	@statik -src=vendor/github.com/cosmos/cosmos-sdk/client/lcd/swagger-ui -dest=vendor/github.com/cosmos/cosmos-sdk/client/lcd -f
 
+build-linux:
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(MAKE) build
 
 build:
 ifeq ($(OS),Windows_NT)

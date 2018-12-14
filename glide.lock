@@ -1,5 +1,5 @@
-hash: e0ba998f66a70c910932ed0a57968115eb5cf468566e8a1ff8407da021cb0a4d
-updated: 2018-12-14T16:38:39.528535+08:00
+hash: f8b4d13e4246d38b8c2ae1e0c986346a5358d96374c5e6f6f71a1ad099551fe2
+updated: 2018-12-14T18:54:30.44473+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -345,8 +345,10 @@ imports:
   - transform
   - unicode/bidi
   - unicode/norm
-- name: google.golang.org/genproto/googleapis/rpc/status
-  version: bd91e49a0898e27abb88c339b432fa53d7497ac0
+- name: google.golang.org/genproto
+  version: b5d43981345bdb2c233eb4bf3277847b48c6fdc6
+  subpackages:
+  - googleapis/rpc/status
 - name: google.golang.org/grpc
   version: ef2b8e2f53fcd6654d12966394462f84e0f04066
   subpackages:

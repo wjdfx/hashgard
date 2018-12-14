@@ -8,6 +8,7 @@ import:
   version: v0.27.0
 - package: golang.org/x/crypto
   repo:    git@github.com:tendermint/crypto.git
+- package: github.com/syndtr/goleveldb
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
