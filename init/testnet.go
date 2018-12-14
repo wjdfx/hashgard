@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 	"github.com/cosmos/cosmos-sdk/x/stake"
-	stakeTypes "github.com/cosmos/cosmos-sdk/x/stake/types"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -61,7 +60,7 @@ Example:
 	cmd.Flags().Int(flagNumValidators, 4,
 		"Number of validators to initialize the testnet with",
 	)
-	cmd.Flags().StringP(flagOutputDir, "o", "./testnet",
+	cmd.Flags().StringP(flagOutputDir, "o", "./mytestnet",
 		"Directory to store initialization data for the testnet",
 	)
 	cmd.Flags().String(flagNodeDirPrefix, "node",
@@ -188,7 +187,7 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 		msg := stake.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
-			sdk.NewInt64Coin(stakeTypes.DefaultBondDenom, 100),
+			sdk.NewInt64Coin(app.StakeDenom, 100),
 			stake.NewDescription(nodeDirName, "", "", ""),
 			stake.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 		)
