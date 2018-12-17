@@ -256,7 +256,7 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 	validatorUpdates, endBlockerTags := stake.EndBlocker(ctx, app.stakeKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	// app.assertRuntimeInvariants()
+	app.assertRuntimeInvariants()
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
@@ -347,7 +347,7 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 	}
 
 	// assert runtime invariants
-	//app.assertRuntimeInvariants()
+	app.assertRuntimeInvariants()
 
 	return abci.ResponseInitChain{
 		Validators: validators,

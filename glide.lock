@@ -1,5 +1,5 @@
-hash: 20fdd22e629bd16175ca10efe7b84b7fa84679d0c38e3cb2b8bce9506686deb8
-updated: 2018-12-17T09:46:42.01325+08:00
+hash: 3eca0ed12baf66328070bd61047ec9bf2fb5ea6182195f1af98045ee0a507c9b
+updated: 2018-12-17T16:32:12.854719+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,8 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: 68019bef65ae4192021ed022aaea62dc97c8ab0b
+  version: 3f9928279d6bf281355b258cd13ba46a01f5b5f9
+  repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
   - client
@@ -303,7 +304,7 @@ imports:
   version: c3225ab10c2f53397d4aa419a588466493572b22
 - name: golang.org/x/crypto
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
-  repo: git@github.com:tendermint/crypto.git
+  repo: https://github.com/tendermint/crypto.git
   subpackages:
   - bcrypt
   - blowfish
