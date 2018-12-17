@@ -16,10 +16,9 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 )
 
-// ExportAppStateAndValidators implements custom application logic that exposes
-// various parts of the application's state and set of validators. An error is
-// returned if any step getting the state or set of validators fails.
-func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
+// export the state of hashgard for a genesis file
+func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (
+	appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
@@ -30,13 +29,12 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (appStat
 
 	// iterate to get the accounts
 	accounts := []GenesisAccount{}
-	appendAccountsFn := func(acc auth.Account) (stop bool) {
+	appendAccount := func(acc auth.Account) (stop bool) {
 		account := NewGenesisAccountI(acc)
 		accounts = append(accounts, account)
 		return false
 	}
-
-	app.accountKeeper.IterateAccounts(ctx, appendAccountsFn)
+	app.accountKeeper.IterateAccounts(ctx, appendAccount)
 
 	genState := NewGenesisState(
 		accounts,
@@ -47,12 +45,10 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (appStat
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		gov.ExportGenesis(ctx, app.govKeeper),
 	)
-
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	validators = stake.WriteValidators(ctx, app.stakeKeeper)
 	return appState, validators, nil
 }

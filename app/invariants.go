@@ -32,6 +32,7 @@ func (app *HashgardApp) assertRuntimeInvariantsOnContext(ctx sdk.Context) {
 	invariants := app.runtimeInvariants()
 	for _, inv := range invariants {
 		if err := inv(ctx); err != nil {
+			fmt.Println(err)
 			panic(fmt.Errorf("invariant broken: %s", err))
 		}
 	}

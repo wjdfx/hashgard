@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"io"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/cosmos/cosmos-sdk/baseapp"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/cli"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -17,7 +16,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/hashgard/hashgard/app"
-	"github.com/hashgard/hashgard/version"
 	hashgardInit "github.com/hashgard/hashgard/init"
 )
 
@@ -31,47 +29,20 @@ func main() {
 
 	cdc := app.MakeCodec()
 	ctx := server.NewDefaultContext()
-
 	cobra.EnableCommandSorting = false
-
 	rootCmd := &cobra.Command{
 		Use:               "hashgard",
 		Short:             "Hashgard Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
 
-	// tendermint subcommands
-	tendermintCmd := &cobra.Command{
-		Use:   "tendermint",
-		Short: "Tendermint subcommands",
-	}
+	rootCmd.AddCommand(hashgardInit.InitCmd(ctx, cdc))
+	rootCmd.AddCommand(hashgardInit.CollectGenTxsCmd(ctx, cdc))
+	rootCmd.AddCommand(hashgardInit.TestnetFilesCmd(ctx, cdc))
+	rootCmd.AddCommand(hashgardInit.GenTxCmd(ctx, cdc))
+	rootCmd.AddCommand(hashgardInit.AddGenesisAccountCmd(ctx, cdc))
 
-	tendermintCmd.AddCommand(
-		server.ShowNodeIDCmd(ctx),
-		server.ShowValidatorCmd(ctx),
-		server.ShowAddressCmd(ctx),
-	)
-
-	startCmd := server.StartCmd(ctx, newApp)
-	startCmd.Flags().Bool(app.FlagReplay, false, "Replay the last block")
-
-	rootCmd.AddCommand(
-		hashgardInit.InitCmd(ctx, cdc),
-		hashgardInit.CollectGenTxsCmd(ctx, cdc),
-		hashgardInit.TestnetFilesCmd(ctx, cdc),
-		hashgardInit.GenTxCmd(ctx, cdc),
-		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
-		startCmd,
-		tendermintCmd,
-
-		server.UnsafeResetAllCmd(ctx),
-		client.LineBreak,
-		tendermintCmd,
-		server.ExportCmd(ctx, cdc, exportAppStateAndTMValidators),
-		client.LineBreak,
-		version.VersionCmd,
-	)
-
+	server.AddCommands(ctx, cdc, rootCmd, newApp, exportAppStateAndTMValidators)
 
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", app.DefaultNodeHome)

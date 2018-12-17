@@ -30,8 +30,8 @@ var (
 
 const (
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
-	GasDenom	= "horn"
-	StakeDenom       = "apple"
+	GasDenom	= "Horn"
+	StakeDenom       = "Apple"
 )
 
 // State to Unmarshal
@@ -103,6 +103,7 @@ func createMintGenesisState() mint.GenesisState {
 			InflationMax:        sdk.NewDecWithPrec(20, 2),
 			InflationMin:        sdk.NewDecWithPrec(7, 2),
 			GoalBonded:          sdk.NewDecWithPrec(67, 2),
+			BlocksPerYear:       uint64(60 * 60 * 8766 / 5), // assuming 5 second block times
 		},
 	}
 }

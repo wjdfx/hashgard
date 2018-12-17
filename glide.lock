@@ -1,5 +1,5 @@
-hash: f8b4d13e4246d38b8c2ae1e0c986346a5358d96374c5e6f6f71a1ad099551fe2
-updated: 2018-12-14T18:54:30.44473+08:00
+hash: 20fdd22e629bd16175ca10efe7b84b7fa84679d0c38e3cb2b8bce9506686deb8
+updated: 2018-12-17T09:46:42.01325+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -229,9 +229,9 @@ imports:
   subpackages:
   - btcec
 - name: github.com/tendermint/go-amino
-  version: 6dcc6ddc143e116455c94b25c1004c99e0d0ca12
+  version: dc14acf9ef15f85828bfbc561ed9dd9d2a284885
 - name: github.com/tendermint/iavl
-  version: fa74114f764f9827c4ad5573f990ed25bf8c4bac
+  version: de0740903a67b624d887f9055d4c60175dcfa758
 - name: github.com/tendermint/tendermint
   version: 9c236ffd6c56add84f3c17930ae75c26c68d61ec
   subpackages:

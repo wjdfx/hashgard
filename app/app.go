@@ -183,12 +183,12 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 	app.MountStores(
 		app.keyMain,
 		app.keyAccount,
-		app.keyFeeCollection,
 		app.keyStake,
 		app.keyMint,
 		app.keyDistribution,
 		app.keySlashing,
 		app.keyGov,
+		app.keyFeeCollection,
 		app.keyParams,
 	)
 	app.SetInitChainer(app.initChainer)
@@ -229,11 +229,11 @@ func MakeCodec() *codec.Codec {
 // by the application.
 func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 
-	// distribute rewards from previous block
-	distribution.BeginBlocker(ctx, req, app.distributionKeeper)
-
 	// mint new tokens for this new block
 	mint.BeginBlocker(ctx, app.mintKeeper)
+
+	// distribute rewards from previous block
+	distribution.BeginBlocker(ctx, req, app.distributionKeeper)
 
 	// slash anyone who double signed.
 	// NOTE: This should happen after distr.BeginBlocker so that
@@ -256,7 +256,7 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 	validatorUpdates, endBlockerTags := stake.EndBlocker(ctx, app.stakeKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	app.assertRuntimeInvariants()
+	// app.assertRuntimeInvariants()
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
@@ -287,10 +287,11 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	// initialize module-specific stores
 	auth.InitGenesis(ctx, app.feeCollectionKeeper, genesisState.AuthData)
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakeData)
+	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
-	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 
+	// validate genesis state
 	err = HashgardValidateGenesisState(genesisState)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
@@ -312,6 +313,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 
 		validators = app.stakeKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	}
+
 	return validators
 }
 
@@ -323,8 +325,8 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 	var genesisState GenesisState
 	err := app.cdc.UnmarshalJSON(stateJSON, &genesisState)
 	if err != nil {
-		// TODO: https://github.com/cosmos/cosmos-sdk/issues/468
-		panic(err)
+		panic(err) // TODO https://github.com/cosmos/cosmos-sdk/issues/468
+		// return sdk.ErrGenesisParse("").TraceCause(err, "")
 	}
 
 	validators := app.initFromGenesisState(ctx, genesisState)
@@ -345,7 +347,7 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 	}
 
 	// assert runtime invariants
-	app.assertRuntimeInvariants()
+	//app.assertRuntimeInvariants()
 
 	return abci.ResponseInitChain{
 		Validators: validators,
