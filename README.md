@@ -1,5 +1,5 @@
 # Hashgard
-hashgard 公链项目，基于 [cosmos-sdk](https://github.com/cosmos/cosmos-sdk] 开发
+hashgard 公链项目，基于 [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) 开发
 
 ## Required
 [Go 1.10+](https://golang.org/dl/)
