@@ -162,12 +162,12 @@ update_tools:
 ########################################
 ### Dependencies
 
-get_vendor_deps:
+get_vendor_deps: get_tools
 	@echo "--> Generating vendor directory via glide install"
 	@rm -rf ./vendor
 	@glide install
 
-update_vendor_deps:
+update_vendor_deps: get_tools
 	@echo "--> Running glide update"
 	@glide update
 
