@@ -41,7 +41,7 @@ hashgardcli bank account [address] [flags]
 ### 查询账户信息 
 
 ```
- hashgardcli bank account gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx
+ hashgardcli bank account gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx --trust-node
 ```
 
 执行完命令后，获得账户的详细信息如下
