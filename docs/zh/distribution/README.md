@@ -20,5 +20,5 @@ hashgardcli distribution --help
 
 | 名称                            | 功能                                                   |
 | --------------------------------| --------------------------------------------------------------|
-| [set-withdraw-address](set-withdraw-address.md)  | 设置收益取回地址 |
+| [set-withdraw-addr](set-withdraw-address.md)  | 设置收益取回地址 |
 | [withdraw-rewards](withdraw-rewards.md) | 发起取回收益的交易 |
