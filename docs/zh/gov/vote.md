@@ -24,7 +24,7 @@ hashgardcli gov vote --help
 ### 给提议投票
 
 ```shell
-hashgardcli gov vote 1 yes --chain-id=hashgard --from hashgard
+hashgardcli gov vote 1 yes --chain-id=hashgard --from=hashgard
 
 ```
 
