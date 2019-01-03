@@ -177,7 +177,7 @@ update_vendor_deps: get_tools
 ### Build/Install
 
 update_gaia_lite_docs:
-	@statik -src=vendor/github.com/cosmos/cosmos-sdk/client/lcd/swagger-ui -dest=vendor/github.com/cosmos/cosmos-sdk/client/lcd -f
+	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
 
 build-linux:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(MAKE) build
@@ -186,21 +186,27 @@ build:
 ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/hashgard.exe ./cmd/hashgard
 	go build $(BUILD_FLAGS) -o build/hashgardcli.exe ./cmd/hashgardcli
+	go build $(BUILD_FLAGS) -o build/hashgardlcd.exe ./cmd/hashgardlcd
 	go build $(BUILD_FLAGS) -o build/hashgardkeyutil.exe ./cmd/hashgardkeyutil
 	go build $(BUILD_FLAGS) -o build/hashgardreplay.exe ./cmd/hashgardreplay
+	go build $(BUILD_FLAGS) -o build/logjack.exe ./cmd/logjack
 else
 	go build $(BUILD_FLAGS) -o build/hashgard ./cmd/hashgard
 	go build $(BUILD_FLAGS) -o build/hashgardcli ./cmd/hashgardcli
+	go build $(BUILD_FLAGS) -o build/hashgardlcd ./cmd/hashgardlcd
 	go build $(BUILD_FLAGS) -o build/hashgardkeyutil ./cmd/hashgardkeyutil
 	go build $(BUILD_FLAGS) -o build/hashgardreplay ./cmd/hashgardreplay
+	go build $(BUILD_FLAGS) -o build/logjack ./cmd/logjack
 endif
 
 
 install: update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/hashgard
 	go install $(BUILD_FLAGS) ./cmd/hashgardcli
+	go install $(BUILD_FLAGS) ./cmd/hashgardlcd
 	go install $(BUILD_FLAGS) ./cmd/hashgardkeyutil
 	go install $(BUILD_FLAGS) ./cmd/hashgardreplay
+	go install $(BUILD_FLAGS) ./cmd/logjack
 
 
 ########################################

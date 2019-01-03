@@ -1,5 +1,5 @@
-hash: 3eca0ed12baf66328070bd61047ec9bf2fb5ea6182195f1af98045ee0a507c9b
-updated: 2018-12-20T10:20:49.350268+08:00
+hash: 53eb4e0745b73daa00db07e226443a635dbb6f262b454e2a0d52a7ab3a384ae9
+updated: 2019-01-03T22:02:43.821912+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,14 +18,13 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: 2a1d8ae1ea4383ef486174547170308d4a0c995a
+  version: c118f18438ad07c695073e4912dbc5f096df5032
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
   - client
   - client/context
   - client/keys
-  - client/lcd
   - client/lcd/statik
   - client/rpc
   - client/tx
@@ -41,7 +40,6 @@ imports:
   - server/config
   - server/mock
   - store
-  - tests
   - types
   - version
   - x/auth
@@ -234,7 +232,7 @@ imports:
 - name: github.com/tendermint/iavl
   version: de0740903a67b624d887f9055d4c60175dcfa758
 - name: github.com/tendermint/tendermint
-  version: 9c236ffd6c56add84f3c17930ae75c26c68d61ec
+  version: 0138530df202f5b8e8be1edb9c2f705e404a79cb
   subpackages:
   - abci/client
   - abci/example/code

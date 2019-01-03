@@ -2,32 +2,24 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path"
 
-	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/lcd"
 	_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	bankrest "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	govcmd "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
-	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
-	stakerest "github.com/cosmos/cosmos-sdk/x/stake/client/rest"
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/hashgard/hashgard/app"
@@ -192,7 +184,6 @@ func main() {
 		distributionCmd,
 		govCmd,
 		client.LineBreak,
-		lcd.ServeCommand(cdc, registerRoutes),
 		client.LineBreak,
 		version.VersionCmd,
 	)
@@ -230,28 +221,4 @@ func initConfig(cmd *cobra.Command) error {
 		return err
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
-}
-
-// registerRoutes registers the routes from the different modules for the LCD.
-// NOTE: details on the routes added for each module are in the module documentation
-// NOTE: If making updates here you also need to update the test helper in client/lcd/test_helper.go
-func registerRoutes(rs *lcd.RestServer) {
-	registerSwaggerUI(rs)
-	keys.RegisterRoutes(rs.Mux, rs.CliCtx.Indent)
-	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
-	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
-	bankrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	stakerest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	slashingrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	govrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-}
-
-func registerSwaggerUI(rs *lcd.RestServer) {
-	statikFS, err := fs.New()
-	if err != nil {
-		panic(err)
-	}
-	staticServer := http.FileServer(statikFS)
-	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }

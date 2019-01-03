@@ -107,6 +107,7 @@ func run(rootDir string) {
 		ctx.Logger,
 		appDB,
 		traceStoreWriter,
+		true,
 		baseapp.SetPruning("everything"), // nothing
 	)
 
