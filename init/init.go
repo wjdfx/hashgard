@@ -28,6 +28,7 @@ type printInfo struct {
 	Moniker    string          `json:"moniker"`
 	ChainID    string          `json:"chain_id"`
 	NodeID     string          `json:"node_id"`
+	GenTxsDir  string          `json:"gentxs_dir"`
 	AppMessage json.RawMessage `json:"app_message"`
 }
 
@@ -78,12 +79,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			toPrint := printInfo{
-				ChainID:    chainID,
-				Moniker:    config.Moniker,
-				NodeID:     nodeID,
-				AppMessage: appState,
-			}
+			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
 
 			// generate config.toml
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)

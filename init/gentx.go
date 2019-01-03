@@ -109,7 +109,7 @@ following delegation and commission default parameters:
 			}
 
 			// Run hashgard tx create-validator
-			txBldr := authtxb.NewTxBuilderFromCLI().WithCodec(cdc)
+			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			cliCtx, txBldr, msg, err := cli.BuildCreateValidatorMsg(cliCtx, txBldr)
 			if err != nil {
@@ -135,9 +135,12 @@ following delegation and commission default parameters:
 			}
 
 			// Fetch output file name
-			outputDocument, err := makeOutputFilepath(config.RootDir, nodeID)
-			if err != nil {
-				return err
+			outputDocument := viper.GetString(client.FlagOutputDocument)
+			if outputDocument == "" {
+				outputDocument, err = makeOutputFilepath(config.RootDir, nodeID)
+				if err != nil {
+					return err
+				}
 			}
 
 			if err := writeSignedGenTx(cdc, outputDocument, signedTx); err != nil {
@@ -152,6 +155,8 @@ following delegation and commission default parameters:
 	cmd.Flags().String(tmcli.HomeFlag, app.DefaultNodeHome, "node's home directory")
 	cmd.Flags().String(flagClientHome, app.DefaultCLIHome, "client's home directory")
 	cmd.Flags().String(client.FlagName, "", "name of private key with which to sign the gentx")
+	cmd.Flags().String(client.FlagOutputDocument, "",
+		"write the genesis transaction JSON document to the given file instead of the default location")
 	cmd.Flags().AddFlagSet(cli.FsCommissionCreate)
 	cmd.Flags().AddFlagSet(cli.FsAmount)
 	cmd.Flags().AddFlagSet(cli.FsPk)

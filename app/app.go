@@ -32,6 +32,7 @@ const (
 
 // default home directories for expected binaries
 var (
+	DefaultLCDHome  = os.ExpandEnv("$HOME/.hashgardlcd")
 	DefaultNodeHome = os.ExpandEnv("$HOME/.hashgard")
 	DefaultCLIHome  = os.ExpandEnv("$HOME/.hashgardcli")
 )
@@ -68,7 +69,7 @@ type HashgardApp struct {
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
-func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
+func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
 
 	cdc := MakeCodec()
 
@@ -170,12 +171,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 	app.Router().
 		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
 		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
-		AddRoute("distribution", distribution.NewHandler(app.distributionKeeper)).
+		AddRoute("distr", distribution.NewHandler(app.distributionKeeper)).
 		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper)).
 		AddRoute("gov", gov.NewHandler(app.govKeeper))
 
 	app.QueryRouter().
 		AddRoute("stake", stake.NewQuerier(app.stakeKeeper, app.cdc)).
+		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute("gov", gov.NewQuerier(app.govKeeper))
 
 
@@ -201,9 +203,11 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, baseAppO
 	)
 	app.SetEndBlocker(app.EndBlocker)
 
-	err := app.LoadLatestVersion(app.keyMain)
-	if err != nil {
-		cmn.Exit(err.Error())
+	if loadLatest {
+		err := app.LoadLatestVersion(app.keyMain)
+		if err != nil {
+			cmn.Exit(err.Error())
+		}
 	}
 
 	return app
