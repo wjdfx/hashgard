@@ -23,8 +23,8 @@ iriscli distribution --help
 
 | 命令                                  | 描述                                                             |
 | ------------------------------------- | --------------------------------------------------------------- |
-| [query-proposal](proposal.md)   | 查询单个提议的详细信息                                             |
-| [query-proposals](proposals.md) | 通过可选过滤器查询提议                                             |
+| [proposal](proposal.md)   | 查询单个提议的详细信息                                             |
+| [proposals](proposals.md) | 通过可选过滤器查询提议                                             |
 | [query-vote](query-vote.md)           | 查询投票信息                                                      |
 | [votes](votes.md)         | 查询提议的投票情况                                                 |
 | [query-deposit](query-deposit.md)     | 查询保证金详情                                                    |
