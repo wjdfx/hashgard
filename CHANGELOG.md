@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+BREAKING CHANGES
+* Cosmos-sdk
+  * [cosmos-sdk] Now using cosmos-sdk 0.29.1
+* Change the name of stake coin
+
+
 ## 0.2.0
 
 BREAKING CHANGES
