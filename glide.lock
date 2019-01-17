@@ -1,5 +1,5 @@
-hash: 53eb4e0745b73daa00db07e226443a635dbb6f262b454e2a0d52a7ab3a384ae9
-updated: 2019-01-04T11:13:36.088239+08:00
+hash: e019a20283067fae2b146abe8c2e6f102ae9de9cb42eeaa3519a9534464d3bf3
+updated: 2019-01-16T13:39:37.184519+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: e6942b296e25076714ee20de7d039b7149737871
+  version: 6bff7082607a2c36439f8b6218816878c41ca6af
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
