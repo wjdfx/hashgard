@@ -31,7 +31,7 @@ var (
 const (
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
 	GasDenom	= "apple"
-	StakeDenom       = "tgard"
+	StakeDenom       = "gard"
 )
 
 // State to Unmarshal
