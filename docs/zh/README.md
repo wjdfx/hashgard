@@ -2,7 +2,7 @@
 
 ## 查询命令的flags
 
-| 名称, 缩写       | 类型         |必需          |默认值                | 描述                                                        | 
+| 名称, 缩写       | 类型         |必需          |默认值                | 描述                                                        |
 | --------------- | ----   | -------- | --------------------- | -------------------------------------------------------------------- |
 | --chain-id      | string | false    | ""                    | Tendermint节点的Chain ID |
 | --height        | int    | false    | 0                     | 查询某个高度的区块链数据，如果是0，这返回最新的区块链数据 |
@@ -37,7 +37,7 @@
 | --node           | string | false    | tcp://localhost:26657 | tendermint节点的rpc地址 |
 | --print-response | bool   | false    | false                 | 是否打印交易返回结果，仅在`async`为true的情况下有效|
 | --sequence int   | int    | false    | 0                     | 发起交易的账户的sequence |
-| --trust-node     | bool   | false    | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性 | 
+| --trust-node     | bool   | false    | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性 |
 
 每个发送交易的命令都包含上表中的flags，同时不同交易的命令还可能会有自己独有的flags。
 
@@ -47,12 +47,20 @@
 2. [distribution command](./distribution/README.md)
 3. [gov command](./gov/README.md)
 4. [keys command](./keys/README.md)
-5. [rest-server command](./rest-server/README.md)
-6. [stake command](./stake/README.md)
-7. [status command](./status/README.md)
-8. [tendermint command](./tendermint/README.md)
-9. [slashing command](./slashing/README.md)
+5. [stake command](./stake/README.md)
+6. [status command](./status/README.md)
+7. [tendermint command](./tendermint/README.md)
+8. [slashing command](./slashing/README.md)
 
 ## hashgardcli config命令
 
 ```hashgardcli config```命令可以交互式地配置一些默认参数，例如chain-id，home，fee 和 node。
+
+
+
+## hashgardcli init 命令
+
+`hashgardcli init`命令可以初始化客户端
+
+
+

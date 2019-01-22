@@ -33,7 +33,7 @@ hashgardcli gov query-deposit 1 gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --tr
   "proposal_id": "1",
   "amount": [
     {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "50"
     }
   ]

@@ -23,7 +23,7 @@ hashgardcli bank sign <file> [flags]
 | --print-sigs     | Boole  | 是       | False                 | 打印必须签署交易的地址和已签名的地址，然后退出               |
 | --chain-id       | String | 否       |                       | tendermint 节点网络ID                                        |
 | --account-number | Int    | 否       |                       | 账户数字用于签名通证发送                                     |
-| --amount         | String | 是       |                       | 需要发送的通证数量，比如10apple                              |
+| --amount         | String | 是       |                       | 需要发送的通证数量，比如10gard                               |
 | --async          |        | 否       | True                  | 异步广播传输信息                                             |
 | --dry-run        |        | 否       |                       | 忽略--gas 标志 ，执行仿真传输，但不广播。                    |
 | --fee            | String | 是       |                       | 设置传输需要的手续费                                         |
@@ -60,9 +60,9 @@ hashgardcli bank sign <file> [flags]
 首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下
 
 ```  
-hashgardcli bank send --to=gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx  --from=test --chain-id=hashgard --amount=10apple --generate-only
+hashgardcli bank send --to=gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx  --from=test --chain-id=hashgard --amount=10gard --generate-only
 
-{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"apple","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"apple","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"apple","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
+{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
 ```
 
 
@@ -81,6 +81,6 @@ hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=
 ```
 hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=test  --offline=false --print-sigs=false --append=true
 Password to sign with 'test':
-{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"apple","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"apple","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"apple","amount":"4000000000000000"}],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AzlCwiA5Tvxwi7lMB/Hihfp2qnaks5Wrrgkg/Jy7sEkF"},"signature":"ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==","account_number":"0","sequence":"2"}],"memo":""}}
+{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AzlCwiA5Tvxwi7lMB/Hihfp2qnaks5Wrrgkg/Jy7sEkF"},"signature":"ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==","account_number":"0","sequence":"2"}],"memo":""}}
 ```
 

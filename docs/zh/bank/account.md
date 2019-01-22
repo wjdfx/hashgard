@@ -47,7 +47,7 @@ hashgardcli bank account [address] [flags]
 执行完命令后，获得账户的详细信息如下
 
 ```
-{"type":"auth/Account","value":{"address":"gard1uhauythtet90ewtuy40v4hrymlqf5n45wcxcxc","coins":[{"denom":"apple","amount":"99890"},{"denom":"honr","amount":"10000"}],"public_key":{"type":"tendermint/PubKeySecp256k1","value":"A40U8BK0MgKiVx0kSFvwUe7y+OV32X0+4abdYP+58dp4"},"account_number":"1","sequence":"2"}}
+{"type":"auth/Account","value":{"address":"gard1uhauythtet90ewtuy40v4hrymlqf5n45wcxcxc","coins":[{"denom":"gard","amount":"99890"},{"denom":"honr","amount":"10000"}],"public_key":{"type":"tendermint/PubKeySecp256k1","value":"A40U8BK0MgKiVx0kSFvwUe7y+OV32X0+4abdYP+58dp4"},"account_number":"1","sequence":"2"}}
 
 
 

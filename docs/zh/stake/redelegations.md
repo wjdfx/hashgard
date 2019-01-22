@@ -32,11 +32,11 @@ hashgardcli stake redelegations [delegator-address] --trust-node
     "creation_height": "24800",
     "min_time": "2018-12-21T02:49:44.731658304Z",
     "initial_balance": {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "8"
     },
     "balance": {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "8"
     },
     "shares_src": "8.9100000000",
