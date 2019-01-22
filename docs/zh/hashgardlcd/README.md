@@ -2,7 +2,9 @@
 
 ## 基本功能介绍
 
-1.提供restful API以及swagger-ui 2.验证查询结果
+1. 提供restful API以及swagger-ui 
+
+2. 验证查询结果
 
 ## hashgardlcd的用法
 
@@ -33,7 +35,7 @@ hashgardlcd有两个子命令:
 hashgardlcd start --chain-id=<chain-id> --trust-node
 ```
 
-1. 如果需要在其他机器上访问此hashgardlcd节点，还需要配置`--laddr`参数，例如：
+2. 如果需要在其他机器上访问此hashgardlcd节点，还需要配置`--laddr`参数，例如：
 
 ```bash
 hashgardlcd start --chain-id=<chain-id> --laddr=tcp://0.0.0.0:1317
