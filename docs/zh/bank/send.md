@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```
-hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain-id> --amount=10apple
+hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain-id> --amount=10gard
 ```
 
  
@@ -58,7 +58,7 @@ hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain
 ### 发送通证到指定地址 
 
 ```
- hashgardcli bank send --to=gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet  --from=hashgard  --chain-id=hashgard--amount=10apple
+ hashgardcli bank send --to=gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet  --from=hashgard  --chain-id=hashgard--amount=10gard
 ```
 
 命令执行完成后，返回执行的细节信息

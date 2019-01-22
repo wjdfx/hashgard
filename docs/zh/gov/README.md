@@ -1,4 +1,4 @@
-# iriscli gov
+# hashgardcli gov
 
 ## 描述
 
@@ -11,12 +11,12 @@
 ## 使用方式
 
 ```shell
-iriscli gov [command]
+hashgardcli gov [command]
 ```
 
 打印子命令和参数
 ```
-iriscli distribution --help
+hashgardcli distribution --help
 ```
 
 ## 相关命令

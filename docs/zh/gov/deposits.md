@@ -39,7 +39,7 @@ hashgardcli gov deposits 1 --trust-node
     "proposal_id": "1",
     "amount": [
       {
-        "denom": "apple",
+        "denom": "gard",
         "amount": "50"
       }
     ]

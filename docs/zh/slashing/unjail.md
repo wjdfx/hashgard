@@ -59,7 +59,7 @@ Committed at block 15016 (tx hash: 6FA77DA9334EF5FA4279FB8DBDDBAED5B4B8CEA672A41
 {
    "tags": {
      "action": "unjail",
-     "completeConsumedTxFee-apple": "\"918600000000000\"",
+     "completeConsumedTxFee-gard": "\"918600000000000\"",
      "validator": "gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx"
    }
  }

@@ -34,7 +34,7 @@ hashgardcli stake create-validator --help
 ## 示例
 
 ```
-hashgardcli stake create-validator --chain-id=<chain-id> --from=<key name>  --pubkey=<Validator PubKey> --commission-max-change-rate=0.01 --commission-max-rate=0.2 --commission-rate=0.1 --amount=100apple --moniker=<validator name>
+hashgardcli stake create-validator --chain-id=<chain-id> --from=<key name>  --pubkey=<Validator PubKey> --commission-max-change-rate=0.01 --commission-max-rate=0.2 --commission-rate=0.1 --amount=100gard --moniker=<validator name>
 ```
 
 
