@@ -65,6 +65,7 @@ hashgardcli gov submit-proposal --chain-id=hashgard --title="hashgard" --type=So
 
 请点击下述链接：
 
-[query-proposal](query-proposal.md)
+[proposal](proposal.md)
 
-[query-proposals](query-proposals.md)
+[proposals](proposal.md)
+
