@@ -2,7 +2,7 @@
 swagger: '2.0'
 info:
   version: "3.0"
-  title: Gaia-Lite for Cosmos
+  title: Hashgard-Lite for Hashgard
   description: A REST interface for state queries, transaction generation, signing, and broadcast.
 tags:
 - name: ICS0
@@ -29,10 +29,10 @@ securityDefinitions:
 paths:
   /version:
     get:
-      summary: Version of Gaia-lite
+      summary: Version of Hashgard-lite
       tags:
       - version
-      description: Get the version of gaia-lite running locally to compare against expected
+      description: Get the version of hashgard-lite running locally to compare against expected
       responses:
         200:
           description: Plaintext version i.e. "v0.25.0"
@@ -68,7 +68,7 @@ paths:
                 example: validator-name
               network:
                 type: string
-                example: gaia-2
+                example: hashgard-2
               channels:
                 type: string
               listen_addr:
@@ -216,9 +216,9 @@ paths:
       - application/json
       parameters:
       - in: query
-        name: tag
+        name: tags
         type: string
-        description: "transaction tags such as 'action=submit-proposal' and 'proposer=cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc' which results in the following endpoint: 'GET /txs?action=submit-proposal&proposer=cosmos1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'"
+        description: "transaction tags such as 'action=submit-proposal' and 'proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc' which results in the following endpoint: 'GET /txs?action=submit-proposal&proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'"
         required: true
       - in: query
         name: page
@@ -232,9 +232,13 @@ paths:
         200:
           description: All txs matching the provided tags
           schema:
-            type: array
-            items:
-              $ref: "#/definitions/TxQuery"
+            type: object
+            properties:
+              totalCount:
+                type: number
+              txs:
+                type: array
+                items: "#/definitions/TxQuery"
         400:
           description: Invalid search tags
         500:
@@ -319,7 +323,7 @@ paths:
       tags:
       - ICS20
       summary: Send a signed Tx
-      description: Send a signed Tx to a Gaiad full node
+      description: Send a signed Tx to a Hashgard full node
       consumes:
       - application/json
       produces:
@@ -1998,11 +2002,11 @@ definitions:
   Address:
     type: string
     description: bech32 encoded address
-    example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+    example: gard1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
   ValidatorAddress:
     type: string
     description: bech32 encoded address
-    example: cosmosvaloper1depk54cuajgkzea6zpgkq36tnjwdzv4avv9cxd
+    example: gardvaloper1depk54cuajgkzea6zpgkq36tnjwdzv4avv9cxd
   Coin:
     type: object
     properties:
@@ -2086,10 +2090,10 @@ definitions:
         example: Main Account
       address:
         type: string
-        example: cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
+        example: gard1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27
       pub_key:
         type: string
-        example: "cosmospub1addwnpepqtqc88gfdxyzcdm2eqr3tnlnxnelyqehy8k95qzgwdz5zccdft9rq5q7wj2"
+        example: "gardpub1addwnpepqtqc88gfdxyzcdm2eqr3tnlnxnelyqehy8k95qzgwdz5zccdft9rq5q7wj2"
       type:
         type: string
         example: local
@@ -2113,7 +2117,7 @@ definitions:
     properties:
       chain_id:
         type: string
-        example: gaia-2
+        example: hashgard-2
       height:
         type: number
         example: 1
@@ -2238,7 +2242,7 @@ definitions:
         $ref: '#/definitions/ValidatorAddress'
       pub_key:
         type: string
-        example: cosmosvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
+        example: gardvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
       power:
         type: string
         example: "1000"
@@ -2310,7 +2314,7 @@ definitions:
         $ref: '#/definitions/ValidatorAddress'
       consensus_pubkey:
         type: string
-        example: cosmosvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
+        example: gardvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
       jailed:
         type: boolean
       status:
