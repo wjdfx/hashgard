@@ -51,7 +51,7 @@ hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain
 
 
 
-## 
+
 
 ## 例子
 
