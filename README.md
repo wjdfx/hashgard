@@ -2,7 +2,7 @@
 Public blockchain, based on [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) development.
 
 ## Required
-[Go 1.11+](https://golang.org/dl/)
+[Go 1.11.4+](https://golang.org/dl/)
 
 ## Install
 Please make sure have already installed `Go` correctly, and set environment variables : `$GOPATH`, `$GOBIN`, `$PATH`.
