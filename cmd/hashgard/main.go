@@ -15,6 +15,7 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cosmos/cosmos-sdk/store"
 
 	"github.com/hashgard/hashgard/app"
 	"github.com/hashgard/hashgard/version"
@@ -82,8 +83,8 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		db,
 		traceStore,
 		true,
-		baseapp.SetPruning(viper.GetString("pruning")),
-		baseapp.SetMinimumFees(viper.GetString("minimum_fees")),
+		baseapp.SetPruning(store.NewPruningOptions(viper.GetString("pruning"))),
+		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
 	)
 }
 

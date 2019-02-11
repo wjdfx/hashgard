@@ -10,7 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/stake"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
@@ -27,7 +27,7 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 	genesisState := GenesisState{
 		Accounts:			genaccs,
 		AuthData:			auth.DefaultGenesisState(),
-		StakeData:			stake.DefaultGenesisState(),
+		StakingData:			staking.DefaultGenesisState(),
 		MintData:			mint.DefaultGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),

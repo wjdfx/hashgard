@@ -19,7 +19,7 @@ import (
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	govcmd "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
-	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
+	stakecmd "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/hashgard/hashgard/app"
@@ -86,6 +86,7 @@ func main() {
 	bankCmd.AddCommand(
 		bankcmd.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
+		authcmd.GetMultiSignCommand(cdc),
 		bankcmd.GetBroadcastCommand(cdc),
 	)
 
@@ -172,7 +173,6 @@ func main() {
 
 	rootCmd.AddCommand(
 		client.ConfigCmd(),
-		rpc.InitClientCommand(),
 		rpc.StatusCommand(),
 		client.LineBreak,
 		keys.Commands(),

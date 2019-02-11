@@ -17,7 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	"github.com/cosmos/cosmos-sdk/x/stake/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	cfg "github.com/tendermint/tendermint/config"
@@ -28,7 +28,7 @@ import (
 	"github.com/hashgard/hashgard/app"
 )
 
-const (
+var (
 	defaultAmount                  = "100" + app.StakeDenom
 	defaultCommissionRate          = "0.1"
 	defaultCommissionMaxRate       = "0.2"
@@ -111,7 +111,7 @@ following delegation and commission default parameters:
 			// Run hashgard tx create-validator
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			cliCtx, txBldr, msg, err := cli.BuildCreateValidatorMsg(cliCtx, txBldr)
+			txBldr, msg, err := cli.BuildCreateValidatorMsg(cliCtx, txBldr)
 			if err != nil {
 				return err
 			}
@@ -166,7 +166,7 @@ following delegation and commission default parameters:
 
 func accountInGenesis(genesisState app.GenesisState, key sdk.AccAddress, coins sdk.Coins) error {
 	accountIsInGenesis := false
-	bondDenom := genesisState.StakeData.Params.BondDenom
+	bondDenom := genesisState.StakingData.Params.BondDenom
 
 	// Check if the account is in genesis
 	for _, acc := range genesisState.Accounts {
