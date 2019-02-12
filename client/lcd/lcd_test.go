@@ -141,8 +141,8 @@ func TestValidators(t *testing.T) {
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{})
 	defer cleanup()
 	resultVals := getValidatorSets(t, port, -1, false)
-	require.Contains(t, resultVals.Validators[0].Address.String(), "hashgardvaloper")
-	require.Contains(t, resultVals.Validators[0].PubKey, "hashgardvalconspub")
+	require.Contains(t, resultVals.Validators[0].Address.String(), "gardvaloper")
+	require.Contains(t, resultVals.Validators[0].PubKey, "gardvalconspub")
 	getValidatorSets(t, port, 2, false)
 	getValidatorSets(t, port, 10000000, true)
 }
