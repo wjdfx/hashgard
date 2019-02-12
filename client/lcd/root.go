@@ -42,10 +42,6 @@ func NewRestServer(cdc *codec.Codec) *RestServer {
 	r := mux.NewRouter()
 	cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
 
-	// Register version methods on the router
-	r.HandleFunc("/version", CLIVersionRequestHandler).Methods("GET")
-	r.HandleFunc("/node_version", NodeVersionRequestHandler(cliCtx)).Methods("GET")
-
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "rest-server")
 
 	return &RestServer{
@@ -82,69 +78,53 @@ func (rs *RestServer) Start(listenAddr string, sslHosts string,
 		rs.log.Error("error closing listener", "err", err)
 	})
 
-	// TODO: re-enable insecure mode once #2715 has been addressed
+	rs.listener, err = rpcserver.Listen(
+		listenAddr,
+		rpcserver.Config{MaxOpenConnections: maxOpen},
+	)
+	if err != nil {
+		return
+	}
+	rs.log.Info("Starting Hashgard Lite REST service...")
+
+	// launch rest-server in insecure mode
 	if insecure {
-		fmt.Println(
-			"Insecure mode is temporarily disabled, please locally generate an " +
-				"SSL certificate to test. Support will be re-enabled soon!",
-		)
-		// listener, err = rpcserver.StartHTTPServer(
-		// 	listenAddr, handler, logger,
-		// 	rpcserver.Config{MaxOpenConnections: maxOpen},
-		// )
-		// if err != nil {
-		// 	return
-		// }
-	} else {
-		if certFile != "" {
-			// validateCertKeyFiles() is needed to work around tendermint/tendermint#2460
-			err = validateCertKeyFiles(certFile, keyFile)
-			if err != nil {
-				return err
-			}
+		return rpcserver.StartHTTPServer(rs.listener, rs.Mux, rs.log)
+	}
 
-			//  cert/key pair is provided, read the fingerprint
-			rs.fingerprint, err = fingerprintFromFile(certFile)
-			if err != nil {
-				return err
-			}
-		} else {
-			// if certificate is not supplied, generate a self-signed one
-			certFile, keyFile, rs.fingerprint, err = genCertKeyFilesAndReturnFingerprint(sslHosts)
-			if err != nil {
-				return err
-			}
-
-			defer func() {
-				os.Remove(certFile)
-				os.Remove(keyFile)
-			}()
-		}
-
-		rs.listener, err = rpcserver.Listen(
-			listenAddr,
-			rpcserver.Config{MaxOpenConnections: maxOpen},
-		)
-		if err != nil {
-			return
-		}
-
-		rs.log.Info("Starting Hashgard Lite REST service...")
-		rs.log.Info(rs.fingerprint)
-
-		err := rpcserver.StartHTTPAndTLSServer(
-			rs.listener,
-			rs.Mux,
-			certFile, keyFile,
-			rs.log,
-		)
+	// handle certificates
+	if certFile != "" {
+		// validateCertKeyFiles() is needed to work around tendermint/tendermint#2460
+		err = validateCertKeyFiles(certFile, keyFile)
 		if err != nil {
 			return err
 		}
+
+		//  cert/key pair is provided, read the fingerprint
+		rs.fingerprint, err = fingerprintFromFile(certFile)
+		if err != nil {
+			return err
+		}
+	} else {
+		// if certificate is not supplied, generate a self-signed one
+		certFile, keyFile, rs.fingerprint, err = genCertKeyFilesAndReturnFingerprint(sslHosts)
+		if err != nil {
+			return err
+		}
+
+		defer func() {
+			os.Remove(certFile)
+			os.Remove(keyFile)
+		}()
 	}
 
-	return nil
-
+	rs.log.Info(rs.fingerprint)
+	return rpcserver.StartHTTPAndTLSServer(
+		rs.listener,
+		rs.Mux,
+		certFile, keyFile,
+		rs.log,
+	)
 }
 
 // ServeCommand will start a Hashgard Lite REST service as a blocking process. It
