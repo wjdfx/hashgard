@@ -80,18 +80,18 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	var app = &HashgardApp{
 		BaseApp:    		bApp,
 		cdc:        		cdc,
-		keyMain:    		sdk.NewKVStoreKey("main"),
-		keyAccount: 		sdk.NewKVStoreKey("acc"),
-		keyStaking:			sdk.NewKVStoreKey("stake"),
-		tkeyStaking:		sdk.NewTransientStoreKey("transient_stake"),
-		keyMint:			sdk.NewKVStoreKey("mint"),
-		keyDistribution:	sdk.NewKVStoreKey("distribution"),
-		tkeyDistribution:	sdk.NewTransientStoreKey("transient_distribution"),
-		keySlashing:		sdk.NewKVStoreKey("slashing"),
-		keyGov:				sdk.NewKVStoreKey("gov"),
-		keyFeeCollection:	sdk.NewKVStoreKey("fee"),
-		keyParams:			sdk.NewKVStoreKey("params"),
-		tkeyParams:			sdk.NewTransientStoreKey("transient_params"),
+		keyMain:    		sdk.NewKVStoreKey(bam.MainStoreKey),
+		keyAccount: 		sdk.NewKVStoreKey(auth.StoreKey),
+		keyStaking:			sdk.NewKVStoreKey(staking.StoreKey),
+		tkeyStaking:		sdk.NewTransientStoreKey(staking.TStoreKey),
+		keyMint:			sdk.NewKVStoreKey(mint.StoreKey),
+		keyDistribution:	sdk.NewKVStoreKey(distribution.StoreKey),
+		tkeyDistribution:	sdk.NewTransientStoreKey(distribution.TStoreKey),
+		keySlashing:		sdk.NewKVStoreKey(slashing.StoreKey),
+		keyGov:				sdk.NewKVStoreKey(gov.StoreKey),
+		keyFeeCollection:	sdk.NewKVStoreKey(auth.FeeStoreKey),
+		keyParams:			sdk.NewKVStoreKey(params.StoreKey),
+		tkeyParams:			sdk.NewTransientStoreKey(params.TStoreKey),
 	}
 
 	app.paramsKeeper = params.NewKeeper(
@@ -170,16 +170,16 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 
 	// register message routes
 	app.Router().
-		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("stake", staking.NewHandler(app.stakingKeeper)).
-		AddRoute("distr", distribution.NewHandler(app.distributionKeeper)).
-		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper)).
-		AddRoute("gov", gov.NewHandler(app.govKeeper))
+		AddRoute(bank.RouterKey, bank.NewHandler(app.bankKeeper)).
+		AddRoute(staking.RouterKey, staking.NewHandler(app.stakingKeeper)).
+		AddRoute(distribution.RouterKey, distribution.NewHandler(app.distributionKeeper)).
+		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
+		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper))
 
 	app.QueryRouter().
-		AddRoute("stake", staking.NewQuerier(app.stakingKeeper, app.cdc)).
+		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
-		AddRoute("gov", gov.NewQuerier(app.govKeeper))
+		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper))
 
 
 	// initialize BaseApp
