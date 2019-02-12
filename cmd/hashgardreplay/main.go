@@ -109,7 +109,7 @@ func run(rootDir string) {
 		appDB,
 		traceStoreWriter,
 		true,
-		baseapp.SetPruning(store.NewPruningOptions("everything")),
+		baseapp.SetPruning(store.PruneEverything),
 	)
 
 	// Genesis
