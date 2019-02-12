@@ -205,7 +205,6 @@ install: update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/hashgardlcd
 	go install $(BUILD_FLAGS) ./cmd/hashgardkeyutil
 	go install $(BUILD_FLAGS) ./cmd/hashgardreplay
-	go install $(BUILD_FLAGS) ./cmd/logjack
 
 
 ########################################
