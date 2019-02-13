@@ -18,6 +18,7 @@ import (
 	tm "github.com/tendermint/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/store"
 
 	"github.com/hashgard/hashgard/app"
 )
@@ -108,7 +109,7 @@ func run(rootDir string) {
 		appDB,
 		traceStoreWriter,
 		true,
-		baseapp.SetPruning("everything"), // nothing
+		baseapp.SetPruning(store.PruneEverything),
 	)
 
 	// Genesis

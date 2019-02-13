@@ -16,7 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/stake"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	abci "github.com/tendermint/tendermint/abci/types"
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
@@ -45,8 +45,8 @@ type HashgardApp struct {
 	// keys to access the multistore
 	keyMain				*sdk.KVStoreKey
 	keyAccount			*sdk.KVStoreKey
-	keyStake			*sdk.KVStoreKey
-	tkeyStake			*sdk.TransientStoreKey
+	keyStaking			*sdk.KVStoreKey
+	tkeyStaking			*sdk.TransientStoreKey
 	keySlashing			*sdk.KVStoreKey
 	keyMint				*sdk.KVStoreKey
 	keyDistribution		*sdk.KVStoreKey
@@ -60,7 +60,7 @@ type HashgardApp struct {
 	accountKeeper       auth.AccountKeeper
 	feeCollectionKeeper auth.FeeCollectionKeeper
 	bankKeeper          bank.Keeper
-	stakeKeeper         stake.Keeper
+	stakingKeeper       staking.Keeper
 	slashingKeeper      slashing.Keeper
 	mintKeeper          mint.Keeper
 	distributionKeeper  distribution.Keeper
@@ -80,24 +80,31 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	var app = &HashgardApp{
 		BaseApp:    		bApp,
 		cdc:        		cdc,
-		keyMain:    		sdk.NewKVStoreKey("main"),
-		keyAccount: 		sdk.NewKVStoreKey("acc"),
-		keyStake:			sdk.NewKVStoreKey("stake"),
-		tkeyStake:			sdk.NewTransientStoreKey("transient_stake"),
-		keyMint:			sdk.NewKVStoreKey("mint"),
-		keyDistribution:	sdk.NewKVStoreKey("distribution"),
-		tkeyDistribution:	sdk.NewTransientStoreKey("transient_distribution"),
-		keySlashing:		sdk.NewKVStoreKey("slashing"),
-		keyGov:				sdk.NewKVStoreKey("gov"),
-		keyFeeCollection:	sdk.NewKVStoreKey("fee"),
-		keyParams:			sdk.NewKVStoreKey("params"),
-		tkeyParams:			sdk.NewTransientStoreKey("transient_params"),
+		keyMain:    		sdk.NewKVStoreKey(bam.MainStoreKey),
+		keyAccount: 		sdk.NewKVStoreKey(auth.StoreKey),
+		keyStaking:			sdk.NewKVStoreKey(staking.StoreKey),
+		tkeyStaking:		sdk.NewTransientStoreKey(staking.TStoreKey),
+		keyMint:			sdk.NewKVStoreKey(mint.StoreKey),
+		keyDistribution:	sdk.NewKVStoreKey(distribution.StoreKey),
+		tkeyDistribution:	sdk.NewTransientStoreKey(distribution.TStoreKey),
+		keySlashing:		sdk.NewKVStoreKey(slashing.StoreKey),
+		keyGov:				sdk.NewKVStoreKey(gov.StoreKey),
+		keyFeeCollection:	sdk.NewKVStoreKey(auth.FeeStoreKey),
+		keyParams:			sdk.NewKVStoreKey(params.StoreKey),
+		tkeyParams:			sdk.NewTransientStoreKey(params.TStoreKey),
 	}
+
+	app.paramsKeeper = params.NewKeeper(
+		app.cdc,
+		app.keyParams,
+		app.tkeyParams,
+	)
 
 	// define the accountKeeper
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
 		app.keyAccount,			// target store
+		app.paramsKeeper.Subspace(auth.DefaultParamspace),
 		auth.ProtoBaseAccount,	// prototype
 	)
 
@@ -108,26 +115,20 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 
 	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
 
-	app.paramsKeeper = params.NewKeeper(
+	stakingKeeper := staking.NewKeeper(
 		app.cdc,
-		app.keyParams,
-		app.tkeyParams,
-	)
-
-	stakeKeeper := stake.NewKeeper(
-		app.cdc,
-		app.keyStake,
-		app.tkeyStake,
+		app.keyStaking,
+		app.tkeyStaking,
 		app.bankKeeper,
-		app.paramsKeeper.Subspace(stake.DefaultParamspace),
-		stake.DefaultCodespace,
+		app.paramsKeeper.Subspace(staking.DefaultParamspace),
+		staking.DefaultCodespace,
 	)
 
 	app.mintKeeper = mint.NewKeeper(
 		app.cdc,
 		app.keyMint,
 		app.paramsKeeper.Subspace(mint.DefaultParamspace),
-		&stakeKeeper,
+		&stakingKeeper,
 		app.feeCollectionKeeper,
 	)
 
@@ -136,7 +137,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keyDistribution,
 		app.paramsKeeper.Subspace(distribution.DefaultParamspace),
 		app.bankKeeper,
-		&stakeKeeper,
+		&stakingKeeper,
 		app.feeCollectionKeeper,
 		distribution.DefaultCodespace,
 	)
@@ -144,7 +145,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	app.slashingKeeper = slashing.NewKeeper(
 		app.cdc,
 		app.keySlashing,
-		&stakeKeeper,
+		&stakingKeeper,
 		app.paramsKeeper.Subspace(slashing.DefaultParamspace),
 		slashing.DefaultCodespace,
 	)
@@ -155,37 +156,38 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(gov.DefaultParamspace),
 		app.bankKeeper,
-		&stakeKeeper,
+		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
 
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
-	app.stakeKeeper = *stakeKeeper.SetHooks(
+	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
 
 	// register message routes
 	app.Router().
-		AddRoute("bank", bank.NewHandler(app.bankKeeper)).
-		AddRoute("stake", stake.NewHandler(app.stakeKeeper)).
-		AddRoute("distr", distribution.NewHandler(app.distributionKeeper)).
-		AddRoute("slashing", slashing.NewHandler(app.slashingKeeper)).
-		AddRoute("gov", gov.NewHandler(app.govKeeper))
+		AddRoute(bank.RouterKey, bank.NewHandler(app.bankKeeper)).
+		AddRoute(staking.RouterKey, staking.NewHandler(app.stakingKeeper)).
+		AddRoute(distribution.RouterKey, distribution.NewHandler(app.distributionKeeper)).
+		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
+		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper))
 
 	app.QueryRouter().
-		AddRoute("stake", stake.NewQuerier(app.stakeKeeper, app.cdc)).
+		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
-		AddRoute("gov", gov.NewQuerier(app.govKeeper))
+		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
+		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper))
 
 
 	// initialize BaseApp
 	app.MountStores(
 		app.keyMain,
 		app.keyAccount,
-		app.keyStake,
+		app.keyStaking,
 		app.keyMint,
 		app.keyDistribution,
 		app.keySlashing,
@@ -198,7 +200,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 	app.MountStoresTransient(
 		app.tkeyParams,
-		app.tkeyStake,
+		app.tkeyStaking,
 		app.tkeyDistribution,
 	)
 	app.SetEndBlocker(app.EndBlocker)
@@ -221,7 +223,7 @@ func MakeCodec() *codec.Codec {
 	sdk.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
-	stake.RegisterCodec(cdc)
+	staking.RegisterCodec(cdc)
 	distribution.RegisterCodec(cdc)
 	slashing.RegisterCodec(cdc)
 	gov.RegisterCodec(cdc)
@@ -257,7 +259,7 @@ func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock
 func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 
 	tags := gov.EndBlocker(ctx, app.govKeeper)
-	validatorUpdates, endBlockerTags := stake.EndBlocker(ctx, app.stakeKeeper)
+	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
 
 	app.assertRuntimeInvariants()
@@ -278,22 +280,24 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	// load the accounts
 	for _, gacc := range genesisState.Accounts {
 		acc := gacc.ToAccount()
-		acc.AccountNumber = app.accountKeeper.GetNextAccountNumber(ctx)
+		acc = app.accountKeeper.NewAccount(ctx, acc) // set account number
 		app.accountKeeper.SetAccount(ctx, acc)
 	}
 
+	// initialize distribution (must happen before staking)
+	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
+
 	// load the initial stake information
-	validators, err := stake.InitGenesis(ctx, app.stakeKeeper, genesisState.StakeData)
+	validators, err := staking.InitGenesis(ctx, app.stakingKeeper, genesisState.StakingData)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
 	}
 
 	// initialize module-specific stores
-	auth.InitGenesis(ctx, app.feeCollectionKeeper, genesisState.AuthData)
-	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakeData)
+	auth.InitGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper, genesisState.AuthData)
+	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData)
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
-	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
 
 	// validate genesis state
 	err = HashgardValidateGenesisState(genesisState)
@@ -315,7 +319,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 			}
 		}
 
-		validators = app.stakeKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
+		validators = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	}
 
 	return validators
@@ -379,39 +383,47 @@ func NewStakingHooks(dh distribution.Hooks, sh slashing.Hooks) StakingHooks {
 }
 
 // nolint
-func (h StakingHooks) OnValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorCreated(ctx, valAddr)
-	h.sh.OnValidatorCreated(ctx, valAddr)
+func (h StakingHooks) AfterValidatorCreated(ctx sdk.Context, valAddr sdk.ValAddress) {
+	h.dh.AfterValidatorCreated(ctx, valAddr)
+	h.sh.AfterValidatorCreated(ctx, valAddr)
 }
-func (h StakingHooks) OnValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorModified(ctx, valAddr)
-	h.sh.OnValidatorModified(ctx, valAddr)
+func (h StakingHooks) BeforeValidatorModified(ctx sdk.Context, valAddr sdk.ValAddress) {
+	h.dh.BeforeValidatorModified(ctx, valAddr)
+	h.sh.BeforeValidatorModified(ctx, valAddr)
 }
-func (h StakingHooks) OnValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorRemoved(ctx, consAddr, valAddr)
-	h.sh.OnValidatorRemoved(ctx, consAddr, valAddr)
+func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+	h.dh.AfterValidatorRemoved(ctx, consAddr, valAddr)
+	h.sh.AfterValidatorRemoved(ctx, consAddr, valAddr)
 }
-func (h StakingHooks) OnValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorBonded(ctx, consAddr, valAddr)
-	h.sh.OnValidatorBonded(ctx, consAddr, valAddr)
+func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+	h.dh.AfterValidatorBonded(ctx, consAddr, valAddr)
+	h.sh.AfterValidatorBonded(ctx, consAddr, valAddr)
 }
-func (h StakingHooks) OnValidatorPowerDidChange(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorPowerDidChange(ctx, consAddr, valAddr)
-	h.sh.OnValidatorPowerDidChange(ctx, consAddr, valAddr)
+func (h StakingHooks) AfterValidatorPowerDidChange(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+	h.dh.AfterValidatorPowerDidChange(ctx, consAddr, valAddr)
+	h.sh.AfterValidatorPowerDidChange(ctx, consAddr, valAddr)
 }
-func (h StakingHooks) OnValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	h.dh.OnValidatorBeginUnbonding(ctx, consAddr, valAddr)
-	h.sh.OnValidatorBeginUnbonding(ctx, consAddr, valAddr)
+func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
+	h.dh.AfterValidatorBeginUnbonding(ctx, consAddr, valAddr)
+	h.sh.AfterValidatorBeginUnbonding(ctx, consAddr, valAddr)
 }
-func (h StakingHooks) OnDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	h.dh.OnDelegationCreated(ctx, delAddr, valAddr)
-	h.sh.OnDelegationCreated(ctx, delAddr, valAddr)
+func (h StakingHooks) BeforeDelegationCreated(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	h.dh.BeforeDelegationCreated(ctx, delAddr, valAddr)
+	h.sh.BeforeDelegationCreated(ctx, delAddr, valAddr)
 }
-func (h StakingHooks) OnDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	h.dh.OnDelegationSharesModified(ctx, delAddr, valAddr)
-	h.sh.OnDelegationSharesModified(ctx, delAddr, valAddr)
+func (h StakingHooks) BeforeDelegationSharesModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	h.dh.BeforeDelegationSharesModified(ctx, delAddr, valAddr)
+	h.sh.BeforeDelegationSharesModified(ctx, delAddr, valAddr)
 }
-func (h StakingHooks) OnDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
-	h.dh.OnDelegationRemoved(ctx, delAddr, valAddr)
-	h.sh.OnDelegationRemoved(ctx, delAddr, valAddr)
+func (h StakingHooks) BeforeDelegationRemoved(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	h.dh.BeforeDelegationRemoved(ctx, delAddr, valAddr)
+	h.sh.BeforeDelegationRemoved(ctx, delAddr, valAddr)
+}
+func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAddress, valAddr sdk.ValAddress) {
+	h.dh.AfterDelegationModified(ctx, delAddr, valAddr)
+	h.sh.AfterDelegationModified(ctx, delAddr, valAddr)
+}
+func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) {
+	h.dh.BeforeValidatorSlashed(ctx, valAddr, fraction)
+	h.sh.BeforeValidatorSlashed(ctx, valAddr, fraction)
 }

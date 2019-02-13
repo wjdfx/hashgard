@@ -3,8 +3,9 @@ PACKAGES_MODULES=$(shell go list ./... | grep 'x')
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 
 VERSION := $(subst v,,$(shell git describe --tags --long))
-COMMIT_HASH := $(shell git rev-parse --short HEAD)
-BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=${VERSION}"
+COMMIT := $(shell git log -1 --format='%H')
+BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=${VERSION} \
+    -X github.com/hashgard/hashgard/version.Commit=${COMMIT}"
 GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
 
 all: get_tools get_vendor_deps install
@@ -189,14 +190,12 @@ ifeq ($(OS),Windows_NT)
 	go build $(BUILD_FLAGS) -o build/hashgardlcd.exe ./cmd/hashgardlcd
 	go build $(BUILD_FLAGS) -o build/hashgardkeyutil.exe ./cmd/hashgardkeyutil
 	go build $(BUILD_FLAGS) -o build/hashgardreplay.exe ./cmd/hashgardreplay
-	go build $(BUILD_FLAGS) -o build/logjack.exe ./cmd/logjack
 else
 	go build $(BUILD_FLAGS) -o build/hashgard ./cmd/hashgard
 	go build $(BUILD_FLAGS) -o build/hashgardcli ./cmd/hashgardcli
 	go build $(BUILD_FLAGS) -o build/hashgardlcd ./cmd/hashgardlcd
 	go build $(BUILD_FLAGS) -o build/hashgardkeyutil ./cmd/hashgardkeyutil
 	go build $(BUILD_FLAGS) -o build/hashgardreplay ./cmd/hashgardreplay
-	go build $(BUILD_FLAGS) -o build/logjack ./cmd/logjack
 endif
 
 
@@ -206,7 +205,6 @@ install: update_gaia_lite_docs
 	go install $(BUILD_FLAGS) ./cmd/hashgardlcd
 	go install $(BUILD_FLAGS) ./cmd/hashgardkeyutil
 	go install $(BUILD_FLAGS) ./cmd/hashgardreplay
-	go install $(BUILD_FLAGS) ./cmd/logjack
 
 
 ########################################
