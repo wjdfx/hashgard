@@ -280,37 +280,32 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 // TODO: Error if there is a duplicate validator (#1708)
 // TODO: Ensure all state machine parameters are in genesis (#1704)
 func HashgardValidateGenesisState(genesisState GenesisState) error {
-	err := validateGenesisStateAccounts(genesisState.Accounts)
-	if err != nil {
+	if err := validateGenesisStateAccounts(genesisState.Accounts); err != nil {
 		return err
 	}
-	// skip stakeData validation as genesis is created from txs
+
+	// skip stakingData validation as genesis is created from txs
 	if len(genesisState.GenTxs) > 0 {
 		return nil
 	}
 
-	err = staking.ValidateGenesis(genesisState.StakingData)
-	if err != nil {
+	if err := auth.ValidateGenesis(genesisState.AuthData); err != nil {
 		return err
 	}
-	err = mint.ValidateGenesis(genesisState.MintData)
-	if err != nil {
+	if err := staking.ValidateGenesis(genesisState.StakingData); err != nil {
 		return err
 	}
-	err = distribution.ValidateGenesis(genesisState.DistributionData)
-	if err != nil {
+	if err := mint.ValidateGenesis(genesisState.MintData); err != nil {
 		return err
 	}
-	err = gov.ValidateGenesis(genesisState.GovData)
-	if err != nil {
+	if err := distribution.ValidateGenesis(genesisState.DistributionData); err != nil {
 		return err
 	}
-	err = slashing.ValidateGenesis(genesisState.SlashingData)
-	if err != nil {
+	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
 		return err
 	}
 
-	return nil
+	return slashing.ValidateGenesis(genesisState.SlashingData)
 }
 
 // Ensures that there are no duplicate accounts in the genesis state,
