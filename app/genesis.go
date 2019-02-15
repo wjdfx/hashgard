@@ -68,6 +68,7 @@ func NewGenesisState(
 func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
 		Accounts:			nil,
+		AuthData:     		auth.DefaultGenesisState(),
 		StakingData:    	createStakingGenesisState(),
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
