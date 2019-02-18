@@ -58,6 +58,12 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
+	// Add --chain-id to persistent flags and mark it required
+	rootCmd.PersistentFlags().String(client.FlagChainID, "", "Chain ID of tendermint node")
+	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		return initConfig(rootCmd)
+	}
+
 
 	// Add tendermint subcommands
 	tendermintCmd := &cobra.Command{
