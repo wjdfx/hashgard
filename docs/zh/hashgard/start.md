@@ -40,5 +40,5 @@
 
 ## 例子
 
-`hashgard start --home=/root/.iris` 
+`hashgard start --home=/root/.hashgard` 
 
