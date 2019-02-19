@@ -200,7 +200,6 @@ func main() {
 		distributionCmd,
 		govCmd,
 		client.LineBreak,
-		client.LineBreak,
 		version.VersionCmd,
 	)
 

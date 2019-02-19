@@ -54,13 +54,13 @@ func NewGenesisState(
 ) GenesisState {
 
 	return GenesisState{
-		Accounts:     accounts,
-		AuthData:     authData,
-		StakingData:    stakingData,
-		MintData:     mintData,
-		DistributionData:    distrData,
-		SlashingData: slashingData,
-		GovData:      govData,
+		Accounts:			accounts,
+		AuthData: 			authData,
+		StakingData:		stakingData,
+		MintData:			mintData,
+		DistributionData:	distrData,
+		SlashingData:		slashingData,
+		GovData:			govData,
 	}
 }
 

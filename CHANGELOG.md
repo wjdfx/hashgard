@@ -18,7 +18,6 @@
 		+ `MsgBeginUnbonding` -> `MsgUndelegate`
 
 + Hashgard CLI (hashgardcli)
-	+ Users must specific chain ID either via config file or the `--chain-id` flag.
 	+ Rename chain_id and trust_node to chain-id and trust-node respectively in config file.
 	+ Remove unimplemented `init` command.
 	+ `version` command output extra latest commit and build machine info.
@@ -59,37 +58,7 @@
 	+ add new `gov param`, `gov proposer` commands to query more relative info.
 
 + Hashgard (hashgard)
-	+ added queriers for querying a single redelegation
-	+ queriers for all distribution state worth querying
-	+ Add support for vesting accounts at genesis.
-	+ Add multisig transactions support
-	+ `add-genesis-account` can take both account addresses and key names
-
-+ Cosmos SDK
-	+ Vesting account implementation.
-	+ show bech32-ify accounts address in error message
-
-
-### IMPROVEMENTS
-
-+ Hashgard REST API (hashgardlcd)
-	+ Validate tx/sign endpoint POST body.
-
-+ Hashgard CLI (hashgardcli)
-	+ Support adding offline public keys to the keystore
-
-+ Hashgard (hashgard)
-	+ add validation for slashing genesis
-	+ support minimum fees in a local testnet
-	+ Refactor tx fee:
-		+ Validators specify minimum gas prices instead of minimum fees
-		+ Clients may provide either fees or gas prices directly
-		+ The gas prices of a tx must meet a validator's minimum
-		+ `hashgard start` and config file take `--minimum-gas-prices` flag and `minimum-gas-price` field respectively.
-	+ now `hashgard gentx` command printout of account's addresses, i.e. user bech32 instead of hex.
-
-+ Cosmos SDK
-	+ Add tag documentation for each module along with cleaning up a few existing tags in the governance, slashing, and staking modules.
+	+ added queriers for querying a single redelegation he governance, slashing, and staking modules.
 
 
 ### BUG FIXES
