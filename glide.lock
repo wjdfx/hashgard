@@ -1,5 +1,5 @@
 hash: 79373b5c7be6a14f82ee88df1c98dff987ce0bbdd0df103f220a33a5c03e607c
-updated: 2019-02-12T17:04:10.949642+08:00
+updated: 2019-02-20T10:19:44.549073+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
