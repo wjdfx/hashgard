@@ -204,7 +204,7 @@ func main() {
 	)
 
 	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "HG", app.DefaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
 	err := initConfig(rootCmd)
 	if err != nil {
 		panic(err)
