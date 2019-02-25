@@ -200,6 +200,7 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 			sdk.NewInt64Coin(app.StakeDenom, 100),
 			staking.NewDescription(nodeDirName, "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			sdk.OneInt(),
 		)
 		tx := auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, []auth.StdSignature{}, memo)
 		txBldr := authtx.NewTxBuilderFromCLI().WithChainID(chainID).WithMemo(memo)

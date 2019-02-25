@@ -11,7 +11,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	stakeTypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/crypto"
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -103,11 +102,9 @@ func TestHashgardAppGenState(t *testing.T) {
 
 func makeMsg(name string, pk crypto.PubKey) auth.StdTx {
 	desc := staking.NewDescription(name, "", "", "")
-	comm := stakeTypes.CommissionMsg{}
-	msg := staking.NewMsgCreateValidator(
-		sdk.ValAddress(pk.Address()), pk,
-		sdk.NewInt64Coin(StakeDenom, 50), desc, comm,
-	)
+	comm := staking.CommissionMsg{}
+	msg := staking.NewMsgCreateValidator(sdk.ValAddress(pk.Address()), pk, sdk.NewInt64Coin(StakeDenom,
+		50), desc, comm, sdk.OneInt())
 	return auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, nil, "")
 }
 
