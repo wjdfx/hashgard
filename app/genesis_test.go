@@ -143,3 +143,36 @@ func TestNewDefaultGenesisAccount(t *testing.T) {
 	require.Equal(t, sdk.NewInt(1000), acc.Coins.AmountOf(GasDenom))
 	require.Equal(t, sdk.NewInt(150), acc.Coins.AmountOf(StakeDenom))
 }
+
+func TestGenesisStateSanitize(t *testing.T) {
+	genesisState := makeGenesisState(t, nil)
+	require.Nil(t, HashgardValidateGenesisState(genesisState))
+
+	addr1 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	authAcc1 := auth.NewBaseAccountWithAddress(addr1)
+	authAcc1.SetCoins(sdk.Coins{
+		sdk.NewInt64Coin("bcoin", 150),
+		sdk.NewInt64Coin("acoin", 150),
+	})
+	authAcc1.SetAccountNumber(1)
+	genAcc1 := NewGenesisAccount(&authAcc1)
+
+	addr2 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
+	authAcc2 := auth.NewBaseAccountWithAddress(addr2)
+	authAcc2.SetCoins(sdk.Coins{
+		sdk.NewInt64Coin("acoin", 150),
+		sdk.NewInt64Coin("bcoin", 150),
+	})
+	genAcc2 := NewGenesisAccount(&authAcc2)
+
+	genesisState.Accounts = []GenesisAccount{genAcc1, genAcc2}
+	require.True(t, genesisState.Accounts[0].AccountNumber > genesisState.Accounts[1].AccountNumber)
+	require.Equal(t, genesisState.Accounts[0].Coins[0].Denom, "bcoin")
+	require.Equal(t, genesisState.Accounts[0].Coins[1].Denom, "acoin")
+	require.Equal(t, genesisState.Accounts[1].Address, addr2)
+	genesisState.Sanitize()
+	require.False(t, genesisState.Accounts[0].AccountNumber > genesisState.Accounts[1].AccountNumber)
+	require.Equal(t, genesisState.Accounts[1].Address, addr1)
+	require.Equal(t, genesisState.Accounts[1].Coins[0].Denom, "acoin")
+	require.Equal(t, genesisState.Accounts[1].Coins[1].Denom, "bcoin")
+}

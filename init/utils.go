@@ -88,7 +88,7 @@ func InitializeNodeValidatorFiles(
 	return nodeID, valPubKey, nil
 }
 
-func loadGenesisDoc(cdc *amino.Codec, genFile string) (genDoc types.GenesisDoc, err error) {
+func LoadGenesisDoc(cdc *amino.Codec, genFile string) (genDoc types.GenesisDoc, err error) {
 	genContents, err := ioutil.ReadFile(genFile)
 	if err != nil {
 		return genDoc, err
