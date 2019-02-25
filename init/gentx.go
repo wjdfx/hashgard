@@ -59,10 +59,16 @@ following delegation and commission default parameters:
 			if err != nil {
 				return err
 			}
-			ip, err := server.ExternalIP()
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "couldn't retrieve an external IP, "+
-					"consequently the tx's memo field will be unset: %s", err)
+
+			// Read --nodeID, if empty take it from priv_validator.json
+			if nodeIDString := viper.GetString(cli.FlagNodeID); nodeIDString != "" {
+				nodeID = nodeIDString
+			}
+
+			ip := viper.GetString(cli.FlagIP)
+			if ip == "" {
+				fmt.Fprintf(os.Stderr, "couldn't retrieve an external IP; "+
+					"the tx's memo field will be unset")
 			}
 
 			genDoc, err := LoadGenesisDoc(cdc, config.GenesisFile())
