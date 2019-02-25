@@ -125,7 +125,8 @@ following delegation and commission default parameters:
 
 			// write the unsigned transaction to the buffer
 			w := bytes.NewBuffer([]byte{})
-			if err := utils.PrintUnsignedStdTx(w, txBldr, cliCtx, []sdk.Msg{msg}, true); err != nil {
+			cliCtx = cliCtx.WithOutput(w)
+			if err = utils.PrintUnsignedStdTx(txBldr, cliCtx, []sdk.Msg{msg}, true); err != nil {
 				return err
 			}
 
@@ -207,8 +208,8 @@ func prepareFlagsForTxCreateValidator(config *cfg.Config, nodeID, ip, chainID st
 	viper.Set(cli.FlagNodeID, nodeID)                              // --node-id
 	viper.Set(cli.FlagIP, ip)                                      // --ip
 	viper.Set(cli.FlagPubKey, sdk.MustBech32ifyConsPub(valPubKey)) // --pubkey
-	viper.Set(cli.FlagGenesisFormat, true)                         // --genesis-format
-	viper.Set(cli.FlagMoniker, config.Moniker)                     // --moniker
+	viper.Set(client.FlagGenerateOnly, true)                // --genesis-only
+	viper.Set(cli.FlagMoniker, config.Moniker)                    // --moniker
 	if config.Moniker == "" {
 		viper.Set(cli.FlagMoniker, viper.GetString(client.FlagName))
 	}
