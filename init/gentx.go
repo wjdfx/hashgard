@@ -33,6 +33,7 @@ var (
 	defaultCommissionRate          = "0.1"
 	defaultCommissionMaxRate       = "0.2"
 	defaultCommissionMaxChangeRate = "0.01"
+	defaultMinSelfDelegation	   = "1"
 )
 
 // GenTxCmd builds the hashgard gentx command.
@@ -50,7 +51,8 @@ following delegation and commission default parameters:
 	commission rate:             %s
 	commission max rate:         %s
 	commission max change rate:  %s
-`, defaultAmount, defaultCommissionRate, defaultCommissionMaxRate, defaultCommissionMaxChangeRate),
+	minimum self delegation:     %s
+`, defaultAmount, defaultCommissionRate, defaultCommissionMaxRate, defaultCommissionMaxChangeRate, defaultMinSelfDelegation),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			config := ctx.Config
@@ -160,12 +162,17 @@ following delegation and commission default parameters:
 		},
 	}
 
+	ip, _ := server.ExternalIP()
+
 	cmd.Flags().String(tmcli.HomeFlag, app.DefaultNodeHome, "node's home directory")
 	cmd.Flags().String(flagClientHome, app.DefaultCLIHome, "client's home directory")
 	cmd.Flags().String(client.FlagName, "", "name of private key with which to sign the gentx")
 	cmd.Flags().String(client.FlagOutputDocument, "",
 		"write the genesis transaction JSON document to the given file instead of the default location")
+	cmd.Flags().String(cli.FlagIP, ip, "The node's public IP")
+	cmd.Flags().String(cli.FlagNodeID, "", "The node's NodeID")
 	cmd.Flags().AddFlagSet(cli.FsCommissionCreate)
+	cmd.Flags().AddFlagSet(cli.FsMinSelfDelegation)
 	cmd.Flags().AddFlagSet(cli.FsAmount)
 	cmd.Flags().AddFlagSet(cli.FsPk)
 	cmd.MarkFlagRequired(client.FlagName)
@@ -224,6 +231,9 @@ func prepareFlagsForTxCreateValidator(config *cfg.Config, nodeID, ip, chainID st
 	}
 	if viper.GetString(cli.FlagCommissionMaxChangeRate) == "" {
 		viper.Set(cli.FlagCommissionMaxChangeRate, defaultCommissionMaxChangeRate)
+	}
+	if viper.GetString(cli.FlagMinSelfDelegation) == "" {
+		viper.Set(cli.FlagMinSelfDelegation, defaultMinSelfDelegation)
 	}
 }
 
