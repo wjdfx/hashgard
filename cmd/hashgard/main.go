@@ -59,6 +59,7 @@ func main() {
 		hashgardInit.TestnetFilesCmd(ctx, cdc),
 		hashgardInit.GenTxCmd(ctx, cdc),
 		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
+		hashgardInit.ValidateGenesisCmd(ctx, cdc),
 		server.UnsafeResetAllCmd(ctx),
 		client.LineBreak,
 		tendermintCmd,
