@@ -279,7 +279,7 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 	for _, acc := range genesisState.Accounts {
 		// create the genesis account, give'm few steaks and a buncha token with there name
 		for _, coin := range acc.Coins {
-			if coin.Denom == StakeDenom {
+			if coin.Denom == genesisState.StakingData.Params.BondDenom {
 				stakingData.Pool.NotBondedTokens = stakingData.Pool.NotBondedTokens.
 					Add(coin.Amount) // increase the supply
 			}
