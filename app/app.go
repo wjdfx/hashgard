@@ -194,15 +194,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keyGov,
 		app.keyFeeCollection,
 		app.keyParams,
-	)
-	app.SetInitChainer(app.initChainer)
-	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
-	app.MountStoresTransient(
 		app.tkeyParams,
 		app.tkeyStaking,
 		app.tkeyDistribution,
 	)
+	app.SetInitChainer(app.initChainer)
+	app.SetBeginBlocker(app.BeginBlocker)
+	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {
