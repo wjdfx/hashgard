@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -35,6 +36,7 @@ var (
 type GenesisState struct {
 	Accounts     		[]GenesisAccount			`json:"accounts"`
 	AuthData     		auth.GenesisState			`json:"auth"`
+	BankData     		bank.GenesisState     		`json:"bank"`
 	StakingData    		staking.GenesisState		`json:"staking"`
 	MintData     		mint.GenesisState			`json:"mint"`
 	DistributionData    distribution.GenesisState	`json:"distribution"`
@@ -46,6 +48,7 @@ type GenesisState struct {
 func NewGenesisState(
 	accounts []GenesisAccount,
 	authData auth.GenesisState,
+	bankData bank.GenesisState,
 	stakingData staking.GenesisState,
 	mintData mint.GenesisState,
 	distrData distribution.GenesisState,
@@ -56,6 +59,7 @@ func NewGenesisState(
 	return GenesisState{
 		Accounts:			accounts,
 		AuthData: 			authData,
+		BankData:			bankData,
 		StakingData:		stakingData,
 		MintData:			mintData,
 		DistributionData:	distrData,
@@ -80,6 +84,7 @@ func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
 		Accounts:			nil,
 		AuthData:     		auth.DefaultGenesisState(),
+		BankData:     		bank.DefaultGenesisState(),
 		StakingData:    	createStakingGenesisState(),
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
@@ -301,6 +306,9 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 	}
 
 	if err := auth.ValidateGenesis(genesisState.AuthData); err != nil {
+		return err
+	}
+	if err := bank.ValidateGenesis(genesisState.BankData); err != nil {
 		return err
 	}
 	if err := staking.ValidateGenesis(genesisState.StakingData); err != nil {
