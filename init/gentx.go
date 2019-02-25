@@ -61,7 +61,8 @@ following delegation and commission default parameters:
 			}
 			ip, err := server.ExternalIP()
 			if err != nil {
-				return err
+				fmt.Fprintf(os.Stderr, "couldn't retrieve an external IP, "+
+					"consequently the tx's memo field will be unset: %s", err)
 			}
 
 			genDoc, err := LoadGenesisDoc(cdc, config.GenesisFile())
