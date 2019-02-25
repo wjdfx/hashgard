@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -202,9 +203,12 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
 		)
+		kb, err := keys.NewKeyBaseFromDir(clientDir)
+		if err != nil {
+			return err
+		}
 		tx := auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, []auth.StdSignature{}, memo)
-		txBldr := authtx.NewTxBuilderFromCLI().WithChainID(chainID).WithMemo(memo)
-
+		txBldr := authtx.NewTxBuilderFromCLI().WithChainID(chainID).WithMemo(memo).WithKeybase(kb)
 		signedTx, err := txBldr.SignStdTx(nodeDirName, app.DefaultKeyPass, tx, false)
 		if err != nil {
 			_ = os.RemoveAll(outDir)
