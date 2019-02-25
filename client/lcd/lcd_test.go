@@ -210,8 +210,8 @@ func TestValidators(t *testing.T) {
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{}, true)
 	defer cleanup()
 	resultVals := getValidatorSets(t, port, -1, false)
-	require.Contains(t, resultVals.Validators[0].Address.String(), "cosmosvalcons")
-	require.Contains(t, resultVals.Validators[0].PubKey, "cosmosvalconspub")
+	require.Contains(t, resultVals.Validators[0].Address.String(), "gardvalcons")
+	require.Contains(t, resultVals.Validators[0].PubKey, "gardvalconspub")
 	getValidatorSets(t, port, 2, false)
 	getValidatorSets(t, port, 10000000, true)
 }

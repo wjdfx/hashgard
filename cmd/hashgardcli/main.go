@@ -72,7 +72,7 @@ func main() {
 	}
 	tendermintCmd.AddCommand(
 		rpc.BlockCommand(),
-		rpc.ValidatorCommand(),
+		rpc.ValidatorCommand(cdc),
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 	)
