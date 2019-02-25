@@ -85,7 +85,8 @@ func (rs *RestServer) Start(listenAddr string, sslHosts string,
 	if err != nil {
 		return
 	}
-	rs.log.Info("Starting Hashgard Lite REST service...")
+	rs.log.Info(fmt.Sprintf("Starting Hashgard Lite REST service (chain-id: %q)...",
+		viper.GetString(client.FlagChainID)))
 
 	// launch rest-server in insecure mode
 	if insecure {
@@ -153,9 +154,7 @@ func ServeCommand(cdc *codec.Codec, registerRoutesFn func(*RestServer)) *cobra.C
 		},
 	}
 
-	client.RegisterRestServerFlags(cmd)
-
-	return cmd
+	return client.RegisterRestServerFlags(cmd)
 }
 
 func (rs *RestServer) registerSwaggerUI() {
