@@ -90,7 +90,8 @@ func main() {
 		bankcmd.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		bankcmd.GetBroadcastCommand(cdc),
+		authcmd.GetBroadcastCommand(cdc),
+		authcmd.GetEncodeCommand(cdc),
 	)
 
 	// Add stake subcommands
