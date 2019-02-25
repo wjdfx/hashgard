@@ -188,7 +188,7 @@ func main() {
 		)...)
 
 	rootCmd.AddCommand(
-		client.ConfigCmd(),
+		client.ConfigCmd(app.DefaultCLIHome),
 		rpc.StatusCommand(),
 		client.LineBreak,
 		keys.Commands(),
