@@ -21,6 +21,7 @@ import (
 const (
 	flagOverwrite    = "overwrite"
 	flagClientHome   = "home-client"
+	flagMoniker		 = "moniker"
 	flagVestingStart = "vesting-start-time"
 	flagVestingEnd   = "vesting-end-time"
 	flagVestingAmt   = "vesting-amount"
