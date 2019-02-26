@@ -1,6 +1,72 @@
 # Changelog
 
+## 0.3.0
 
+### BREAKING CHANGES
+
++ Hashgard REST API (hashgardlcd)
+    + Error responses are now JSON objects
+    + [distribution] endpoint changed "all_delegation_rewards" -> "delegator_total_rewards"
+    + `hashgardlcd` switched back to insecure mode by default
+    + use `--tls` flag to enable secure layer
+    + `GET /tx/{hash}`` now returns `404` instead of `500` if the transaction is not found
+
++ Hashgard CLI (hashgardcli)
+    + Add `hashgard validate-genesis` command to facilitate checking of genesis files
+    + `version` prints out short info by default. Add `--long` flag. Proper handling of `--format` flag introduced.
+    + now returns transactions in plain text including tags
+    + Change validator address Bech32 encoding to consensus address in `tendermint-validator-set`.
+
++ Hashgard (hashgard)
+    + Added Validator Minimum Self Delegation
+
++ Tendermint
+    + upgrade tendermint from v0.29.0 to v0.30.0
+
++ Cosmos SDK
+    + upgrade cosmos-sdk from v0.30.0 to v0.32.0
+
+### FEATURES
+
++ Hashgard REST API (hashgardlcd)
+    + Add distribution module REST API in LCD
+
++ Hashgard CLI (hashgardcli)
+    + Support querying for all delegator distribution rewards.
+
++ Hashgard (hashgard)
+    + Add support vesting accounts to the `add-genesis-account` command.
+
+### IMPROVEMENTS
+
++ Hashgard REST API (hashgardlcd)
+    + REST service to support the following:
+        + Automatic account number and sequence population when fields are omitted
+        + Generate only functionality no longer requires access to a local Keybase
+        + `from` field in the `base_req` body can be a Keybase name or account address
+    + Allow simulation(auto gas) to work with generate only.
+    + Added `/tx/encode` endpoint to serialize a JSON tx to base64-encoded Amino
+
++ Hashgard CLI (hashgardcli)
+    + Add new `withdraw-all-rewards` command to withdraw all delegations rewards for delegators.
+    + `hashgard gentx` supports --ip and --node-id flags to override defaults.
+    + Add `bank encode` command to serialize a JSON tx to base64-encoded Amino.
+
++ Hashgard (hashgard)
+    + Add `--jail-whitelist` to `hashgard export` to enable testing of complex exports
+
+### BUG FIXES
+
++ Hashgard REST API (hashgardlcd)
+    + LCD didn't respect persistent flags such as `--chain-id` and `--trust-node` if they were passed on the command line.
+
++ Hashgard CLI (hashgardcli)
+    + Fix `slashing signing-info` panic by ensuring safety of user input and properly returning not found error
+    + Fix `distribution slashes` panic
+    +
+
++ Hashgard (hashgard)
+    + Return an empty `TxResponse` when Tendermint returns an empty `ResultBroadcastTx`.
 --------------------------
 
 ## 0.3.0
@@ -32,7 +98,7 @@
 	+ upgrade tendermint from v0.27.3 to v0.29.0
 
 + Cosmos SDK
-	+ upgrade cosmos-sdk from v0.27.3 to v0.29.0
+	+ upgrade cosmos-sdk from v0.29.0 to v0.30.0
 	+ rename module `stake` -> `staking`.
 	+ rename `LooseTokens` -> `NotBondedTokens`
 	+ [staking] Validator power type from `Dec` -> `Int`.
