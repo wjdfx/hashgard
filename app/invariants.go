@@ -7,18 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banksim "github.com/cosmos/cosmos-sdk/x/bank/simulation"
 	distributionsim "github.com/cosmos/cosmos-sdk/x/distribution/simulation"
-	"github.com/cosmos/cosmos-sdk/x/mock/simulation"
-	stakesim "github.com/cosmos/cosmos-sdk/x/stake/simulation"
+	stakingsim "github.com/cosmos/cosmos-sdk/x/staking/simulation"
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func (app *HashgardApp) runtimeInvariants() []simulation.Invariant {
-	return []simulation.Invariant{
+func (app *HashgardApp) runtimeInvariants() []sdk.Invariant {
+	return []sdk.Invariant{
 		banksim.NonnegativeBalanceInvariant(app.accountKeeper),
-		distributionsim.ValAccumInvariants(app.distributionKeeper, app.stakeKeeper),
-		stakesim.SupplyInvariants(app.bankKeeper, app.stakeKeeper,
-			app.feeCollectionKeeper, app.distributionKeeper, app.accountKeeper),
-		stakesim.NonNegativePowerInvariant(app.stakeKeeper),
+		distributionsim.NonNegativeOutstandingInvariant(app.distributionKeeper),
+		stakingsim.SupplyInvariants(app.stakingKeeper, app.feeCollectionKeeper, app.distributionKeeper, app.accountKeeper),
+		stakingsim.NonNegativePowerInvariant(app.stakingKeeper),
 	}
 }
 
@@ -38,5 +36,5 @@ func (app *HashgardApp) assertRuntimeInvariantsOnContext(ctx sdk.Context) {
 	}
 	end := time.Now()
 	diff := end.Sub(start)
-	app.BaseApp.Logger.With("module", "invariants").Info("Asserted all invariants", "duration", diff)
+	app.BaseApp.Logger().With("module", "invariants").Info("Asserted all invariants", "duration", diff)
 }

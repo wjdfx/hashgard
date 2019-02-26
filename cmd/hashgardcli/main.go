@@ -2,45 +2,34 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"path"
 
-	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/client/lcd"
 	_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
-	bankrest "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
+	"github.com/cosmos/cosmos-sdk/x/gov"
 	govcmd "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
-	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
-	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
-	stakecmd "github.com/cosmos/cosmos-sdk/x/stake/client/cli"
-	stakerest "github.com/cosmos/cosmos-sdk/x/stake/client/rest"
+	"github.com/cosmos/cosmos-sdk/x/staking"
+	stakecmd "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
-)
-
-const (
-	storeAcc        = "acc"
-	storeGov        = "gov"
-	storeSlashing   = "slashing"
-	storeStake      = "stake"
-	storeDistribution	= "distribution"
 )
 
 // rootCmd is the entry point for this binary
@@ -69,6 +58,12 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
+	// Add --chain-id to persistent flags and mark it required
+	rootCmd.PersistentFlags().String(client.FlagChainID, "", "Chain ID of tendermint node")
+	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		return initConfig(rootCmd)
+	}
+
 
 	// Add tendermint subcommands
 	tendermintCmd := &cobra.Command{
@@ -77,7 +72,7 @@ func main() {
 	}
 	tendermintCmd.AddCommand(
 		rpc.BlockCommand(),
-		rpc.ValidatorCommand(),
+		rpc.ValidatorCommand(cdc),
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 	)
@@ -88,13 +83,15 @@ func main() {
 		Short:	"Bank subcommands",
 	}
 	bankCmd.AddCommand(
-		authcmd.GetAccountCmd(storeAcc, cdc),
+		authcmd.GetAccountCmd(auth.StoreKey, cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
 		bankcmd.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
-		bankcmd.GetBroadcastCommand(cdc),
+		authcmd.GetMultiSignCommand(cdc),
+		authcmd.GetBroadcastCommand(cdc),
+		authcmd.GetEncodeCommand(cdc),
 	)
 
 	// Add stake subcommands
@@ -104,19 +101,19 @@ func main() {
 	}
 	stakeCmd.AddCommand(
 		client.GetCommands(
-			stakecmd.GetCmdQueryDelegation(storeStake, cdc),
-			stakecmd.GetCmdQueryDelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryUnbondingDelegation(storeStake, cdc),
-			stakecmd.GetCmdQueryUnbondingDelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryRedelegation(storeStake, cdc),
-			stakecmd.GetCmdQueryRedelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryValidator(storeStake, cdc),
-			stakecmd.GetCmdQueryValidators(storeStake, cdc),
-			stakecmd.GetCmdQueryValidatorDelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryValidatorUnbondingDelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryValidatorRedelegations(storeStake, cdc),
-			stakecmd.GetCmdQueryParams(storeStake, cdc),
-			stakecmd.GetCmdQueryPool(storeStake, cdc),
+			stakecmd.GetCmdQueryDelegation(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryDelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryUnbondingDelegation(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryUnbondingDelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryRedelegation(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryRedelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryValidator(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryValidators(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryValidatorDelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryValidatorUnbondingDelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryValidatorRedelegations(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryParams(staking.StoreKey, cdc),
+			stakecmd.GetCmdQueryPool(staking.StoreKey, cdc),
 		)...)
 	stakeCmd.AddCommand(client.LineBreak)
 	stakeCmd.AddCommand(
@@ -124,8 +121,8 @@ func main() {
 			stakecmd.GetCmdCreateValidator(cdc),
 			stakecmd.GetCmdEditValidator(cdc),
 			stakecmd.GetCmdDelegate(cdc),
-			stakecmd.GetCmdRedelegate(storeStake, cdc),
-			stakecmd.GetCmdUnbond(storeStake, cdc),
+			stakecmd.GetCmdRedelegate(staking.StoreKey, cdc),
+			stakecmd.GetCmdUnbond(staking.StoreKey, cdc),
 		)...)
 
 	// Add slashing subcommands
@@ -133,9 +130,11 @@ func main() {
 		Use:	"slashing",
 		Short:	"Slashing subcommands",
 	}
+
 	slashingCmd.AddCommand(
 		client.GetCommands(
-			slashingcmd.GetCmdQuerySigningInfo(storeSlashing, cdc),
+			slashingcmd.GetCmdQuerySigningInfo(slashing.StoreKey, cdc),
+			slashingcmd.GetCmdQueryParams(cdc),
 		)...)
 	slashingCmd.AddCommand(client.LineBreak)
 	slashingCmd.AddCommand(
@@ -148,6 +147,15 @@ func main() {
 		Use:	"distribution",
 		Short:	"Distribution subcommands",
 	}
+
+	distributionCmd.AddCommand(
+		client.GetCommands(
+			distributioncmd.GetCmdQueryParams(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryOutstandingRewards(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryValidatorCommission(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryValidatorSlashes(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryDelegatorRewards(distribution.StoreKey, cdc),
+		)...)
 	distributionCmd.AddCommand(
 		client.PostCommands(
 			distributioncmd.GetCmdWithdrawRewards(cdc),
@@ -161,26 +169,27 @@ func main() {
 	}
 	govCmd.AddCommand(
 		client.GetCommands(
-			govcmd.GetCmdQueryProposal(storeGov, cdc),
-			govcmd.GetCmdQueryProposals(storeGov, cdc),
-			govcmd.GetCmdQueryVote(storeGov, cdc),
-			govcmd.GetCmdQueryVotes(storeGov, cdc),
-			govcmd.GetCmdQueryParams(storeGov, cdc),
-			govcmd.GetCmdQueryDeposit(storeGov, cdc),
-			govcmd.GetCmdQueryDeposits(storeGov, cdc),
-			govcmd.GetCmdQueryTally(storeGov, cdc),
+			govcmd.GetCmdQueryProposal(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryProposals(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryVote(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryVotes(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryParam(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryParams(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryProposer(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryDeposit(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryDeposits(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryTally(gov.StoreKey, cdc),
 		)...)
 	govCmd.AddCommand(client.LineBreak)
 	govCmd.AddCommand(
 		client.PostCommands(
-			govcmd.GetCmdDeposit(storeGov, cdc),
-			govcmd.GetCmdVote(storeGov, cdc),
+			govcmd.GetCmdDeposit(gov.StoreKey, cdc),
+			govcmd.GetCmdVote(gov.StoreKey, cdc),
 			govcmd.GetCmdSubmitProposal(cdc),
 		)...)
 
 	rootCmd.AddCommand(
-		client.ConfigCmd(),
-		rpc.InitClientCommand(),
+		client.ConfigCmd(app.DefaultCLIHome),
 		rpc.StatusCommand(),
 		client.LineBreak,
 		keys.Commands(),
@@ -192,13 +201,11 @@ func main() {
 		distributionCmd,
 		govCmd,
 		client.LineBreak,
-		lcd.ServeCommand(cdc, registerRoutes),
-		client.LineBreak,
 		version.VersionCmd,
 	)
 
 	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "HG", app.DefaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
 	err := initConfig(rootCmd)
 	if err != nil {
 		panic(err)
@@ -230,28 +237,4 @@ func initConfig(cmd *cobra.Command) error {
 		return err
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
-}
-
-// registerRoutes registers the routes from the different modules for the LCD.
-// NOTE: details on the routes added for each module are in the module documentation
-// NOTE: If making updates here you also need to update the test helper in client/lcd/test_helper.go
-func registerRoutes(rs *lcd.RestServer) {
-	registerSwaggerUI(rs)
-	keys.RegisterRoutes(rs.Mux, rs.CliCtx.Indent)
-	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
-	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	authrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
-	bankrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	stakerest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	slashingrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
-	govrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-}
-
-func registerSwaggerUI(rs *lcd.RestServer) {
-	statikFS, err := fs.New()
-	if err != nil {
-		panic(err)
-	}
-	staticServer := http.FileServer(statikFS)
-	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }

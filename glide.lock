@@ -1,5 +1,5 @@
-hash: 3eca0ed12baf66328070bd61047ec9bf2fb5ea6182195f1af98045ee0a507c9b
-updated: 2018-12-20T10:20:49.350268+08:00
+hash: c2551c6f3b8422c2866c58b971d78d21112a0a79504fada8688afb4362204d61
+updated: 2019-02-26T12:23:29.102395+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,15 +18,15 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: 2a1d8ae1ea4383ef486174547170308d4a0c995a
+  version: be9ff940c82b3337592b446d4cbb9134d93aabd1
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
   - client
   - client/context
   - client/keys
-  - client/lcd
   - client/lcd/statik
+  - client/rest
   - client/rpc
   - client/tx
   - client/utils
@@ -41,20 +41,34 @@ imports:
   - server/config
   - server/mock
   - store
+  - store/cachekv
+  - store/cachemulti
+  - store/dbadapter
+  - store/errors
+  - store/gaskv
+  - store/iavl
+  - store/prefix
+  - store/rootmulti
+  - store/tracekv
+  - store/transient
+  - store/types
   - tests
   - types
+  - types/rest
   - version
   - x/auth
+  - x/auth/client
   - x/auth/client/cli
   - x/auth/client/rest
   - x/auth/client/txbuilder
   - x/bank
-  - x/bank/client
   - x/bank/client/cli
   - x/bank/client/rest
   - x/bank/simulation
   - x/distribution
   - x/distribution/client/cli
+  - x/distribution/client/common
+  - x/distribution/client/rest
   - x/distribution/keeper
   - x/distribution/simulation
   - x/distribution/tags
@@ -72,20 +86,25 @@ imports:
   - x/slashing
   - x/slashing/client/cli
   - x/slashing/client/rest
-  - x/stake
-  - x/stake/client/cli
-  - x/stake/client/rest
-  - x/stake/keeper
-  - x/stake/querier
-  - x/stake/simulation
-  - x/stake/tags
-  - x/stake/types
+  - x/slashing/tags
+  - x/staking
+  - x/staking/client/cli
+  - x/staking/client/rest
+  - x/staking/keeper
+  - x/staking/querier
+  - x/staking/simulation
+  - x/staking/tags
+  - x/staking/types
 - name: github.com/cosmos/go-bip39
   version: 555e2067c45d9fcd7292bf3b8e732bc10ac8c58e
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
+- name: github.com/ethereum/go-ethereum
+  version: badaf43019dce961d6562b81d34de214e9e8ac0f
+  subpackages:
+  - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/go-kit/kit
@@ -234,10 +253,11 @@ imports:
 - name: github.com/tendermint/iavl
   version: de0740903a67b624d887f9055d4c60175dcfa758
 - name: github.com/tendermint/tendermint
-  version: 9c236ffd6c56add84f3c17930ae75c26c68d61ec
+  version: 28d75ec8016b7fb043735cbe4c4d92ec73355de7
   subpackages:
   - abci/client
   - abci/example/code
+  - abci/example/counter
   - abci/example/kvstore
   - abci/server
   - abci/types
@@ -299,7 +319,7 @@ imports:
 - name: github.com/ZondaX/hid-go
   version: 48b08affede2cea076a3cf13b2e3f72ed262b743
 - name: github.com/zondax/ledger-cosmos-go
-  version: d4aed6d929a703bb555a2d79fe9c470afe61f648
+  version: 71aa0ab6e03d2d320c82bbe13678a36584a5b813
 - name: github.com/ZondaX/ledger-go
   version: c3225ab10c2f53397d4aa419a588466493572b22
 - name: golang.org/x/crypto

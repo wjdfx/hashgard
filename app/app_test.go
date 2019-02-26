@@ -6,11 +6,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
-	"github.com/cosmos/cosmos-sdk/x/stake"
+	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
@@ -27,7 +28,8 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 	genesisState := GenesisState{
 		Accounts:			genaccs,
 		AuthData:			auth.DefaultGenesisState(),
-		StakeData:			stake.DefaultGenesisState(),
+		BankData:			bank.DefaultGenesisState(),
+		StakingData:		staking.DefaultGenesisState(),
 		MintData:			mint.DefaultGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
@@ -49,11 +51,11 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 
 func TestHashgardExport(t *testing.T) {
 	db := db.NewMemDB()
-	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil)
+	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true)
 	setGenesis(gapp)
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil)
-	_, _, err := newHapp.ExportAppStateAndValidators(false)
+	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true)
+	_, _, err := newHapp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

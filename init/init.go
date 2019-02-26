@@ -19,31 +19,35 @@ import (
 )
 
 const (
-	flagOverwrite  = "overwrite"
-	flagClientHome = "home-client"
-	flagMoniker    = "moniker"
+	flagOverwrite    = "overwrite"
+	flagClientHome   = "home-client"
+	flagMoniker		 = "moniker"
+	flagVestingStart = "vesting-start-time"
+	flagVestingEnd   = "vesting-end-time"
+	flagVestingAmt   = "vesting-amount"
 )
 
 type printInfo struct {
 	Moniker    string          `json:"moniker"`
 	ChainID    string          `json:"chain_id"`
 	NodeID     string          `json:"node_id"`
+	GenTxsDir  string          `json:"gentxs_dir"`
 	AppMessage json.RawMessage `json:"app_message"`
 }
 
-// nolint: errcheck
 func displayInfo(cdc *codec.Codec, info printInfo) error {
 	out, err := codec.MarshalJSONIndent(cdc, info)
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(os.Stderr, "%s\n", string(out))
+
+	fmt.Fprintf(os.Stderr, "%s\n", string(out)) // nolint: errcheck
 	return nil
 }
 
-// get cmd to initialize all files for tendermint and application
-// nolint: errcheck
-func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
+// InitCmd returns a command that initializes all files needed for Tendermint
+// and the respective application.
+func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command { // nolint: golint
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize genesis config, priv-validator file, p2p-node file, and application configuration files",
@@ -78,12 +82,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			toPrint := printInfo{
-				ChainID:    chainID,
-				Moniker:    config.Moniker,
-				NodeID:     nodeID,
-				AppMessage: appState,
-			}
+			toPrint := newPrintInfo(config.Moniker, chainID, nodeID, "", appState)
 
 			// generate config.toml
 			cfg.WriteConfigFile(filepath.Join(config.RootDir, "config", "config.toml"), config)

@@ -15,6 +15,7 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
+	"github.com/cosmos/cosmos-sdk/store"
 
 	"github.com/hashgard/hashgard/app"
 	"github.com/hashgard/hashgard/version"
@@ -58,6 +59,7 @@ func main() {
 		hashgardInit.TestnetFilesCmd(ctx, cdc),
 		hashgardInit.GenTxCmd(ctx, cdc),
 		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
+		hashgardInit.ValidateGenesisCmd(ctx, cdc),
 		server.UnsafeResetAllCmd(ctx),
 		client.LineBreak,
 		tendermintCmd,
@@ -81,18 +83,23 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		logger,
 		db,
 		traceStore,
-		baseapp.SetPruning(viper.GetString("pruning")),
-		baseapp.SetMinimumFees(viper.GetString("minimum_fees")),
+		true,
+		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
+		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
 	)
 }
 
-func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool) (json.RawMessage, []tmtypes.GenesisValidator, error) {
-	hApp := app.NewHashgardApp(logger, db, traceStore)
+func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string) (json.RawMessage, []tmtypes.GenesisValidator, error) {
+
 	if height != -1 {
+		hApp := app.NewHashgardApp(logger, db, traceStore, false)
 		err := hApp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
 		}
+		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
-	return hApp.ExportAppStateAndValidators(forZeroHeight)
+
+	hApp := app.NewHashgardApp(logger, db, traceStore, false)
+	return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

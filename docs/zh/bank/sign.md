@@ -23,7 +23,7 @@ hashgardcli bank sign <file> [flags]
 | --print-sigs     | Boole  | 是       | False                 | 打印必须签署交易的地址和已签名的地址，然后退出               |
 | --chain-id       | String | 否       |                       | tendermint 节点网络ID                                        |
 | --account-number | Int    | 否       |                       | 账户数字用于签名通证发送                                     |
-| --amount         | String | 是       |                       | 需要发送的通证数量，比如10hashgard                               |
+| --amount         | String | 是       |                       | 需要发送的通证数量，比如10apple                              |
 | --async          |        | 否       | True                  | 异步广播传输信息                                             |
 | --dry-run        |        | 否       |                       | 忽略--gas 标志 ，执行仿真传输，但不广播。                    |
 | --fee            | String | 是       |                       | 设置传输需要的手续费                                         |
@@ -76,7 +76,6 @@ hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=
 ```
 
 随后得到签名详细信息，如下输出中你会看到签名信息。 
-
 **ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==**
 
 ```
