@@ -1,11 +1,11 @@
 # hashgardcli gov deposit
 
 ## 描述
- 
+
 充值保证金以激活提议
- 
+
 ## 使用方式
- 
+
 ```
 hashgardcli gov deposit [proposal-id] [deposit] [flags]
 ```
@@ -21,7 +21,7 @@ hashgardcli gov deposit --help
 ### 充值保证金
 
 ```shell
- hashgardcli gov deposit  1 50apple --from=hashgard --chain-id=hashgard
+ hashgardcli gov deposit  1 50gard --from=hashgard --chain-id=hashgard
 
 ```
 

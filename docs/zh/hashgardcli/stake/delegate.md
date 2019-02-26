@@ -25,7 +25,7 @@ hashgardcli stake delegate --help
 ## 示例
 
 ```
-hashgardcli stake delegate --validator=gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --amount=10apple  --chain-id=hashgard --from=hashgard 
+hashgardcli stake delegate --validator=gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --amount=10gard  --chain-id=hashgard --from=hashgard 
 ```
 
 然后你将会得到如下类似的消息：

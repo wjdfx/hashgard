@@ -1,4 +1,4 @@
-# iriscli gov
+# hashgardcli gov
 
 ## 描述
 
@@ -11,20 +11,20 @@
 ## 使用方式
 
 ```shell
-iriscli gov [command]
+hashgardcli gov [command]
 ```
 
 打印子命令和参数
 ```
-iriscli distribution --help
+hashgardcli distribution --help
 ```
 
 ## 相关命令
 
 | 命令                                  | 描述                                                             |
 | ------------------------------------- | --------------------------------------------------------------- |
-| [query-proposal](query-proposal.md)   | 查询单个提议的详细信息                                             |
-| [query-proposals](query-proposals.md) | 通过可选过滤器查询提议                                             |
+| [proposal](proposal.md)   | 查询单个提议的详细信息                                             |
+| [proposals](proposals.md) | 通过可选过滤器查询提议                                             |
 | [query-vote](query-vote.md)           | 查询投票信息                                                      |
 | [votes](votes.md)         | 查询提议的投票情况                                                 |
 | [query-deposit](query-deposit.md)     | 查询保证金详情                                                    |

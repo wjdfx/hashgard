@@ -45,7 +45,7 @@ Committed at block 14932 (tx hash: 049477583479EB543F1EB48D02C3D705CFAF6A2DA0CA0
 ### 提交一个'ParameterChange'类型的提议
 
 ```shell
-hashgardcli gov submit-proposal --chain-id=hashgard --title="update MinDeposit proposal" --param='{"key":"Gov/gov/DepositProcedure","value":"{\"min_deposit\":[{\"denom\":\"apple\",\"amount\":\"1000\"}],\"max_deposit_period\":20}","op":"update"}' --type=ParameterChange --description="a new parameter change proposal" --from=hashgard
+hashgardcli gov submit-proposal --chain-id=hashgard --title="update MinDeposit proposal" --param='{"key":"Gov/gov/DepositProcedure","value":"{\"min_deposit\":[{\"denom\":\"gard\",\"amount\":\"1000\"}],\"max_deposit_period\":20}","op":"update"}' --type=ParameterChange --description="a new parameter change proposal" --from=hashgard
 ```
 
 提交之后，您完成了提交新的“ParameterChange”提议。
@@ -65,6 +65,7 @@ hashgardcli gov submit-proposal --chain-id=hashgard --title="hashgard" --type=So
 
 请点击下述链接：
 
-[query-proposal](query-proposal.md)
+[proposal](proposal.md)
 
-[query-proposals](query-proposals.md)
+[proposals](proposal.md)
+

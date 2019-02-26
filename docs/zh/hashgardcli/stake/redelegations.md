@@ -1,24 +1,24 @@
-# hashgardcli stake redelegations-from
+# hashgardcli stake redelegations
 
 ## 描述
 
-基于某一验证者的所有重新委托查询
+基于委托者地址的所有重新委托记录查询
 
 ## 用法
 
 ```
-hashgardcli stake redelegations-from [validator-address] [flags]
+hashgardcli stake redelegations [delegator-address] [flags]
 ```
 打印帮助信息
 ```
-hashgardcli stake redelegations-from --help
+hashgardcli stake redelegations --help
 ```
 
 ## 示例
 
-基于某一验证者的所有重新委托查询
+基于委托者地址的所有重新委托记录查询
 ```
-hashgardcli stake redelegations-from [validator-address] --trust-node
+hashgardcli stake redelegations [delegator-address] --trust-node
 ```
 
 运行成功以后，返回的结果如下：
@@ -32,16 +32,15 @@ hashgardcli stake redelegations-from [validator-address] --trust-node
     "creation_height": "24800",
     "min_time": "2018-12-21T02:49:44.731658304Z",
     "initial_balance": {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "8"
     },
     "balance": {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "8"
     },
     "shares_src": "8.9100000000",
     "shares_dst": "8.0000000000"
   }
 ]
-
 ```

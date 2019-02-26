@@ -18,7 +18,7 @@ hashgardcli gov param --help
 
 
 ## 例子
- 
+
 ### 通过voting查
 
 ```shell
@@ -46,7 +46,7 @@ hashgardcli gov param deposit --trust-node
 {
   "min_deposit": [
     {
-      "denom": "apple",
+      "denom": "gard",
       "amount": "10"
     }
   ],
