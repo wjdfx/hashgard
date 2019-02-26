@@ -1,7 +1,6 @@
 package init
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/client/keys"
