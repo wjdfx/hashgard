@@ -12,7 +12,7 @@ import:
 - package: github.com/tendermint/tendermint
   version: v0.30.0
 - package: github.com/zondax/ledger-cosmos-go
-  version: v0.9.7
+  version: v0.9.3
 - package: golang.org/x/crypto
   repo:    https://github.com/tendermint/crypto.git
 - package: github.com/rakyll/statik

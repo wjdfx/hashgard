@@ -1,5 +1,5 @@
-hash: 7fb495f36b4d259000737b6576030ce54a61e62c4b913374fb663e00a5739235
-updated: 2019-02-25T17:03:00.939175+08:00
+hash: c2551c6f3b8422c2866c58b971d78d21112a0a79504fada8688afb4362204d61
+updated: 2019-02-26T10:44:46.605341+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: 197a81034684ba20b0c620c5d4fbb189317e3d97
+  version: be9ff940c82b3337592b446d4cbb9134d93aabd1
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -68,6 +68,7 @@ imports:
   - x/distribution
   - x/distribution/client/cli
   - x/distribution/client/common
+  - x/distribution/client/rest
   - x/distribution/keeper
   - x/distribution/simulation
   - x/distribution/tags
@@ -101,7 +102,7 @@ imports:
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: 81babe15090e4ac8a8eea1cb07999f9700738786
+  version: badaf43019dce961d6562b81d34de214e9e8ac0f
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
@@ -318,7 +319,7 @@ imports:
 - name: github.com/ZondaX/hid-go
   version: 48b08affede2cea076a3cf13b2e3f72ed262b743
 - name: github.com/zondax/ledger-cosmos-go
-  version: 394d5af1e2a5c564aca3541a3348fa4152976a80
+  version: 71aa0ab6e03d2d320c82bbe13678a36584a5b813
 - name: github.com/ZondaX/ledger-go
   version: c3225ab10c2f53397d4aa419a588466493572b22
 - name: golang.org/x/crypto
