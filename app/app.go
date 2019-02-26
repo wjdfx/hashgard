@@ -113,7 +113,11 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keyFeeCollection,
 	)
 
-	app.bankKeeper = bank.NewBaseKeeper(app.accountKeeper)
+	app.bankKeeper = bank.NewBaseKeeper(
+		app.accountKeeper,
+		app.paramsKeeper.Subspace(bank.DefaultParamspace),
+		bank.DefaultCodespace,
+	)
 
 	stakingKeeper := staking.NewKeeper(
 		app.cdc,
@@ -194,15 +198,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keyGov,
 		app.keyFeeCollection,
 		app.keyParams,
-	)
-	app.SetInitChainer(app.initChainer)
-	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
-	app.MountStoresTransient(
 		app.tkeyParams,
 		app.tkeyStaking,
 		app.tkeyDistribution,
 	)
+	app.SetInitChainer(app.initChainer)
+	app.SetBeginBlocker(app.BeginBlocker)
+	app.SetAnteHandler(auth.NewAnteHandler(app.accountKeeper, app.feeCollectionKeeper))
 	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {
@@ -272,10 +274,7 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 
 // initialize store from a genesis state
 func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState GenesisState) []abci.ValidatorUpdate {
-	// sort by account number to maintain consistency
-	sort.Slice(genesisState.Accounts, func(i, j int) bool {
-		return genesisState.Accounts[i].AccountNumber < genesisState.Accounts[j].AccountNumber
-	})
+	genesisState.Sanitize()
 
 	// load the accounts
 	for _, gacc := range genesisState.Accounts {
@@ -295,13 +294,13 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 
 	// initialize module-specific stores
 	auth.InitGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper, genesisState.AuthData)
-	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData)
+	bank.InitGenesis(ctx, app.bankKeeper, genesisState.BankData)
+	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData.Validators.ToSDKValidators())
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 
 	// validate genesis state
-	err = HashgardValidateGenesisState(genesisState)
-	if err != nil {
+	if err := HashgardValidateGenesisState(genesisState); err != nil {
 		panic(err) // TODO find a way to do this w/o panics
 	}
 
@@ -398,10 +397,6 @@ func (h StakingHooks) AfterValidatorRemoved(ctx sdk.Context, consAddr sdk.ConsAd
 func (h StakingHooks) AfterValidatorBonded(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.AfterValidatorBonded(ctx, consAddr, valAddr)
 	h.sh.AfterValidatorBonded(ctx, consAddr, valAddr)
-}
-func (h StakingHooks) AfterValidatorPowerDidChange(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
-	h.dh.AfterValidatorPowerDidChange(ctx, consAddr, valAddr)
-	h.sh.AfterValidatorPowerDidChange(ctx, consAddr, valAddr)
 }
 func (h StakingHooks) AfterValidatorBeginUnbonding(ctx sdk.Context, consAddr sdk.ConsAddress, valAddr sdk.ValAddress) {
 	h.dh.AfterValidatorBeginUnbonding(ctx, consAddr, valAddr)

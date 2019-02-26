@@ -1,5 +1,5 @@
-hash: 79373b5c7be6a14f82ee88df1c98dff987ce0bbdd0df103f220a33a5c03e607c
-updated: 2019-02-12T17:04:10.949642+08:00
+hash: 7fb495f36b4d259000737b6576030ce54a61e62c4b913374fb663e00a5739235
+updated: 2019-02-25T17:03:00.939175+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: 50148a28f4169eaf0acfca92f04769cf75cead64
+  version: 197a81034684ba20b0c620c5d4fbb189317e3d97
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -26,6 +26,7 @@ imports:
   - client/context
   - client/keys
   - client/lcd/statik
+  - client/rest
   - client/rpc
   - client/tx
   - client/utils
@@ -40,20 +41,33 @@ imports:
   - server/config
   - server/mock
   - store
+  - store/cachekv
+  - store/cachemulti
+  - store/dbadapter
+  - store/errors
+  - store/gaskv
+  - store/iavl
+  - store/prefix
+  - store/rootmulti
+  - store/tracekv
+  - store/transient
+  - store/types
   - tests
   - types
+  - types/rest
   - version
   - x/auth
+  - x/auth/client
   - x/auth/client/cli
   - x/auth/client/rest
   - x/auth/client/txbuilder
   - x/bank
-  - x/bank/client
   - x/bank/client/cli
   - x/bank/client/rest
   - x/bank/simulation
   - x/distribution
   - x/distribution/client/cli
+  - x/distribution/client/common
   - x/distribution/keeper
   - x/distribution/simulation
   - x/distribution/tags
@@ -86,6 +100,10 @@ imports:
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
+- name: github.com/ethereum/go-ethereum
+  version: 81babe15090e4ac8a8eea1cb07999f9700738786
+  subpackages:
+  - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/go-kit/kit
@@ -234,7 +252,7 @@ imports:
 - name: github.com/tendermint/iavl
   version: de0740903a67b624d887f9055d4c60175dcfa758
 - name: github.com/tendermint/tendermint
-  version: 4514842a631059a4148026ebce0e46fdf628f875
+  version: 28d75ec8016b7fb043735cbe4c4d92ec73355de7
   subpackages:
   - abci/client
   - abci/example/code

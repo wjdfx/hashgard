@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -35,6 +36,7 @@ var (
 type GenesisState struct {
 	Accounts     		[]GenesisAccount			`json:"accounts"`
 	AuthData     		auth.GenesisState			`json:"auth"`
+	BankData     		bank.GenesisState     		`json:"bank"`
 	StakingData    		staking.GenesisState		`json:"staking"`
 	MintData     		mint.GenesisState			`json:"mint"`
 	DistributionData    distribution.GenesisState	`json:"distribution"`
@@ -46,6 +48,7 @@ type GenesisState struct {
 func NewGenesisState(
 	accounts []GenesisAccount,
 	authData auth.GenesisState,
+	bankData bank.GenesisState,
 	stakingData staking.GenesisState,
 	mintData mint.GenesisState,
 	distrData distribution.GenesisState,
@@ -54,13 +57,25 @@ func NewGenesisState(
 ) GenesisState {
 
 	return GenesisState{
-		Accounts:     accounts,
-		AuthData:     authData,
-		StakingData:    stakingData,
-		MintData:     mintData,
-		DistributionData:    distrData,
-		SlashingData: slashingData,
-		GovData:      govData,
+		Accounts:			accounts,
+		AuthData: 			authData,
+		BankData:			bankData,
+		StakingData:		stakingData,
+		MintData:			mintData,
+		DistributionData:	distrData,
+		SlashingData:		slashingData,
+		GovData:			govData,
+	}
+}
+
+// Sanitize sorts accounts and coin sets.
+func (gs GenesisState) Sanitize() {
+	sort.Slice(gs.Accounts, func(i, j int) bool {
+		return gs.Accounts[i].AccountNumber < gs.Accounts[j].AccountNumber
+	})
+
+	for _, acc := range gs.Accounts {
+		acc.Coins = acc.Coins.Sort()
 	}
 }
 
@@ -68,6 +83,8 @@ func NewGenesisState(
 func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
 		Accounts:			nil,
+		AuthData:     		auth.DefaultGenesisState(),
+		BankData:     		bank.DefaultGenesisState(),
 		StakingData:    	createStakingGenesisState(),
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
@@ -135,8 +152,8 @@ type GenesisAccount struct {
 	OriginalVesting  sdk.Coins `json:"original_vesting"`  // total vesting coins upon initialization
 	DelegatedFree    sdk.Coins `json:"delegated_free"`    // delegated vested coins at time of delegation
 	DelegatedVesting sdk.Coins `json:"delegated_vesting"` // delegated vesting coins at time of delegation
-	StartTime        int64     `json:"start_time"`        // vesting start time
-	EndTime          int64     `json:"end_time"`          // vesting end time
+	StartTime        int64     `json:"start_time"`        // vesting start time (UNIX Epoch time)
+	EndTime          int64     `json:"end_time"`          // vesting end time (UNIX Epoch time)
 }
 
 func NewGenesisAccount(acc *auth.BaseAccount) GenesisAccount {
@@ -262,7 +279,7 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 	for _, acc := range genesisState.Accounts {
 		// create the genesis account, give'm few steaks and a buncha token with there name
 		for _, coin := range acc.Coins {
-			if coin.Denom == StakeDenom {
+			if coin.Denom == genesisState.StakingData.Params.BondDenom {
 				stakingData.Pool.NotBondedTokens = stakingData.Pool.NotBondedTokens.
 					Add(coin.Amount) // increase the supply
 			}
@@ -279,51 +296,70 @@ func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs 
 // TODO: Error if there is a duplicate validator (#1708)
 // TODO: Ensure all state machine parameters are in genesis (#1704)
 func HashgardValidateGenesisState(genesisState GenesisState) error {
-	err := validateGenesisStateAccounts(genesisState.Accounts)
-	if err != nil {
+	if err := validateGenesisStateAccounts(genesisState.Accounts); err != nil {
 		return err
 	}
-	// skip stakeData validation as genesis is created from txs
+
+	// skip stakingData validation as genesis is created from txs
 	if len(genesisState.GenTxs) > 0 {
 		return nil
 	}
 
-	err = staking.ValidateGenesis(genesisState.StakingData)
-	if err != nil {
+	if err := auth.ValidateGenesis(genesisState.AuthData); err != nil {
 		return err
 	}
-	err = mint.ValidateGenesis(genesisState.MintData)
-	if err != nil {
+	if err := bank.ValidateGenesis(genesisState.BankData); err != nil {
 		return err
 	}
-	err = distribution.ValidateGenesis(genesisState.DistributionData)
-	if err != nil {
+	if err := staking.ValidateGenesis(genesisState.StakingData); err != nil {
 		return err
 	}
-	err = gov.ValidateGenesis(genesisState.GovData)
-	if err != nil {
+	if err := mint.ValidateGenesis(genesisState.MintData); err != nil {
 		return err
 	}
-	err = slashing.ValidateGenesis(genesisState.SlashingData)
-	if err != nil {
+	if err := distribution.ValidateGenesis(genesisState.DistributionData); err != nil {
 		return err
+	}
+	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
+		return err
+	}
+
+	return slashing.ValidateGenesis(genesisState.SlashingData)
+}
+
+// validateGenesisStateAccounts performs validation of genesis accounts. It
+// ensures that there are no duplicate accounts in the genesis state and any
+// provided vesting accounts are valid.
+func validateGenesisStateAccounts(accs []GenesisAccount) (err error) {
+	addrMap := make(map[string]bool, len(accs))
+	for _, acc := range accs {
+		addrStr := acc.Address.String()
+
+		// disallow any duplicate accounts
+		if _, ok := addrMap[addrStr]; ok {
+			return fmt.Errorf("duplicate account found in genesis state; address: %s", addrStr)
+		}
+
+		// validate any vesting fields
+		if !acc.OriginalVesting.IsZero() {
+			if acc.EndTime == 0 {
+				return fmt.Errorf("missing end time for vesting account; address: %s", addrStr)
+			}
+
+			if acc.StartTime >= acc.EndTime {
+				return fmt.Errorf(
+					"vesting start time must before end time; address: %s, start: %s, end: %s",
+					addrStr,
+					time.Unix(acc.StartTime, 0).UTC().Format(time.RFC3339),
+					time.Unix(acc.EndTime, 0).UTC().Format(time.RFC3339),
+				)
+			}
+		}
+
+		addrMap[addrStr] = true
 	}
 
 	return nil
-}
-
-// Ensures that there are no duplicate accounts in the genesis state,
-func validateGenesisStateAccounts(accs []GenesisAccount) (err error) {
-	addrMap := make(map[string]bool, len(accs))
-	for i := 0; i < len(accs); i++ {
-		acc := accs[i]
-		strAddr := string(acc.Address)
-		if _, ok := addrMap[strAddr]; ok {
-			return fmt.Errorf("Duplicate account in genesis state: Address %v", acc.Address)
-		}
-		addrMap[strAddr] = true
-	}
-	return
 }
 
 // CollectStdTxs processes and validates application's genesis StdTxs and returns

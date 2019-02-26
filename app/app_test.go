@@ -6,6 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -27,7 +28,8 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 	genesisState := GenesisState{
 		Accounts:			genaccs,
 		AuthData:			auth.DefaultGenesisState(),
-		StakingData:			staking.DefaultGenesisState(),
+		BankData:			bank.DefaultGenesisState(),
+		StakingData:		staking.DefaultGenesisState(),
 		MintData:			mint.DefaultGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
@@ -54,6 +56,6 @@ func TestHashgardExport(t *testing.T) {
 
 	// Making a new app object with the db, so that initchain hasn't been called
 	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true)
-	_, _, err := newHapp.ExportAppStateAndValidators(false)
+	_, _, err := newHapp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

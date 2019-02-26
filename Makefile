@@ -2,10 +2,10 @@ PACKAGES_NOSIMULATION=$(shell go list ./... | grep -v '/simulation')
 PACKAGES_MODULES=$(shell go list ./... | grep 'x')
 PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 
-VERSION := $(subst v,,$(shell git describe --tags --long))
+VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
-BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=${VERSION} \
-    -X github.com/hashgard/hashgard/version.Commit=${COMMIT}"
+BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=$(VERSION) \
+    -X github.com/hashgard/hashgard/version.Commit=$(COMMIT)"
 GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
 
 all: get_tools get_vendor_deps install

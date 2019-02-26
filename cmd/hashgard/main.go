@@ -59,6 +59,7 @@ func main() {
 		hashgardInit.TestnetFilesCmd(ctx, cdc),
 		hashgardInit.GenTxCmd(ctx, cdc),
 		hashgardInit.AddGenesisAccountCmd(ctx, cdc),
+		hashgardInit.ValidateGenesisCmd(ctx, cdc),
 		server.UnsafeResetAllCmd(ctx),
 		client.LineBreak,
 		tendermintCmd,
@@ -83,12 +84,12 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		db,
 		traceStore,
 		true,
-		baseapp.SetPruning(store.NewPruningOptions(viper.GetString("pruning"))),
+		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
 	)
 }
 
-func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool) (json.RawMessage, []tmtypes.GenesisValidator, error) {
+func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
 		hApp := app.NewHashgardApp(logger, db, traceStore, false)
@@ -96,9 +97,9 @@ func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.W
 		if err != nil {
 			return nil, nil, err
 		}
-		return hApp.ExportAppStateAndValidators(forZeroHeight)
+		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
 	hApp := app.NewHashgardApp(logger, db, traceStore, false)
-	return hApp.ExportAppStateAndValidators(forZeroHeight)
+	return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

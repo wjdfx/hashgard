@@ -2,10 +2,12 @@ package app
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -16,14 +18,14 @@ import (
 )
 
 // export the state of hashgard for a genesis file
-func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (
+func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhiteList []string) (
 	appState json.RawMessage, validators []tmtypes.GenesisValidator, err error) {
 
 	// as if they could withdraw from the start of the next block
 	ctx := app.NewContext(true, abci.Header{Height: app.LastBlockHeight()})
 
 	if forZeroHeight {
-		app.prepForZeroHeightGenesis(ctx)
+		app.prepForZeroHeightGenesis(ctx, jailWhiteList)
 	}
 
 	// iterate to get the accounts
@@ -38,6 +40,7 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (
 	genState := NewGenesisState(
 		accounts,
 		auth.ExportGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper),
+		bank.ExportGenesis(ctx, app.bankKeeper),
 		staking.ExportGenesis(ctx, app.stakingKeeper),
 		mint.ExportGenesis(ctx, app.mintKeeper),
 		distribution.ExportGenesis(ctx, app.distributionKeeper),
@@ -53,7 +56,24 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool) (
 }
 
 // prepare for fresh start at zero height
-func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context) {
+func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
+
+	applyWhiteList := false
+
+	//Check if there is a whitelist
+	if len(jailWhiteList) > 0 {
+		applyWhiteList = true
+	}
+
+	whiteListMap := make(map[string]bool)
+
+	for _, addr := range jailWhiteList {
+		_, err := sdk.ValAddressFromBech32(addr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		whiteListMap[addr] = true
+	}
 
 	/* Just to be safe, assert the invariants on current state. */
 	app.assertRuntimeInvariantsOnContext(ctx)
@@ -130,15 +150,20 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context) {
 			panic("expected validator, not found")
 		}
 
-		validator.BondHeight = 0
 		validator.UnbondingHeight = 0
 		valConsAddrs = append(valConsAddrs, validator.ConsAddress())
+
+		if applyWhiteList && !whiteListMap[addr.String()] {
+			validator.Jailed = true
+		}
 
 		app.stakingKeeper.SetValidator(ctx, validator)
 		counter++
 	}
 
 	iter.Close()
+
+	_ = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 
 	/* Handle slashing state. */
 

@@ -18,7 +18,6 @@
 		+ `MsgBeginUnbonding` -> `MsgUndelegate`
 
 + Hashgard CLI (hashgardcli)
-	+ Users must specific chain ID either via config file or the `--chain-id` flag.
 	+ Rename chain_id and trust_node to chain-id and trust-node respectively in config file.
 	+ Remove unimplemented `init` command.
 	+ `version` command output extra latest commit and build machine info.

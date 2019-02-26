@@ -9,11 +9,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	at "github.com/cosmos/cosmos-sdk/x/auth"
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
+	distribution "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
+	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution"
 
 	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	"github.com/hashgard/hashgard/client/lcd"
@@ -28,7 +31,6 @@ var (
 		Use:   "hashgardlcd",
 		Short: "hashgard lcd server",
 	}
-	storeAcc = "acc"
 )
 
 func main() {
@@ -60,8 +62,9 @@ func registerRoutes(rs *lcd.RestServer) {
 	keys.RegisterRoutes(rs.Mux, rs.CliCtx.Indent)
 	rpc.RegisterRoutes(rs.CliCtx, rs.Mux)
 	tx.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, storeAcc)
+	auth.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, at.StoreKey)
 	bank.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
+	distribution.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, distributioncmd.StoreKey)
 	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)

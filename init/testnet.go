@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/codec"
 	srvconfig "github.com/cosmos/cosmos-sdk/server/config"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -200,10 +201,14 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 			sdk.NewInt64Coin(app.StakeDenom, 100),
 			staking.NewDescription(nodeDirName, "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
+			sdk.OneInt(),
 		)
+		kb, err := keys.NewKeyBaseFromDir(clientDir)
+		if err != nil {
+			return err
+		}
 		tx := auth.NewStdTx([]sdk.Msg{msg}, auth.StdFee{}, []auth.StdSignature{}, memo)
-		txBldr := authtx.NewTxBuilderFromCLI().WithChainID(chainID).WithMemo(memo)
-
+		txBldr := authtx.NewTxBuilderFromCLI().WithChainID(chainID).WithMemo(memo).WithKeybase(kb)
 		signedTx, err := txBldr.SignStdTx(nodeDirName, app.DefaultKeyPass, tx, false)
 		if err != nil {
 			_ = os.RemoveAll(outDir)
@@ -293,7 +298,7 @@ func collectGenFiles(
 		nodeID, valPubKey := nodeIDs[i], valPubKeys[i]
 		initCfg := newInitConfig(chainID, gentxsDir, moniker, nodeID, valPubKey)
 
-		genDoc, err := loadGenesisDoc(cdc, config.GenesisFile())
+		genDoc, err := LoadGenesisDoc(cdc, config.GenesisFile())
 		if err != nil {
 			return err
 		}

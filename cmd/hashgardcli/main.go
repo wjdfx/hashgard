@@ -58,6 +58,12 @@ func main() {
 	// the below functions and eliminate global vars, like we do
 	// with the cdc
 
+	// Add --chain-id to persistent flags and mark it required
+	rootCmd.PersistentFlags().String(client.FlagChainID, "", "Chain ID of tendermint node")
+	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		return initConfig(rootCmd)
+	}
+
 
 	// Add tendermint subcommands
 	tendermintCmd := &cobra.Command{
@@ -66,7 +72,7 @@ func main() {
 	}
 	tendermintCmd.AddCommand(
 		rpc.BlockCommand(),
-		rpc.ValidatorCommand(),
+		rpc.ValidatorCommand(cdc),
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 	)
@@ -84,7 +90,8 @@ func main() {
 		bankcmd.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
-		bankcmd.GetBroadcastCommand(cdc),
+		authcmd.GetBroadcastCommand(cdc),
+		authcmd.GetEncodeCommand(cdc),
 	)
 
 	// Add stake subcommands
@@ -182,7 +189,7 @@ func main() {
 		)...)
 
 	rootCmd.AddCommand(
-		client.ConfigCmd(),
+		client.ConfigCmd(app.DefaultCLIHome),
 		rpc.StatusCommand(),
 		client.LineBreak,
 		keys.Commands(),
@@ -194,12 +201,11 @@ func main() {
 		distributionCmd,
 		govCmd,
 		client.LineBreak,
-		client.LineBreak,
 		version.VersionCmd,
 	)
 
 	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "HG", app.DefaultCLIHome)
+	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
 	err := initConfig(rootCmd)
 	if err != nil {
 		panic(err)
