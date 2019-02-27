@@ -9,7 +9,7 @@
     + [distribution] endpoint changed "all_delegation_rewards" -> "delegator_total_rewards"
     + `hashgardlcd` switched back to insecure mode by default
     + use `--tls` flag to enable secure layer
-    + `GET /tx/{hash}`` now returns `404` instead of `500` if the transaction is not found
+    + `GET /tx/{hash}` now returns `404` instead of `500` if the transaction is not found
 
 + Hashgard CLI (hashgardcli)
     + Add `hashgard validate-genesis` command to facilitate checking of genesis files

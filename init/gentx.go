@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -29,7 +30,8 @@ import (
 )
 
 var (
-	defaultAmount                  = "100" + app.StakeDenom
+	defaultTokens                  = sdk.TokensFromTendermintPower(100)
+	defaultAmount                  = defaultTokens.String() + app.StakeDenom
 	defaultCommissionRate          = "0.1"
 	defaultCommissionMaxRate       = "0.2"
 	defaultCommissionMaxChangeRate = "0.01"
@@ -110,6 +112,11 @@ following delegation and commission default parameters:
 			coins, err := sdk.ParseCoins(amount)
 			if err != nil {
 				return err
+			}
+
+			// judge the amount is sufficient
+			if !coins.AmountOf(app.StakeDenom).GTE(defaultTokens) {
+				return errors.New("the amount to self stake is insuficient")
 			}
 
 			err = accountInGenesis(genesisState, key.GetAddress(), coins)

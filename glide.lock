@@ -1,5 +1,5 @@
-hash: c2551c6f3b8422c2866c58b971d78d21112a0a79504fada8688afb4362204d61
-updated: 2019-02-26T12:23:29.102395+08:00
+hash: 8c78b2b956ada53888e1a3c6e018086b1d3ea0abd056b9800c94d8367a4432fd
+updated: 2019-02-27T13:16:19.176322+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -10,7 +10,7 @@ imports:
 - name: github.com/bgentry/speakeasy
   version: 4aabc24848ce5fd31929f7d1e4ea74d3709c14cd
 - name: github.com/btcsuite/btcd
-  version: 67e573d211ace594f1366b4ce9d39726c4b19bd0
+  version: ed77733ec07dfc8a513741138419b8d9d3de9d2d
   subpackages:
   - btcec
 - name: github.com/btcsuite/btcutil
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: be9ff940c82b3337592b446d4cbb9134d93aabd1
+  version: a5b4286a7bef7c2e49f7face87e57b205228a12d
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -96,13 +96,13 @@ imports:
   - x/staking/tags
   - x/staking/types
 - name: github.com/cosmos/go-bip39
-  version: 555e2067c45d9fcd7292bf3b8e732bc10ac8c58e
+  version: 52158e4697b87de16ed390e1bdaf813e581008fa
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: badaf43019dce961d6562b81d34de214e9e8ac0f
+  version: f0233948d2bc343deb17be06c1a0f93c3e004084
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
@@ -163,7 +163,7 @@ imports:
 - name: github.com/magiconair/properties
   version: c2353362d570a7bfa228149c62842019201cfb71
 - name: github.com/mattn/go-isatty
-  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+  version: 369ecd8cea9851e459abb67eb171853e3986591e
 - name: github.com/matttproud/golang_protobuf_extensions
   version: c12348ce28de40eed0136aa2b644d0ee0650e56c
   subpackages:
@@ -175,7 +175,7 @@ imports:
 - name: github.com/pelletier/go-toml
   version: aa79e12a973495d00b01f2353330e5275d084731
 - name: github.com/pkg/errors
-  version: 059132a15dd08d6704c67711dae0cf35ab991756
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/pmezard/go-difflib
   version: 792786c7400a136282c1664665ae0a8db921c6c2
   subpackages:
@@ -217,20 +217,20 @@ imports:
 - name: github.com/spf13/cast
   version: 8c9545af88b134710ab1cd196795e7f2388358d7
 - name: github.com/spf13/cobra
-  version: fe5e611709b0c57fa4a89136deaa8e1d4004d053
+  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
 - name: github.com/spf13/jwalterweatherman
   version: 94f6ae3ed3bceceafa716478c5fbf8d29ca601a1
 - name: github.com/spf13/pflag
   version: aea12ed6721610dc6ed40141676d7ab0a1dac9e9
 - name: github.com/spf13/viper
-  version: 06c7c0d9b3c7cfca13deff6e353a052e08828ad4
+  version: a1b837276271029e31f796ae5d03ba9ffb017244
 - name: github.com/stretchr/testify
   version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
   subpackages:
   - assert
   - require
 - name: github.com/syndtr/goleveldb
-  version: f9080354173f192dfc8821931eacf9cfd6819253
+  version: c4c61651e9e37fa117f53c5a906d3b63090d8445
   subpackages:
   - leveldb
   - leveldb/cache
@@ -355,7 +355,7 @@ imports:
   - netutil
   - trace
 - name: golang.org/x/sys
-  version: 93218def8b18e66adbdab3eca8ec334700329f1f
+  version: 4e1fef5609515ec7a2cee7b5de30ba6d9b438cbf
   subpackages:
   - cpu
   - unix
@@ -367,7 +367,7 @@ imports:
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: b5d43981345bdb2c233eb4bf3277847b48c6fdc6
+  version: 383e8b2c3b9e36c4076b235b32537292176bae20
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc

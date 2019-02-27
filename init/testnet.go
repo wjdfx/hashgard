@@ -190,15 +190,15 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 		accs = append(accs, app.GenesisAccount{
 			Address: addr,
 			Coins: sdk.Coins{
-				sdk.NewInt64Coin(app.GasDenom, 1000),
-				sdk.NewInt64Coin(app.StakeDenom, 500),
+				sdk.NewInt64Coin(app.GasDenom, 1000000000),
+				sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(500)),
 			},
 		})
 
 		msg := staking.NewMsgCreateValidator(
 			sdk.ValAddress(addr),
 			valPubKeys[i],
-			sdk.NewInt64Coin(app.StakeDenom, 100),
+			sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(100)),
 			staking.NewDescription(nodeDirName, "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
