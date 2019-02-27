@@ -23,6 +23,7 @@ import (
 )
 
 func main() {
+	cdc := app.MakeCodec()
 
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(hashgardInit.Bech32PrefixAccAddr, hashgardInit.Bech32PrefixAccPub)
@@ -30,7 +31,6 @@ func main() {
 	config.SetBech32PrefixForConsensusNode(hashgardInit.Bech32PrefixConsAddr, hashgardInit.Bech32PrefixConsPub)
 	config.Seal()
 
-	cdc := app.MakeCodec()
 	ctx := server.NewDefaultContext()
 	cobra.EnableCommandSorting = false
 	rootCmd := &cobra.Command{
@@ -49,11 +49,9 @@ func main() {
 		server.ShowAddressCmd(ctx),
 	)
 
-	startCmd := server.StartCmd(ctx, newApp)
-	startCmd.Flags().Bool(app.FlagReplay, false, "Replay the last block")
 
 	rootCmd.AddCommand(
-		startCmd,
+		server.StartCmd(ctx, newApp),
 		hashgardInit.InitCmd(ctx, cdc),
 		hashgardInit.CollectGenTxsCmd(ctx, cdc),
 		hashgardInit.TestnetFilesCmd(ctx, cdc),

@@ -25,7 +25,6 @@ import (
 
 const (
 	appName = "HashgardApp"
-	FlagReplay = "replay"
 	// DefaultKeyPass contains key password for genesis transactions
 	DefaultKeyPass = "12345678"
 )
@@ -276,6 +275,9 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState GenesisState) []abci.ValidatorUpdate {
 	genesisState.Sanitize()
 
+	fmt.Println("22222222222");
+	fmt.Println(genesisState.Accounts);
+
 	// load the accounts
 	for _, gacc := range genesisState.Accounts {
 		acc := gacc.ToAccount()
@@ -291,6 +293,8 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
 	}
+	fmt.Println("33333333333333")
+	fmt.Println(validators)
 
 	// initialize module-specific stores
 	auth.InitGenesis(ctx, app.accountKeeper, app.feeCollectionKeeper, genesisState.AuthData)
@@ -316,10 +320,15 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 			if !res.IsOK() {
 				panic(res.Log)
 			}
+			fmt.Println("5555555555")
+			fmt.Println(res)
 		}
 
 		validators = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
 	}
+
+	fmt.Println("444444444444")
+	fmt.Println(validators)
 
 	return validators
 }
@@ -337,6 +346,10 @@ func (app *HashgardApp) initChainer(ctx sdk.Context, req abci.RequestInitChain) 
 	}
 
 	validators := app.initFromGenesisState(ctx, genesisState)
+
+	fmt.Println("111111111111")
+
+	fmt.Println(validators);
 
 	// sanity check
 	if len(req.Validators) > 0 {
