@@ -7,33 +7,26 @@
 ## 用法
 
 ```
-hashgardcli stake delegation [flags]
+hashgardcli stake delegation [delegator-addr] [validator-addr] [flags]
 ```
 打印帮助信息
 ```
 hashgardcli stake delegation --help
 ```
-## 特有的flags
-
-| 名称, 速记             | 默认值                      | 描述                                                                 | 必需     |
-| --------------------- | -------------------------- | -------------------------------------------------------------------- | -------- |
-| --address-delegator   |                            | [string] 委托者bech地址                                               | Yes      |
-| --validator   |                            | [string] 验证者bech地址                                               | Yes      |
 
 ## 示例
 
 ### 查询验证者
 
-```
-hashgardcli stake delegation --address-delegator=gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --validator=gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx
-
+```shell
+hashgardcli stake delegation gard13nyheuxft7nylrmxmtzewdrs8ukh9r6ejhwvdu gardvaloper13nyheuxft7nylrmxmtzewdrs8ukh9r6eq4rya3 --trust-node
 ```
 
 运行成功以后，返回的结果如下：
 
 ```txt
-Delegation 
-Delegator: gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet
-Validator: gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx
-Shares: 99.000000000
+Delegation:
+  Delegator: gard13nyheuxft7nylrmxmtzewdrs8ukh9r6ejhwvdu
+  Validator: gardvaloper13nyheuxft7nylrmxmtzewdrs8ukh9r6eq4rya3
+  Shares:    100000000.000000000000000000
 ```
