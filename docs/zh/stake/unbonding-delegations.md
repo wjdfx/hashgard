@@ -2,13 +2,14 @@
 
 ## 描述
 
-基于委托者地址的所有unbonding-delegation记录查询
+基于委托人地址的所有 unbonding-delegation 记录查询
 
 ## 用法
 
 ```
 hashgardcli stake unbonding-delegations [delegator-address] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake unbonding-delegations --help
@@ -16,9 +17,9 @@ hashgardcli stake unbonding-delegations --help
 
 ## 示例
 
-查询unbonding-delegation
+查询委托人的 unbonding-delegation
 ```
-hashgardcli stake unbonding-delegations [delegator-address]
+hashgardcli stake unbonding-delegations faa13lcwnxpyn2ea3skzmek64vvnp97jsk8qmhl6vx
 ```
 
 运行成功以后，返回的结果如下：

@@ -2,13 +2,14 @@
 
 ## 描述
 
-查询某个委托者发起的所有委托记录
+查询某个委托人发起的所有委托记录
 
 ## 用法
 
 ```
 hashgardcli stake delegations [delegator-address] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake delegations --help
@@ -16,10 +17,10 @@ hashgardcli stake delegations --help
 
 ## 示例
 
-### 查询某个委托者发起的所有委托记录
+查询某个委托人发起的所有委托记录
 
 ```
-hashgardcli stake delegations [delegator-address]  --trust-node
+hashgardcli stake delegations gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node
 ```
 
 运行成功以后，返回的结果如下：

@@ -2,13 +2,14 @@
 
 ## 描述
 
-查询验证者
+查询验证人信息
 
 ## 用法
 
 ```
 hashgardcli stake validator [validator-address] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake validator --help
@@ -16,12 +17,12 @@ hashgardcli stake validator --help
 
 ## 示例
 
-查询验证者
+查询验证人
 ```
 hashgardcli stake validator [validator-address] --trust-node
 ```
 
-运行成功以后，返回的结果类似如下：
+运行成功以后，返回的结果如下：
 
 ```txt
 Validator 
