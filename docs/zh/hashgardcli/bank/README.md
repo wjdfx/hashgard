@@ -31,6 +31,7 @@ Bank模块允许你管理你本地账户的资产。
 
 | 命令，缩写            | 默认值         | 描述                                | 是否必须 |
 | --------------------- | -------------- | ----------------------------------- | -------- |
+| | --chain-id | string | tendermint 节点网络ID | 是 |
 | -e, --encoding string | hex            | 字符串二进制编码 (hex \|b64 \|btc ) | 否       |
 | --home string         | /root/.hashgardcli | 配置和数据存储目录                  | 否       |
 | -o, --output string   | text           | 输出格式 (text \|json)              | 否       |

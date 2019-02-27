@@ -2,7 +2,7 @@
 
 ## 描述
 
-查询选定账户信息
+查询账户信息
 
 ## 使用方式
 
@@ -16,12 +16,11 @@ hashgardcli bank account [address] [flags]
 
 | 命令，缩写   | 类型   | 是否必须 | 默认值                | 描述                                      |
 | ------------ | ------ | -------- | --------------------- | ----------------------------------------- |
-| -h, --help   |        | 否       |                       | 打印帮助信息                              |
-| --chain-id   | String | 否       |                       | tendermint 节点网络ID                     |
+| -h, --help   | string | 否       |                       | 打印帮助信息                              |
 | --height     | Int    | 否       |                       | 查询的区块高度用于获取最新的区块。        |
-| --ledger     | String | 否       |                       | 使用一个联网的分账设备                    |
-| --node       | String | 否       | tcp://localhost:26657 | <主机>:<端口> 链上的tendermint rpc 接口。 |
-| --trust-node | String | 否       | True                  | 不验证响应的证明                          |
+| --ledger     | string | 否       |                       | 使用一个联网的分账设备                    |
+| --node       | string | 否       | tcp://localhost:26657 | <主机>:<端口> 链上的tendermint rpc 接口。 |
+| --trust-node | string | 否       | True                  | 不验证响应的证明                          |
 
 
 
@@ -29,6 +28,7 @@ hashgardcli bank account [address] [flags]
 
 | 命令，缩写            | 默认值         | 描述                                | 是否必须 |
 | --------------------- | -------------- | ----------------------------------- | -------- |
+| --chain-id | string | tendermint 节点网络ID | 是 |
 | -e, --encoding string | hex            | 字符串二进制编码 (hex \|b64 \|btc ) | 否       |
 | --home string         | $HOME/.hashgardcli | 配置和数据存储目录                  | 否       |
 | -o, --output string   | text           | 输出格式 (text \|json)              | 否       |

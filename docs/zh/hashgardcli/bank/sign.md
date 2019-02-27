@@ -14,40 +14,39 @@ hashgardcli bank sign <file> [flags]
 
 ## 标志
 
-| 命令，速记       | 类型   | 是否必须 | 默认值                | 描述                                                         |
-| ---------------- | ------ | -------- | --------------------- | ------------------------------------------------------------ |
-| -h, --help       |        | 否       |                       | 打印帮助                                                     |
-| --append         | Boole  | 是       | True                  | 将签名附加到现有签名。 如果禁用，旧签名将被覆盖              |
-| --name           | String | 是       |                       | 用于签名的私钥名称                                           |
-| --offline        | Boole  | 是       | False                 | 离线模式. 不查询本地缓存                                     |
-| --print-sigs     | Boole  | 是       | False                 | 打印必须签署交易的地址和已签名的地址，然后退出               |
-| --chain-id       | String | 否       |                       | tendermint 节点网络ID                                        |
-| --account-number | Int    | 否       |                       | 账户数字用于签名通证发送                                     |
-| --amount         | String | 是       |                       | 需要发送的通证数量，比如10gard                               |
-| --async          |        | 否       | True                  | 异步广播传输信息                                             |
-| --dry-run        |        | 否       |                       | 忽略--gas 标志 ，执行仿真传输，但不广播。                    |
-| --fee            | String | 是       |                       | 设置传输需要的手续费                                         |
-| --from           | String | 是       |                       | 用于签名的私钥名称                                           |
-| --from-addr      | String | 否       |                       | 在generate-only模式下指定的源地址                            |
-| --gas            | String | 否       | 20000                 | 每笔交易设定的gas限额; 设置为“simulate”以自动计算所需气体    |
-| --gas-adjustment | Float  | 否       | 1                     | 调整因子乘以传输模拟返回的估计值; 如果手动设置气体限制，则忽略该标志 |
-| --generate-only  |        | 否       |                       | 创建一个未签名的传输并写到标准输出中。                       |
-| --indent         |        | 否       |                       | 在JSON响应中增加缩进                                         |
-| --json           |        | 否       |                       | 以json格式返回输出                                           |
-| --memo           | String | 否       |                       | 传输中的备注信息                                             |
-| --print-response |        | 否       |                       | 返回传输响应 (仅仅当 async = false时有效)                    |
-| --sequence       | Int    | 否       |                       | 等待签名传输的序列号。                                       |
-| --to             | String | 否       |                       | Bech32 编码的接收通证的地址。                                |
-| --ledger         | String | 否       |                       | 使用一个联网的分账设备                                       |
-| --node           | String | 否       | tcp://localhost:26657 | <主机>:<端口> 链上的tendermint rpc 接口。                    |
-| --trust-node     | String | 否       | True                  | 不验证响应的证明                                             |
-
+| 命令，速记       | 类型    | 是否必须 | 默认值                | 描述                                                         |
+| ---------------- | ------- | -------- | --------------------- | ------------------------------------------------------------ |
+| --account-number | int     | 否       |                       | 发起交易的账户的编号                                         |
+| --append | bool | 否 | true | 将签名附加到现有签名。如果禁用，旧签名将被覆盖。如果--multisig打开则忽略（默认为true） |
+| --async          | bool | 否       | false                 | 是否异步广播交易                                             |
+| --dry-run        | bool | 否       | false                 | 模拟执行交易，并返回消耗的`gas`。`--gas`指定的值会被忽略     |
+| --fees           | string  | 是       |                       | 交易费，例如： 10stake,1atom                                 |
+| --from           | string  | 是       |                       | 发送交易的账户名称                                           |
+| --gas            | string  | 否       | 2000000               | 交易的gas上限; 设置为"auto"将自动计算相应的阈值              |
+| --gas-adjustment | float   | 否       | 1                     | gas调整因子，这个值降乘以模拟执行消耗的`gas`，计算的结果返回给用户; 如果`--gas`的值不是`atuo`，这个标志将被忽略 |
+| --gas-prices     | string  | 否       |                       | 交易费用单价，(例如： 0.00001stake)                          |
+| --generate-only  | bool | 否       | false                 | 是否仅仅构建一个未签名的交易便返回。                         |
+| -h, --help       |         | 否       |                       | 打印帮助                                                     |
+| --indent         | bool | 否       | false                 | 格式化json字符串                                             |
+| --ledger         | bool | 否       | false                 | 是否使用硬件钱包                                             |
+| --memo           | string  | 否       |                       | 备注信息                                                     |
+| --multisig | string | 否 | | 代表交易签署的multisig帐户的地址 |
+| --name | string | 否 | | 与之签名的私钥的名称 |
+| --node           | string  | 否       | tcp://localhost:26657 | <主机>:<端口> tendermint节点的rpc地址。                      |
+| --offline | bool | 否 | false | 链下模式，不查询全节点 |
+| --output-document | string |  |  | 该文档将写入给定文件而不是STDOUT |
+| --print-response | bool | 否       | true | 是否打印交易返回结果，仅在`async`为false的情况下有效  |
+| --sequence       | int     | 否       |                       | 发起交易的账户的sequence                                     |
+| --signature-only | bool | 否 | | 仅打印生成的签名，然后退出 |
+| --trust-node     | bool | 否       | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性 |
+| --validate-signatures | bool | 否 | false | 打印必须签署交易的地址，已签名的地址，并确保签名的顺序正确 |
 
 
 ## 全局标志
 
 | 命令，速记            | 默认值         | 描述                                | 是否必须 | 类型   |
 | --------------------- | -------------- | ----------------------------------- | -------- | ------ |
+| | --chain-id | string | tendermint 节点网络ID | 是 |
 | -e, --encoding string | hex            | 字符串二进制编码 (hex \|b64 \|btc ) | False    | String |
 | --home string         | /root/.hashgardcli | 配置和数据存储目录                  | False    | String |
 | -o, --output string   | text           | 输出格式(text \|json)               | False    | String |
