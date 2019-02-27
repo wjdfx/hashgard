@@ -28,7 +28,7 @@ hashgard add-genesis-account [address_or_key_name] [coin][,[coin]] [flags]
 
 ```bash
 hashgardcli keys add root
-hashgard add-genesis-account root 100gard
+hashgard add-genesis-account root 100000000gard
 ```
 
 

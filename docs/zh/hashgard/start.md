@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```
- hashgard start [command]
+hashgard start [flags]
 ```
 
 ## 标志
