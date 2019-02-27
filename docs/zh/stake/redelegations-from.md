@@ -2,7 +2,7 @@
 
 ## 描述
 
-基于某一验证者的所有重新委托查询
+基于某一验证人，查询所有重新委托
 
 ## 用法
 
@@ -16,9 +16,9 @@ hashgardcli stake redelegations-from --help
 
 ## 示例
 
-基于某一验证者的所有重新委托查询
+基于某一验证人的所有重新委托查询
 ```
-hashgardcli stake redelegations-from [validator-address] --trust-node
+hashgardcli stake redelegations-from gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --trust-node
 ```
 
 运行成功以后，返回的结果如下：
