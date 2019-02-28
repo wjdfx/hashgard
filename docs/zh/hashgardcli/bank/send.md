@@ -7,10 +7,8 @@
 ## 使用方式
 
 ```
-hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain-id> --amount=10gard
+hashgardcli bank send [to_address] [amount] [flags]
 ```
-
- 
 
 ## 标志
 
@@ -44,21 +42,39 @@ hashgardcli bank send --to=<account address> --from <key name> --chain-id=<chain
 | -o, --output string   | text           | 输出格式 (text \|json)              | 否       |
 | --trace               |                | 出错时打印完整栈信息                | 否       |
 
-
-
-
-
 ## 例子
 
 ### 发送通证到指定地址 
 
 ```
- hashgardcli bank send --to=gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet  --from=hashgard  --chain-id=hashgard--amount=10gard
+ hashgardcli bank send gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl 10gard --from=hashgard --chain-id=hashgard --ind
+ ent -o json
 ```
 
 命令执行完成后，返回执行的细节信息
 
 ```
-Committed at block 137 (tx hash: CDDE07D9858A638B837F677D3147648B7560BD77C0225539C5AF8785599D1805, response: {Code:0 Data:[] Log:Msg 0:  Info: GasWanted:200000 GasUsed:22425 Tags:[{Key:[97 99 116 105 111 110] Value:[115 101 110 100] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0} {Key:[115 101 110 100 101 114] Value:[103 97 114 100 49 117 104 97 117 121 116 104 116 101 116 57 48 101 119 116 117 121 52 48 118 52 104 114 121 109 108 113 102 53 110 52 53 119 99 120 99 120 99] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0} {Key:[114 101 99 105 112 105 101 110 116] Value:[103 97 114 100 49 109 51 109 52 108 54 103 53 55 55 52 113 101 53 106 106 56 99 119 108 121 97 115 117 101 50 50 121 104 51 50 106 102 52 119 119 101 116] XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0}] Codespace: XXX_NoUnkeyedLiteral:{} XXX_unrecognized:[] XXX_sizecache:0})
+{
+ "height": "21667",
+ "txhash": "58110E97BD93CFA123B43B7C893386BA26F238570E1131A7B6E1E6ED5B7DA605",
+ "log": "[{\"msg_index\":\"0\",\"success\":true,\"log\":\"\"}]",
+ "gas_wanted": "200000",
+ "gas_used": "22344",
+ "tags": [
+  {
+   "key": "action",
+   "value": "send"
+  },
+  {
+   "key": "sender",
+   "value": "gard10tfnpxvxjh6tm6gxq978ssg4qlk7x6j9aeypzn"
+  },
+  {
+   "key": "recipient",
+   "value": "gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl"
+  }
+ ]
+}
+PS
 
 ```

@@ -1,15 +1,14 @@
 # hashgardcli bank broadcast
 
 ## 描述
-离线广播事务
 
+离线广播事务
 
 ## 使用方式
 
 ```
-hashgardcli bank broadcast <file> [flags]
+hashgardcli bank broadcast [file_path] [flags]
 ```
-
 
 ## 标志
 
@@ -33,10 +32,6 @@ hashgardcli bank broadcast <file> [flags]
 | --sequence       | int     | 否       |                       | 发起交易的账户的sequence                                     |
 | --trust-node     | bool | 否       | true                  | 是否信任全节点返回的数据，如果不信任，客户端会验证查询结果的正确性 |
 
-
-
-
-
 ## 全局标志
 
 | 命令，缩写            | 默认值         | 描述                                | 是否必须 |
@@ -47,19 +42,5 @@ hashgardcli bank broadcast <file> [flags]
 | -o, --output string   | text           | 输出格式 (text,json)              | 否       |
 | --trace               |                | 出错时打印完整栈信息                | 否       |
 
-
-
 ## 例子
-
-### 查询账户信息 
-
-```
-hashgardcli bank broadcast <file> [flags]
-
-```
-
-​    
-
-
-
-​           
+       

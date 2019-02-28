@@ -10,8 +10,6 @@ Bank模块允许你管理你本地账户的资产。
  hashgardcli bank [command]
 ```
 
- 
-
 ## 相关命令
 
 | 命令      | 描述                   |

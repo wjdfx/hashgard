@@ -7,10 +7,8 @@
 ## 使用方式
 
 ```
-hashgardcli bank sign <file> [flags]
+hashgardcli bank sign [file] [flags]
 ```
-
- 
 
 ## 标志
 
@@ -56,30 +54,21 @@ hashgardcli bank sign <file> [flags]
 
 ### 对一个离线发送文件签名
 
-首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下
+首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下：
 
 ```  
-hashgardcli bank send --to=gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx  --from=test --chain-id=hashgard --amount=10gard --generate-only
+hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=test --chain-id=hashgard --generate-only
 
 {"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
 ```
 
+保存输出到文件中，如：/root/node0/test_send_10hashgard.txt
 
-
-保存输出到文件中，如  /root/output/output/node0/test_send_10hashgard.txt.
-
-接着来签名这个离线文件.
+接着来签名这个离线文件。
 
 ```
-hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=test  --offline=false --print-sigs=false --append=true
+hashgardcli bank sign /root/node0/test_send_10hashgard.txt --name=test  --offline=false --print-response --append=true
 ```
 
-随后得到签名详细信息，如下输出中你会看到签名信息。 
+随后得到签名详细信息，在输出中你会看到签名信息:
 **ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==**
-
-```
-hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=test  --offline=false --print-sigs=false --append=true
-Password to sign with 'test':
-{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AzlCwiA5Tvxwi7lMB/Hihfp2qnaks5Wrrgkg/Jy7sEkF"},"signature":"ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==","account_number":"0","sequence":"2"}],"memo":""}}
-```
-
