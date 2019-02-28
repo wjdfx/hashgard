@@ -18,7 +18,7 @@ hashgardcli stake unbond --help
 
 ## 示例
 
-```
+```shell
 hashgardcli stake unbond \
 gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx \
 5000gard \

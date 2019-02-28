@@ -22,10 +22,10 @@ hashgardcli stake redelegate \
 gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx \
 gardvaloper1xn4kvq867rap8vkrwfnp5n2entvpq2avtd0ytq \
 50000000 \
---chain-id=hashgard --from=hashgard --gas=simulate
+--chain-id=hashgard --from=hashgard --gas=auto
 ```
 
-> 设置 `--gas=simulate` 会自动计算gas
+> 设置 `--gas=auto` 会自动计算gas
 
 你将会得到如下信息：
 ```
