@@ -2,31 +2,24 @@
 
 ## 描述
 
-基于委托者地址，原源验证者地址和目标验证者地址的重新委托记录查询 
+基于委托人地址、原验证人地址、目标验证人地址查询重新委托记录 
 
 ## 用法
 
 ```
-hashgardcli stake redelegation [flags]
+hashgardcli stake redelegation [delegator-addr] [src-validator-addr] [dst-validator-addr] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake redelegation --help
 ```
 
-## 特有的flags
-
-| 名称, 速记                  | 默认值                      | 描述                                                                | 必需     |
-| -------------------------- | -------------------------- | ------------------------------------------------------------------- | -------- | 
-| --address-delegator        |                            | [string] 委托者bech地址                                              | Yes      |
-| --addr-validator-dest   |                            | [string] 目标验证者bech地址                                          | Yes      |
-| --addr-validator-source |                            | [string] 源验证者bech地址                                            | Yes      |
-
 ## 示例
 
 查询重新委托记录
 ```
-hashgardcli stake redelegation --addr-validator-source=SourceValidatorAddress --addr-validator-dest=DestinationValidatorAddress --address-delegator=DelegatorAddress --trust-node
+hashgardcli stake redelegation gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx gardvaloper1xn4kvq867rap8vkrwfnp5n2entvpq2avtd0ytq --trust-node
 ```
 
 运行成功以后，返回的结果如下：
