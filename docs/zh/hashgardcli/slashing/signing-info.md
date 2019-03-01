@@ -2,28 +2,36 @@
 
 ## 描述
 
-查询验证者签名信息
+使用验证人的共识公钥查询验证人的签名信息
 
 ## 用法
 
 ```
-hashgardcli slashing signing-info [validator-pubkey] [flags]
+hashgardcli slashing signing-info [validator-conspub] [flags]
 ```
+
 打印帮助信息
+
 ```
 hashgardcli slashing signing-info --help
 ```
 
 ## 示例
 
-查询验证者签名信息
+查询验证人的签名信息
+
 ```
-hashgardcli slashing signing-info [validator-pubkey] --trust-node
+hashgardcli slashing signing-info \
+gardvalconspub1zcjduepqgsmuj0qallsw79hjj9qztcke6hj3ujdcpjv249uny9fvzp4eulms0tqvgs \
+--trust-node
 ```
 
 运行成功以后，返回的结果如下：
 
 ```txt
-Start height: 0, index offset: 13211, jailed until: 1970-01-01 00:00:00 +0000 UTC, missed blocks counter: 0
-
+Start Height:          0
+Index Offset:          80
+Jailed Until:          1970-01-01 00:00:00 +0000 UTC
+Tombstoned:            false
+Missed Blocks Counter: 0
 ```

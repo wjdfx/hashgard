@@ -25,8 +25,9 @@ hashgardcli stake params --trust-node
 运行成功以后，返回的结果如下：
 
 ```txt
-  Params 
-  Unbonding Time: 10m0s
-  Max Validators: 100
-  Bonded Coin Denomination: apple
+Params:
+  Unbonding Time:    10m0s
+  Max Validators:    100
+  Max Entries:       0
+  Bonded Coin Denom: gard
 ```
