@@ -159,6 +159,7 @@ func main() {
 		client.PostCommands(
 			distributioncmd.GetCmdWithdrawRewards(cdc),
 			distributioncmd.GetCmdSetWithdrawAddr(cdc),
+			distributioncmd.GetCmdWithdrawAllRewards(cdc, distribution.StoreKey),
 		)...)
 
 	// Add gov subcommands

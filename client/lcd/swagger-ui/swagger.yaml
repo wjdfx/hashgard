@@ -22,8 +22,7 @@ tags:
 - name: version
   description: Query app version
 schemes:
-- https
-host: fabo.interblock.io:1317
+- http
 securityDefinitions:
   kms:
     type: basic

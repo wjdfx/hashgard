@@ -2,13 +2,14 @@
 
 ## 描述
 
-基于委托者地址的所有重新委托记录查询
+基于委托人地址, 查询所有重新委托记录
 
 ## 用法
 
 ```
 hashgardcli stake redelegations [delegator-address] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake redelegations --help
@@ -18,7 +19,7 @@ hashgardcli stake redelegations --help
 
 基于委托者地址的所有重新委托记录查询
 ```
-hashgardcli stake redelegations [delegator-address] --trust-node
+hashgardcli stake redelegations gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node
 ```
 
 运行成功以后，返回的结果如下：

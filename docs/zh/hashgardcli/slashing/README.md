@@ -1,24 +1,20 @@
 # hashgardcli slashing
 
 ## 描述
-Slashing子命令
+
+slashing子命令
 
 ## 用法
+
 ```
  hashgardcli slashing [command]
-
 ```
 
-## 相关命令
+## 子命令
 
-|命令|描述|
-|---|---|
-|[signing-info](signing-info.md)|查询验证者签名信息|
-| [unjail](unjail.md)|恢复验证器之前因停机而被判入狱的状态|
+| 子命令 | 功能 |
+| --- | --- |
+| [signing-info](signing-info.md) | 查询验证者签名信息 |
+| [params](params.md) | 查询当前的处罚参数 |
+| [unjail](unjail.md) | 恢复因停机而被判入狱的验证人 |
 
-
-
-## 标志
-|名称,速记|描述|
-|---|---|
-|--help,-h|tendermint命令帮助|

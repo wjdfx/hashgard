@@ -2,30 +2,24 @@
 
 ## 描述
 
-基于委托者地址和验证者地址的unbonding-delegation记录查询
+基于委托人地址和验证人地址的unbonding-delegation记录查询
 
 ## 用法
 
 ```
-hashgardcli stake unbonding-delegation [flags]
+hashgardcli stake unbonding-delegation [delegator-addr] [validator-addr] [flags]
 ```
+
 打印帮助信息
 ```
 hashgardcli stake unbonding-delegation --help
 ```
 
-## 特有的flags
-
-| 名称, 速记           | 默认值                     | 描述                                                                 | 必需     |
-| ------------------- | -------------------------- | ------------------------------------------------------------------- | -------- |
-| --address-delegator |                            | [string] 委托者bech地址                                              | Yes      |
-| validator |                            | [string] 验证者bech地址                                             | Yes      |
-
 ## 示例
 
-查询unbonding-delegation
+查询委托人和验证人的 unbonding-delegation
 ```
-hashgardcli stake unbonding-delegation --address-delegator=gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --validator=gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --chain-id=hashgard
+hashgardcli stake unbonding-delegation gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --chain-id=hashgard
 ```
 
 运行成功以后，返回的结果如下：
