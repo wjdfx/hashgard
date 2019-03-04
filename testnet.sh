@@ -44,8 +44,8 @@ function run() {
         docker run -d \
             --name ${NODE_NAME} \
             --net ${DOCKER_NETWORK} \
-            -v ${NODE_ROOT}/.hashgard:/root/.hashgard \
-            -v ${NODE_ROOT}/.hashgardcli:/root/.hashgardcli \
+            -v ${NODE_ROOT}/hashgard:/root/.hashgard \
+            -v ${NODE_ROOT}/hashgardcli:/root/.hashgardcli \
             hashgard:${CHAIN_ID} \
             > /dev/null
         echo "Done !"
