@@ -3,7 +3,7 @@
 COMMAND=$1
 CONFIG_PATH=$2
 CHAIN_ID=sif-3000
-NODE_PREFIX="testnode"
+NODE_PREFIX="testnode-"
 DOCKER_NETWORK="hashgard-network"
 
 function usage() {
