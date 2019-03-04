@@ -10,11 +10,13 @@
 hashgardcli status [flags]
 ```
 
-## flags
+## 参数 flags
 
 | 名称, 缩写 | 默认值                | 描述                | 必需 |
 | ---------- | --------------------- | ------------------- | ---- |
-| --node, -n | tcp://localhost:26657 | [string] 连接的节点 |      |
+| --node, -n | tcp://localhost:26657 | [string] 连接的节点 | 否   |
+
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 例子
 

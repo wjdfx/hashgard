@@ -10,11 +10,9 @@
 hashgardcli slashing signing-info [validator-conspub] [flags]
 ```
 
-打印帮助信息
+## 参数 flags
 
-```
-hashgardcli slashing signing-info --help
-```
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

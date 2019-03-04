@@ -10,13 +10,15 @@
   hashgardcli tendermint tendermint-validator-set [height] [flags]
 ```
 
-## 标志
+## 参数 flags
 
 | 名称, 速记    | 默认值                | 描述                                 | 必需                               |
 | ------------- | --------------------- | ------------------------------------ | ---------------------------------- |
 | --chain-id    | 无                    | [string] tendermint 节点的链 ID      | 否，当`--trust-node=false`时，为是 |
 | --node string | tcp://localhost:26657 | 要连接的节点                         | 否                                 |
 | --trust-node  | true                  | 信任连接的完整节点，关闭响应结果校验 | 否                                 |
+
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 例子
 

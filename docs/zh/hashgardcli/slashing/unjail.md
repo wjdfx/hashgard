@@ -15,11 +15,9 @@
 hashgardcli slashing unjail [flags]
 ```
 
-打印帮助信息
+## 参数 flags
 
-```
-hashgardcli slashing unjail --help
-```
+**全局参数、发送交易命令参数** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

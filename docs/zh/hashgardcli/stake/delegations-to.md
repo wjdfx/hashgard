@@ -10,14 +10,14 @@
 hashgardcli stake delegations-to [validator-addr] [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake delegations-to --help
-```
+## 参数 flags
+
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
 查询验证人的所有委托
+
 ```
 hashgardcli stake delegations-to gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --trust-node
 ```

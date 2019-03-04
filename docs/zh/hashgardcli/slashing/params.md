@@ -10,14 +10,14 @@
 hashgardcli slashing params [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli slashing params --help
-```
+## 参数 flags
+
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
 查询当前的惩罚参数信息
+
 ```
 hashgardcli slashing params --trust-node
 ```

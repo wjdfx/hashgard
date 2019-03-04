@@ -10,14 +10,14 @@
 hashgardcli stake params [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake params --help
-```
+## 参数 flags
+
+**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
 查询最新的权益参数信息
+
 ```
 hashgardcli stake params --trust-node
 ```
