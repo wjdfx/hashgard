@@ -8,21 +8,18 @@
 
 ```
  hashgardcli gov param [param-type] [flags]
-
 ```
-打印帮助信息:
+## Global Flags
 
-```
-hashgardcli gov param --help
-```
-
+ ### 参考：[hashgardcli](../README.md)
+ 
 
 ## 例子
 
 ### 通过voting查
 
 ```shell
-hashgardcli gov param voting --trust-node
+hashgardcli gov param voting --trust-node -o=json --indent
 ```
 
 会得到类似如下结果。
@@ -36,8 +33,7 @@ hashgardcli gov param voting --trust-node
 ### 通过deposit查
 
 ```shell
-hashgardcli gov param deposit --trust-node
-
+hashgardcli gov param deposit --trust-node -o=json --indent
 ```
 
 会得到类似如下结果。
@@ -52,13 +48,12 @@ hashgardcli gov param deposit --trust-node
   ],
   "max_deposit_period": "172800000000000"
 }
-
 ```
 
 
 ### 通过tallying查
 ```
-hashgardcli gov param tallying --trust-node
+hashgardcli gov param tallying --trust-node -o=json --indent
 ```
 
 会得到如以下类似信息：
@@ -69,6 +64,4 @@ hashgardcli gov param tallying --trust-node
   "veto": "0.3340000000",
   "governance_penalty": "0.0100000000"
 }
-
-
 ```

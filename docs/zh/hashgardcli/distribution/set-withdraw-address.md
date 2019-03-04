@@ -9,15 +9,12 @@
 ```
 hashgardcli distribution set-withdraw-addr [withdraw-address] [flags]
 ```
+## Global Flags
 
-打印帮助信息:
-
+ ### 参考：[hashgardcli](../README.md)
+ 
 ```
-hashgardcli distribution set-withdraw-addr --help
-```
-
 ## 示例
-
 ```
 hashgardcli distribution set-withdraw-addr gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl --from joehe1 --chain-id=hashgard --output=json --indent
 ```

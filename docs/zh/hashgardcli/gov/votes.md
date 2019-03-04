@@ -2,30 +2,28 @@
 
 ## 描述
 
-查询指定提议的投票情况
+查询指定提案的投票情况
 
 ## 使用方式
 
 ```
-  hashgardcli gov votes [proposal-id] [flags]
-
-```
-打印帮助信息:
-
-```
-hashgardcli gov votes --help
+hashgardcli gov votes [proposal-id] [flags]
 ```
 
+## Global Flags
+
+ ### 参考：[hashgardcli](../README.md)
+ 
 ## 例子
 
 ### Query votes
 
 ```shell
-hashgardcli gov votes 1 --trust-node
+hashgardcli gov votes 1 --trust-node -o=json --indent
 ```
 
-通过指定的提议查询该提议所有投票者的投票详情。
- 
+通过指定的提案查询该提案所有投票者的投票详情。
+
 ```txt
 [
   {
