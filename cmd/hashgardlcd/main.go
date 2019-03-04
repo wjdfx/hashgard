@@ -2,10 +2,14 @@ package main
 
 import (
 	"net/http"
+	"os"
+	"path"
 
 	"github.com/rakyll/statik/fs"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -34,6 +38,12 @@ var (
 )
 
 func main() {
+
+	// Add --chain-id to persistent flags and mark it required
+	rootCmd.PersistentFlags().String(client.FlagChainID, "", "Chain ID of tendermint node")
+	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
+		return initConfig(rootCmd)
+	}
 
 	hashgardInit.InitBech32Prefix()
 
@@ -79,4 +89,26 @@ func registerSwaggerUI(rs *lcd.RestServer) {
 	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }
 
+func initConfig(cmd *cobra.Command) error {
+	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)
+	if err != nil {
+		return err
+	}
+
+	cfgFile := path.Join(home, "config", "config.toml")
+	if _, err := os.Stat(cfgFile); err == nil {
+		viper.SetConfigFile(cfgFile)
+
+		if err := viper.ReadInConfig(); err != nil {
+			return err
+		}
+	}
+	if err := viper.BindPFlag(client.FlagChainID, cmd.PersistentFlags().Lookup(client.FlagChainID)); err != nil {
+		return err
+	}
+	if err := viper.BindPFlag(cli.EncodingFlag, cmd.PersistentFlags().Lookup(cli.EncodingFlag)); err != nil {
+		return err
+	}
+	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
+}
 
