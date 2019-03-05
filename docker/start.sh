@@ -7,7 +7,7 @@
 # ------------------------------------------------------------------------------
 CHAIN_ID=sif-3000
 KEY_NAME=root
-KEY_PASSWORD=11111111
+KEY_PASSWORD=12345678
 COIN_GENESIS=10000000gard
 COIN_DELEGATE=100000gard
 
