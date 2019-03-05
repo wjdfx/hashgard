@@ -112,7 +112,7 @@ fi
 #
 # ------------------------------------------------------------------------------
 if [[ -z ${NODE_TYPE} ]]; then
-    NODE_TYPE="PRIVATE_SINGL"
+    NODE_TYPE="PRIVATE_SINGLE"
 fi
 case "${NODE_TYPE}" in
     "FULL_NODE")
