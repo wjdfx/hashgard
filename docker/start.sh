@@ -36,6 +36,7 @@ function init_full_node() {
 
     hashgard init --moniker ${MONIKER} --chain-id ${CHAIN_ID}
     cd /root/.hashgard/config
+    rm -f config.toml genesis.json
     wget https://github.com/hashgard/testnets/blob/master/sif/sif-3000/config/config.toml
     wget https://github.com/hashgard/testnets/blob/master/sif/sif-3000/config/genesis.json
 }
