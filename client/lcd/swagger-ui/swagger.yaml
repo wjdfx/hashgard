@@ -1,8 +1,8 @@
 ---
-swagger: '2.0'
+swagger: "2.0"
 info:
   version: "3.0"
-  title: Hashgard-Lite for Hashgard
+  title: LCD for Hashgard
   description: A REST interface for state queries, transaction generation, signing, and broadcast.
 tags:
 - name: ICS0
@@ -443,7 +443,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/KeyOutput'
+              $ref: "#/definitions/KeyOutput"
         500:
           description: Server internal error
     post:
@@ -755,16 +755,6 @@ paths:
     post:
       summary: Submit an unbonding delegation
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: delegation
         description: The password of the account to remove from the KMS
@@ -868,16 +858,6 @@ paths:
     post:
       summary: Submit a redelegation
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: delegation
         description: The password of the account to remove from the KMS
@@ -1181,7 +1161,7 @@ paths:
         name: validatorAddr
         required: true
         in: path
-      - description: ''
+      - description: ""
         name: UnjailBody
         in: body
         required: true
@@ -1391,7 +1371,7 @@ paths:
         name: proposalId
         required: true
         in: path
-      - description: ''
+      - description: ""
         name: post_deposit_body
         in: body
         required: true
@@ -1677,16 +1657,6 @@ paths:
       produces:
       - application/json
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: Withdraw request body
         schema:
@@ -1744,16 +1714,6 @@ paths:
       produces:
       - application/json
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: Withdraw request body
         schema:
@@ -1804,16 +1764,6 @@ paths:
       produces:
       - application/json
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: Withdraw request body
         schema:
@@ -1891,16 +1841,6 @@ paths:
       produces:
       - application/json
       parameters:
-      - in: query
-        name: simulate
-        description: if true, ignore the gas field and perform a simulation of a transaction, but don't broadcast it
-        required: false
-        type: boolean
-      - in: query
-        name: generate_only
-        description: if true, build an unsigned transaction and write it back
-        required: false
-        type: boolean
       - in: body
         name: Withdraw request body
         schema:
@@ -1982,8 +1922,8 @@ definitions:
       gas_wanted: 10000
       info: info
       tags:
-      - ''
-      - ''
+      - ""
+      - ""
   DeliverTxResult:
     type: object
     properties:
@@ -2011,8 +1951,8 @@ definitions:
       gas_wanted: 10000
       info: info
       tags:
-      - ''
-      - ''
+      - ""
+      - ""
   BroadcastTxCommitResult:
     type: object
     properties:
@@ -2046,7 +1986,7 @@ definitions:
     properties:
       denom:
         type: string
-        example: gard
+        example: steak
       amount:
         type: string
         example: "50"
@@ -2157,7 +2097,7 @@ definitions:
         example: 1
       time:
         type: string
-        example: '2017-12-30T05:53:09.287+01:00'
+        example: "2017-12-30T05:53:09.287+01:00"
       num_txs:
         type: number
         example: 0
@@ -2220,7 +2160,7 @@ definitions:
                   example: "0"
                 timestamp:
                   type: string
-                  example: '2017-12-30T05:53:09.287+01:00'
+                  example: "2017-12-30T05:53:09.287+01:00"
                 type:
                   type: number
                   example: 2
@@ -2228,7 +2168,7 @@ definitions:
                   $ref: "#/definitions/BlockID"
                 signature:
                   type: string
-                  example: '7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ=='
+                  example: "7uTC74QlknqYWEwg7Vn6M8Om7FuZ0EO4bjvuj6rwH1mTUJrRuMMZvAAqT9VjNgP0RA/TDp6u/92AqrZfXJSpBQ=="
   BlockQuery:
     type: object
     properties:
@@ -2244,18 +2184,19 @@ definitions:
   BaseReq:
     type: object
     properties:
-      name:
+      from:
         type: string
-        example: "my_name"
+        example: "gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc"
+        description: Sender address or Keybase name to generate a transaction
       password:
         type: string
         example: "12345678"
       memo:
         type: string
-        example: "Sent via Cosmos Voyager 🚀"
+        example: "Sent memo"
       chain_id:
         type: string
-        example: "Cosmos-Hub"
+        example: "sif-3000"
       account_number:
         type: string
         example: "0"
@@ -2272,21 +2213,19 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Coin"
-      gas_prices:
-        type: array
-        items:
-          $ref: "#/definitions/DecCoin"
       generate_only:
         type: boolean
         example: false
+        description: Create a JSON transaction that can be signed client side instead of actually signing and broadcasting
       simulate:
         type: boolean
-        example: true
+        example: false
+        description: Estimate gas for a transaction (cannot be used in conjunction with generate_only)
   TendermintValidator:
     type: object
     properties:
       address:
-        $ref: '#/definitions/ValidatorAddress'
+        $ref: "#/definitions/ValidatorAddress"
       pub_key:
         type: string
         example: gardvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
@@ -2365,7 +2304,7 @@ definitions:
     type: object
     properties:
       operator_address:
-        $ref: '#/definitions/ValidatorAddress'
+        $ref: "#/definitions/ValidatorAddress"
       consensus_pubkey:
         type: string
         example: gardvalconspub1zcjduepq7sjfglw7ra4mjxpw4ph7dtdhdheh7nz8dfgl6t8u2n5szuuql9mqsrwquu
@@ -2390,31 +2329,31 @@ definitions:
             type: string
       bond_height:
         type: string
-        example: '0'
+        example: "0"
       bond_intra_tx_counter:
         type: integer
         example: 0
       unbonding_height:
         type: string
-        example: '0'
+        example: "0"
       unbonding_time:
         type: string
-        example: '1970-01-01T00:00:00Z'
+        example: "1970-01-01T00:00:00Z"
       commission:
         type: object
         properties:
           rate:
             type: string
-            example: '0'
+            example: "0"
           max_rate:
             type: string
-            example: '0'
+            example: "0"
           max_change_rate:
             type: string
-            example: '0'
+            example: "0"
           update_time:
             type: string
-            example: '1970-01-01T00:00:00Z'
+            example: "1970-01-01T00:00:00Z"
   Delegation:
     type: object
     properties:
@@ -2466,12 +2405,12 @@ definitions:
     type: object
     properties:
       operator_addr:
-        $ref: '#/definitions/ValidatorAddress'
+        $ref: "#/definitions/ValidatorAddress"
       self_bond_rewards:
         type: array
         items:
-          $ref: '#/definitions/Coin'
+          $ref: "#/definitions/Coin"
       val_commission:
         type: array
         items:
-          $ref: '#/definitions/Coin'
+          $ref: "#/definitions/Coin"
