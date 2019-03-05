@@ -76,11 +76,28 @@ function init_private_testnet() {
 
 # ------------------------------------------------------------------------------
 #
-# Restart container
+# Initial Hashgard block chain private multiple nodes
+#
+#   Folder .hashgard and .hashgardcli had been created by 'hashgard testnet'
+#   and mount to /root/.hashgard and /root/.hashgardcli. So nothing to do.
+#
+# ------------------------------------------------------------------------------
+function hashgard_start() {
+    hashgard start
+
+    # Hold the container for debugging
+    while [[ 1 ]]; do
+        sleep 1
+    done
+}
+
+# ------------------------------------------------------------------------------
+#
+# For container restart
 #
 # ------------------------------------------------------------------------------
 if [[ -e ${INITIALIZED_FLAG} ]]; then
-    hashgard start
+    hashgard_start
 fi
 
 # ------------------------------------------------------------------------------
@@ -119,4 +136,4 @@ esac
 touch ${INITIALIZED_FLAG}
 
 # Start service
-hashgard start
+hashgard_start
