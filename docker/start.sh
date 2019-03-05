@@ -34,11 +34,12 @@ function init_full_node() {
 
     config_global_client_settings
 
-    hashgard init --moniker ${MONIKER} --chain-id ${CHAIN_ID}
+    hashgard init --moniker whatever --chain-id ${CHAIN_ID}
     cd /root/.hashgard/config
     rm -f config.toml genesis.json
     wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-3000/config/config.toml
     wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-3000/config/genesis.json
+    sed -i "s|moniker.*|moniker = \"${MONIKER}\"|g" config.toml
 }
 
 # ------------------------------------------------------------------------------
