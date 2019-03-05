@@ -90,6 +90,9 @@ if [[ ! -d ${CONFIG_PATH}/node0 ]]; then
     exit -2
 fi
 
+cd ${CONFIG_PATH}
+CONFIG_PATH=$(pwd)
+
 case "${COMMAND}" in
     "run")
         run
