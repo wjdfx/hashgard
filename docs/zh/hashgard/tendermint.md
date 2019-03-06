@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```
-hashgard tendermint [command] [flags]
+hashgard tendermint [subcommand] [flags]
 ```
 
 ## 子命令

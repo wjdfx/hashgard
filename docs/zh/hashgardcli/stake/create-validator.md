@@ -10,7 +10,7 @@
 hashgardcli stake create-validator [flags]
 ```
 
-## 参数 flags
+## flags
 
 | 名称                         | 类型   | 是否必填 | 默认值 | 功能描述                                                |
 | ---------------------------- | ------ | -------- | ------ | ------------------------------------------------------- |
@@ -23,13 +23,13 @@ hashgardcli stake create-validator [flags]
 | --genesis-format             | bool   | false    | false  | 是否已 genesis transaction 的方式倒出                   |
 | --identity                   | string | false    | ""     | 身份信息的签名                                          |
 | --ip                         | string | false    | ""     | 验证人节点的 IP, 与`--generate-only`flag 同时使用时生效 |
-| --min-self-delegation        | string | false    | ""     | 验证人节点要求的自委托最小数量                          |
+| --min-self-delegation        | string | true     | ""     | 验证人节点要求的自委托最小股权数量                      |
 | --moniker                    | string | true     | ""     | 验证人节点名称                                          |
 | --node-id                    | string | false    | ""     | 节点 ID                                                 |
 | --pubkey                     | string | true     | ""     | Amino 编码的验证人公钥                                  |
 | --website                    | string | false    | ""     | 验证人节点的网址                                        |
 
-**全局参数、发送交易命令参数** 参考：[hashgardcli](../README.md)
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

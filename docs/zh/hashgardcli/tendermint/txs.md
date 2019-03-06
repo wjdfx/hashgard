@@ -10,7 +10,7 @@
 hashgardcli tendermint txs [flags]
 ```
 
-## 参数 flags
+## flags
 
 | 名称, 缩写 | 类型   | 必需 | 默认值 | 描述                      |
 | ---------- | ------ | ---- | ------ | ------------------------- |
@@ -18,7 +18,7 @@ hashgardcli tendermint txs [flags]
 | --page     | int    | 否   | 1      | 指定返回第几页            |
 | --tags     | string | 是   |        | 需要匹配的 tag:value 列表 |
 
-**全局参数、查询命令参数** 参考：[hashgardcli](../README.md)
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 例子
 

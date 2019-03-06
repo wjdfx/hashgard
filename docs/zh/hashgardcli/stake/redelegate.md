@@ -10,9 +10,9 @@
 hashgardcli stake redelegate [src-validator-addr] [dst-validator-addr] [amount] [flags]
 ```
 
-## 参数 flags
+## flags
 
-**全局参数、发送交易命令参数** 参考：[hashgardcli](../README.md)
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

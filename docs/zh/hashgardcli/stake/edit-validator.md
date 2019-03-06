@@ -10,7 +10,7 @@
 hashgardcli stake edit-validator [flags]
 ```
 
-## 参数 flags
+## flags
 
 | 名称              | 类型   | 是否必填 | 默认值            | 功能描述             |
 | ----------------- | ------ | -------- | ----------------- | -------------------- |
@@ -20,7 +20,7 @@ hashgardcli stake edit-validator [flags]
 | --moniker         | string | false    | "[do-not-modify]" | 验证人名称           |
 | --website         | string | false    | "[do-not-modify]" | 网址                 |
 
-**全局参数、发送交易命令参数** 参考：[hashgardcli](../README.md)
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
