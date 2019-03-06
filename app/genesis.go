@@ -51,9 +51,9 @@ func NewGenesisState(
 	bankData bank.GenesisState,
 	stakingData staking.GenesisState,
 	mintData mint.GenesisState,
-	distrData distribution.GenesisState,
-	slashingData slashing.GenesisState,
+	distributionData distribution.GenesisState,
 	govData gov.GenesisState,
+	slashingData slashing.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -62,9 +62,9 @@ func NewGenesisState(
 		BankData:			bankData,
 		StakingData:		stakingData,
 		MintData:			mintData,
-		DistributionData:	distrData,
-		SlashingData:		slashingData,
+		DistributionData:	distributionData,
 		GovData:			govData,
+		SlashingData:		slashingData,
 	}
 }
 
@@ -88,8 +88,8 @@ func NewDefaultGenesisState() GenesisState {
 		StakingData:    	createStakingGenesisState(),
 		MintData:			createMintGenesisState(),
 		DistributionData:	distribution.DefaultGenesisState(),
-		SlashingData:		slashing.DefaultGenesisState(),
 		GovData:			createGovGenesisState(),
+		SlashingData:		slashing.DefaultGenesisState(),
 		GenTxs:				nil,
 	}
 }
@@ -103,7 +103,8 @@ func createStakingGenesisState() staking.GenesisState {
 		Params: staking.Params{
 			UnbondingTime: defaultUnbondingTime,
 			MaxValidators: 100,
-			BondDenom:     StakeDenom,
+			MaxEntries: 7,
+			BondDenom: StakeDenom,
 		},
 	}
 }
@@ -126,7 +127,7 @@ func createGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewInt64Coin(StakeDenom, 10)},
+			MinDeposit:       sdk.Coins{sdk.NewCoin(StakeDenom, sdk.NewInt(10))},
 			MaxDepositPeriod: time.Duration(172800) * time.Second,
 		},
 		VotingParams: gov.VotingParams{

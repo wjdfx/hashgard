@@ -1,5 +1,5 @@
 hash: 4e5a3c9ce66487bad83ebf40fe0b0eab6999906d90f3612088e7e20bfc052431
-updated: 2019-03-04T17:19:31.344428+08:00
+updated: 2019-03-05T20:55:41.838722+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -102,13 +102,13 @@ imports:
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: f9aa1cd21f776a4d3267d9c89772bdc622468d6d
+  version: 81ed70015704737b3e5329314a62a3a5aaa74e8a
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/go-kit/kit
-  version: a8cc1630e08ad79caf184b550589ded1a16b203d
+  version: 102522abed87468226354b1a1c8c588c81313822
   subpackages:
   - log
   - log/level
@@ -173,7 +173,7 @@ imports:
 - name: github.com/otiai10/copy
   version: 7e9a647135a142c2669943d4a4d29be015ce9392
 - name: github.com/pelletier/go-toml
-  version: d9a27b8052b61ed9ff043993c141af2acfb50027
+  version: e1803f96f6945c1061f538abc1a01a18f4d963fb
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/pmezard/go-difflib
@@ -191,7 +191,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 7a3416fd1f41341905f138746c51a5092e7ddf7a
+  version: bf857faf208676b0294bd49959aa34c8d98163ed
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -372,7 +372,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 914c52b240b05e4562b1d09e5e7cf3c57495d442
+  version: 45890ffd9e533ea1d7555737205707de67ebe453
   subpackages:
   - balancer
   - balancer/base
