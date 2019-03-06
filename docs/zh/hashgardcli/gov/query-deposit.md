@@ -1,4 +1,4 @@
-# hashgardcli gov query-deposits
+# hashgardcli gov query-deposit
 
 ## 描述
 
@@ -13,7 +13,7 @@
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
+
 ## 例子
 
 ### 查询充值保证金

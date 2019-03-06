@@ -12,14 +12,13 @@ hashgardcli bank send [to_address] [amount] [flags]
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
+
 ## 例子
 
 ### 发送通证到指定地址 
 
 ```
-hashgardcli bank send gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl 10gard --from=hashgard --chain-id=hashgard --ind
- ent -o json
+hashgardcli bank send gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl 10gard --from=hashgard --chain-id=hashgard --indent -o json
 ```
 
 命令执行完成后，返回执行的细节信息
