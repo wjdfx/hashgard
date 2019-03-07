@@ -7,23 +7,20 @@
 ## 用法
 
 ```
-hashgardcli stake edit-validator [flags] 
+hashgardcli stake edit-validator [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake edit-validator --help
-```
+## flags
 
-## 特有flags
+| 名称              | 类型   | 是否必填 | 默认值            | 功能描述             |
+| ----------------- | ------ | -------- | ----------------- | -------------------- |
+| --commission-rate | float  | false    | 0.0               | 佣金比率             |
+| --details         | string | false    | "[do-not-modify]" | 验证人节点的详细信息 |
+| --identity        | string | false    | "[do-not-modify]" | 身份签名             |
+| --moniker         | string | false    | "[do-not-modify]" | 验证人名称           |
+| --website         | string | false    | "[do-not-modify]" | 网址                 |
 
-| 名称                | 类型   | 是否必填 | 默认值   | 功能描述         |
-| --------------------| -----  | -------- | ------------------ | ------------------------------------------------------------------- |
-| --commission-rate   | float  | false    | 0.0                | 佣金比率 |
-| --details           | string | false    | "[do-not-modify]"  | 验证人节点的详细信息 |
-| --identity          | string | false    | "[do-not-modify]"  | 身份签名 |
-| --moniker           | string | false    | "[do-not-modify]"  | 验证人名称 |
-| --website           | string | false    | "[do-not-modify]"  | 网址 |
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

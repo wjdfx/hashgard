@@ -2,30 +2,25 @@
 
 ## 描述
 
-查询指定提议、指定投票者的投票情况
+查询指定提案、指定投票者的投票情况
 
 ## 使用方式
 
 ```
-  hashgardcli gov query-vote [proposal-id] [voter-address] [flags]
-
-```
-打印帮助信息:
-
-```
-hashgardcli gov query-vote --help
+hashgardcli gov query-vote [proposal-id] [voter-addr] [flags]
 ```
 
-## 例子
+## Global Flags
 
+ ### 参考：[hashgardcli](../README.md)
+ 
 ### 查询投票
 
 ```shell
-hashgardcli gov query-vote 1 gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node
-
+hashgardcli gov query-vote 1 gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node -o=json --indent
 ```
 
-通过指定提议、指定投票者查询投票情况。
+通过指定提案、指定投票者查询投票情况。
 
 ```txt
 {

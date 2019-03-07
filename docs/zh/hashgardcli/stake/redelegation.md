@@ -2,7 +2,7 @@
 
 ## 描述
 
-基于委托人地址、原验证人地址、目标验证人地址查询重新委托记录 
+基于委托人地址、原验证人地址、目标验证人地址查询重新委托记录
 
 ## 用法
 
@@ -10,14 +10,14 @@
 hashgardcli stake redelegation [delegator-addr] [src-validator-addr] [dst-validator-addr] [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake redelegation --help
-```
+## flags
+
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
 查询重新委托记录
+
 ```
 hashgardcli stake redelegation gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx gardvaloper1xn4kvq867rap8vkrwfnp5n2entvpq2avtd0ytq --trust-node
 ```

@@ -10,14 +10,14 @@
 hashgardcli stake pool [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake pool --help
-```
+## flags
+
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
 查询最新的权益池
+
 ```
 hashgardcli stake pool --trust-node
 ```
@@ -25,7 +25,7 @@ hashgardcli stake pool --trust-node
 运行成功以后，返回的结果如下：
 
 ```txt
-Pool 
+Pool
 Loose Tokens: 99890.0000000000
 Bonded Tokens: 310.0000000000
 Token Supply: 100200.0000000000

@@ -10,10 +10,9 @@
 hashgardcli stake delegation [delegator-addr] [validator-addr] [flags]
 ```
 
-打印帮助信息
-```
-hashgardcli stake delegation --help
-```
+## flags
+
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 

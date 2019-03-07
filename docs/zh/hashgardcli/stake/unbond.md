@@ -10,11 +10,9 @@
 hashgardcli stake unbond [validator-addr] [amount] [flags]
 ```
 
-打印帮助信息
+## flags
 
-```
-hashgardcli stake unbond --help
-```
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
