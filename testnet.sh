@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 COMMAND=$1
-CONFIG_PATH=$2
-CHAIN_ID=sif-3000
+CHAIN_ID=$2
+CONFIG_PATH=$3
 NODE_PREFIX="testnode-"
 DOCKER_NETWORK="hashgard-network"
 
 function usage() {
     echo "Usage:"
-    echo "  ./testnet.sh command config-path"
+    echo "  ./testnet.sh command chain-id config-path"
     echo ""
     echo "Command:"
     echo "  run      Create new container for each node. "
@@ -46,7 +46,7 @@ function run() {
             --net ${DOCKER_NETWORK} \
             -v ${NODE_ROOT}/hashgard:/root/.hashgard \
             -v ${NODE_ROOT}/hashgardcli:/root/.hashgardcli \
-            hashgard:${CHAIN_ID} \
+            hashgard/hashgard:${CHAIN_ID} \
             > /dev/null
         echo "Done !"
     done
