@@ -74,8 +74,8 @@ Example:
 	cmd.Flags().String(flagNodeCliHome, "hashgardcli",
 		"Home directory of the node's cli configuration",
 	)
-	cmd.Flags().String(flagStartingIPAddress, "192.168.0.1",
-		"Starting IP address (192.168.0.1 results in persistent peers list ID0@192.168.0.1:26656, ID1@192.168.0.2:26656, ...)")
+	cmd.Flags().String(flagStartingIPAddress, "testnode",
+		"Starting IP address (testnode results in persistent peers list ID0@testnode-0:26656, ID1@testnode-1:26656, ...)")
 
 	cmd.Flags().String(client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 
@@ -136,11 +136,13 @@ func initTestnet(config *cfg.Config, cdc *codec.Codec) error {
 		monikers = append(monikers, nodeDirName)
 		config.Moniker = nodeDirName
 
-		ip, err := getIP(i, viper.GetString(flagStartingIPAddress))
-		if err != nil {
-			_ = os.RemoveAll(outDir)
-			return err
-		}
+		ip := fmt.Sprintf("%s-%d", viper.GetString(flagStartingIPAddress), i)
+
+		//ip, err := getIP(i, viper.GetString(flagStartingIPAddress))
+		//if err != nil {
+		//	_ = os.RemoveAll(outDir)
+		//	return err
+		//}
 
 		nodeIDs[i], valPubKeys[i], err = InitializeNodeValidatorFiles(config)
 		if err != nil {

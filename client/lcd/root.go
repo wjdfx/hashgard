@@ -40,8 +40,7 @@ type RestServer struct {
 func NewRestServer(cdc *codec.Codec) *RestServer {
 	r := mux.NewRouter()
 	cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
-
-	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "rest-server")
+	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout)).With("module", "LCD")
 
 	return &RestServer{
 		Mux:    r,
@@ -51,8 +50,6 @@ func NewRestServer(cdc *codec.Codec) *RestServer {
 		log: logger,
 	}
 }
-
-
 
 // Start starts the rest server
 func (rs *RestServer) Start(listenAddr string, sslHosts string,
