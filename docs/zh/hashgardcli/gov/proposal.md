@@ -2,28 +2,26 @@
 
 ## 描述
 
-查询单个提议的详情
+查询单个提案的详情
 
 ## 使用方式
 
 ```
 hashgardcli gov proposal [proposal-id] [flags]
 ```
-打印帮助信息:
+## Global Flags
 
-```
-hashgardcli gov proposal --help
-```
-
+ ### 参考：[hashgardcli](../README.md)
+ 
 ## 例子
 
-### 查询指定的提议
+### 查询指定的提案
 
 ```shell
-hashgardcli gov proposal 1 --trust-node
+hashgardcli gov proposal 1 --trust-node -o=json --indent
 ```
 
-查询指定提议的详情，可以得到结果如下：
+查询指定提案的详情，可以得到结果如下：
 
 ```txt
 {
@@ -47,5 +45,4 @@ hashgardcli gov proposal 1 --trust-node
     "voting_end_time": "0001-01-01T00:00:00Z"
   }
 }
-
 ```

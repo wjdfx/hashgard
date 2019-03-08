@@ -7,80 +7,44 @@
 ## 使用方式
 
 ```
-hashgardcli bank sign <file> [flags]
+hashgardcli bank sign [file] [flags]
 ```
 
- 
+## Flags
 
-## 标志
+| 命令       | 类型    | 是否必须 | 默认值                | 描述                                                         |
+| ---------------- | ------- | -------- | --------------------- | ------------------------------------------------------------ |
+| --append | bool | 否 | true | 将签名附加到现有签名。如果禁用，旧签名将被覆盖。如果--multisig打开则忽略（默认为true） |
+| --multisig | string | 否 | | 代表交易签署的multisig帐户的地址 |
+| --name | string | 否 | | 与之签名的私钥的名称 |
+| --offline | bool | 否 | false | 链下模式，不查询全节点 |
+| --output-document | string |  |  | 该文档将写入给定文件而不是STDOUT |
+| --signature-only | bool | 否 | | 仅打印生成的签名，然后退出 |
+| --validate-signatures | bool | 否 | false | 打印必须签署交易的地址，已签名的地址，并确保签名的顺序正确 |
 
-| 命令，速记       | 类型   | 是否必须 | 默认值                | 描述                                                         |
-| ---------------- | ------ | -------- | --------------------- | ------------------------------------------------------------ |
-| -h, --help       |        | 否       |                       | 打印帮助                                                     |
-| --append         | Boole  | 是       | True                  | 将签名附加到现有签名。 如果禁用，旧签名将被覆盖              |
-| --name           | String | 是       |                       | 用于签名的私钥名称                                           |
-| --offline        | Boole  | 是       | False                 | 离线模式. 不查询本地缓存                                     |
-| --print-sigs     | Boole  | 是       | False                 | 打印必须签署交易的地址和已签名的地址，然后退出               |
-| --chain-id       | String | 否       |                       | tendermint 节点网络ID                                        |
-| --account-number | Int    | 否       |                       | 账户数字用于签名通证发送                                     |
-| --amount         | String | 是       |                       | 需要发送的通证数量，比如10gard                               |
-| --async          |        | 否       | True                  | 异步广播传输信息                                             |
-| --dry-run        |        | 否       |                       | 忽略--gas 标志 ，执行仿真传输，但不广播。                    |
-| --fee            | String | 是       |                       | 设置传输需要的手续费                                         |
-| --from           | String | 是       |                       | 用于签名的私钥名称                                           |
-| --from-addr      | String | 否       |                       | 在generate-only模式下指定的源地址                            |
-| --gas            | String | 否       | 20000                 | 每笔交易设定的gas限额; 设置为“simulate”以自动计算所需气体    |
-| --gas-adjustment | Float  | 否       | 1                     | 调整因子乘以传输模拟返回的估计值; 如果手动设置气体限制，则忽略该标志 |
-| --generate-only  |        | 否       |                       | 创建一个未签名的传输并写到标准输出中。                       |
-| --indent         |        | 否       |                       | 在JSON响应中增加缩进                                         |
-| --json           |        | 否       |                       | 以json格式返回输出                                           |
-| --memo           | String | 否       |                       | 传输中的备注信息                                             |
-| --print-response |        | 否       |                       | 返回传输响应 (仅仅当 async = false时有效)                    |
-| --sequence       | Int    | 否       |                       | 等待签名传输的序列号。                                       |
-| --to             | String | 否       |                       | Bech32 编码的接收通证的地址。                                |
-| --ledger         | String | 否       |                       | 使用一个联网的分账设备                                       |
-| --node           | String | 否       | tcp://localhost:26657 | <主机>:<端口> 链上的tendermint rpc 接口。                    |
-| --trust-node     | String | 否       | True                  | 不验证响应的证明                                             |
+## Global Flags
 
-
-
-## 全局标志
-
-| 命令，速记            | 默认值         | 描述                                | 是否必须 | 类型   |
-| --------------------- | -------------- | ----------------------------------- | -------- | ------ |
-| -e, --encoding string | hex            | 字符串二进制编码 (hex \|b64 \|btc ) | False    | String |
-| --home string         | /root/.hashgardcli | 配置和数据存储目录                  | False    | String |
-| -o, --output string   | text           | 输出格式(text \|json)               | False    | String |
-| --trace               |                | 出错时打印完整栈信息                | False    |        |
+ ### 参考：[hashgardcli](../README.md)
 
 ## 例子
 
 ### 对一个离线发送文件签名
 
-首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下
+首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下：
 
 ```  
-hashgardcli bank send --to=gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx  --from=test --chain-id=hashgard --amount=10gard --generate-only
+hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=test --chain-id=hashgard --generate-only
 
 {"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
 ```
 
+保存输出到文件中，如：/root/node0/test_send_10hashgard.txt
 
-
-保存输出到文件中，如  /root/output/output/node0/test_send_10hashgard.txt.
-
-接着来签名这个离线文件.
+接着来签名这个离线文件。
 
 ```
-hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=test  --offline=false --print-sigs=false --append=true
+hashgardcli bank sign /root/node0/test_send_10hashgard.txt --name=test  --offline=false --print-response --append=true
 ```
 
-随后得到签名详细信息，如下输出中你会看到签名信息。 
+随后得到签名详细信息，在输出中你会看到签名信息:
 **ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==**
-
-```
-hashgardcli bank sign /root/output/output/node0/test_send_10hashgard.txt --name=test  --offline=false --print-sigs=false --append=true
-Password to sign with 'test':
-{"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":[{"pub_key":{"type":"tendermint/PubKeySecp256k1","value":"AzlCwiA5Tvxwi7lMB/Hihfp2qnaks5Wrrgkg/Jy7sEkF"},"signature":"ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==","account_number":"0","sequence":"2"}],"memo":""}}
-```
-

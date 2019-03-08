@@ -36,20 +36,19 @@ import (
 var (
 	rootCmd = &cobra.Command{
 		Use:   "hashgardcli",
-		Short: "Hashgard light-client",
+		Short: "Command line interface for interacting with hashgard",
 	}
 )
 
 func main() {
+	// get the codec
+	cdc := app.MakeCodec()
 
 	config := sdk.GetConfig()
 	config.SetBech32PrefixForAccount(hashgardInit.Bech32PrefixAccAddr, hashgardInit.Bech32PrefixAccPub)
 	config.SetBech32PrefixForValidator(hashgardInit.Bech32PrefixValAddr, hashgardInit.Bech32PrefixValPub)
 	config.SetBech32PrefixForConsensusNode(hashgardInit.Bech32PrefixConsAddr, hashgardInit.Bech32PrefixConsPub)
 	config.Seal()
-
-	// get the codec
-	cdc := app.MakeCodec()
 
 	// disable sorting
 	cobra.EnableCommandSorting = false
@@ -160,6 +159,7 @@ func main() {
 		client.PostCommands(
 			distributioncmd.GetCmdWithdrawRewards(cdc),
 			distributioncmd.GetCmdSetWithdrawAddr(cdc),
+			distributioncmd.GetCmdWithdrawAllRewards(cdc, distribution.StoreKey),
 		)...)
 
 	// Add gov subcommands

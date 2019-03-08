@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"log"
 
+	abci "github.com/tendermint/tendermint/abci/types"
+	tmtypes "github.com/tendermint/tendermint/types"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -13,8 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	abci "github.com/tendermint/tendermint/abci/types"
-	tmtypes "github.com/tendermint/tendermint/types"
 )
 
 // export the state of hashgard for a genesis file
@@ -44,8 +45,8 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		staking.ExportGenesis(ctx, app.stakingKeeper),
 		mint.ExportGenesis(ctx, app.mintKeeper),
 		distribution.ExportGenesis(ctx, app.distributionKeeper),
-		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		gov.ExportGenesis(ctx, app.govKeeper),
+		slashing.ExportGenesis(ctx, app.slashingKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
@@ -57,7 +58,6 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 
 // prepare for fresh start at zero height
 func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []string) {
-
 	applyWhiteList := false
 
 	//Check if there is a whitelist
@@ -136,10 +136,10 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 		return false
 	})
 
-	// iterate through validators by power descending, reset bond height, update bond intra-tx counter
+	// Iterate through validators by power descending, reset bond heights, and
 	// update bond intra-tx counters.
 	store := ctx.KVStore(app.keyStaking)
-	iter := sdk.KVStoreReversePrefixIterator(store, staking.ValidatorsByPowerIndexKey)
+	iter := sdk.KVStoreReversePrefixIterator(store, staking.ValidatorsKey)
 	counter := int16(0)
 
 	var valConsAddrs []sdk.ConsAddress
@@ -152,7 +152,6 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 
 		validator.UnbondingHeight = 0
 		valConsAddrs = append(valConsAddrs, validator.ConsAddress())
-
 		if applyWhiteList && !whiteListMap[addr.String()] {
 			validator.Jailed = true
 		}
@@ -168,9 +167,12 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 	/* Handle slashing state. */
 
 	// reset start height on signing infos
-	app.slashingKeeper.IterateValidatorSigningInfos(ctx, func(addr sdk.ConsAddress, info slashing.ValidatorSigningInfo) (stop bool) {
-		info.StartHeight = 0
-		app.slashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
-		return false
-	})
+	app.slashingKeeper.IterateValidatorSigningInfos(
+		ctx,
+		func(addr sdk.ConsAddress, info slashing.ValidatorSigningInfo) (stop bool) {
+			info.StartHeight = 0
+			app.slashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
+			return false
+		},
+	)
 }

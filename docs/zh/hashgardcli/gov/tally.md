@@ -2,21 +2,18 @@
 
 ## 描述
 
-查询指定提议的投票统计
- 
+查询指定提案的投票统计
+
 ## 使用方式
 
 ```
  hashgardcli gov tally [proposal-id] [flags]
-
 ```
 
-打印帮助信息:
+## Global Flags
 
-```
-hashgardcli gov tally --help
-```
-
+ ### 参考：[hashgardcli](../README.md)
+ 
 
 ## 例子
 
@@ -24,10 +21,9 @@ hashgardcli gov tally --help
 
 ```shell
 hashgardcli gov tally 1 --trust-node
-
 ```
 
-可以查询指定提议每个投票选项的投票统计。
+可以查询指定提案每个投票选项的投票统计。
 
 ```txt
 {
@@ -37,3 +33,4 @@ hashgardcli gov tally 1 --trust-node
   "no_with_veto": "0.0000000000"
 }
 ```
+

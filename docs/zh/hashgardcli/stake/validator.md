@@ -2,29 +2,30 @@
 
 ## 描述
 
-查询验证者
+查询验证人信息
 
 ## 用法
 
 ```
 hashgardcli stake validator [validator-address] [flags]
 ```
-打印帮助信息
-```
-hashgardcli stake validator --help
-```
+
+## flags
+
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
-查询验证者
+查询验证人
+
 ```
 hashgardcli stake validator [validator-address] --trust-node
 ```
 
-运行成功以后，返回的结果类似如下：
+运行成功以后，返回的结果如下：
 
 ```txt
-Validator 
+Validator
 Operator Address: gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx
 Validator Consensus Pubkey: gardvalconspub1zcjduepq7h0hv847a27ck3vmn4ednw5qrsjeykhdg7gnuj28ls5snsallt3svmlckm
 Jailed: false

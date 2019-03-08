@@ -25,7 +25,6 @@ import (
 
 const (
 	appName = "HashgardApp"
-	FlagReplay = "replay"
 	// DefaultKeyPass contains key password for genesis transactions
 	DefaultKeyPass = "12345678"
 )

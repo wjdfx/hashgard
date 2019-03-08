@@ -1,5 +1,5 @@
-hash: c2551c6f3b8422c2866c58b971d78d21112a0a79504fada8688afb4362204d61
-updated: 2019-02-26T12:23:29.102395+08:00
+hash: 4e5a3c9ce66487bad83ebf40fe0b0eab6999906d90f3612088e7e20bfc052431
+updated: 2019-03-05T20:55:41.838722+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -10,15 +10,15 @@ imports:
 - name: github.com/bgentry/speakeasy
   version: 4aabc24848ce5fd31929f7d1e4ea74d3709c14cd
 - name: github.com/btcsuite/btcd
-  version: 67e573d211ace594f1366b4ce9d39726c4b19bd0
+  version: ed77733ec07dfc8a513741138419b8d9d3de9d2d
   subpackages:
   - btcec
 - name: github.com/btcsuite/btcutil
-  version: ab6388e0c60ae4834a1f57511e20c17b5f78be4b
+  version: 4c204d6978034c001714728401fcd63060d568b4
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: be9ff940c82b3337592b446d4cbb9134d93aabd1
+  version: a97d6d0b27a29642bfeda310133129b5f0a16173
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -96,19 +96,19 @@ imports:
   - x/staking/tags
   - x/staking/types
 - name: github.com/cosmos/go-bip39
-  version: 555e2067c45d9fcd7292bf3b8e732bc10ac8c58e
+  version: 52158e4697b87de16ed390e1bdaf813e581008fa
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: badaf43019dce961d6562b81d34de214e9e8ac0f
+  version: 81ed70015704737b3e5329314a62a3a5aaa74e8a
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
   version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
 - name: github.com/go-kit/kit
-  version: 0f5dceadc828705294351f22648ffc3b49f1c317
+  version: 102522abed87468226354b1a1c8c588c81313822
   subpackages:
   - log
   - log/level
@@ -118,9 +118,9 @@ imports:
   - metrics/internal/lv
   - metrics/prometheus
 - name: github.com/go-logfmt/logfmt
-  version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
+  version: 07c9b44f60d7ffdfb7d8efe1ad539965737836dc
 - name: github.com/gogo/protobuf
-  version: 07eab6a8298cf32fac45cceaac59424f98421bbc
+  version: ba06b47c162d49f2af050fb4c75bcbc86a159d5c
   subpackages:
   - gogoproto
   - jsonpb
@@ -137,11 +137,11 @@ imports:
   - ptypes/duration
   - ptypes/timestamp
 - name: github.com/golang/snappy
-  version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
+  version: 2a8bb927dd31d8daada140a5d09578521ce5c36a
 - name: github.com/gorilla/mux
-  version: 3d80bc801bb034e17cae38591335b3b1110f1c47
+  version: 15a353a636720571d19e37b34a14499c3afa9991
 - name: github.com/gorilla/websocket
-  version: 483fb8d7c32fcb4b5636cd293a92e3935932e2f4
+  version: 7c8e298727d149d7c329b4dec7e94e1932ac5c11
 - name: github.com/hashicorp/hcl
   version: 65a6292f0157eff210d03ed1bf6c59b190b8b906
   subpackages:
@@ -157,15 +157,15 @@ imports:
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/jmhodges/levigo
-  version: c42d9e0ca023e2198120196f842701bb4c55d7b9
+  version: 853d788c5c416eaaee5b044570784a96c7a26975
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/magiconair/properties
-  version: c2353362d570a7bfa228149c62842019201cfb71
+  version: 7757cc9fdb852f7579b24170bcacda2c7471bb6a
 - name: github.com/mattn/go-isatty
-  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
+  version: 369ecd8cea9851e459abb67eb171853e3986591e
 - name: github.com/matttproud/golang_protobuf_extensions
-  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  version: c182affec369e30f25d3eb8cd8a478dee585ae7d
   subpackages:
   - pbutil
 - name: github.com/mitchellh/mapstructure
@@ -173,33 +173,34 @@ imports:
 - name: github.com/otiai10/copy
   version: 7e9a647135a142c2669943d4a4d29be015ce9392
 - name: github.com/pelletier/go-toml
-  version: aa79e12a973495d00b01f2353330e5275d084731
+  version: e1803f96f6945c1061f538abc1a01a18f4d963fb
 - name: github.com/pkg/errors
-  version: 059132a15dd08d6704c67711dae0cf35ab991756
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/pmezard/go-difflib
-  version: 792786c7400a136282c1664665ae0a8db921c6c2
+  version: 5d4384ee4fb2527b0a1256a821ebfc92f91efefc
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: 3fb53dff765f8a3e0f9d8b1d5b86d4f8c4eb3a09
+  version: 2daed26f633ce23fab5efc02fb3f2e803b3526c3
   subpackages:
   - prometheus
   - prometheus/internal
   - prometheus/promhttp
 - name: github.com/prometheus/client_model
-  version: 5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f
+  version: fd36f4220a901265f90734c3183c5f0c91daa0b8
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: 1f2c4f3cd6db5fd6f68f36af6b6d5d936fd93c4e
+  version: bf857faf208676b0294bd49959aa34c8d98163ed
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 185b4288413d2a0dd0806f78c90dde719829e5ae
+  version: bbced9601137e764853b2fad7ec3e2dc4c504e02
   subpackages:
   - internal/util
+  - iostats
   - nfs
   - xfs
 - name: github.com/rakyll/statik
@@ -209,28 +210,28 @@ imports:
 - name: github.com/rcrowley/go-metrics
   version: 3113b8401b8a98917cde58f8bbd42a1b1c03b1fd
 - name: github.com/rs/cors
-  version: a3460e445dd310dbefee993fe449f2ff9c08ae71
+  version: 76f58f330d76a55c5badc74f6212e8a15e742c77
 - name: github.com/spf13/afero
-  version: d40851caa0d747393da1ffb28f7f9d8b4eeffebd
+  version: f4711e4db9e9a1d3887343acb72b2bbfc2f686f5
   subpackages:
   - mem
 - name: github.com/spf13/cast
   version: 8c9545af88b134710ab1cd196795e7f2388358d7
 - name: github.com/spf13/cobra
-  version: fe5e611709b0c57fa4a89136deaa8e1d4004d053
+  version: ef82de70bb3f60c65fb8eebacbb2d122ef517385
 - name: github.com/spf13/jwalterweatherman
   version: 94f6ae3ed3bceceafa716478c5fbf8d29ca601a1
 - name: github.com/spf13/pflag
-  version: aea12ed6721610dc6ed40141676d7ab0a1dac9e9
+  version: 24fa6976df40757dce6aea913e7b81ade90530e1
 - name: github.com/spf13/viper
-  version: 06c7c0d9b3c7cfca13deff6e353a052e08828ad4
+  version: a1b837276271029e31f796ae5d03ba9ffb017244
 - name: github.com/stretchr/testify
-  version: 12b6f73e6084dad08a7c6e575284b177ecafbc71
+  version: 21cb1c2932a2d04c6792d5ad106243c6e36a3a7d
   subpackages:
   - assert
   - require
 - name: github.com/syndtr/goleveldb
-  version: f9080354173f192dfc8821931eacf9cfd6819253
+  version: c4c61651e9e37fa117f53c5a906d3b63090d8445
   subpackages:
   - leveldb
   - leveldb/cache
@@ -245,7 +246,7 @@ imports:
   - leveldb/table
   - leveldb/util
 - name: github.com/tendermint/btcd
-  version: e5840949ff4fff0c56f9b6a541e22b63581ea9df
+  version: 80daadac05d1cd29571fccf27002d79667a88b58
   subpackages:
   - btcec
 - name: github.com/tendermint/go-amino
@@ -316,12 +317,12 @@ imports:
   - types
   - types/time
   - version
-- name: github.com/ZondaX/hid-go
-  version: 48b08affede2cea076a3cf13b2e3f72ed262b743
+- name: github.com/zondax/hid
+  version: 302fd402163c34626286195dfa9adac758334acc
 - name: github.com/zondax/ledger-cosmos-go
   version: 71aa0ab6e03d2d320c82bbe13678a36584a5b813
 - name: github.com/ZondaX/ledger-go
-  version: c3225ab10c2f53397d4aa419a588466493572b22
+  version: 69c15f1333a9b6866e5f66096561c7d138894bc5
 - name: golang.org/x/crypto
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
   repo: https://github.com/tendermint/crypto.git
@@ -344,7 +345,7 @@ imports:
   - ripemd160
   - salsa20/salsa
 - name: golang.org/x/net
-  version: adae6a3d119ae4890b46832a2e88a95adc62b8e7
+  version: 16b79f2e4e95ea23b2bf9903c9809ff7b013ce85
   subpackages:
   - context
   - http/httpguts
@@ -355,23 +356,23 @@ imports:
   - netutil
   - trace
 - name: golang.org/x/sys
-  version: 93218def8b18e66adbdab3eca8ec334700329f1f
+  version: 4e1fef5609515ec7a2cee7b5de30ba6d9b438cbf
   subpackages:
   - cpu
   - unix
 - name: golang.org/x/text
-  version: 6f44c5a2ea40ee3593d98cdcc905cc1fdaa660e2
+  version: d14c52b222ee852cdba8b07206ca0c614b389876
   subpackages:
   - secure/bidirule
   - transform
   - unicode/bidi
   - unicode/norm
 - name: google.golang.org/genproto
-  version: b5d43981345bdb2c233eb4bf3277847b48c6fdc6
+  version: 383e8b2c3b9e36c4076b235b32537292176bae20
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: ef2b8e2f53fcd6654d12966394462f84e0f04066
+  version: 45890ffd9e533ea1d7555737205707de67ebe453
   subpackages:
   - balancer
   - balancer/base
@@ -404,5 +405,5 @@ imports:
   - status
   - tap
 - name: gopkg.in/yaml.v2
-  version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
+  version: 51d6538a90f86fe93ac480b35f37b2be17fef232
 testImports: []

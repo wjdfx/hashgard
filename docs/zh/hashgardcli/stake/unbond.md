@@ -2,33 +2,35 @@
 
 ## 介绍
 
-从一个验证人解绑股票
+从一个验证人解绑委托
 
 ## 用法
 
 ```
-hashgardcli stake unbond [flags]
+hashgardcli stake unbond [validator-addr] [amount] [flags]
 ```
 
-打印帮助信息
+## 参数（子命令）
 
-```
-hashgardcli stake unbond --help
-```
+| 名称           | 类型   | 是否必填 | 默认值 | 功能描述            |
+| -------------- | ------ | -------- | ------ | ------------------- |
+| validator-addr | string | `是`     |        | 验证人地址          |
+| amount         | int    | `是`     |        | 要解绑的 stake 数量 |
 
-## 特有flags
+## flags
 
-| 名称                | 类型   | 是否必填 | 默认值   | 功能描述         |
-| --------------------| -----  | -------- | -------- | ------------------------------------------------------------------- |
-| --validator | string | true     | ""       | 验证人地址 |
-| --shares-amount     | float  | false    | 0.0      | 解绑的share数量，正数 |
-| --shares-fraction | float  | false    | 0.0      | 解绑的比率，0到1之间的正数 |
+| 名称   | 类型   | 是否必填 | 默认值 | 功能描述             |
+| ------ | ------ | -------- | ------ | -------------------- |
+| --from | string | `是`     | ""     | 委托人的账户名或地址 |
 
-用户可以用`--shares-amount`或者`--shares-percent`指定解绑定的token数量，这两个参数不可同时使用。
+**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 
 ## 示例
 
-```
-hashgardcli stake unbond --validator=gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --shares-fraction=0.1 --from=hashgard --chain-id=hashgard
-
+```shell
+hashgardcli stake unbond \
+gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx \
+5000 \
+--from=hashgard \
+--chain-id=hashgard
 ```

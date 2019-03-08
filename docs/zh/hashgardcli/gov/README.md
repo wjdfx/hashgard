@@ -15,25 +15,25 @@ hashgardcli gov [command]
 ```
 
 打印子命令和参数
-```
-hashgardcli distribution --help
-```
 
+```
+hashgardcli gov --help
+```
 ## 相关命令
 
 | 命令                                  | 描述                                                             |
 | ------------------------------------- | --------------------------------------------------------------- |
-| [proposal](proposal.md)   | 查询单个提议的详细信息                                             |
-| [proposals](proposals.md) | 通过可选过滤器查询提议                                             |
+| [proposal](proposal.md)   | 查询单个提案的详细信息                                             |
+| [proposals](proposals.md) | 通过可选过滤器查询提案                                             |
 | [query-vote](query-vote.md)           | 查询投票信息                                                      |
-| [votes](votes.md)         | 查询提议的投票情况                                                 |
+| [votes](votes.md)         | 查询提案的投票情况                                                 |
 | [query-deposit](query-deposit.md)     | 查询保证金详情                                                    |
-| [deposits](deposits.md)   | 查询提议的保证金                                                  |
-| [tally](tally.md)         | 查询提议投票的统计                                                 |
-| [param](param.md)       | 查询参数提议的配置                                                 |                                            |
+| [deposits](deposits.md)   | 查询提案的保证金                                                  |
+| [tally](tally.md)         | 查询提案投票的统计                                                 |
+| [param](param.md)       | 查询参数提案的配置                                                 |                                            |
 | [submit-proposal](submit-proposal.md) | 创建新密钥，或者通过助记词导入恢复                                   |
-| [deposit](deposit.md)                 | 充值保证金代币以激活提议                                            |
-| [vote](vote.md)                       | 为有效的提议投票，选项：Yes/No/NoWithVeto/Abstain                   |
+| [deposit](deposit.md)                 | 充值保证金代币以激活提案                                            |
+| [vote](vote.md)                       | 为有效的提案投票，选项：Yes/No/NoWithVeto/Abstain                   |
 
 ## 补充描述
 

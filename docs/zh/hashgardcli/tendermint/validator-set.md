@@ -1,27 +1,39 @@
-# hashgardcli tendermint validator-set
+# hashgardcli tendermint tendermint-validator-set
 
 ## 描述
-根据指定高度在验证器上查询
+
+获取指定高度的所有验证人集合
 
 ## 用法
 
 ```
-  hashgardcli tendermint validator-set [height] [flags]
-
+  hashgardcli tendermint tendermint-validator-set [height] [flags]
 ```
 
-## 标志
+## flags
 
-| 名称, 速记 | 默认值                    | 描述                                                             | 必需      |
-| --------------- | -------------------------- | --------------------------------------------------------- | -------- |
-| --chain-id    | 无 | [string] tendermint节点的链ID   | 是       |
-| --node string     |   tcp://localhost:26657                         | 要连接的节点  |                                     
-| --help, -h      |           无| 	下载命令帮助|
-| --trust-node    | true                       | 信任连接的完整节点，关闭响应结果校验                                            |          |
+| 名称, 速记    | 默认值                | 描述                                 | 必需                               |
+| ------------- | --------------------- | ------------------------------------ | ---------------------------------- |
+| --chain-id    | 无                    | [string] tendermint 节点的链 ID      | 否，当`--trust-node=false`时，为是 |
+| --node string | tcp://localhost:26657 | 要连接的节点                         | 否                                 |
+| --trust-node  | true                  | 信任连接的完整节点，关闭响应结果校验 | 否                                 |
 
-## 例子 
+**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+
+## 例子
 
 ```shell
-hashgardcli tendermint validator-set 114360 --trust-node
+hashgardcli tendermint tendermint-validator-set 114360 --trust-node
 ```
-之后你会在验证器上查询到该高度的信息
+
+返回结果如下：
+
+```
+block height: 123
+
+  Address:          gardvalcons13ja77lpt0deamvuwz5eugy9kwkutxukjwjwwf3
+  Pubkey:           gardvalconspub1zcjduepqgsmuj0qallsw79hjj9qztcke6hj3ujdcpjv249uny9fvzp4eulms0tqvgs
+  ProposerPriority: 0
+  VotingPower:      1000
+
+```
