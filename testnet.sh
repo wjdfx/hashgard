@@ -46,6 +46,7 @@ function run() {
             --name ${NODE_NAME} \
             --net ${DOCKER_NETWORK} \
             -e CHAIN_ID=${CHAIN_ID} \
+            -e NODE_TYPE=PRIVATE_TESTNET \
             -v ${NODE_ROOT}/hashgard:/root/.hashgard \
             -v ${NODE_ROOT}/hashgardcli:/root/.hashgardcli \
             hashgard/hashgard:${CHAIN_ID} \
