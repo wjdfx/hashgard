@@ -5,7 +5,6 @@
 # Parameters which might be changed while upgrading.
 #
 # ------------------------------------------------------------------------------
-CHAIN_ID=sif-3000
 KEY_NAME=root
 KEY_PASSWORD=12345678
 COIN_GENESIS=10000000gard
@@ -94,6 +93,28 @@ function hashgard_start() {
 
 # ------------------------------------------------------------------------------
 #
+# Error prompt and exit abnormally
+#
+# ------------------------------------------------------------------------------
+function error() {
+    echo ""
+    echo "Error: "
+    echo "    $1"
+    echo ""
+    exit -1
+}
+
+# ------------------------------------------------------------------------------
+#
+# Chain id must be set to environment
+#
+# ------------------------------------------------------------------------------
+if [[ -z ${CHAIN_ID} ]]; then
+    error "Environment CHAIN_ID must be set !"
+fi
+
+# ------------------------------------------------------------------------------
+#
 # For container restart
 #
 # ------------------------------------------------------------------------------
@@ -126,11 +147,7 @@ case "${NODE_TYPE}" in
         init_private_testnet
         ;;
     *)
-        echo ""
-        echo "Error: "
-        echo "    Environment NODE_TYPE must be one of FULL_NODE/PRIVATE_SINGLE/PRIVATE_TESTNET !"
-        echo ""
-        exit -1
+        error "Environment NODE_TYPE must be one of FULL_NODE/PRIVATE_SINGLE/PRIVATE_TESTNET !"
 esac
 
 # Mark initial successfully
