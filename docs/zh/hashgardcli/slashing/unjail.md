@@ -24,7 +24,7 @@ hashgardcli slashing unjail [flags]
 检查这个验证人保持 `jailed` 状态的截止时间：
 
 ```shell
-hashgardcli stake signing-info \
+hashgardcli slashing signing-info \
 gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx \
 --node=localhost:36657 --trust-node
 ```
