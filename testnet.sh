@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+PARAM_COUNT=3
 COMMAND=$1
 CHAIN_ID=$2
 CONFIG_PATH=$3
@@ -44,6 +45,7 @@ function run() {
         docker run -d \
             --name ${NODE_NAME} \
             --net ${DOCKER_NETWORK} \
+            -e CHAIN_ID=${CHAIN_ID} \
             -v ${NODE_ROOT}/hashgard:/root/.hashgard \
             -v ${NODE_ROOT}/hashgardcli:/root/.hashgardcli \
             hashgard/hashgard:${CHAIN_ID} \
@@ -79,7 +81,7 @@ function rm() {
     done
 }
 
-if [[ $# != 2 ]]; then
+if [[ $# != ${PARAM_COUNT} ]]; then
     usage
     exit -1
 fi
