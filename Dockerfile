@@ -11,5 +11,8 @@ RUN apt update && \
     apt clean && apt autoclean
 COPY --from=build /go/bin/hashgard /usr/local/bin/
 COPY --from=build /go/bin/hashgardcli /usr/local/bin/
+COPY --from=build /go/bin/hashgardkeyutil /usr/local/bin/
+COPY --from=build /go/bin/hashgardlcd /usr/local/bin/
+COPY --from=build /go/bin/hashgardreplay /usr/local/bin/
 ADD docker/start.sh /
 CMD /start.sh

@@ -163,14 +163,18 @@ update_tools:
 ########################################
 ### Dependencies
 
+ifeq ($(OS),Windows_NT)
 get_vendor_deps: get_tools
 	@echo "--> Generating vendor directory via glide install"
 	@rm -rf ./vendor
-	ifeq ($(OS),Windows_NT)
-		@glide --tmp=c:\ install
-	else
-		@glide install
-	endif
+	@glide --tmp=c:/ install
+else
+get_vendor_deps: get_tools
+	@echo "--> Generating vendor directory via glide install"
+	@rm -rf ./vendor
+	@glide install
+endif
+
 update_vendor_deps: get_tools
 	@echo "--> Running glide update"
 	@glide update
