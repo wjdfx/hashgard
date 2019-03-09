@@ -14,6 +14,8 @@ INITIALIZED_FLAG="/initialized.flag"
 function config_global_client_settings() {
     hashgardcli config chain-id ${CHAIN_ID}
     hashgardcli config trust-node true
+    hashgardcli config output json
+    hashgardcli config indent true
 }
 
 # ------------------------------------------------------------------------------
