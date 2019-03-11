@@ -11,13 +11,6 @@ COIN_GENESIS=10000000gard
 COIN_DELEGATE=100000gard
 INITIALIZED_FLAG="/initialized.flag"
 
-function config_global_client_settings() {
-    hashgardcli config chain-id ${CHAIN_ID}
-    hashgardcli config trust-node true
-    hashgardcli config output json
-    hashgardcli config indent true
-}
-
 # ------------------------------------------------------------------------------
 #
 # Initial Hashgard block chain full node
@@ -32,8 +25,6 @@ function init_full_node() {
         echo "Environment MONIKER must be set !"
         exit -1
     fi
-
-    config_global_client_settings
 
     hashgard init --moniker whatever --chain-id ${CHAIN_ID}
     cd /root/.hashgard/config
@@ -123,6 +114,16 @@ fi
 if [[ -e ${INITIALIZED_FLAG} ]]; then
     hashgard_start
 fi
+
+# ------------------------------------------------------------------------------
+#
+# Config client global settings
+#
+# ------------------------------------------------------------------------------
+hashgardcli config chain-id ${CHAIN_ID}
+hashgardcli config trust-node true
+hashgardcli config output json
+hashgardcli config indent true
 
 # ------------------------------------------------------------------------------
 #
