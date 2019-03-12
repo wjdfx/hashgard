@@ -1,5 +1,5 @@
-hash: 4e5a3c9ce66487bad83ebf40fe0b0eab6999906d90f3612088e7e20bfc052431
-updated: 2019-03-05T20:55:41.838722+08:00
+hash: 8632f79426a823b655a2b80b991bf8bb7903ae915fd7265acfea8104035aaa4f
+updated: 2019-03-12T11:19:05.679753+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: a97d6d0b27a29642bfeda310133129b5f0a16173
+  version: c1ec76f5b179a418ed50ff46c87ab136f106a1d5
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -31,6 +31,7 @@ imports:
   - client/tx
   - client/utils
   - cmd/gaia/app
+  - cmd/gaia/app/x/bank
   - codec
   - crypto
   - crypto/keys
@@ -57,7 +58,6 @@ imports:
   - types/rest
   - version
   - x/auth
-  - x/auth/client
   - x/auth/client/cli
   - x/auth/client/rest
   - x/auth/client/txbuilder
@@ -97,18 +97,20 @@ imports:
   - x/staking/types
 - name: github.com/cosmos/go-bip39
   version: 52158e4697b87de16ed390e1bdaf813e581008fa
+- name: github.com/cosmos/ledger-cosmos-go
+  version: e2f595b3b7b222e1cbe9daf89e73e4dcab02d54c
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: 81ed70015704737b3e5329314a62a3a5aaa74e8a
+  version: 1a3e25e4c11d09aabd77402585412f1577251f49
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
-  version: ccc981bf80385c528a65fbfdd49bf2d8da22aa23
+  version: 11844c0959f6fff69ba325d097fce35bd85a8e93
 - name: github.com/go-kit/kit
-  version: 102522abed87468226354b1a1c8c588c81313822
+  version: 90f6ad6713179be44173ca30e60605858ea7e991
   subpackages:
   - log
   - log/level
@@ -120,7 +122,7 @@ imports:
 - name: github.com/go-logfmt/logfmt
   version: 07c9b44f60d7ffdfb7d8efe1ad539965737836dc
 - name: github.com/gogo/protobuf
-  version: ba06b47c162d49f2af050fb4c75bcbc86a159d5c
+  version: c5a62797aee0054613cc578653a16c6237fef080
   subpackages:
   - gogoproto
   - jsonpb
@@ -141,7 +143,7 @@ imports:
 - name: github.com/gorilla/mux
   version: 15a353a636720571d19e37b34a14499c3afa9991
 - name: github.com/gorilla/websocket
-  version: 7c8e298727d149d7c329b4dec7e94e1932ac5c11
+  version: 0ec3d1bd7fe50c503d6df98ee649d81f4857c564
 - name: github.com/hashicorp/hcl
   version: 65a6292f0157eff210d03ed1bf6c59b190b8b906
   subpackages:
@@ -173,7 +175,7 @@ imports:
 - name: github.com/otiai10/copy
   version: 7e9a647135a142c2669943d4a4d29be015ce9392
 - name: github.com/pelletier/go-toml
-  version: e1803f96f6945c1061f538abc1a01a18f4d963fb
+  version: bef2d19cb02636f36436cf436ec0bfb28c30195b
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/pmezard/go-difflib
@@ -181,7 +183,7 @@ imports:
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: 2daed26f633ce23fab5efc02fb3f2e803b3526c3
+  version: c5e14697eaa7af985b2e326f1f5ed50bacb75c06
   subpackages:
   - prometheus
   - prometheus/internal
@@ -197,7 +199,7 @@ imports:
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: bbced9601137e764853b2fad7ec3e2dc4c504e02
+  version: d0f344d83b0c80a1bc03b547a2374a9ec6711144
   subpackages:
   - internal/util
   - iostats
@@ -226,7 +228,7 @@ imports:
 - name: github.com/spf13/viper
   version: a1b837276271029e31f796ae5d03ba9ffb017244
 - name: github.com/stretchr/testify
-  version: 21cb1c2932a2d04c6792d5ad106243c6e36a3a7d
+  version: 34c6fa2dc70986bccbbffcc6130f6920a924b075
   subpackages:
   - assert
   - require
@@ -254,7 +256,7 @@ imports:
 - name: github.com/tendermint/iavl
   version: de0740903a67b624d887f9055d4c60175dcfa758
 - name: github.com/tendermint/tendermint
-  version: 28d75ec8016b7fb043735cbe4c4d92ec73355de7
+  version: 853dd34d31bee6de593be94df87cbb508688249e
   subpackages:
   - abci/client
   - abci/example/code
@@ -319,9 +321,7 @@ imports:
   - version
 - name: github.com/zondax/hid
   version: 302fd402163c34626286195dfa9adac758334acc
-- name: github.com/zondax/ledger-cosmos-go
-  version: 71aa0ab6e03d2d320c82bbe13678a36584a5b813
-- name: github.com/ZondaX/ledger-go
+- name: github.com/zondax/ledger-go
   version: 69c15f1333a9b6866e5f66096561c7d138894bc5
 - name: golang.org/x/crypto
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
@@ -345,7 +345,7 @@ imports:
   - ripemd160
   - salsa20/salsa
 - name: golang.org/x/net
-  version: 16b79f2e4e95ea23b2bf9903c9809ff7b013ce85
+  version: d8887717615a059821345a5c23649351b52a1c0b
   subpackages:
   - context
   - http/httpguts
@@ -361,7 +361,7 @@ imports:
   - cpu
   - unix
 - name: golang.org/x/text
-  version: d14c52b222ee852cdba8b07206ca0c614b389876
+  version: 5d731a35f4867878fc89f7744f7b6debb3beded6
   subpackages:
   - secure/bidirule
   - transform
@@ -372,7 +372,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 45890ffd9e533ea1d7555737205707de67ebe453
+  version: 77ce7bc228475a8f28dc50a9d74ac4994fc019e7
   subpackages:
   - balancer
   - balancer/base

@@ -2,17 +2,16 @@ package: hashgard
 import:
 - package: github.com/cosmos/cosmos-sdk
   repo:    https://github.com/hashgard/cosmos-sdk.git
-  version: v0.32.1-hashgard
+  version: hashgard/v0.33.0
 - package: github.com/tendermint/iavl
   version: v0.12.0
 - package: github.com/tendermint/go-amino
   version: v0.14.1
 - package: github.com/tendermint/tendermint
-  version: v0.30.0
+  version: v0.31.0-dev0
 - package: github.com/golang/protobuf
   version: 1.1.0
-- package: github.com/zondax/ledger-cosmos-go
-  version: v0.9.3
+- package: github.com/zondax/hid
 - package: golang.org/x/crypto
   repo:    https://github.com/tendermint/crypto.git
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
