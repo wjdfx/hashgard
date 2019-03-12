@@ -150,7 +150,7 @@ func main() {
 	distributionCmd.AddCommand(
 		client.GetCommands(
 			distributioncmd.GetCmdQueryParams(distribution.StoreKey, cdc),
-			distributioncmd.GetCmdQueryOutstandingRewards(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryValidatorOutstandingRewards(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryValidatorCommission(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryValidatorSlashes(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryDelegatorRewards(distribution.StoreKey, cdc),
