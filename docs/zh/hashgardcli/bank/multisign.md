@@ -31,7 +31,7 @@ hashgardcli bank multisign [file] [name] [[signature]...] [flags]
 - hashgardcli keys add a2
 
 - hashgardcli keys add a3
-``` 
+```
 
 创建一个多签账号：
 ``` 
@@ -42,7 +42,7 @@ hashgardcli bank multisign [file] [name] [[signature]...] [flags]
 查询创建的多签账号：
 ``` 
 hashgardcli keys show a123 -o=text
-``` 
+```
 执行完命令后，获得账户的详细信息如下：
 
 ```
@@ -57,7 +57,7 @@ hashgardcli bank send gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 10gard --from=
 使用多签账号给其他账号转账：
 ```
 只生成签名文件：unsignedTx.json，请检查系统输出的文件编码是否为 utf-8，如果不是表使用其他文本编辑器将其修改为 utf-8 格式。
-hashgardcli bank send gard19thul47y2afwr67l4hlv9hu5593uw0rqjdm7jj 10gard --from a123 --generate-only>unsignedTx.json
+hashgardcli bank send gard19thul47y2afwr67l4hlv9hu5593uw0rqjdm7jj 10gard --from a123 --generate-only >unsignedTx.json
 ```
 使用账户a1签名：
 ```
@@ -179,3 +179,4 @@ hashgardcli tendermint tx 6A66C370834F097CA36F60FE9B4E8ABEEEF3549D089071FDB5EE33
  }
 }
 ```
+
