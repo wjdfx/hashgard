@@ -23,4 +23,5 @@ hashgardcli bank --help
 | [account](account.md)   | 查询账户余额           |
 | [send](send.md)      | 创建和签名一个转账请求 |
 | [sign](sign.md)      | 签名离线传输文件       |
+| [multisign](multisign.md)      | 多重签名离线传输文件       |
 
