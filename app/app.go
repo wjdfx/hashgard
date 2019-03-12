@@ -180,6 +180,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper))
 
 	app.QueryRouter().
+		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
