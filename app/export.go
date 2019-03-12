@@ -89,7 +89,7 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 	// withdraw all delegator rewards
 	dels := app.stakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddr, delegation.ValidatorAddr)
+		_ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
 	}
 
 	// clear validator slash events
@@ -110,7 +110,7 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		app.distributionKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddr, del.ValidatorAddr)
+		app.distributionKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
 	}
 
 	// reset context height
