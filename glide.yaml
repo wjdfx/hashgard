@@ -2,7 +2,7 @@ package: hashgard
 import:
 - package: github.com/cosmos/cosmos-sdk
   repo:    https://github.com/hashgard/cosmos-sdk.git
-  version: hashgard/v0.33.0
+  version: v0.33.0-hashgard
 - package: github.com/tendermint/iavl
   version: v0.12.0
 - package: github.com/tendermint/go-amino

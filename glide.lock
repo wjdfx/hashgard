@@ -1,5 +1,5 @@
-hash: 8632f79426a823b655a2b80b991bf8bb7903ae915fd7265acfea8104035aaa4f
-updated: 2019-03-12T11:19:05.679753+08:00
+hash: 1199b0a2ca260b706e74226382eccbb99b386133db195c23819e175295c20bec
+updated: 2019-03-14T08:20:02.429357+08:00
 imports:
 - name: github.com/bartekn/go-bip39
   version: a05967ea095d81c8fe4833776774cfaff8e5036c
@@ -18,7 +18,7 @@ imports:
   subpackages:
   - bech32
 - name: github.com/cosmos/cosmos-sdk
-  version: c1ec76f5b179a418ed50ff46c87ab136f106a1d5
+  version: ad2e50115d72d8491d8db13ca0d19e52e5fcea06
   repo: https://github.com/hashgard/cosmos-sdk.git
   subpackages:
   - baseapp
@@ -104,13 +104,13 @@ imports:
   subpackages:
   - spew
 - name: github.com/ethereum/go-ethereum
-  version: 1a3e25e4c11d09aabd77402585412f1577251f49
+  version: 1a29bf0ee2c5753a6a0f6f57a90d079b4d17702d
   subpackages:
   - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
-  version: 11844c0959f6fff69ba325d097fce35bd85a8e93
+  version: 1485a34d5d5723fea214f5710708e19a831720e4
 - name: github.com/go-kit/kit
-  version: 90f6ad6713179be44173ca30e60605858ea7e991
+  version: a7fe87b12787ad89e92fa0636c227ed8c4cff31c
   subpackages:
   - log
   - log/level
@@ -165,7 +165,7 @@ imports:
 - name: github.com/magiconair/properties
   version: 7757cc9fdb852f7579b24170bcacda2c7471bb6a
 - name: github.com/mattn/go-isatty
-  version: 369ecd8cea9851e459abb67eb171853e3986591e
+  version: c2a7a6ca930a4cd0bc33a3f298eb71960732a3a7
 - name: github.com/matttproud/golang_protobuf_extensions
   version: c182affec369e30f25d3eb8cd8a478dee585ae7d
   subpackages:
@@ -175,7 +175,7 @@ imports:
 - name: github.com/otiai10/copy
   version: 7e9a647135a142c2669943d4a4d29be015ce9392
 - name: github.com/pelletier/go-toml
-  version: bef2d19cb02636f36436cf436ec0bfb28c30195b
+  version: 690ec00a4b7e125266cf1c4725ae24af22564f8f
 - name: github.com/pkg/errors
   version: 645ef00459ed84a119197bfb8d8205042c6df63d
 - name: github.com/pmezard/go-difflib
@@ -183,7 +183,7 @@ imports:
   subpackages:
   - difflib
 - name: github.com/prometheus/client_golang
-  version: c5e14697eaa7af985b2e326f1f5ed50bacb75c06
+  version: fa4aa9000d2863904891d193dea354d23f3d712a
   subpackages:
   - prometheus
   - prometheus/internal
@@ -193,7 +193,7 @@ imports:
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: bf857faf208676b0294bd49959aa34c8d98163ed
+  version: 8b748030788ea01a6ceb5068504cfa01d1b335b1
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
@@ -345,7 +345,7 @@ imports:
   - ripemd160
   - salsa20/salsa
 - name: golang.org/x/net
-  version: d8887717615a059821345a5c23649351b52a1c0b
+  version: 9f648a60d9775ef5c977e7669d1673a7a67bef33
   subpackages:
   - context
   - http/httpguts
@@ -372,7 +372,7 @@ imports:
   subpackages:
   - googleapis/rpc/status
 - name: google.golang.org/grpc
-  version: 77ce7bc228475a8f28dc50a9d74ac4994fc019e7
+  version: 9c3a9595696a7a50ae175cbf65219264267b1954
   subpackages:
   - balancer
   - balancer/base
