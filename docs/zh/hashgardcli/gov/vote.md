@@ -36,6 +36,6 @@ Committed at block 15135 (tx hash: F210C95024B4366513A411E2E1AA59C25B93CAB637B10
 
 [query-vote](query-vote.md)
 
-[votes](votes.md)
+[query-votes](query-votes.md)
 
 [tally](tally.md)
