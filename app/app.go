@@ -21,6 +21,11 @@ import (
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/hashgard/hashgard/x/issue"
+	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
+	issuekeepers "github.com/hashgard/hashgard/x/issue/keepers"
+	issuequeriers "github.com/hashgard/hashgard/x/issue/queriers"
 )
 
 const (
@@ -42,18 +47,19 @@ type HashgardApp struct {
 	cdc *codec.Codec
 
 	// keys to access the multistore
-	keyMain				*sdk.KVStoreKey
-	keyAccount			*sdk.KVStoreKey
-	keyStaking			*sdk.KVStoreKey
-	tkeyStaking			*sdk.TransientStoreKey
-	keySlashing			*sdk.KVStoreKey
-	keyMint				*sdk.KVStoreKey
-	keyDistribution		*sdk.KVStoreKey
-	tkeyDistribution	*sdk.TransientStoreKey
-	keyGov           	*sdk.KVStoreKey
-	keyFeeCollection	*sdk.KVStoreKey
-	keyParams			*sdk.KVStoreKey
-	tkeyParams			*sdk.TransientStoreKey
+	keyMain          *sdk.KVStoreKey
+	keyAccount       *sdk.KVStoreKey
+	keyStaking       *sdk.KVStoreKey
+	tkeyStaking      *sdk.TransientStoreKey
+	keySlashing      *sdk.KVStoreKey
+	keyMint          *sdk.KVStoreKey
+	keyDistribution  *sdk.KVStoreKey
+	tkeyDistribution *sdk.TransientStoreKey
+	keyGov           *sdk.KVStoreKey
+	keyIssue         *sdk.KVStoreKey
+	keyFeeCollection *sdk.KVStoreKey
+	keyParams        *sdk.KVStoreKey
+	tkeyParams       *sdk.TransientStoreKey
 
 	// manage getting and setting accounts
 	accountKeeper       auth.AccountKeeper
@@ -65,6 +71,7 @@ type HashgardApp struct {
 	distributionKeeper  distribution.Keeper
 	govKeeper           gov.Keeper
 	paramsKeeper        params.Keeper
+	issueKeeper         issuekeepers.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
@@ -77,20 +84,21 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 
 	// create your application type
 	var app = &HashgardApp{
-		BaseApp:    		bApp,
-		cdc:        		cdc,
-		keyMain:    		sdk.NewKVStoreKey(bam.MainStoreKey),
-		keyAccount: 		sdk.NewKVStoreKey(auth.StoreKey),
-		keyStaking:			sdk.NewKVStoreKey(staking.StoreKey),
-		tkeyStaking:		sdk.NewTransientStoreKey(staking.TStoreKey),
-		keyMint:			sdk.NewKVStoreKey(mint.StoreKey),
-		keyDistribution:	sdk.NewKVStoreKey(distribution.StoreKey),
-		tkeyDistribution:	sdk.NewTransientStoreKey(distribution.TStoreKey),
-		keySlashing:		sdk.NewKVStoreKey(slashing.StoreKey),
-		keyGov:				sdk.NewKVStoreKey(gov.StoreKey),
-		keyFeeCollection:	sdk.NewKVStoreKey(auth.FeeStoreKey),
-		keyParams:			sdk.NewKVStoreKey(params.StoreKey),
-		tkeyParams:			sdk.NewTransientStoreKey(params.TStoreKey),
+		BaseApp:          bApp,
+		cdc:              cdc,
+		keyMain:          sdk.NewKVStoreKey(bam.MainStoreKey),
+		keyAccount:       sdk.NewKVStoreKey(auth.StoreKey),
+		keyStaking:       sdk.NewKVStoreKey(staking.StoreKey),
+		tkeyStaking:      sdk.NewTransientStoreKey(staking.TStoreKey),
+		keyMint:          sdk.NewKVStoreKey(mint.StoreKey),
+		keyDistribution:  sdk.NewKVStoreKey(distribution.StoreKey),
+		tkeyDistribution: sdk.NewTransientStoreKey(distribution.TStoreKey),
+		keySlashing:      sdk.NewKVStoreKey(slashing.StoreKey),
+		keyGov:           sdk.NewKVStoreKey(gov.StoreKey),
+		keyIssue:         sdk.NewKVStoreKey(issuedomain.StoreKey),
+		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
+		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
+		tkeyParams:       sdk.NewTransientStoreKey(params.TStoreKey),
 	}
 
 	app.paramsKeeper = params.NewKeeper(
@@ -102,9 +110,9 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	// define the accountKeeper
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
-		app.keyAccount,			// target store
+		app.keyAccount, // target store
 		app.paramsKeeper.Subspace(auth.DefaultParamspace),
-		auth.ProtoBaseAccount,	// prototype
+		auth.ProtoBaseAccount, // prototype
 	)
 
 	app.feeCollectionKeeper = auth.NewFeeCollectionKeeper(
@@ -162,6 +170,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
+	app.issueKeeper = issuekeepers.NewKeeper(
+		app.cdc,
+		app.keyIssue,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(issuedomain.DefaultParamspace),
+		app.bankKeeper,
+		issuedomain.DefaultCodespace)
 
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
@@ -170,22 +185,22 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
 
-
 	// register message routes
 	app.Router().
 		AddRoute(bank.RouterKey, bank.NewHandler(app.bankKeeper)).
 		AddRoute(staking.RouterKey, staking.NewHandler(app.stakingKeeper)).
 		AddRoute(distribution.RouterKey, distribution.NewHandler(app.distributionKeeper)).
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
-		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper))
+		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
+		AddRoute(issuedomain.RouterKey, issue.NewHandler(app.issueKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
+		AddRoute(issuedomain.QuerierRoute, issuequeriers.NewQuerier(app.issueKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper))
-
 
 	// initialize BaseApp
 	app.MountStores(
@@ -196,6 +211,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keyDistribution,
 		app.keySlashing,
 		app.keyGov,
+		app.keyIssue,
 		app.keyFeeCollection,
 		app.keyParams,
 		app.tkeyParams,
@@ -229,6 +245,7 @@ func MakeCodec() *codec.Codec {
 	distribution.RegisterCodec(cdc)
 	slashing.RegisterCodec(cdc)
 	gov.RegisterCodec(cdc)
+	issue.RegisterCodec(cdc)
 
 	return cdc
 }

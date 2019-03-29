@@ -28,6 +28,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	issuecmd "github.com/hashgard/hashgard/x/issue/client/cli"
+	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
@@ -83,8 +84,8 @@ func main() {
 		Short: "Bank subcommands",
 	}
 	bankCmd.AddCommand(
-		authcmd.GetAccountCmd(auth.StoreKey, cdc),
-		//issuecmd.GetAccountCmd(auth.StoreKey, cdc),
+		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
+		issuecmd.GetAccountCmd(auth.StoreKey, cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
@@ -101,10 +102,16 @@ func main() {
 	}
 	issueCmd.AddCommand(
 		client.PostCommands(
-			issuecmd.GetCmdIssue(cdc),
+			issuecmd.GetCmdIssueAdd(cdc),
+			issuecmd.GetCmdIssueMint(cdc),
+			issuecmd.GetCmdIssueBurn(cdc),
+			issuecmd.GetCmdIssueFinishMinting(cdc),
 		)...)
 	issueCmd.AddCommand(client.LineBreak)
-
+	issueCmd.AddCommand(
+		client.GetCommands(
+			issuecmd.GetCmdQueryIssue(issuedomain.StoreKey, cdc),
+		)...)
 	// Add stake subcommands
 	stakeCmd := &cobra.Command{
 		Use:   "stake",
@@ -212,6 +219,7 @@ func main() {
 		slashingCmd,
 		distributionCmd,
 		govCmd,
+		issueCmd,
 		client.LineBreak,
 		version.VersionCmd,
 	)

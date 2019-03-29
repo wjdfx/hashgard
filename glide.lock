@@ -97,16 +97,10 @@ imports:
   - x/staking/types
 - name: github.com/cosmos/go-bip39
   version: 52158e4697b87de16ed390e1bdaf813e581008fa
-- name: github.com/cosmos/ledger-cosmos-go
-  version: e2f595b3b7b222e1cbe9daf89e73e4dcab02d54c
 - name: github.com/davecgh/go-spew
   version: 346938d642f2ec3594ed81d874461961cd0faa76
   subpackages:
   - spew
-- name: github.com/ethereum/go-ethereum
-  version: 1a29bf0ee2c5753a6a0f6f57a90d079b4d17702d
-  subpackages:
-  - crypto/secp256k1
 - name: github.com/fsnotify/fsnotify
   version: 1485a34d5d5723fea214f5710708e19a831720e4
 - name: github.com/go-kit/kit
@@ -321,8 +315,6 @@ imports:
   - version
 - name: github.com/zondax/hid
   version: 302fd402163c34626286195dfa9adac758334acc
-- name: github.com/zondax/ledger-go
-  version: 69c15f1333a9b6866e5f66096561c7d138894bc5
 - name: golang.org/x/crypto
   version: 3764759f34a542a3aef74d6b02e35be7ab893bba
   repo: https://github.com/tendermint/crypto.git

@@ -43,10 +43,10 @@ import:
   version: 52158e4697b87de16ed390e1bdaf813e581008fa
 - package: github.com/cosmos/ledger-cosmos-go
   repo:    https://github.com/cosmos/ledger-cosmos-go.git
-  version: v0.9.11
+  version: =v0.9.11
 - package: github.com/zondax/ledger-go
-  repo:    https://github.com/cosmos/ledger-cosmos-go.git
-  version: v0.9.11
+  repo:    https://github.com/zondax/ledger-go.git
+  version: =v0.9.0
 testImport:
 - package: github.com/stretchr/testify
   subpackages:
