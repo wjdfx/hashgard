@@ -80,7 +80,7 @@ $ hashgardcli issue query-issue gardh1c7d59vebq
 				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
 			}
 			// Query the issue
-			res, err := issueutils.QueryIssueByID(issueID, cliCtx, cdc, domain.QuerierRoute)
+			res, err := issueutils.QueryIssueByID(issueID, cliCtx, cdc, queryRoute)
 			if err != nil {
 				return err
 			}

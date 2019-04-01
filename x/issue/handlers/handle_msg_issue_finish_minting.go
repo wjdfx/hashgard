@@ -8,6 +8,7 @@ import (
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keepers"
 	"github.com/hashgard/hashgard/x/issue/msgs"
+	issuetags "github.com/hashgard/hashgard/x/issue/tags"
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
@@ -18,16 +19,16 @@ func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keepers.Keeper, msg msg
 	}
 	tags := utils.AppendIssueInfoTag(msg.IssueId, *coinIssueInfo)
 	if coinIssueInfo.MintingFinished {
-		tags = tags.AppendTag("minting-finished", fmt.Sprintf("%t", coinIssueInfo.MintingFinished))
+		tags = tags.AppendTag(issuetags.MintingFinished, fmt.Sprintf("%t", coinIssueInfo.MintingFinished))
 		return sdk.Result{
-			Data: nil,
+			Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 			Tags: tags,
 		}
 	}
 	coinIssueInfo = keeper.FinishMinting(ctx, msg.IssueId)
-	tags = tags.AppendTag("minting-finished", fmt.Sprintf("%t", coinIssueInfo.MintingFinished))
+	tags = tags.AppendTag(issuetags.MintingFinished, fmt.Sprintf("%t", coinIssueInfo.MintingFinished))
 	return sdk.Result{
-		Data: nil,
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 		Tags: tags,
 	}
 }

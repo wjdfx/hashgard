@@ -6,9 +6,10 @@ import (
 
 // Issue tags
 var (
-	Action      = sdk.TagAction
-	Issuer      = "issuer"
-	IssueID     = "issue-id"
-	Name        = "name"
-	TotalSupply = "total-supply"
+	Action          = sdk.TagAction
+	Issuer          = "issuer"
+	IssueID         = "issue-id"
+	Name            = "name"
+	TotalSupply     = "total-supply"
+	MintingFinished = "minting-finished"
 )

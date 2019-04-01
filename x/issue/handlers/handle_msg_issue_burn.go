@@ -18,8 +18,7 @@ func HandleMsgIssueBurn(ctx sdk.Context, keeper keepers.Keeper, msg msgs.MsgIssu
 	coinIssueInfo = keeper.Burn(ctx, msg.IssueId, msg.Amount)
 	tags := utils.AppendIssueInfoTag(msg.IssueId, *coinIssueInfo)
 	return sdk.Result{
-		//Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(coins),
-		Data: nil,
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 		Tags: tags,
 	}
 }

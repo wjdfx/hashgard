@@ -10,16 +10,16 @@ import (
 	"github.com/hashgard/hashgard/x/issue/keepers"
 )
 
-func queryIssue(ctx sdk.Context, path []string, req abci.RequestQuery, keeper keepers.Keeper) ([]byte, sdk.Error) {
-	var params QueryIssueParams
-	err := keeper.Getcdc().UnmarshalJSON(req.Data, &params)
-	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
-	}
+func QueryIssue(ctx sdk.Context, issueID string, req abci.RequestQuery, keeper keepers.Keeper) ([]byte, sdk.Error) {
+	//var params QueryIssueParams
+	//err := keeper.Getcdc().UnmarshalJSON(req.Data, &params)
+	//if err != nil {
+	//	return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+	//}
 
-	issue := keeper.GetIssue(ctx, params.IssueID)
+	issue := keeper.GetIssue(ctx, issueID)
 	if issue == nil {
-		return nil, errors.ErrUnknownIssue(domain.DefaultCodespace, params.IssueID)
+		return nil, errors.ErrUnknownIssue(domain.DefaultCodespace, issueID)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.Getcdc(), issue)

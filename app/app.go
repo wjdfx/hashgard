@@ -25,7 +25,6 @@ import (
 	"github.com/hashgard/hashgard/x/issue"
 	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
 	issuekeepers "github.com/hashgard/hashgard/x/issue/keepers"
-	issuequeriers "github.com/hashgard/hashgard/x/issue/queriers"
 )
 
 const (
@@ -199,7 +198,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
-		AddRoute(issuedomain.QuerierRoute, issuequeriers.NewQuerier(app.issueKeeper)).
+		AddRoute(issuedomain.QuerierRoute, issue.NewQuerier(app.issueKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper))
 
 	// initialize BaseApp

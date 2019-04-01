@@ -4,27 +4,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"github.com/tendermint/tendermint/crypto"
 	"testing"
 
 	"github.com/hashgard/hashgard/x/issue"
-	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/msgs"
-)
-
-// Parameter store key
-var (
-	// TODO: Find another way to implement this without using accounts, or find a cleaner way to implement it using accounts.
-	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
-	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
-	coinIssueInfo        = domain.CoinIssueInfo{
-		"",
-		IssuerCoinsAccAddr,
-		"test",
-		"tst",
-		sdk.NewInt(10000),
-		domain.DefaultDecimals,
-		false}
 )
 
 func TestAddIssue(t *testing.T) {
@@ -33,13 +16,15 @@ func TestAddIssue(t *testing.T) {
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
-	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&coinIssueInfo))
+	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	require.Nil(t, err)
+	coinIssue := keeper.GetIssue(ctx, issueID)
+	require.Equal(t, coinIssue.TotalSupply, CoinIssueInfo.TotalSupply)
 	coin := sdk.Coin{Denom: issueID, Amount: sdk.NewInt(5000)}
 	keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
 		sdk.Coins{coin})
-	coinIssue := keeper.GetIssue(ctx, issueID)
-	require.True(t, coinIssue.TotalSupply.Equal(coinIssueInfo.TotalSupply))
+	coinIssue = keeper.GetIssue(ctx, issueID)
+	require.True(t, coinIssue.TotalSupply.Equal(CoinIssueInfo.TotalSupply))
 	acc := mapp.AccountKeeper.GetAccount(ctx, ReceiverCoinsAccAddr)
 	amount := acc.GetCoins().AmountOf(issueID)
 	flag1 := amount.Equal(coin.Amount)
@@ -52,7 +37,7 @@ func TestMint(t *testing.T) {
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
-	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&coinIssueInfo))
+	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	require.Nil(t, err)
 	keeper.Mint(ctx, issueID, sdk.NewInt(10000))
 	coinIssue := keeper.GetIssue(ctx, issueID)
@@ -66,7 +51,7 @@ func TestBurn(t *testing.T) {
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
-	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&coinIssueInfo))
+	issueID, _, _, err := keeper.AddIssue(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	require.Nil(t, err)
 	keeper.Burn(ctx, issueID, sdk.NewInt(5000))
 	coinIssue := keeper.GetIssue(ctx, issueID)

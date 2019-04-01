@@ -2,7 +2,6 @@ package tests
 
 import (
 	"bytes"
-	"github.com/cosmos/cosmos-sdk/x/staking"
 	"log"
 	"sort"
 	"testing"
@@ -22,22 +21,35 @@ import (
 	"github.com/hashgard/hashgard/x/issue/keepers"
 )
 
+var (
+	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
+	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
+
+	CoinIssueInfo = domain.CoinIssueInfo{
+		"",
+		IssuerCoinsAccAddr,
+		"test",
+		"tst",
+		sdk.NewInt(10000),
+		domain.DefaultDecimals,
+		false}
+)
+
 // initialize the mock application for this module
 func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper keepers.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 	mapp = mock.NewApp()
 	issue.RegisterCodec(mapp.Cdc)
-	keyStaking := sdk.NewKVStoreKey(staking.StoreKey)
-	tkeyStaking := sdk.NewTransientStoreKey(staking.TStoreKey)
 	keyIssue := sdk.NewKVStoreKey(domain.StoreKey)
 	pk := mapp.ParamsKeeper
 	ck := bank.NewBaseKeeper(mapp.AccountKeeper, mapp.ParamsKeeper.Subspace(bank.DefaultParamspace), bank.DefaultCodespace)
 	keeper = keepers.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testissue"), ck, domain.DefaultCodespace)
 	mapp.Router().AddRoute(domain.RouterKey, issue.NewHandler(keeper))
+	mapp.QueryRouter().AddRoute(domain.QuerierRoute, issue.NewQuerier(keeper))
 	//mapp.SetEndBlocker(getEndBlocker(keeper))
 
-	require.NoError(t, mapp.CompleteSetup(keyStaking, tkeyStaking, keyIssue))
+	require.NoError(t, mapp.CompleteSetup(keyIssue))
 
 	valTokens := sdk.TokensFromTendermintPower(42)
 	if genAccs == nil || len(genAccs) == 0 {

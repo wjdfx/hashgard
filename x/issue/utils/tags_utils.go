@@ -9,9 +9,9 @@ import (
 )
 
 func AppendIssueInfoTag(issueID string, coinIssueInfo domain.CoinIssueInfo) types.Tags {
-	tags := sdk.EmptyTags()
-	tags = tags.AppendTag(issuetags.IssueID, issueID)
-	tags = tags.AppendTag(issuetags.Name, coinIssueInfo.Name)
-	tags = tags.AppendTag(issuetags.TotalSupply, coinIssueInfo.TotalSupply.String())
-	return tags
+	return sdk.NewTags(
+		issuetags.IssueID, issueID,
+		issuetags.Name, coinIssueInfo.Name,
+		issuetags.TotalSupply, coinIssueInfo.TotalSupply.String(),
+	)
 }

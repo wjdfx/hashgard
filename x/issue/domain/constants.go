@@ -18,6 +18,7 @@ const (
 )
 const (
 	IDPreStr = "gard"
+	Custom   = "custom"
 )
 const (
 	TypeMsgIssue              = "issue"

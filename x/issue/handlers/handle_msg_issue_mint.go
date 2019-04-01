@@ -18,8 +18,7 @@ func HandleMsgIssueMint(ctx sdk.Context, keeper keepers.Keeper, msg msgs.MsgIssu
 	coinIssueInfo = keeper.Mint(ctx, msg.IssueId, msg.Amount)
 	tags := utils.AppendIssueInfoTag(msg.IssueId, *coinIssueInfo)
 	return sdk.Result{
-		//Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(coins),
-		Data: nil,
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 		Tags: tags,
 	}
 }
