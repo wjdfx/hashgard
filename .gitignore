@@ -4,6 +4,8 @@
 # Build
 vendor/
 build/
+tools-stamp
+
 
 # OS
 .DS_Store

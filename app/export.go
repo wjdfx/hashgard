@@ -89,7 +89,7 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 	// withdraw all delegator rewards
 	dels := app.stakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddr, delegation.ValidatorAddr)
+		_ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
 	}
 
 	// clear validator slash events
@@ -104,13 +104,19 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 
 	// reinitialize all validators
 	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val sdk.Validator) (stop bool) {
+		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
+		scraps := app.distributionKeeper.GetValidatorOutstandingRewards(ctx, val.GetOperator())
+		feePool := app.distributionKeeper.GetFeePool(ctx)
+		feePool.CommunityPool = feePool.CommunityPool.Add(scraps)
+		app.distributionKeeper.SetFeePool(ctx, feePool)
+
 		app.distributionKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())
 		return false
 	})
 
 	// reinitialize all delegations
 	for _, del := range dels {
-		app.distributionKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddr, del.ValidatorAddr)
+		app.distributionKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
 	}
 
 	// reset context height

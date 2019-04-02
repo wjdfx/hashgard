@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
+	kbkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/server"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -130,6 +131,16 @@ following delegation and commission default parameters:
 			txBldr, msg, err := cli.BuildCreateValidatorMsg(cliCtx, txBldr)
 			if err != nil {
 				return err
+			}
+
+			info, err := txBldr.Keybase().Get(name)
+			if err != nil {
+				return err
+			}
+
+			if info.GetType() == kbkeys.TypeOffline || info.GetType() == kbkeys.TypeMulti {
+				fmt.Println("Offline key passed in. Use `hashgardcli bank sign` command to sign:")
+				return utils.PrintUnsignedStdTx(txBldr, cliCtx, []sdk.Msg{msg}, true)
 			}
 
 			// write the unsigned transaction to the buffer

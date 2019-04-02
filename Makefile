@@ -4,181 +4,112 @@ PACKAGES_SIMTEST=$(shell go list ./... | grep '/simulation')
 
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
+CAT := $(if $(filter $(OS),Windows_NT),type,cat)
+
+GOBIN ?= $(GOPATH)/bin
+GOSUM := $(shell which gosum)
+
+export GO111MODULE = on
+
+
 BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=$(VERSION) \
     -X github.com/hashgard/hashgard/version.Commit=$(COMMIT)"
-GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
 
-all: get_tools get_vendor_deps install
+
+all: get_tools install lint test
 
 
 ########################################
 ### Tools
 
-GLIDE = github.com/Masterminds/glide
-GOLINT = github.com/tendermint/lint/golint
-GOMETALINTER = gopkg.in/alecthomas/gometalinter.v2
-UNCONVERT = github.com/mdempsky/unconvert
-INEFFASSIGN = github.com/gordonklaus/ineffassign
-MISSPELL = github.com/client9/misspell/cmd/misspell
-ERRCHECK = github.com/kisielk/errcheck
-UNPARAM = mvdan.cc/unparam
-STATIK = github.com/rakyll/statik
+###
+# Find OS and Go environment
+# GO contains the Go binary
+# FS contains the OS file separator
+###
 
-GLIDE_CHECK := $(shell command -v glide 2> /dev/null)
-GOLINT_CHECK := $(shell command -v golint 2> /dev/null)
-GOMETALINTER_CHECK := $(shell command -v gometalinter.v2 2> /dev/null)
-UNCONVERT_CHECK := $(shell command -v unconvert 2> /dev/null)
-INEFFASSIGN_CHECK := $(shell command -v ineffassign 2> /dev/null)
-MISSPELL_CHECK := $(shell command -v misspell 2> /dev/null)
-ERRCHECK_CHECK := $(shell command -v errcheck 2> /dev/null)
-UNPARAM_CHECK := $(shell command -v unparam 2> /dev/null)
-STATIK_CHECK := $(shell command -v statik 2> /dev/null)
-
-
-check_tools:
-ifndef GLIDE_CHECK
-	@echo "No glide in path.  Install with 'make get_tools'."
+ifeq ($(OS),Windows_NT)
+  GO := $(shell where go.exe 2> NUL)
+  FS := \\
 else
-	@echo "Found glide in path."
-endif
-ifndef STATIK_CHECK
-	@echo "No statik in path.  Install with 'make get_tools'."
-else
-	@echo "Found statik in path."
+  GO := $(shell command -v go 2> /dev/null)
+  FS := /
 endif
 
-
-check_dev_tools:
-	$(MAKE) check_tools
-ifndef GOLINT_CHECK
-	@echo "No golint in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found golint in path."
-endif
-ifndef GOMETALINTER_CHECK
-	@echo "No gometalinter in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found gometalinter in path."
-endif
-ifndef UNCONVERT_CHECK
-	@echo "No unconvert in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found unconvert in path."
-endif
-ifndef INEFFASSIGN_CHECK
-	@echo "No ineffassign in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found ineffassign in path."
-endif
-ifndef MISSPELL_CHECK
-	@echo "No misspell in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found misspell in path."
-endif
-ifndef ERRCHECK_CHECK
-	@echo "No errcheck in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found errcheck in path."
-endif
-ifndef UNPARAM_CHECK
-	@echo "No unparam in path.  Install with 'make get_dev_tools'."
-else
-	@echo "Found unparam in path."
+ifeq ($(GO),)
+  $(error could not find go. Is it in PATH? $(GO))
 endif
 
+GOPATH ?= $(shell $(GO) env GOPATH)
+GITHUBDIR := $(GOPATH)$(FS)src$(FS)github.com
+GOLANGCI_LINT_VERSION := v1.15.0
+GOLANGCI_LINT_HASHSUM := ac897cadc180bf0c1a4bf27776c410debad27205b22856b861d41d39d06509cf
 
-get_tools:
-ifdef GLIDE_CHECK_CHECK
-	@echo "Glide is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing glide"
-	go get -v $(GLIDE)
-endif
-ifdef STATIK_CHECK
-	@echo "Statik is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing statik"
-	go version
-	go get -v $(STATIK)
-endif
+###
+# Functions
+###
 
+go_get = $(if $(findstring Windows_NT,$(OS)),\
+IF NOT EXIST $(GITHUBDIR)$(FS)$(1)$(FS) ( mkdir $(GITHUBDIR)$(FS)$(1) ) else (cd .) &\
+IF NOT EXIST $(GITHUBDIR)$(FS)$(1)$(FS)$(2)$(FS) ( cd $(GITHUBDIR)$(FS)$(1) && git clone https://github.com/$(1)/$(2) ) else (cd .) &\
+,\
+mkdir -p $(GITHUBDIR)$(FS)$(1) &&\
+(test ! -d $(GITHUBDIR)$(FS)$(1)$(FS)$(2) && cd $(GITHUBDIR)$(FS)$(1) && git clone https://github.com/$(1)/$(2)) || true &&\
+)\
+cd $(GITHUBDIR)$(FS)$(1)$(FS)$(2) && git fetch origin && git checkout -q $(3)
 
-get_dev_tools:
-	$(MAKE) get_tools
-ifdef GOLINT_CHECK
-	@echo "Golint is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing golint"
-	go get -v $(GOLINT)
-endif
-ifdef GOMETALINTER_CHECK
-	@echo "Gometalinter.v2 is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing gometalinter.v2"
-	go get -v $(GOMETALINTER)
-endif
-ifdef UNCONVERT_CHECK
-	@echo "Unconvert is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing unconvert"
-	go get -v $(UNCONVERT)
-endif
-ifdef INEFFASSIGN_CHECK
-	@echo "Ineffassign is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing ineffassign"
-	go get -v $(INEFFASSIGN)
-endif
-ifdef MISSPELL_CHECK
-	@echo "misspell is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing misspell"
-	go get -v $(MISSPELL)
-endif
-ifdef ERRCHECK_CHECK
-	@echo "errcheck is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing errcheck"
-	go get -v $(ERRCHECK)
-endif
-ifdef UNPARAM_CHECK
-	@echo "unparam is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing unparam"
-	go get -v $(UNPARAM)
-endif
-ifdef STATIK_CHECK
-	@echo "statik is already installed.  Run 'make update_tools' to update."
-else
-	@echo "Installing statik"
-	go get -v $(STATIK)
-endif
+go_install = $(call go_get,$(1),$(2),$(3)) && cd $(GITHUBDIR)$(FS)$(1)$(FS)$(2) && $(GO) install
+
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+mkfile_dir := $(shell cd $(shell dirname $(mkfile_path)); pwd)
+
+###
+# tools
+###
+
+get_tools: tools-stamp
+tools-stamp: $(GOBIN)/golangci-lint $(GOBIN)/statik $(GOBIN)/goimports $(GOBIN)/gosum $(GOBIN)/sdkch
+	touch $@
+
+$(GOBIN)/golangci-lint: contrib/install-golangci-lint.sh $(GOBIN)/gosum
+	bash contrib/install-golangci-lint.sh $(GOBIN) $(GOLANGCI_LINT_VERSION) $(GOLANGCI_LINT_HASHSUM)
+
+$(GOBIN)/statik:
+	$(call go_install,rakyll,statik,v0.1.5)
+
+$(GOBIN)/goimports:
+	go get golang.org/x/tools/cmd/goimports@v0.0.0-20190114222345-bf090417da8b
+
+$(GOBIN)/gosum:
+	go install -mod=readonly ./cmd/gosum/
+
+$(GOBIN)/sdkch:
+	go install -mod=readonly ./cmd/sdkch/
+
+tools-clean:
+	cd $(GOBIN) && rm -f golangci-lint statik goimports gosum sdkch
+	rm -f tools-stamp
 
 
-update_tools:
-	@echo "Updating glide"
-	go get -u -v $(GLIDE)
+########################################
+### CI
+
+ci: get_tools install test_cover lint test
 
 
 ########################################
 ### Dependencies
 
-ifeq ($(OS),Windows_NT)
-get_vendor_deps: get_tools
-	@echo "--> Generating vendor directory via glide install"
-	@rm -rf ./vendor
-	@glide --tmp=c:/ install
-else
-get_vendor_deps: get_tools
-	@echo "--> Generating vendor directory via glide install"
-	@rm -rf ./vendor
-	@glide install
-endif
+go-mod-cache: go.sum
+	@echo "--> Download go modules to local cache"
+	@go mod download
 
-update_vendor_deps: get_tools
-	@echo "--> Running glide update"
-	@glide update
+go.sum: get_tools go.mod
+	@echo "--> Ensure dependencies have not been modified"
+	@go mod verify
 
+distclean: clean
+	rm -rf vendor/
 
 
 ########################################
@@ -187,53 +118,63 @@ update_vendor_deps: get_tools
 update_gaia_lite_docs:
 	@statik -src=client/lcd/swagger-ui -dest=client/lcd -f
 
-build-linux:
+build-linux: go.sum
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(MAKE) build
 
-build:
+build: go.sum
 ifeq ($(OS),Windows_NT)
-	go build $(BUILD_FLAGS) -o build/hashgard.exe ./cmd/hashgard
-	go build $(BUILD_FLAGS) -o build/hashgardcli.exe ./cmd/hashgardcli
-	go build $(BUILD_FLAGS) -o build/hashgardlcd.exe ./cmd/hashgardlcd
-	go build $(BUILD_FLAGS) -o build/hashgardkeyutil.exe ./cmd/hashgardkeyutil
-	go build $(BUILD_FLAGS) -o build/hashgardreplay.exe ./cmd/hashgardreplay
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgard.exe ./cmd/hashgard
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardcli.exe ./cmd/hashgardcli
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardlcd.exe ./cmd/hashgardlcd
 else
-	go build $(BUILD_FLAGS) -o build/hashgard ./cmd/hashgard
-	go build $(BUILD_FLAGS) -o build/hashgardcli ./cmd/hashgardcli
-	go build $(BUILD_FLAGS) -o build/hashgardlcd ./cmd/hashgardlcd
-	go build $(BUILD_FLAGS) -o build/hashgardkeyutil ./cmd/hashgardkeyutil
-	go build $(BUILD_FLAGS) -o build/hashgardreplay ./cmd/hashgardreplay
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgard ./cmd/hashgard
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardcli ./cmd/hashgardcli
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardlcd ./cmd/hashgardlcd
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardkeyutil ./cmd/hashgardkeyutil
+	go build -mod=readonly $(BUILD_FLAGS) -o build/hashgardreplay ./cmd/hashgardreplay
 endif
 
 
-install: update_gaia_lite_docs
-	go install $(BUILD_FLAGS) ./cmd/hashgard
-	go install $(BUILD_FLAGS) ./cmd/hashgardcli
-	go install $(BUILD_FLAGS) ./cmd/hashgardlcd
-	go install $(BUILD_FLAGS) ./cmd/hashgardkeyutil
-	go install $(BUILD_FLAGS) ./cmd/hashgardreplay
+install: go.sum update_gaia_lite_docs
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/hashgard
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/hashgardcli
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/hashgardlcd
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/hashgardkeyutil
+	go install -mod=readonly $(BUILD_FLAGS) ./cmd/hashgardreplay
+
+
+########################################
+### Documentation
+
+godocs:
+	@echo "--> Wait a few seconds and visit http://localhost:6060/pkg/github.com/hashgard/hashgard"
+	godoc -http=:6060
 
 
 ########################################
 ### Testing
 
+test: test_unit
+
 test_unit:
-	@VERSION=$(VERSION) go test $(PACKAGES_NOSIMULATION)
-
-test: test_unit test_cover
-
-test_lint:
-	gometalinter --config=tests/gometalinter.json ./...
-	!(gometalinter --exclude /usr/lib/go/src/ --exclude 'vendor/*' --disable-all --enable='errcheck' --vendor ./... | grep -v "vendor/")
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+	@VERSION=$(VERSION) go test -mod=readonly $(PACKAGES_NOSIMULATION)
 
 test_cover:
 	@export VERSION=$(VERSION); bash tests/test_cover.sh
+
+ci-lint:
+	golangci-lint run
+	go vet -composites=false -tests=false ./...
+	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+	go mod verify
+
+lint: get_tools ci-lint
 
 
 # To avoid unintended conflicts with file names, always add to .PHONY
 # unless there is a reason not to.
 # https://www.gnu.org/software/make/manual/html_node/Phony-Targets.html
 .PHONY: build install  \
-get_tools get_dev_tools get_vendor_deps test test_cli test_unit \
-test_cover test_lint \
+clean distclean \
+test test_unit test_cover lint\
+build-linux go-mod-cache\

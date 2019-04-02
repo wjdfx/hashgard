@@ -3,7 +3,7 @@ swagger: "2.0"
 info:
   version: "3.0"
   title: LCD for Hashgard
-  description: A REST interface for state queries, transaction generation, signing, and broadcast.
+  description: A REST interface for state queries, transaction generation, signing and broadcasting.
 tags:
 - name: ICS0
   description: Tendermint APIs, such as query blocks, transactions and validatorset
@@ -29,10 +29,10 @@ securityDefinitions:
 paths:
   /version:
     get:
-      summary: Version of Hashgard-lite
+      summary: Version of Hashgard
       tags:
       - version
-      description: Get the version of hashgard-lite running locally to compare against expected
+      description: Get the version of lcd running locally to compare against expected
       responses:
         200:
           description: Plaintext version i.e. "v0.25.0"
@@ -242,8 +242,8 @@ paths:
     post:
       tags:
       - ICS0
-      summary: broadcast Tx
-      description: broadcast tx with tendermint rpc
+      summary: Broadcast a signed tx
+      description: Broadcast a signed tx to a full node
       consumes:
       - application/json
       produces:
@@ -251,19 +251,19 @@ paths:
       parameters:
       - in: body
         name: txBroadcast
-        description: Build a StdTx transaction and serilize it to a byte array with amino, then the `"tx"` field in the post body will be the base64 encoding of the byte array. The supported return types includes `"block"`(return after tx commit), `"sync"`(return afer CheckTx) and `"async"`(return right away).
+        description: The tx must be a signed StdTx. The supported return types includes `"block"`(return after tx commit), `"sync"`(return afer CheckTx) and `"async"`(return right away).
         required: true
         schema:
           type: object
           properties:
             tx:
-              type: string
+              $ref: "#/definitions/StdTx"
             return:
               type: string
               example: block
       responses:
         200:
-          description: Broadcast tx result
+          description: Tx broadcasting result
           schema:
             $ref: "#/definitions/BroadcastTxCommitResult"
         500:
@@ -304,40 +304,11 @@ paths:
           description: Key password is wrong
         500:
           description: Server internal error
-  /tx/broadcast:
+  /txs/encode:
     post:
       tags:
-      - ICS20
-      summary: Send a signed Tx
-      description: Send a signed Tx to a Hashgard full node
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      parameters:
-      - in: body
-        name: txBroadcast
-        description: broadcast tx
-        required: true
-        schema:
-          type: object
-          properties:
-            tx:
-              $ref: "#/definitions/StdTx"
-      responses:
-        202:
-          description: Tx was send and will probably be added to the next block
-          schema:
-            $ref: "#/definitions/BroadcastTxCommitResult"
-        400:
-          description: The Tx was malformated
-        500:
-          description: Server internal error
-  /tx/encode:
-    post:
-      tags:
-      - ICS20
-      summary: Encode a transaction to wire format
+      - ICS0
+      summary: Encode a transaction to the Amino wire format
       description: Encode a transaction (signed or not) from JSON to base64-encoded Amino serialized bytes
       consumes:
       - application/json
@@ -346,7 +317,7 @@ paths:
       parameters:
       - in: body
         name: tx
-        description: The transaction to encode
+        description: The tx to encode
         required: true
         schema:
           type: object
@@ -355,15 +326,15 @@ paths:
               $ref: "#/definitions/StdTx"
       responses:
         200:
-          description: Transaction was successfully decoded and re-encoded
+          description: The tx was successfully decoded and re-encoded
           schema:
             type: object
             properties:
               tx:
                 type: string
-                example: The base64-encoded Amino-serialized bytes for the transaction
+                example: The base64-encoded Amino-serialized bytes for the tx
         400:
-          description: The Tx was malformated
+          description: The tx was malformated
         500:
           description: Server internal error
   /bank/balances/{address}:
@@ -395,30 +366,30 @@ paths:
       summary: Send coins (build -> sign -> send)
       description: Send coins (build -> sign -> send)
       tags:
-      - ICS20
+        - ICS20
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: path
-        name: address
-        description: Account address in bech32 format
-        required: true
-        type: string
-      - in: body
-        name: account
-        description: The password of the account to remove from the KMS
-        required: true
-        schema:
-          type: object
-          properties:
-            base_req:
-              $ref: "#/definitions/BaseReq"
-            amount:
-              type: array
-              items:
-                $ref: "#/definitions/Coin"
+        - in: path
+          name: address
+          description: Account address in bech32 format
+          required: true
+          type: string
+        - in: body
+          name: account
+          description: The password of the account to remove from the KMS
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              amount:
+                type: array
+                items:
+                  $ref: "#/definitions/Coin"
       responses:
         202:
           description: Tx was send and will probably be added to the next block
@@ -434,9 +405,9 @@ paths:
     get:
       summary: List of accounts stored locally
       tags:
-      - ICS1
+        - ICS1
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: Array of accounts
@@ -449,28 +420,28 @@ paths:
     post:
       summary: Create a new account locally
       tags:
-      - ICS1
+        - ICS1
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: account
-        description: The account to create
-        schema:
-          type: object
-          required:
-          - name
-          - password
-          - seed
-          properties:
-            name:
-              type: string
-            password:
-              type: string
-            seed:
-              type: string
+        - in: body
+          name: account
+          description: The account to create
+          schema:
+            type: object
+            required:
+              - name
+              - password
+              - seed
+            properties:
+              name:
+                type: string
+              password:
+                type: string
+              seed:
+                type: string
       responses:
         200:
           description: Returns account information of the created key
@@ -486,7 +457,7 @@ paths:
     get:
       summary: Create a new seed to create a new account with
       tags:
-      - ICS1
+        - ICS1
       responses:
         200:
           description: 24 word Seed
@@ -497,30 +468,30 @@ paths:
     post:
       summary: Recover a account from a seed
       tags:
-      - ICS1
+        - ICS1
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: path
-        name: name
-        description: Account name
-        required: true
-        type: string
-      - in: body
-        name: pwdAndSeed
-        description: Provide password and seed to recover a key
-        schema:
-          type: object
-          required:
-          - password
-          - seed
-          properties:
-            password:
-              type: string
-            seed:
-              type: string
+        - in: path
+          name: name
+          description: Account name
+          required: true
+          type: string
+        - in: body
+          name: pwdAndSeed
+          description: Provide password and seed to recover a key
+          schema:
+            type: object
+            required:
+              - password
+              - seed
+            properties:
+              password:
+                type: string
+              seed:
+                type: string
       responses:
         200:
           description: Returns account information of the recovered key
@@ -534,17 +505,17 @@ paths:
           description: Server internal error
   /keys/{name}:
     parameters:
-    - in: path
-      name: name
-      description: Account name
-      required: true
-      type: string
+      - in: path
+        name: name
+        description: Account name
+        required: true
+        type: string
     get:
       summary: Get a certain locally stored account
       tags:
-      - ICS1
+        - ICS1
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: Locally stored account
@@ -555,23 +526,23 @@ paths:
     put:
       summary: Update the password for this account in the KMS
       tags:
-      - ICS1
+        - ICS1
       consumes:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: account
-        description: The new and old password
-        schema:
-          type: object
-          required:
-          - new_password
-          - old_password
-          properties:
-            new_password:
-              type: string
-            old_password:
-              type: string
+        - in: body
+          name: account
+          description: The new and old password
+          schema:
+            type: object
+            required:
+              - new_password
+              - old_password
+            properties:
+              new_password:
+                type: string
+              old_password:
+                type: string
       responses:
         200:
           description: Updated password
@@ -582,20 +553,20 @@ paths:
     delete:
       summary: Remove an account
       tags:
-      - ICS1
+        - ICS1
       consumes:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: account
-        description: The password of the account to remove from the KMS
-        schema:
-          type: object
-          required:
-          - password
-          properties:
-            password:
-              type: string
+        - in: body
+          name: account
+          description: The password of the account to remove from the KMS
+          schema:
+            type: object
+            required:
+              - password
+            properties:
+              password:
+                type: string
       responses:
         200:
           description: Removed account
@@ -678,9 +649,9 @@ paths:
           properties:
             base_req:
               $ref: "#/definitions/BaseReq"
-            delegator_addr:
+            delegator_address:
               $ref: "#/definitions/Address"
-            validator_addr:
+            validator_address:
               $ref: "#/definitions/ValidatorAddress"
             delegation:
               $ref: "#/definitions/Coin"
@@ -763,9 +734,9 @@ paths:
           properties:
             base_req:
               $ref: "#/definitions/BaseReq"
-            delegator_addr:
+            delegator_address:
               $ref: "#/definitions/Address"
-            validator_addr:
+            validator_address:
               $ref: "#/definitions/ValidatorAddress"
             shares:
               type: string
@@ -850,40 +821,40 @@ paths:
           description: Internal Server Error
   /staking/delegators/{delegatorAddr}/redelegations:
     parameters:
-    - in: path
-      name: delegatorAddr
-      description: Bech32 AccAddress of Delegator
-      required: true
-      type: string
+      - in: path
+        name: delegatorAddr
+        description: Bech32 AccAddress of Delegator
+        required: true
+        type: string
     post:
       summary: Submit a redelegation
       parameters:
-      - in: body
-        name: delegation
-        description: The password of the account to remove from the KMS
-        schema:
-          type: object
-          properties:
-            base_req:
-              $ref: "#/definitions/BaseReq"
-            delegator_addr:
-              $ref: "#/definitions/Address"
-            validator_src_addr:
-              $ref: "#/definitions/ValidatorAddress"
-            validator_dst_addr:
-              $ref: "#/definitions/ValidatorAddress"
-            shares:
-              type: string
-              example: "100"
+        - in: body
+          name: delegation
+          description: The password of the account to remove from the KMS
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              delegator_address:
+                $ref: "#/definitions/Address"
+              validator_src_addressess:
+                $ref: "#/definitions/ValidatorAddress"
+              validator_dst_address:
+                $ref: "#/definitions/ValidatorAddress"
+              shares:
+                type: string
+                example: "100"
       tags:
-      - ICS21
+        - ICS21
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       responses:
         200:
-          description: OK
+          description:OK
           schema:
             $ref: "#/definitions/BroadcastTxCommitResult"
         400:
@@ -1150,26 +1121,26 @@ paths:
       summary: Unjail a jailed validator
       description: Send transaction to unjail a jailed validator
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       tags:
-      - ICS23
+        - ICS23
       parameters:
-      - type: string
-        description: Bech32 validator address
-        name: validatorAddr
-        required: true
-        in: path
-      - description: ""
-        name: UnjailBody
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            base_req:
-              $ref: "#/definitions/BaseReq"
+        - type: string
+          description: Bech32 validator address
+          name: validatorAddr
+          required: true
+          in: path
+        - description: ""
+          name: UnjailBody
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
       responses:
         200:
           description: OK
@@ -1215,28 +1186,28 @@ paths:
       summary: Submit a proposal
       description: Send transaction to submit a proposal
       consumes:
-      - application/json
+        - application/json
       produces:
-      - application/json
+        - application/json
       tags:
-      - ICS22
+        - ICS22
       parameters:
-      - description: valid value of `"proposal_type"` can be `"text"`, `"parameter_change"`, `"software_upgrade"`
-        name: post_proposal_body
-        in: body
-        required: true
-        schema:
-          type: object
-          properties:
-            base_req:
-              $ref: "#/definitions/BaseReq"
-            title:
-              type: string
-            description:
-              type: string
-            proposal_type:
-              type: string
-              example: "text"
+        - description: valid value of `"proposal_type"` can be `"text"`, `"parameter_change"`, `"software_upgrade"`
+          name: post_proposal_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              title:
+                type: string
+              description:
+                type: string
+              proposal_type:
+                type: string
+                example: "text"
             proposer:
               $ref: "#/definitions/Address"
             initial_deposit:
@@ -1245,13 +1216,11 @@ paths:
                 $ref: "#/definitions/Coin"
       responses:
         200:
-          description: OK
+          description: Tx was succesfully generated
           schema:
-            $ref: "#/definitions/BroadcastTxCommitResult"
+            $ref: "#/definitions/StdTx"
         400:
           description: Invalid proposal body
-        401:
-          description: Key password is wrong
         500:
           description: Internal Server Error
     get:
@@ -1806,6 +1775,28 @@ paths:
           description: Invalid validator address
         500:
           description: Internal Server Error
+  /distribution/validators/{validatorAddr}/outstanding_rewards:
+    parameters:
+    - in: path
+      name: validatorAddr
+      description: Bech32 OperatorAddress of validator
+      required: true
+      type: string
+    get:
+      summary: Fee distribution outstanding rewards of a single validator
+      tags:
+      - ICS24
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Coin"
+        500:
+          description: Internal Server Error
   /distribution/validators/{validatorAddr}/rewards:
     parameters:
     - in: path
@@ -1814,8 +1805,8 @@ paths:
       required: true
       type: string
     get:
-      summary: Commission and self-delegation rewards of a single a validator
-      description: Query the commission and self-delegation rewards of a validator.
+      summary: Commission and self-delegation rewards of a single validator
+      description: Query the commission and self-delegation rewards of validator.
       tags:
       - ICS24
       produces:
@@ -1876,22 +1867,6 @@ paths:
                 type: string
               community_tax:
                 type: string
-        500:
-          description: Internal Server Error
-  /distribution/outstanding_rewards:
-    get:
-      summary: Fee distribution outstanding rewards
-      tags:
-      - ICS24
-      produces:
-      - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-            type: array
-            items:
-              $ref: "#/definitions/Coin"
         500:
           description: Internal Server Error
 definitions:
@@ -1986,7 +1961,7 @@ definitions:
     properties:
       denom:
         type: string
-        example: steak
+        example: gard
       amount:
         type: string
         example: "50"
@@ -2193,10 +2168,10 @@ definitions:
         example: "12345678"
       memo:
         type: string
-        example: "Sent memo"
+        example: "Sent"
       chain_id:
         type: string
-        example: "sif-3000"
+        example: "hashgard"
       account_number:
         type: string
         example: "0"
@@ -2357,9 +2332,9 @@ definitions:
   Delegation:
     type: object
     properties:
-      delegator_addr:
+      delegator_address:
         type: string
-      validator_addr:
+      validator_address:
         type: string
       shares:
         type: string
@@ -2368,9 +2343,9 @@ definitions:
   UnbondingDelegation:
     type: object
     properties:
-      delegator_addr:
+      delegator_address:
         type: string
-      validator_addr:
+      validator_address:
         type: string
       initial_balance:
         type: string
@@ -2383,11 +2358,11 @@ definitions:
   Redelegation:
     type: object
     properties:
-      delegator_addr:
+      delegator_address:
         type: string
-      validator_src_addr:
+      validator_src_address:
         type: string
-      validator_dst_addr:
+      validator_dst_address:
         type: string
       creation_height:
         type: integer
@@ -2404,7 +2379,7 @@ definitions:
   ValidatorDistInfo:
     type: object
     properties:
-      operator_addr:
+      operator_address:
         $ref: "#/definitions/ValidatorAddress"
       self_bond_rewards:
         type: array

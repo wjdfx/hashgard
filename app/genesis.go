@@ -137,7 +137,6 @@ func createGovGenesisState() gov.GenesisState {
 			Quorum:            sdk.NewDecWithPrec(334, 3),
 			Threshold:         sdk.NewDecWithPrec(5, 1),
 			Veto:              sdk.NewDecWithPrec(334, 3),
-			GovernancePenalty: sdk.NewDecWithPrec(1, 2),
 		},
 	}
 }
@@ -426,8 +425,8 @@ func CollectStdTxs(cdc *codec.Codec, moniker string, genTxsDir string, genDoc tm
 
 		msg := msgs[0].(staking.MsgCreateValidator)
 		// validate delegator and validator addresses and funds against the accounts in the state
-		delAddr := msg.DelegatorAddr.String()
-		valAddr := sdk.AccAddress(msg.ValidatorAddr).String()
+		delAddr := msg.DelegatorAddress.String()
+		valAddr := sdk.AccAddress(msg.ValidatorAddress).String()
 
 		delAcc, delOk := addrMap[delAddr]
 		_, valOk := addrMap[valAddr]

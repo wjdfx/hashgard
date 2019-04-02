@@ -11,19 +11,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-
+	clienttx "github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/mintkey"
 	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
-	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	dclcommon "github.com/cosmos/cosmos-sdk/x/distribution/client/common"
 	distrrest "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
@@ -43,7 +41,7 @@ const (
 	altPw = "12345678901"
 )
 
-var fees = sdk.Coins{sdk.NewInt64Coin(app.StakeDenom, 5)}
+var fees = sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 5)}
 
 func init() {
 	mintkey.BcryptSecurityParameter = 1
@@ -244,16 +242,16 @@ func TestCoinSend(t *testing.T) {
 	// query sender
 	acc = getAccount(t, port, addr)
 	coins := acc.GetCoins()
-	expectedBalance := initialBalance[0].Minus(fees[0])
+	expectedBalance := initialBalance[0].Sub(fees[0])
 
-	require.Equal(t, app.StakeDenom, coins[0].Denom)
+	require.Equal(t, sdk.DefaultBondDenom, coins[0].Denom)
 	require.Equal(t, expectedBalance.Amount.SubRaw(1), coins[0].Amount)
 	expectedBalance = coins[0]
 
 	// query receiver
 	acc2 := getAccount(t, port, receiveAddr)
 	coins2 := acc2.GetCoins()
-	require.Equal(t, app.StakeDenom, coins2[0].Denom)
+	require.Equal(t, sdk.DefaultBondDenom, coins2[0].Denom)
 	require.Equal(t, int64(1), coins2[0].Amount.Int64())
 
 	// test failure with too little gas
@@ -289,7 +287,7 @@ func TestCoinSend(t *testing.T) {
 	require.NotZero(t, gasEstResp.GasEstimate)
 
 	acc = getAccount(t, port, addr)
-	require.Equal(t, expectedBalance.Amount, acc.GetCoins().AmountOf(app.StakeDenom))
+	require.Equal(t, expectedBalance.Amount, acc.GetCoins().AmountOf(sdk.DefaultBondDenom))
 
 	// run successful tx
 	gas := fmt.Sprintf("%d", gasEstResp.GasEstimate)
@@ -303,8 +301,8 @@ func TestCoinSend(t *testing.T) {
 	require.Equal(t, uint32(0), resultTx.Code)
 
 	acc = getAccount(t, port, addr)
-	expectedBalance = expectedBalance.Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.SubRaw(1), acc.GetCoins().AmountOf(app.StakeDenom))
+	expectedBalance = expectedBalance.Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.SubRaw(1), acc.GetCoins().AmountOf(sdk.DefaultBondDenom))
 }
 
 func TestCoinSendAccAuto(t *testing.T) {
@@ -318,15 +316,17 @@ func TestCoinSendAccAuto(t *testing.T) {
 	initialBalance := acc.GetCoins()
 
 	// send a transfer tx without specifying account number and sequence
-	res, body, _ := doTransferWithGasAccAuto(t, port, seed, name1, memo, pw, "200000", 1.0, false, false, fees)
+	res, body, _ := doTransferWithGasAccAuto(
+		t, port, seed, name1, memo, pw, addr, "200000", 1.0, false, false, fees,
+	)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	// query sender
 	acc = getAccount(t, port, addr)
 	coins := acc.GetCoins()
-	expectedBalance := initialBalance[0].Minus(fees[0])
+	expectedBalance := initialBalance[0].Sub(fees[0])
 
-	require.Equal(t, app.StakeDenom, coins[0].Denom)
+	require.Equal(t, sdk.DefaultBondDenom, coins[0].Denom)
 	require.Equal(t, expectedBalance.Amount.SubRaw(1), coins[0].Amount)
 }
 
@@ -338,7 +338,7 @@ func TestCoinMultiSendGenerateOnly(t *testing.T) {
 	defer cleanup()
 
 	// generate only
-	res, body, _ := doTransferWithGas(t, port, seed, "", memo, "", addr, "200000", 1, false, true, fees)
+	res, body, _ := doTransferWithGas(t, port, seed, "", memo, "", addr, "200000", 1, false, false, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	var stdTx auth.StdTx
@@ -358,6 +358,7 @@ func TestCoinSendGenerateSignAndBroadcast(t *testing.T) {
 	require.NoError(t, err)
 	addr, seed := CreateAddr(t, name1, pw, kb)
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr}, true)
+
 	defer cleanup()
 	acc := getAccount(t, port, addr)
 
@@ -373,95 +374,57 @@ func TestCoinSendGenerateSignAndBroadcast(t *testing.T) {
 
 	// generate tx
 	gas := fmt.Sprintf("%d", gasEstResp.GasEstimate)
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, "", addr, gas, 1, false, true, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, "", addr, gas, 1, false, false, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
-	var msg auth.StdTx
-	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &msg))
-	require.Equal(t, len(msg.Msgs), 1)
-	require.Equal(t, msg.Msgs[0].Route(), "bank")
-	require.Equal(t, msg.Msgs[0].GetSigners(), []sdk.AccAddress{addr})
-	require.Equal(t, 0, len(msg.Signatures))
-	require.Equal(t, memo, msg.Memo)
-	require.NotZero(t, msg.Fee.Gas)
+	var tx auth.StdTx
+	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &tx))
+	require.Equal(t, len(tx.Msgs), 1)
+	require.Equal(t, tx.Msgs[0].Route(), "bank")
+	require.Equal(t, tx.Msgs[0].GetSigners(), []sdk.AccAddress{addr})
+	require.Equal(t, 0, len(tx.Signatures))
+	require.Equal(t, memo, tx.Memo)
+	require.NotZero(t, tx.Fee.Gas)
 
-	gasEstimate := int64(msg.Fee.Gas)
-	accnum := acc.GetAccountNumber()
-	sequence := acc.GetSequence()
-
-	// sign tx
-	var signedMsg auth.StdTx
-
-	payload := authrest.SignBody{
-		Tx: msg,
-		BaseReq: rest.NewBaseReq(
-			name1, pw, "", viper.GetString(client.FlagChainID), "", "",
-			accnum, sequence, nil, nil, false, false,
-		),
-	}
-	json, err := cdc.MarshalJSON(payload)
-	require.Nil(t, err)
-
-	res, body = Request(t, port, "POST", "/tx/sign", json)
-	require.Equal(t, http.StatusOK, res.StatusCode, body)
-	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &signedMsg))
-	require.Equal(t, len(msg.Msgs), len(signedMsg.Msgs))
-	require.Equal(t, msg.Msgs[0].Type(), signedMsg.Msgs[0].Type())
-	require.Equal(t, msg.Msgs[0].GetSigners(), signedMsg.Msgs[0].GetSigners())
-	require.Equal(t, 1, len(signedMsg.Signatures))
-
-	// broadcast tx
-	broadcastPayload := struct {
-		Tx     auth.StdTx `json:"tx"`
-		Return string     `json:"return"`
-	}{Tx: signedMsg, Return: "block"}
-	json, err = cdc.MarshalJSON(broadcastPayload)
-	require.Nil(t, err)
-	res, body = Request(t, port, "POST", "/tx/broadcast", json)
-	require.Equal(t, http.StatusOK, res.StatusCode, body)
+	gasEstimate := int64(tx.Fee.Gas)
+	_, body = signAndBroadcastGenTx(t, port, name1, pw, body, acc, 1.0, false)
 
 	// check if tx was committed
-	var resultTx sdk.TxResponse
-	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &resultTx))
-	require.Equal(t, uint32(0), resultTx.Code)
-	require.Equal(t, gasEstimate, resultTx.GasWanted)
+	var txResp sdk.TxResponse
+	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &txResp))
+	require.Equal(t, uint32(0), txResp.Code)
+	require.Equal(t, gasEstimate, txResp.GasWanted)
 }
 
 func TestEncodeTx(t *testing.T) {
-	// Setup
 	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
 	require.NoError(t, err)
 	addr, seed := CreateAddr(t, name1, pw, kb)
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr}, true)
 	defer cleanup()
 
-	// Make a transaction to test with
-	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, "", addr, "2", 1, false, true, fees)
+	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, "", addr, "2", 1, false, false, fees)
 	var tx auth.StdTx
 	cdc.UnmarshalJSON([]byte(body), &tx)
 
-	// Build the request
-	encodeReq := struct {
-		Tx auth.StdTx `json:"tx"`
-	}{Tx: tx}
-	encodedJSON, _ := cdc.MarshalJSON(encodeReq)
-	res, body = Request(t, port, "POST", "/tx/encode", encodedJSON)
+	req := clienttx.EncodeReq{Tx: tx}
+	encodedJSON, _ := cdc.MarshalJSON(req)
+	res, body = Request(t, port, "POST", "/txs/encode", encodedJSON)
 
 	// Make sure it came back ok, and that we can decode it back to the transaction
-	// 200 response
+	// 200 response.
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 	encodeResp := struct {
 		Tx string `json:"tx"`
 	}{}
 
-	// No error decoding the JSON
 	require.Nil(t, cdc.UnmarshalJSON([]byte(body), &encodeResp))
 
-	// Check that the base64 decodes
+	// verify that the base64 decodes
 	decodedBytes, err := base64.StdEncoding.DecodeString(encodeResp.Tx)
 	require.Nil(t, err)
 
-	// Check that the transaction decodes as expected
+	// check that the transaction decodes as expected
 	var decodedTx auth.StdTx
 	require.Nil(t, cdc.UnmarshalBinaryLengthPrefixed(decodedBytes, &decodedTx))
 	require.Equal(t, memo, decodedTx.Memo)
@@ -564,7 +527,7 @@ func TestValidatorsQuery(t *testing.T) {
 		foundVal = true
 	}
 
-	require.True(t, foundVal, "pk %v, operator %v", operAddrs[0], validators[0].OperatorAddr)
+	require.True(t, foundVal, "pk %v, operator %v", operAddrs[0], validators[0].OperatorAddress)
 }
 
 func TestValidatorQuery(t *testing.T) {
@@ -574,7 +537,7 @@ func TestValidatorQuery(t *testing.T) {
 	require.Equal(t, 1, len(operAddrs))
 
 	validator := getValidator(t, port, operAddrs[0])
-	require.Equal(t, validator.OperatorAddr, operAddrs[0], "The returned validator does not hold the correct data")
+	require.Equal(t, validator.OperatorAddress, operAddrs[0], "The returned validator does not hold the correct data")
 }
 
 func TestBonding(t *testing.T) {
@@ -590,7 +553,7 @@ func TestBonding(t *testing.T) {
 	require.Equal(t, 2, len(operAddrs))
 
 	amt := sdk.TokensFromTendermintPower(60)
-	amtDec := sdk.NewDecFromInt(amt)
+	amtDec := amt.ToDec()
 	validator := getValidator(t, port, operAddrs[0])
 
 	acc := getAccount(t, port, addr)
@@ -614,8 +577,8 @@ func TestBonding(t *testing.T) {
 	// verify balance
 	acc = getAccount(t, port, addr)
 	coins := acc.GetCoins()
-	expectedBalance := initialBalance[0].Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(delTokens), coins.AmountOf(app.StakeDenom))
+	expectedBalance := initialBalance[0].Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(delTokens), coins.AmountOf(sdk.DefaultBondDenom))
 	expectedBalance = coins[0]
 
 	// query delegation
@@ -632,11 +595,11 @@ func TestBonding(t *testing.T) {
 
 	bondedValidators := getDelegatorValidators(t, port, addr)
 	require.Len(t, bondedValidators, 1)
-	require.Equal(t, operAddrs[0], bondedValidators[0].OperatorAddr)
+	require.Equal(t, operAddrs[0], bondedValidators[0].OperatorAddress)
 	require.Equal(t, validator.DelegatorShares.Add(amtDec).String(), bondedValidators[0].DelegatorShares.String())
 
 	bondedValidator := getDelegatorValidator(t, port, addr, operAddrs[0])
-	require.Equal(t, operAddrs[0], bondedValidator.OperatorAddr)
+	require.Equal(t, operAddrs[0], bondedValidator.OperatorAddress)
 
 	// testing unbonding
 	unbondingTokens := sdk.TokensFromTendermintPower(30)
@@ -648,10 +611,10 @@ func TestBonding(t *testing.T) {
 	// sender should have not received any coins as the unbonding has only just begun
 	acc = getAccount(t, port, addr)
 	coins = acc.GetCoins()
-	expectedBalance = expectedBalance.Minus(fees[0])
+	expectedBalance = expectedBalance.Sub(fees[0])
 	require.True(t,
-		expectedBalance.Amount.LT(coins.AmountOf(app.StakeDenom)) ||
-			expectedBalance.Amount.Equal(coins.AmountOf(app.StakeDenom)),
+		expectedBalance.Amount.LT(coins.AmountOf(sdk.DefaultBondDenom)) ||
+			expectedBalance.Amount.Equal(coins.AmountOf(sdk.DefaultBondDenom)),
 		"should get tokens back from automatic withdrawal after an unbonding delegation",
 	)
 	expectedBalance = coins[0]
@@ -666,7 +629,7 @@ func TestBonding(t *testing.T) {
 
 	ubd := getUnbondingDelegation(t, port, addr, operAddrs[0])
 	require.Len(t, ubd.Entries, 1)
-	require.Equal(t, delTokens.DivRaw(2), ubd.Entries[0].Balance)
+	require.Equal(t, delTokens.QuoRaw(2), ubd.Entries[0].Balance)
 
 	// test redelegation
 	rdTokens := sdk.TokensFromTendermintPower(30)
@@ -677,10 +640,10 @@ func TestBonding(t *testing.T) {
 
 	// verify balance after paying fees
 	acc = getAccount(t, port, addr)
-	expectedBalance = expectedBalance.Minus(fees[0])
+	expectedBalance = expectedBalance.Sub(fees[0])
 	require.True(t,
-		expectedBalance.Amount.LT(coins.AmountOf(app.StakeDenom)) ||
-			expectedBalance.Amount.Equal(coins.AmountOf(app.StakeDenom)),
+		expectedBalance.Amount.LT(coins.AmountOf(sdk.DefaultBondDenom)) ||
+			expectedBalance.Amount.Equal(coins.AmountOf(sdk.DefaultBondDenom)),
 		"should get tokens back from automatic withdrawal after an unbonding delegation",
 	)
 
@@ -694,10 +657,18 @@ func TestBonding(t *testing.T) {
 	require.Equal(t, resultTx.Height, txs[0].Height)
 
 	// query delegations, unbondings and redelegations from validator and delegator
-	rdShares := sdk.NewDecFromInt(rdTokens)
 	delegatorDels = getDelegatorDelegations(t, port, addr)
 	require.Len(t, delegatorDels, 1)
-	require.Equal(t, rdShares, delegatorDels[0].GetShares())
+	require.Equal(t, operAddrs[1], delegatorDels[0].ValidatorAddress)
+
+	// because the second validator never signs during these tests, if this
+	// this test takes a long time to run,  eventually this second validator
+	// will get slashed, meaning that it's exchange rate is no-longer 1-to-1,
+	// hence we utilize the exchange rate in the following test
+
+	validator2 := getValidator(t, port, operAddrs[1])
+	delTokensAfterRedelegation := validator2.ShareTokens(delegatorDels[0].GetShares())
+	require.Equal(t, rdTokens.ToDec(), delTokensAfterRedelegation)
 
 	redelegation := getRedelegations(t, port, addr, operAddrs[0], operAddrs[1])
 	require.Len(t, redelegation, 1)
@@ -761,8 +732,8 @@ func TestSubmitProposal(t *testing.T) {
 
 	// verify balance
 	acc = getAccount(t, port, addr)
-	expectedBalance := initialBalance[0].Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), acc.GetCoins().AmountOf(app.StakeDenom))
+	expectedBalance := initialBalance[0].Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), acc.GetCoins().AmountOf(sdk.DefaultBondDenom))
 
 	// query proposal
 	proposal := getProposal(t, port, proposalID)
@@ -797,8 +768,8 @@ func TestDeposit(t *testing.T) {
 	// verify balance
 	acc = getAccount(t, port, addr)
 	coins := acc.GetCoins()
-	expectedBalance := initialBalance[0].Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), coins.AmountOf(app.StakeDenom))
+	expectedBalance := initialBalance[0].Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), coins.AmountOf(sdk.DefaultBondDenom))
 	expectedBalance = coins[0]
 
 	// query proposal
@@ -812,8 +783,8 @@ func TestDeposit(t *testing.T) {
 
 	// verify balance after deposit and fee
 	acc = getAccount(t, port, addr)
-	expectedBalance = expectedBalance.Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(depositTokens), acc.GetCoins().AmountOf(app.StakeDenom))
+	expectedBalance = expectedBalance.Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(depositTokens), acc.GetCoins().AmountOf(sdk.DefaultBondDenom))
 
 	// query tx
 	txs := getTransactions(t, port, fmt.Sprintf("action=deposit&depositor=%s", addr))
@@ -821,7 +792,7 @@ func TestDeposit(t *testing.T) {
 	require.Equal(t, resultTx.Height, txs[0].Height)
 
 	// query proposal
-	totalCoins := sdk.Coins{sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(10))}
+	totalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, sdk.TokensFromTendermintPower(10))}
 	proposal = getProposal(t, port, proposalID)
 	require.True(t, proposal.GetTotalDeposit().IsEqual(totalCoins))
 
@@ -854,8 +825,8 @@ func TestVote(t *testing.T) {
 	// verify balance
 	acc = getAccount(t, port, addr)
 	coins := acc.GetCoins()
-	expectedBalance := initialBalance[0].Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), coins.AmountOf(app.StakeDenom))
+	expectedBalance := initialBalance[0].Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(proposalTokens), coins.AmountOf(sdk.DefaultBondDenom))
 	expectedBalance = coins[0]
 
 	// query proposal
@@ -870,8 +841,8 @@ func TestVote(t *testing.T) {
 	// verify balance after vote and fee
 	acc = getAccount(t, port, addr)
 	coins = acc.GetCoins()
-	expectedBalance = expectedBalance.Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount, coins.AmountOf(app.StakeDenom))
+	expectedBalance = expectedBalance.Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount, coins.AmountOf(sdk.DefaultBondDenom))
 	expectedBalance = coins[0]
 
 	// query tx
@@ -894,8 +865,8 @@ func TestVote(t *testing.T) {
 	// verify balance
 	acc = getAccount(t, port, addr)
 	coins = acc.GetCoins()
-	expectedBalance = expectedBalance.Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount.Sub(delTokens), coins.AmountOf(app.StakeDenom))
+	expectedBalance = expectedBalance.Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount.Sub(delTokens), coins.AmountOf(sdk.DefaultBondDenom))
 	expectedBalance = coins[0]
 
 	tally = getTally(t, port, proposalID)
@@ -907,8 +878,8 @@ func TestVote(t *testing.T) {
 
 	// verify balance
 	acc = getAccount(t, port, addr)
-	expectedBalance = expectedBalance.Minus(fees[0])
-	require.Equal(t, expectedBalance.Amount, acc.GetCoins().AmountOf(app.StakeDenom))
+	expectedBalance = expectedBalance.Sub(fees[0])
+	require.Equal(t, expectedBalance.Amount, acc.GetCoins().AmountOf(sdk.DefaultBondDenom))
 
 	tally = getTally(t, port, proposalID)
 	require.Equal(t, sdk.ZeroInt(), tally.Yes, "tally should be 0 the user changed the option")
@@ -941,7 +912,7 @@ func TestProposalsQuery(t *testing.T) {
 	defer cleanup()
 
 	depositParam := getDepositParam(t, port)
-	halfMinDeposit := depositParam.MinDeposit.AmountOf(app.StakeDenom).DivRaw(2)
+	halfMinDeposit := depositParam.MinDeposit.AmountOf(sdk.DefaultBondDenom).QuoRaw(2)
 	getVotingParam(t, port)
 	getTallyingParam(t, port)
 
@@ -1088,7 +1059,7 @@ func TestDistributionFlow(t *testing.T) {
 	operAddr := sdk.AccAddress(valAddr)
 
 	var rewards sdk.DecCoins
-	res, body := Request(t, port, "GET", fmt.Sprintf("/distribution/outstanding_rewards"), nil)
+	res, body := Request(t, port, "GET", fmt.Sprintf("/distribution/validators/%s/outstanding_rewards", valAddr), nil)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 	require.NoError(t, cdc.UnmarshalJSON([]byte(body), &rewards))
 
@@ -1110,7 +1081,7 @@ func TestDistributionFlow(t *testing.T) {
 	require.Equal(t, uint32(0), resultTx.Code)
 
 	// Query outstanding rewards changed
-	res, body = Request(t, port, "GET", fmt.Sprintf("/distribution/outstanding_rewards"), nil)
+	res, body = Request(t, port, "GET", fmt.Sprintf("/distribution/validators/%s/outstanding_rewards", valAddr), nil)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 	require.NoError(t, cdc.UnmarshalJSON([]byte(body), &rewards))
 
