@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/server"
+	"github.com/cosmos/cosmos-sdk/store"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -15,11 +16,10 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 	tmtypes "github.com/tendermint/tendermint/types"
-	"github.com/cosmos/cosmos-sdk/store"
 
 	"github.com/hashgard/hashgard/app"
-	"github.com/hashgard/hashgard/version"
 	hashgardInit "github.com/hashgard/hashgard/init"
+	"github.com/hashgard/hashgard/version"
 )
 
 func main() {
@@ -48,7 +48,6 @@ func main() {
 		server.ShowValidatorCmd(ctx),
 		server.ShowAddressCmd(ctx),
 	)
-
 
 	rootCmd.AddCommand(
 		server.StartCmd(ctx, newApp),
