@@ -60,7 +60,6 @@ func (keeper Keeper) GetIssue(ctx sdk.Context, issueID string) *domain.CoinIssue
 	if len(bz) == 0 {
 		return nil
 	}
-	store.ReverseIterator()
 	var coinIssueInfo domain.CoinIssueInfo
 	keeper.cdc.UnmarshalBinaryLengthPrefixed(bz, &coinIssueInfo)
 	coinIssueInfo.IssueId = issueID
