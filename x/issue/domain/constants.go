@@ -28,8 +28,9 @@ const (
 	DefaultDecimals           = 18
 )
 const (
-	DefaultCodespace sdk.CodespaceType = ModuleName
-	CodeUnknownIssue sdk.CodeType      = 1
-	CanNotMint       sdk.CodeType      = 2
-	CanNotBurn       sdk.CodeType      = 3
+	DefaultCodespace   sdk.CodespaceType = ModuleName
+	CodeIssuerMismatch sdk.CodeType      = 1
+	CodeUnknownIssue   sdk.CodeType      = 2
+	CanNotMint         sdk.CodeType      = 3
+	CanNotBurn         sdk.CodeType      = 4
 )

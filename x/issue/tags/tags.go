@@ -10,6 +10,7 @@ var (
 	Issuer          = "issuer"
 	IssueID         = "issue-id"
 	Name            = "name"
+	Symbol          = "symbol"
 	TotalSupply     = "total-supply"
 	MintingFinished = "minting-finished"
 )

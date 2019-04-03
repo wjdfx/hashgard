@@ -5,12 +5,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 
-	"github.com/hashgard/hashgard/x/issue/errors"
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/utils"
 
 	"github.com/hashgard/hashgard/x/issue/domain"
-	"github.com/hashgard/hashgard/x/issue/msgs"
 )
 
 // Parameter store key
@@ -60,16 +58,16 @@ func (keeper Keeper) GetIssue(ctx sdk.Context, issueID string) *domain.CoinIssue
 	store := ctx.KVStore(keeper.storeKey)
 	bz := store.Get(KeyIssuer(issueID))
 	if len(bz) == 0 {
-		panic(errors.ErrUnknownIssue(domain.DefaultCodespace, issueID))
 		return nil
 	}
+	store.ReverseIterator()
 	var coinIssueInfo domain.CoinIssueInfo
 	keeper.cdc.UnmarshalBinaryLengthPrefixed(bz, &coinIssueInfo)
 	coinIssueInfo.IssueId = issueID
 	return &coinIssueInfo
 }
 
-func (keeper Keeper) AddIssue(ctx sdk.Context, msgIssue msgs.MsgIssue) (string, sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *domain.CoinIssueInfo) (string, sdk.Coins, sdk.Tags, sdk.Error) {
 	store := ctx.KVStore(keeper.storeKey)
 	issueID := ""
 	for {
@@ -78,10 +76,10 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, msgIssue msgs.MsgIssue) (string, 
 			break
 		}
 	}
-	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(msgIssue.CoinIssueInfo)
+	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
 	store.Set(KeyIssuer(issueID), bz)
-	coin := sdk.Coin{Denom: issueID, Amount: msgIssue.TotalSupply}
-	coins, tags, error := keeper.ck.AddCoins(ctx, msgIssue.Issuer, sdk.Coins{coin})
+	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
+	coins, tags, error := keeper.ck.AddCoins(ctx, coinIssueInfo.Issuer, sdk.Coins{coin})
 	return issueID, coins, tags, error
 }
 
@@ -98,26 +96,28 @@ func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 	return !coinIssueInfo.MintingFinished
 }
 
-func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int) *domain.CoinIssueInfo {
-	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+func (keeper Keeper) Mint(ctx sdk.Context, coinIssueInfo *domain.CoinIssueInfo, amount sdk.Int, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
+	coins, tags, error := keeper.ck.AddCoins(ctx, to, sdk.Coins{coin})
+	if error != nil {
+		return coins, tags, error
+	}
 	coinIssueInfo.TotalSupply = coinIssueInfo.TotalSupply.Add(amount)
 	store := ctx.KVStore(keeper.storeKey)
-	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	//coin := sdk.Coin{Denom: issueID, Amount: amount}
-	//coins, tags, error := keeper.ck.AddCoins(ctx, to, sdk.Coins{coin})
-	return coinIssueInfo
+	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+
+	return coins, tags, error
 }
-func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int) *domain.CoinIssueInfo {
-	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+func (keeper Keeper) Burn(ctx sdk.Context, coinIssueInfo *domain.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
+	coins, tags, error := keeper.ck.SubtractCoins(ctx, who, sdk.Coins{coin})
+	if error != nil {
+		return coins, tags, error
+	}
 	coinIssueInfo.TotalSupply = coinIssueInfo.TotalSupply.Sub(amount)
 	store := ctx.KVStore(keeper.storeKey)
-	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	//coin := sdk.Coin{Denom: issueID, Amount: amount}
-	//coins, tags, error := keeper.ck.SubtractCoins(ctx, who, sdk.Coins{coin})
-	//if error != nil {
-	//	panic(error)
-	//}
-	return coinIssueInfo
+	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return coins, tags, error
 }
 func (keeper Keeper) SendCoins(ctx sdk.Context,
 	fromAddr sdk.AccAddress, toAddr sdk.AccAddress,
@@ -127,11 +127,11 @@ func (keeper Keeper) SendCoins(ctx sdk.Context,
 
 // Params
 // Returns the current IssueParams from the global param store
-func (keeper Keeper) GetIssueParams(ctx sdk.Context) issueparams.IssueParams {
-	var IssueParams issueparams.IssueParams
-	keeper.paramSpace.Get(ctx, ParamStoreKeyIssueParams, &IssueParams)
-	return IssueParams
+func (keeper Keeper) GetIssueConfigParams(ctx sdk.Context) issueparams.IssueConfigParams {
+	var issueConfigParams issueparams.IssueConfigParams
+	keeper.paramSpace.Get(ctx, ParamStoreKeyIssueParams, &issueConfigParams)
+	return issueConfigParams
 }
-func (keeper Keeper) SetIssueParams(ctx sdk.Context, IssueParams issueparams.IssueParams) {
-	keeper.paramSpace.Set(ctx, ParamStoreKeyIssueParams, &IssueParams)
+func (keeper Keeper) SetIssueConfigParams(ctx sdk.Context, issueConfigParams issueparams.IssueConfigParams) {
+	keeper.paramSpace.Set(ctx, ParamStoreKeyIssueParams, &issueConfigParams)
 }

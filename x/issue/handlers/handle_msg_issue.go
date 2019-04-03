@@ -5,19 +5,17 @@ import (
 
 	"github.com/hashgard/hashgard/x/issue/keepers"
 	"github.com/hashgard/hashgard/x/issue/msgs"
-	issuetags "github.com/hashgard/hashgard/x/issue/tags"
+	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
 func HandleMsgIssue(ctx sdk.Context, keeper keepers.Keeper, msg msgs.MsgIssue) sdk.Result {
-	issueID, _, tags, err := keeper.AddIssue(ctx, msg)
+	coinIssueInfo := msg.CoinIssueInfo
+	issueID, _, tags, err := keeper.AddIssue(ctx, coinIssueInfo)
 	if err != nil {
 		return err.Result()
 	}
-	tags = tags.AppendTag(issuetags.IssueID, issueID).
-		AppendTag(issuetags.Name, msg.Name).
-		AppendTag(issuetags.TotalSupply, msg.TotalSupply.String())
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(issueID),
-		Tags: tags,
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(issueID, coinIssueInfo)),
 	}
 }

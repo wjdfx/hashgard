@@ -1,57 +1,39 @@
 package cli
 
 import (
-	"encoding/json"
-	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/viper"
-	"io/ioutil"
 
-	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/params"
 )
 
 const (
-	flagName        = "name"
-	flagTotalSupply = "total-supply"
-	flagIssue       = "issue"
+	flagName            = "name"
+	flagSymbol          = "symbol"
+	flagTotalSupply     = "total-supply"
+	flagMintingFinished = "minting_finished"
 )
 
 var issueFlags = []string{
 	flagName,
+	flagSymbol,
 	flagTotalSupply,
+	flagMintingFinished,
 }
 
-//TODO
-func parseIssueFlags() (*domain.CoinIssueInfo, error) {
-	issues := &domain.CoinIssueInfo{}
-	issueFile := viper.GetString(flagIssue)
+func parseIssueFlags() (params.IssueParams, error) {
+	issues := params.IssueParams{}
 
-	if issueFile == "" {
-		name := viper.GetString(flagName)
-		issues.Name = name
-		res, ok := sdk.NewIntFromString(viper.GetString(flagTotalSupply))
-		if !ok {
-			sdk.ErrInvalidCoins(flagTotalSupply)
-		}
-		issues.TotalSupply = res
-		return issues, nil
+	issues.Name = viper.GetString(flagName)
+	issues.Symbol = viper.GetString(flagSymbol)
+	issues.MintingFinished = false
+	if viper.IsSet(flagMintingFinished) {
+		issues.MintingFinished = viper.GetBool(flagMintingFinished)
 	}
-
-	for _, flag := range issueFlags {
-		if viper.GetString(flag) != "" {
-			return nil, fmt.Errorf("--%s flag provided alongside --issue, which is a noop", flag)
-		}
+	res, ok := sdk.NewIntFromString(viper.GetString(flagTotalSupply))
+	if !ok {
+		sdk.ErrInvalidCoins(flagTotalSupply)
 	}
-
-	contents, err := ioutil.ReadFile(issueFile)
-	if err != nil {
-		return nil, err
-	}
-
-	err = json.Unmarshal(contents, issues)
-	if err != nil {
-		return nil, err
-	}
-
+	issues.TotalSupply = res
 	return issues, nil
 }

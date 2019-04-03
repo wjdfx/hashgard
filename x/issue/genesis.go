@@ -9,29 +9,29 @@ import (
 
 // GenesisState - all issue state that must be provided at genesis
 type GenesisState struct {
-	IssueParams params.IssueParams `json:"issue_params"`
+	IssueConfigParams params.IssueConfigParams `json:"issue"`
 }
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(ip params.IssueParams) GenesisState {
-	return GenesisState{IssueParams: ip}
+func NewGenesisState(ip params.IssueConfigParams) GenesisState {
+	return GenesisState{IssueConfigParams: ip}
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
 	minDepositTokens := sdk.TokensFromTendermintPower(10)
 	return NewGenesisState(
-		params.IssueParams{MinDeposit: sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, minDepositTokens)}})
+		params.IssueConfigParams{MinDeposit: sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, minDepositTokens)}})
 }
 
 // InitGenesis sets distribution information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keepers.Keeper, data GenesisState) {
-	keeper.SetIssueParams(ctx, data.IssueParams)
+	keeper.SetIssueConfigParams(ctx, data.IssueConfigParams)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keepers.Keeper) GenesisState {
-	return NewGenesisState(keeper.GetIssueParams(ctx))
+	return NewGenesisState(keeper.GetIssueConfigParams(ctx))
 }
 
 // ValidateGenesis performs basic validation of bank genesis data returning an

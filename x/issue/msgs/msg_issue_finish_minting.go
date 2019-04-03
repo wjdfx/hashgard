@@ -12,11 +12,11 @@ import (
 // to issue new coins.
 type MsgIssueFinishMinting struct {
 	IssueId string         `json:"issue_id"`
-	Issuer  sdk.AccAddress `json:"issuer"`
+	From    sdk.AccAddress `json:"issuer"`
 }
 
-func NewMsgIssueFinishMinting(issueId string, issuer sdk.AccAddress) MsgIssueFinishMinting {
-	return MsgIssueFinishMinting{issueId, issuer}
+func NewMsgIssueFinishMinting(issueId string, from sdk.AccAddress) MsgIssueFinishMinting {
+	return MsgIssueFinishMinting{issueId, from}
 }
 
 // Route Implements Msg.
@@ -44,7 +44,7 @@ func (msg MsgIssueFinishMinting) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueFinishMinting) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Issuer}
+	return []sdk.AccAddress{msg.From}
 }
 
 func (msg MsgIssueFinishMinting) String() string {

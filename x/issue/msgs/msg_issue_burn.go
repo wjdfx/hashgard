@@ -12,7 +12,7 @@ import (
 // to issue new coins.
 type MsgIssueBurn struct {
 	IssueId string         `json:"issue_id"`
-	Issuer  sdk.AccAddress `json:"issuer"`
+	From    sdk.AccAddress `json:"from"`
 	Amount  sdk.Int        `json:"amount"`
 }
 
@@ -49,7 +49,7 @@ func (msg MsgIssueBurn) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueBurn) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Issuer}
+	return []sdk.AccAddress{msg.From}
 }
 
 func (msg MsgIssueBurn) String() string {

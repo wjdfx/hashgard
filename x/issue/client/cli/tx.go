@@ -15,7 +15,6 @@ import (
 	"github.com/hashgard/hashgard/x/issue/msgs"
 )
 
-//TODO
 // GetCmdIssue implements issue a coin transaction command.
 func GetCmdIssueAdd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -23,10 +22,10 @@ func GetCmdIssueAdd(cdc *codec.Codec) *cobra.Command {
 		Short: "issue a coin",
 		Long: strings.TrimSpace(`
 issue a coin. For example:
-$ hashgardcli issue add --name=test --total-supply=8888888
+$ hashgardcli issue add --name=mytestcoin --symbol=test --total-supply=1000000000000000
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			coinIssueInfo, err := parseIssueFlags()
+			issueParams, err := parseIssueFlags()
 			if err != nil {
 				return err
 			}
@@ -35,9 +34,18 @@ $ hashgardcli issue add --name=test --total-supply=8888888
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
-			coinIssueInfo.Issuer = from
-			coinIssueInfo.Decimals = domain.DefaultDecimals
-			msg := msgs.NewMsgIssue(coinIssueInfo)
+			//account, err := cliCtx.GetAccount(from)
+			//if err != nil {
+			//	return err
+			//}
+			msg := msgs.NewMsgIssue(&domain.CoinIssueInfo{
+				Issuer:          from,
+				Name:            issueParams.Name,
+				Symbol:          issueParams.Symbol,
+				MintingFinished: issueParams.MintingFinished,
+				TotalSupply:     issueParams.TotalSupply,
+				Decimals:        domain.DefaultDecimals,
+			})
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -46,15 +54,17 @@ $ hashgardcli issue add --name=test --total-supply=8888888
 		},
 	}
 	cmd.Flags().String(flagName, "", "name of coin")
+	cmd.Flags().String(flagSymbol, "", "symbol of coin")
 	cmd.Flags().String(flagTotalSupply, "", "total supply of coin")
+	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
 	return cmd
 }
 
 // GetCmdIssueMint implements mint a coinIssue transaction command.
 func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint [issue-id] [amount] [option]",
-		Args:  cobra.ExactArgs(2),
+		Use:   "mint [issue-id] [amount] [to] [option]",
+		Args:  cobra.ExactArgs(3),
 		Short: "mint a coin",
 		Long: strings.TrimSpace(`
 mint a coin. For example:
@@ -62,14 +72,17 @@ $ hashgardcli issue mint gardh1c7d59vebq 88888
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
+			if !strings.HasPrefix(issueID, domain.IDPreStr) {
+				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
+			}
 			num, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("amount %s not a valid int, please input a valid amount", args[1])
 			}
 			amount := sdk.NewInt(num)
-
-			if !strings.HasPrefix(issueID, domain.IDPreStr) {
-				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
+			to, err := sdk.AccAddressFromBech32(args[2])
+			if err != nil {
+				return err
 			}
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().
@@ -77,7 +90,7 @@ $ hashgardcli issue mint gardh1c7d59vebq 88888
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueMint{issueID, from, amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueMint{IssueId: issueID, From: from, Amount: amount, To: to}}, false)
 		},
 	}
 	return cmd
@@ -109,7 +122,7 @@ $ hashgardcli issue burn gardh1c7d59vebq 88888
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurn{issueID, from, amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, From: from, Amount: amount}}, false)
 		},
 	}
 	return cmd
@@ -133,7 +146,7 @@ $ hashgardcli issue finish-minting gardh1c7d59vebq
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueFinishMinting{issueID, from}}, false)
+				[]sdk.Msg{msgs.MsgIssueFinishMinting{IssueId: issueID, From: from}}, false)
 		},
 	}
 	return cmd

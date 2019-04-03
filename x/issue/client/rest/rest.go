@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	RestParamsType = "type"
-	RestIssueID    = "issue-id"
+	ParamsType = "type"
+	IssueID    = "issue-id"
+	Amount     = "amount"
+	To         = "to"
 )
 
 // RegisterRoutes register distribution REST routes.

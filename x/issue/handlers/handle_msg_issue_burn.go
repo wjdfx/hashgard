@@ -12,13 +12,18 @@ import (
 
 func HandleMsgIssueBurn(ctx sdk.Context, keeper keepers.Keeper, msg msgs.MsgIssueBurn) sdk.Result {
 	coinIssueInfo := keeper.GetIssue(ctx, msg.IssueId)
-	if coinIssueInfo.MintingFinished || !coinIssueInfo.Issuer.Equals(msg.Issuer) {
-		return errors.ErrCanNotBurn(domain.DefaultCodespace, msg.IssueId).Result()
+	if coinIssueInfo == nil {
+		return errors.ErrUnknownIssue(domain.DefaultCodespace, msg.IssueId).Result()
 	}
-	coinIssueInfo = keeper.Burn(ctx, msg.IssueId, msg.Amount)
-	tags := utils.AppendIssueInfoTag(msg.IssueId, *coinIssueInfo)
+	//if !coinIssueInfo.Issuer.Equals(msg.Issuer) {
+	//	return errors.ErrIssuerMismatch(domain.DefaultCodespace, msg.IssueId).Result()
+	//}
+	_, tags, error := keeper.Burn(ctx, coinIssueInfo, msg.Amount, msg.From)
+	if error != nil {
+		return error.Result()
+	}
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: tags,
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(msg.IssueId, coinIssueInfo)),
 	}
 }
