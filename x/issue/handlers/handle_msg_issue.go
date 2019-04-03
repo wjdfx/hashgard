@@ -10,12 +10,12 @@ import (
 
 func HandleMsgIssue(ctx sdk.Context, keeper keepers.Keeper, msg msgs.MsgIssue) sdk.Result {
 	coinIssueInfo := msg.CoinIssueInfo
-	issueID, _, tags, err := keeper.AddIssue(ctx, coinIssueInfo)
+	_, tags, err := keeper.AddIssue(ctx, coinIssueInfo)
 	if err != nil {
 		return err.Result()
 	}
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(issueID),
-		Tags: tags.AppendTags(utils.AppendIssueInfoTag(issueID, coinIssueInfo)),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(coinIssueInfo.IssueId),
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(coinIssueInfo.IssueId, coinIssueInfo)),
 	}
 }

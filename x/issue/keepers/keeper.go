@@ -66,7 +66,7 @@ func (keeper Keeper) GetIssue(ctx sdk.Context, issueID string) *domain.CoinIssue
 	return &coinIssueInfo
 }
 
-func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *domain.CoinIssueInfo) (string, sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *domain.CoinIssueInfo) (sdk.Coins, sdk.Tags, sdk.Error) {
 	store := ctx.KVStore(keeper.storeKey)
 	issueID := ""
 	for {
@@ -79,7 +79,8 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *domain.CoinIssueIn
 	store.Set(KeyIssuer(issueID), bz)
 	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
 	coins, tags, error := keeper.ck.AddCoins(ctx, coinIssueInfo.Issuer, sdk.Coins{coin})
-	return issueID, coins, tags, error
+	coinIssueInfo.IssueId = issueID
+	return coins, tags, error
 }
 
 func (keeper Keeper) FinishMinting(ctx sdk.Context, issueID string) *domain.CoinIssueInfo {
