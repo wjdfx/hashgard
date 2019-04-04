@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"errors"
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/hashgard/hashgard/x/issue/client/queriers"
 	"github.com/hashgard/hashgard/x/issue/domain"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
@@ -21,9 +21,8 @@ func queryProposalHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Ha
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
-		if len(issueID) == 0 {
-			err := errors.New("issueID required but not specified")
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+		if error := issueutils.CheckIssueId(issueID); error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
 			return
 		}
 		res, err := queriers.QueryIssueByID(issueID, cliCtx, cdc, domain.StoreKey)

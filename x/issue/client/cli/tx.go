@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+
 	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 )
@@ -72,8 +74,8 @@ $ hashgardcli issue mint gardh1c7d59vebq 88888
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
-			if !strings.HasPrefix(issueID, domain.IDPreStr) {
-				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
+			if error := issueutils.CheckIssueId(issueID); error != nil {
+				return error
 			}
 			num, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
@@ -108,14 +110,14 @@ $ hashgardcli issue burn gardh1c7d59vebq 88888
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
+			if error := issueutils.CheckIssueId(issueID); error != nil {
+				return error
+			}
 			num, err := strconv.ParseInt(args[1], 10, 64)
 			if err != nil {
 				return fmt.Errorf("amount %s not a valid int, please input a valid amount", args[1])
 			}
 			amount := sdk.NewInt(num)
-			if !strings.HasPrefix(issueID, domain.IDPreStr) {
-				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
-			}
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).
@@ -140,6 +142,9 @@ $ hashgardcli issue finish-minting gardh1c7d59vebq
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
+			if error := issueutils.CheckIssueId(issueID); error != nil {
+				return error
+			}
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).

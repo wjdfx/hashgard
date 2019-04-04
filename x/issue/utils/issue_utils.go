@@ -2,8 +2,10 @@ package utils
 
 import (
 	"math/rand"
+	"strings"
 
 	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/errors"
 )
 
 var (
@@ -22,4 +24,17 @@ func GetRandomString(l int) string {
 func GetIssueID() string {
 	randString := GetRandomString(11)
 	return domain.IDPreStr + randString
+}
+func IsIssueId(issueID string) bool {
+	if len(issueID) == 15 && strings.HasPrefix(issueID, domain.IDPreStr) {
+		return true
+	}
+	return false
+}
+
+func CheckIssueId(issueID string) error {
+	if !IsIssueId(issueID) {
+		return errors.ErrIssueID(domain.DefaultCodespace, issueID)
+	}
+	return nil
 }

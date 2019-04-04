@@ -9,8 +9,9 @@ import (
 	"github.com/spf13/cobra"
 	"strings"
 
-	issueutils "github.com/hashgard/hashgard/x/issue/client/queriers"
+	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	"github.com/hashgard/hashgard/x/issue/domain"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
 // GetAccountCmd returns a query account that will display the state of the
@@ -42,8 +43,8 @@ func GetAccountCmd(storeName string, cdc *codec.Codec) *cobra.Command {
 			i := 0
 			for _, coin := range acc.GetCoins() {
 				denom := coin.Denom
-				if len(coin.Denom) == 15 && strings.HasPrefix(coin.Denom, domain.IDPreStr) {
-					res, err := issueutils.QueryIssueByID(coin.Denom, cliCtx, cdc, domain.QuerierRoute)
+				if issueutils.IsIssueId(coin.Denom) {
+					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx, cdc, domain.QuerierRoute)
 					if err == nil {
 						var issueInfo domain.Issue
 						cdc.MustUnmarshalJSON(res, &issueInfo)
@@ -74,13 +75,12 @@ $ hashgardcli issue query-issue gardh1c7d59vebq
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			// validate that the issue id is a uint
 			issueID := args[0]
-			if !strings.HasPrefix(issueID, domain.IDPreStr) {
-				return fmt.Errorf("issue-id %s not a valid issue, please input a valid issue-id", args[0])
+			if error := issueutils.CheckIssueId(issueID); error != nil {
+				return error
 			}
 			// Query the issue
-			res, err := issueutils.QueryIssueByID(issueID, cliCtx, cdc, queryRoute)
+			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx, cdc, queryRoute)
 			if err != nil {
 				return err
 			}

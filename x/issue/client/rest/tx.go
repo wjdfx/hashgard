@@ -14,6 +14,7 @@ import (
 	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
 type PostIssueReq struct {
@@ -70,30 +71,38 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 
 func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if error := issueutils.CheckIssueId(issueID); error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
+		num, error := strconv.ParseInt(vars[Amount], 10, 64)
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
+		amount := sdk.NewInt(num)
+		to, error := sdk.AccAddressFromBech32(vars[To])
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
 		var req PostIssueBaseReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
 		}
-
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
-			panic(err)
-		}
-		vars := mux.Vars(r)
-		num, err := strconv.ParseInt(vars[Amount], 10, 64)
-		if err != nil {
+		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
 			return
 		}
-		amount := sdk.NewInt(num)
-		to, err := sdk.AccAddressFromBech32(vars[To])
-		if err != nil {
-			return
-		}
-		msg := msgs.NewMsgIssueMint(vars[IssueID], fromAddress, amount, to)
+
+		msg := msgs.NewMsgIssueMint(issueID, fromAddress, amount, to)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -108,6 +117,19 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 }
 func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if error := issueutils.CheckIssueId(issueID); error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
+		num, error := strconv.ParseInt(vars[Amount], 10, 64)
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
+		amount := sdk.NewInt(num)
+
 		var req PostIssueBaseReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
@@ -117,17 +139,13 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
+		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
 			return
 		}
-		vars := mux.Vars(r)
-		num, err := strconv.ParseInt(vars[Amount], 10, 64)
-		if err != nil {
-			return
-		}
-		amount := sdk.NewInt(num)
-		msg := msgs.NewMsgIssueBurn(vars[IssueID], fromAddress, amount)
+
+		msg := msgs.NewMsgIssueBurn(issueID, fromAddress, amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -143,6 +161,12 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 
 func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if error := issueutils.CheckIssueId(issueID); error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+			return
+		}
 		var req PostIssueBaseReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
@@ -152,12 +176,12 @@ func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
+		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
+		if error != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
 			return
 		}
-		vars := mux.Vars(r)
-		msg := msgs.NewMsgIssueFinishMinting(vars[IssueID], fromAddress)
+		msg := msgs.NewMsgIssueFinishMinting(issueID, fromAddress)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
