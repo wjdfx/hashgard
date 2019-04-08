@@ -21,6 +21,8 @@ import (
 	cmn "github.com/tendermint/tendermint/libs/common"
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
+
+	"github.com/hashgard/hashgard/x/exchange"
 )
 
 const (
@@ -52,6 +54,7 @@ type HashgardApp struct {
 	tkeyDistribution	*sdk.TransientStoreKey
 	keyGov           	*sdk.KVStoreKey
 	keyFeeCollection	*sdk.KVStoreKey
+	keyExchange			*sdk.KVStoreKey
 	keyParams			*sdk.KVStoreKey
 	tkeyParams			*sdk.TransientStoreKey
 
@@ -64,6 +67,7 @@ type HashgardApp struct {
 	mintKeeper          mint.Keeper
 	distributionKeeper  distribution.Keeper
 	govKeeper           gov.Keeper
+	exchangeKeeper		exchange.Keeper
 	paramsKeeper        params.Keeper
 }
 
@@ -89,6 +93,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		keySlashing:		sdk.NewKVStoreKey(slashing.StoreKey),
 		keyGov:				sdk.NewKVStoreKey(gov.StoreKey),
 		keyFeeCollection:	sdk.NewKVStoreKey(auth.FeeStoreKey),
+		keyExchange:		sdk.NewKVStoreKey(exchange.StoreKey),
 		keyParams:			sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:			sdk.NewTransientStoreKey(params.TStoreKey),
 	}
@@ -163,6 +168,15 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		gov.DefaultCodespace,
 	)
 
+	app.exchangeKeeper = exchange.NewKeeper(
+		app.cdc,
+		app.keyExchange,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(exchange.DefaultParamspace),
+		app.bankKeeper,
+		exchange.DefaultCodespace,
+	)
+
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
@@ -177,14 +191,16 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(staking.RouterKey, staking.NewHandler(app.stakingKeeper)).
 		AddRoute(distribution.RouterKey, distribution.NewHandler(app.distributionKeeper)).
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
-		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper))
+		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
+		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
 		AddRoute(staking.QuerierRoute, staking.NewQuerier(app.stakingKeeper, app.cdc)).
 		AddRoute(slashing.QuerierRoute, slashing.NewQuerier(app.slashingKeeper, app.cdc)).
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
-		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper))
+		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
+		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc))
 
 
 	// initialize BaseApp
@@ -197,6 +213,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keySlashing,
 		app.keyGov,
 		app.keyFeeCollection,
+		app.keyExchange,
 		app.keyParams,
 		app.tkeyParams,
 		app.tkeyStaking,
@@ -229,6 +246,7 @@ func MakeCodec() *codec.Codec {
 	distribution.RegisterCodec(cdc)
 	slashing.RegisterCodec(cdc)
 	gov.RegisterCodec(cdc)
+	exchange.RegisterCodec(cdc)
 
 	return cdc
 }
@@ -298,6 +316,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData.Validators.ToSDKValidators())
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
+	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
 
 	// validate genesis state
 	if err := HashgardValidateGenesisState(genesisState); err != nil {

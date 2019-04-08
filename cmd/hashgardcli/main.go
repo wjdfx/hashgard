@@ -30,6 +30,8 @@ import (
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
+	"github.com/hashgard/hashgard/x/exchange"
+	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
 )
 
 // rootCmd is the entry point for this binary
@@ -188,6 +190,25 @@ func main() {
 			govcmd.GetCmdSubmitProposal(cdc),
 		)...)
 
+	// Add exchange subcommands
+	exchangeCmd := &cobra.Command{
+		Use:	"exchange",
+		Short:	"Exchange subcommands",
+	}
+	exchangeCmd.AddCommand(
+		client.GetCommands(
+			exchangecmd.GetCmdQueryOrder(exchange.StoreKey, cdc),
+			exchangecmd.GetCmdQueryOrdersByAddr(exchange.StoreKey, cdc),
+			exchangecmd.GetCmdFrozenFund(exchange.StoreKey, cdc),
+		)...)
+	exchangeCmd.AddCommand(client.LineBreak)
+	exchangeCmd.AddCommand(
+		client.PostCommands(
+			exchangecmd.GetCmdCreateOrder(cdc),
+			exchangecmd.GetCmdWithdrawalOrder(cdc),
+			exchangecmd.GetCmdTakeOrder(cdc),
+		)...)
+
 	rootCmd.AddCommand(
 		client.ConfigCmd(app.DefaultCLIHome),
 		rpc.StatusCommand(),
@@ -200,6 +221,7 @@ func main() {
 		slashingCmd,
 		distributionCmd,
 		govCmd,
+		exchangeCmd,
 		client.LineBreak,
 		version.VersionCmd,
 	)

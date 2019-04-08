@@ -17,6 +17,8 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	abci "github.com/tendermint/tendermint/abci/types"
+
+	"github.com/hashgard/hashgard/x/exchange"
 )
 
 func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
@@ -34,6 +36,7 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 		DistributionData:	distribution.DefaultGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
 		GovData:			gov.DefaultGenesisState(),
+		ExchangeData:		exchange.DefaultGenesisState(),
 	}
 
 	stateBytes, err := codec.MarshalJSONIndent(happ.cdc, genesisState)

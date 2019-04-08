@@ -21,6 +21,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	tmtypes "github.com/tendermint/tendermint/types"
+
+	"github.com/hashgard/hashgard/x/exchange"
 )
 
 var (
@@ -42,6 +44,7 @@ type GenesisState struct {
 	DistributionData    distribution.GenesisState	`json:"distribution"`
 	SlashingData 		slashing.GenesisState		`json:"slashing"`
 	GovData				gov.GenesisState			`json:"gov"`
+	ExchangeData		exchange.GenesisState		`json:"exchange"`
 	GenTxs       		[]json.RawMessage			`json:"gentxs"`
 }
 
@@ -54,6 +57,7 @@ func NewGenesisState(
 	distributionData distribution.GenesisState,
 	govData gov.GenesisState,
 	slashingData slashing.GenesisState,
+	exchangeData exchange.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -65,6 +69,7 @@ func NewGenesisState(
 		DistributionData:	distributionData,
 		GovData:			govData,
 		SlashingData:		slashingData,
+		ExchangeData:		exchangeData,
 	}
 }
 
@@ -90,6 +95,7 @@ func NewDefaultGenesisState() GenesisState {
 		DistributionData:	distribution.DefaultGenesisState(),
 		GovData:			createGovGenesisState(),
 		SlashingData:		slashing.DefaultGenesisState(),
+		ExchangeData:		exchange.DefaultGenesisState(),
 		GenTxs:				nil,
 	}
 }
@@ -321,6 +327,9 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
+		return err
+	}
+	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
 		return err
 	}
 
