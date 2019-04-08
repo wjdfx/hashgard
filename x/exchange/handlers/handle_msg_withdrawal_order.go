@@ -1,19 +1,28 @@
 package handlers
 
 import (
+	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/exchange/keeper"
 	"github.com/hashgard/hashgard/x/exchange/msgs"
+	"github.com/hashgard/hashgard/x/exchange/tags"
 )
 
-func HandleMsgWithdrawalOrder(ctx sdk.Context, k keeper.Keeper, msg msgs.MsgWithdrawalOrder) sdk.Result {
-	// 做状态性判断
+func HandleMsgWithdrawalOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgWithdrawalOrder) sdk.Result {
+	_, err := keeper.WithdrawalOrder(ctx, msg.OrderId, msg.Seller)
+	if err != nil {
+		return err.Result()
+	}
 
-	// 执行状态变更
+	resTags := sdk.NewTags(
+		tags.OrderId, fmt.Sprintf("%d", msg.OrderId),
+		tags.Seller, msg.Seller.String(),
+		tags.OrderStatus, "inactive",
+	)
 
-	// 返回 tags
-
-
-	return sdk.Result{}
+	return sdk.Result{
+		Tags: resTags,
+	}
 }

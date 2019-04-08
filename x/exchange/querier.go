@@ -1,6 +1,7 @@
 package exchange
 
 import (
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	abci "github.com/tendermint/tendermint/abci/types"
 
@@ -15,15 +16,15 @@ const (
 	QueryAllOrdersByAddress	= "orders"
 )
 
-func NewQuerier(keeper keeper.Keeper) sdk.Querier {
+func NewQuerier(keeper keeper.Keeper, cdc *codec.Codec) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		switch path[0] {
 		case QueryOrder:
-			return queriers.QueryOrder(ctx, req, keeper)
+			return queriers.QueryOrder(ctx, cdc, req, keeper)
 		case QueryFrozenFund:
-			return queriers.QueryFrozenFund(ctx, req, keeper)
+			return queriers.QueryFrozenFund(ctx, cdc, req, keeper)
 		case QueryAllOrdersByAddress:
-			return queriers.QueryOrdersByAddress(ctx, req, keeper)
+			return queriers.QueryOrdersByAddress(ctx, cdc, req, keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("unknown exchange query endpoint")
 		}

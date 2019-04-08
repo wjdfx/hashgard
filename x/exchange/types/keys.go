@@ -12,4 +12,7 @@ const (
 
 	// QuerierRoute is the querier route for the staking module
 	QuerierRoute = ModuleName
+
+	// Parameter store default namestore
+	DefaultParamspace = ModuleName
 )

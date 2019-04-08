@@ -92,7 +92,6 @@ func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.W
 		hApp := app.NewHashgardApp(logger, db, traceStore, false)
 		err := hApp.LoadHeight(height)
 		if err != nil {
-			println("nmsl11111111111111111111111111111111")
 			return nil, nil, err
 		}
 		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)

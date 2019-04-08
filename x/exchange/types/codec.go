@@ -9,6 +9,8 @@ import (
 // Register concrete types on codec codec
 func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(msgs.MsgCreateOrder{}, "hashgard/MsgCreateOrder", nil)
+	cdc.RegisterConcrete(msgs.MsgWithdrawalOrder{}, "hashgard/MsgWithdrawalOrder", nil)
+	cdc.RegisterConcrete(msgs.MsgTakeOrder{}, "hashgard/MsgTakeOrder", nil)
 }
 
 // generic sealed codec to be used throughout sdk
