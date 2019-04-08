@@ -30,7 +30,7 @@ jobs:
           name: tools
           command: |
             export PATH="$GOBIN:$PATH"
-            make tools
+            make get_tools
       - *dependencies
       - run:
           name: binaries
