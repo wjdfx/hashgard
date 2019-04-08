@@ -67,7 +67,7 @@ mkfile_dir := $(shell cd $(shell dirname $(mkfile_path)); pwd)
 # tools
 ###
 
-get_tools: tools-stamp
+get_tools: tools-stamp $(GOBIN)/gosum
 tools-stamp: $(GOBIN)/golangci-lint $(GOBIN)/statik $(GOBIN)/goimports $(GOBIN)/gosum $(GOBIN)/sdkch
 	touch $@
 
