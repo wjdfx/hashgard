@@ -1,8 +1,11 @@
 # Hashgard
+
+[![CircleCI](https://circleci.com/gh/hashgard/hashgard/tree/master.svg?style=shield)](https://circleci.com/gh/hashgard/hashgard/tree/master)
+
 Public blockchain, based on [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) development.
 
 ## Required
-[Go 1.11.5+](https://golang.org/dl/)
+[Go 1.12.1+](https://golang.org/dl/)
 
 ## Install
 Please make sure have already installed `Go` correctly, and set environment variables : `$GOPATH`, `$GOBIN`, `$PATH`.

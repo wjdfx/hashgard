@@ -32,12 +32,12 @@ jobs:
             export PATH="$GOBIN:$PATH"
             make tools
       - *dependencies
-        - run:
-            name: binaries
-            command: |
-              export PATH="$GOBIN:$PATH"
-              make go-mod-cache
-              make install
+      - run:
+          name: binaries
+          command: |
+            export PATH="$GOBIN:$PATH"
+            make go-mod-cache
+            make install
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
@@ -47,6 +47,7 @@ jobs:
           paths:
             - bin
             - profiles
+
   lint:
     <<: *linux_defaults
     parallelism: 1
