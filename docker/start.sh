@@ -5,17 +5,11 @@
 # Parameters which might be changed while upgrading.
 #
 # ------------------------------------------------------------------------------
-CHAIN_ID=sif-3000
 KEY_NAME=root
 KEY_PASSWORD=12345678
 COIN_GENESIS=10000000gard
 COIN_DELEGATE=100000gard
 INITIALIZED_FLAG="/initialized.flag"
-
-function config_global_client_settings() {
-    hashgardcli config chain-id ${CHAIN_ID}
-    hashgardcli config trust-node true
-}
 
 # ------------------------------------------------------------------------------
 #
@@ -32,13 +26,11 @@ function init_full_node() {
         exit -1
     fi
 
-    config_global_client_settings
-
     hashgard init --moniker whatever --chain-id ${CHAIN_ID}
     cd /root/.hashgard/config
     rm -f config.toml genesis.json
-    wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-3000/config/config.toml
-    wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-3000/config/genesis.json
+    wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/${CHAIN_ID}/config/config.toml
+    wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/${CHAIN_ID}/config/genesis.json
     sed -i "s|moniker.*|moniker = \"${MONIKER}\"|g" config.toml
 }
 
@@ -94,12 +86,44 @@ function hashgard_start() {
 
 # ------------------------------------------------------------------------------
 #
+# Error prompt and exit abnormally
+#
+# ------------------------------------------------------------------------------
+function error() {
+    echo ""
+    echo "Error: "
+    echo "    $1"
+    echo ""
+    exit -1
+}
+
+# ------------------------------------------------------------------------------
+#
+# Chain id must be set to environment
+#
+# ------------------------------------------------------------------------------
+if [[ -z ${CHAIN_ID} ]]; then
+    error "Environment CHAIN_ID must be set !"
+fi
+
+# ------------------------------------------------------------------------------
+#
 # For container restart
 #
 # ------------------------------------------------------------------------------
 if [[ -e ${INITIALIZED_FLAG} ]]; then
     hashgard_start
 fi
+
+# ------------------------------------------------------------------------------
+#
+# Config client global settings
+#
+# ------------------------------------------------------------------------------
+hashgardcli config chain-id ${CHAIN_ID}
+hashgardcli config trust-node true
+hashgardcli config output json
+hashgardcli config indent true
 
 # ------------------------------------------------------------------------------
 #
@@ -126,11 +150,7 @@ case "${NODE_TYPE}" in
         init_private_testnet
         ;;
     *)
-        echo ""
-        echo "Error: "
-        echo "    Environment NODE_TYPE must be one of FULL_NODE/PRIVATE_SINGLE/PRIVATE_TESTNET !"
-        echo ""
-        exit -1
+        error "Environment NODE_TYPE must be one of FULL_NODE/PRIVATE_SINGLE/PRIVATE_TESTNET !"
 esac
 
 # Mark initial successfully

@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```
-hashgardcli gov deposit [proposal-id] [depositer-addr] [flags]
+hashgardcli gov deposit [proposal-id] [deposit] [flags]
 ```
 ## Global Flags
 

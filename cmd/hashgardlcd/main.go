@@ -5,10 +5,6 @@ import (
 	"os"
 	"path"
 
-	"github.com/rakyll/statik/fs"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
@@ -20,13 +16,21 @@ import (
 	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
+	"github.com/rakyll/statik/fs"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/libs/cli"
+
+	issue "github.com/hashgard/hashgard/x/issue/client/rest"
+
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution"
 
-	_ "github.com/hashgard/hashgard/client/lcd/statik"
-	"github.com/hashgard/hashgard/client/lcd"
 	"github.com/hashgard/hashgard/app"
+	"github.com/hashgard/hashgard/client/lcd"
+	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
+	"github.com/hashgard/hashgard/x/issue/domain"
 )
 
 // rootCmd is the entry point for this binary
@@ -78,6 +82,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, domain.StoreKey)
 }
 
 func registerSwaggerUI(rs *lcd.RestServer) {
@@ -111,4 +116,3 @@ func initConfig(cmd *cobra.Command) error {
 	}
 	return viper.BindPFlag(cli.OutputFlag, cmd.PersistentFlags().Lookup(cli.OutputFlag))
 }
-

@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	bou.ke/monkey v1.0.1 // indirect
+	cloud.google.com/go v0.34.0 // indirect
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
 	github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
@@ -17,7 +18,7 @@ require (
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf // indirect
-	github.com/gorilla/mux v0.0.0-20190228181203-15a353a63672
+	github.com/gorilla/mux v1.6.2
 	github.com/gorilla/websocket v0.0.0-20190306004257-0ec3d1bd7fe5 // indirect
 	github.com/hashicorp/hcl v0.0.0-20180906183839-65a6292f0157 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
@@ -30,10 +31,8 @@ require (
 	github.com/otiai10/mint v1.2.3 // indirect
 	github.com/pelletier/go-toml v0.0.0-20190313045714-690ec00a4b7e // indirect
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90 // indirect
-	github.com/prometheus/common v0.2.0 // indirect
 	github.com/prometheus/procfs v0.0.0-20190306233201-d0f344d83b0c // indirect
 	github.com/rakyll/statik v0.1.4
-	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a // indirect
 	github.com/rs/cors v0.0.0-20190116175910-76f58f330d76 // indirect
 	github.com/spf13/afero v1.2.1 // indirect
 	github.com/spf13/cast v1.3.0 // indirect
@@ -50,13 +49,31 @@ require (
 	github.com/zondax/hid v0.9.0 // indirect
 	github.com/zondax/ledger-go v0.8.0 // indirect
 	golang.org/x/crypto v0.0.0 // indirect
-	golang.org/x/net v0.0.0-20190313220215-9f648a60d977 // indirect
-	google.golang.org/grpc v0.0.0-20190313171052-9c3a9595696a // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 
 )
 
 replace (
+	cloud.google.com/go => github.com/GoogleCloudPlatform/google-cloud-go v0.37.2
+	git.apache.org/thrift => github.com/apache/thrift v0.12.0
 	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.33.0-hashgard
+	golang.org/x/build => github.com/golang/build v0.0.0-20190402050623-31fad79bef7f
 	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
+	golang.org/x/exp => github.com/golang/exp v0.0.0-20190321205749-f0864edee7f3
+	golang.org/x/image => github.com/golang/image v0.0.0-20190321063152-3fc05d484e9f
+	golang.org/x/lint => github.com/golang/lint v0.0.0-20190313153728-d0100b6bd8b3
+	golang.org/x/mobile => github.com/golang/mobile v0.0.0-20190327163128-167ebed0ec6d
+	golang.org/x/net => github.com/golang/net v0.0.0-20190328230028-74de082e2cca
+	golang.org/x/oauth2 => github.com/golang/oauth2 v0.0.0-20190319182350-c85d3e98c914
+	golang.org/x/perf => github.com/golang/perf v0.0.0-20190312170614-0655857e383f
+	golang.org/x/sync => github.com/golang/sync v0.0.0-20190227155943-e225da77a7e6
+	golang.org/x/sys => github.com/golang/sys v0.0.0-20190402054613-e4093980e83e
+	golang.org/x/text => github.com/golang/text v0.3.0
+	golang.org/x/time => github.com/golang/time v0.0.0-20190308202827-9d24e82272b4
+	golang.org/x/tools => github.com/golang/tools v0.0.0-20190401205534-4c644d7e323d
+	google.golang.org/api => github.com/golang/go v0.0.0-20190402054533-56517216c052
+	google.golang.org/appengine => github.com/golang/appengine v1.5.0
+	google.golang.org/genproto => github.com/google/go-genproto v0.0.0-20190401181712-f467c93bbac2
+	google.golang.org/grpc => github.com/grpc/grpc-go v1.19.1
+
 )

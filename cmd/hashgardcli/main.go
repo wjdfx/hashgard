@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 	"os"
 	"path"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
@@ -26,6 +26,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakecmd "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
 	"github.com/tendermint/tendermint/libs/cli"
+
+	issuecmd "github.com/hashgard/hashgard/x/issue/client/cli"
+	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
@@ -65,11 +68,10 @@ func main() {
 		return initConfig(rootCmd)
 	}
 
-
 	// Add tendermint subcommands
 	tendermintCmd := &cobra.Command{
-		Use:     "tendermint",
-		Short:   "Tendermint state querying subcommands",
+		Use:   "tendermint",
+		Short: "Tendermint state querying subcommands",
 	}
 	tendermintCmd.AddCommand(
 		rpc.BlockCommand(),
@@ -80,11 +82,12 @@ func main() {
 
 	// Add bank subcommands
 	bankCmd := &cobra.Command{
-		Use:	"bank",
-		Short:	"Bank subcommands",
+		Use:   "bank",
+		Short: "Bank subcommands",
 	}
 	bankCmd.AddCommand(
-		authcmd.GetAccountCmd(auth.StoreKey, cdc),
+		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
+		issuecmd.GetAccountCmd(auth.StoreKey, cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
@@ -94,11 +97,27 @@ func main() {
 		tx.GetBroadcastCommand(cdc),
 		tx.GetEncodeCommand(cdc),
 	)
-
+	// Add issue subcommands
+	issueCmd := &cobra.Command{
+		Use:   "issue",
+		Short: "Issue subcommands",
+	}
+	issueCmd.AddCommand(
+		client.PostCommands(
+			issuecmd.GetCmdIssueAdd(cdc),
+			issuecmd.GetCmdIssueMint(cdc),
+			issuecmd.GetCmdIssueBurn(cdc),
+			issuecmd.GetCmdIssueFinishMinting(cdc),
+		)...)
+	issueCmd.AddCommand(client.LineBreak)
+	issueCmd.AddCommand(
+		client.GetCommands(
+			issuecmd.GetCmdQueryIssue(issuedomain.StoreKey, cdc),
+		)...)
 	// Add stake subcommands
 	stakeCmd := &cobra.Command{
-		Use:	"stake",
-		Short:	"Stake and validation subcommands",
+		Use:   "stake",
+		Short: "Stake and validation subcommands",
 	}
 	stakeCmd.AddCommand(
 		client.GetCommands(
@@ -128,8 +147,8 @@ func main() {
 
 	// Add slashing subcommands
 	slashingCmd := &cobra.Command{
-		Use:	"slashing",
-		Short:	"Slashing subcommands",
+		Use:   "slashing",
+		Short: "Slashing subcommands",
 	}
 
 	slashingCmd.AddCommand(
@@ -145,8 +164,8 @@ func main() {
 
 	// Add distribution subcommands
 	distributionCmd := &cobra.Command{
-		Use:	"distribution",
-		Short:	"Distribution subcommands",
+		Use:   "distribution",
+		Short: "Distribution subcommands",
 	}
 
 	distributionCmd.AddCommand(
@@ -166,8 +185,8 @@ func main() {
 
 	// Add gov subcommands
 	govCmd := &cobra.Command{
-		Use:	"gov",
-		Short:	"Governance subcommands",
+		Use:   "gov",
+		Short: "Governance subcommands",
 	}
 	govCmd.AddCommand(
 		client.GetCommands(
@@ -222,6 +241,7 @@ func main() {
 		distributionCmd,
 		govCmd,
 		exchangeCmd,
+		issueCmd,
 		client.LineBreak,
 		version.VersionCmd,
 	)
