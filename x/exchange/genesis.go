@@ -6,7 +6,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/exchange/keeper"
-	"github.com/hashgard/hashgard/x/exchange/types"
 )
 
 type GenesisState struct {
@@ -27,8 +26,8 @@ func DefaultGenesisState() GenesisState {
 
 // Checks whether 2 GenesisState structs are equivalent.
 func (data GenesisState) Equal(data2 GenesisState) bool {
-	b1 := types.MsgCdc.MustMarshalBinaryBare(data)
-	b2 := types.MsgCdc.MustMarshalBinaryBare(data2)
+	b1 := MsgCdc.MustMarshalBinaryBare(data)
+	b2 := MsgCdc.MustMarshalBinaryBare(data2)
 	return bytes.Equal(b1, b2)
 }
 

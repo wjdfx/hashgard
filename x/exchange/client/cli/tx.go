@@ -13,7 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 
-	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/exchange/msgs"
 )
 
 func GetCmdCreateOrder(cdc *codec.Codec) *cobra.Command {
@@ -57,7 +57,7 @@ $ hashgardcli exchange create-order --suply=100gard --target=800apple --from myk
 				return err
 			}
 
-			msg := exchange.NewMsgCreateOrder(from, supply, target)
+			msg := msgs.NewMsgCreateOrder(from, supply, target)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -98,7 +98,7 @@ $ hashgardcli exchange withdrawal-order 3 --from mykey
 
 			// Todo: check to see if the order is in the store
 
-			msg := exchange.NewMsgWithdrawalOrder(orderId, from)
+			msg := msgs.NewMsgWithdrawalOrder(orderId, from)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -154,7 +154,7 @@ $ hashgardcli exchange take-order 3 --amount=800apple --from mykey
 				return fmt.Errorf("address %s doesn't have enough coins to take order with specific amount", from)
 			}
 
-			msg := exchange.NewMsgTakeOrder(orderId, from, amount)
+			msg := msgs.NewMsgTakeOrder(orderId, from, amount)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
