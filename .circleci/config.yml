@@ -1,0 +1,73 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+
+defaults: &linux_defaults
+  working_directory: /go/src/github.com/hashgard/hashgard
+  docker:
+    - image: circleci/golang:1.12.1
+  environment:
+    GOBIN: /tmp/workspace/bin
+
+deps: &dependencies
+  run:
+    name: dependencies
+    command: |
+      export PATH="$GOBIN:$PATH"
+
+jobs:
+  setup_dependencies:
+    <<: *linux_defaults
+    steps:
+      - run: mkdir -p /tmp/workspace/bin
+      - run: mkdir -p /tmp/workspace/profiles
+      - checkout
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run:
+          name: tools
+          command: |
+            export PATH="$GOBIN:$PATH"
+            make tools
+      - *dependencies
+        - run:
+            name: binaries
+            command: |
+              export PATH="$GOBIN:$PATH"
+              make go-mod-cache
+              make install
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - bin
+            - profiles
+  lint:
+    <<: *linux_defaults
+    parallelism: 1
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - *dependencies
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run:
+          name: Lint source
+          command: |
+            export PATH="$GOBIN:$PATH"
+            make ci-lint
+
+workflows:
+  version: 2
+  test-suite:
+    jobs:
+      - lint:
+          requires:
+            - setup_dependencies
