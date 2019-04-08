@@ -10,7 +10,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/exchange/queriers"
+	"github.com/hashgard/hashgard/x/exchange/types"
 )
 
 func GetCmdQueryOrder(queryRoute string, cdc *codec.Codec) *cobra.Command {
@@ -30,7 +31,7 @@ $ hashgardcli exchange query-order 1
 				return fmt.Errorf("order-id %s not a valid uint, please input a valid order-id", args[0])
 			}
 
-			params := exchange.NewQueryOrderParams(orderId)
+			params := queriers.NewQueryOrderParams(orderId)
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
@@ -41,7 +42,7 @@ $ hashgardcli exchange query-order 1
 				return err
 			}
 
-			var order exchange.Order
+			var order types.Order
 			cdc.MustUnmarshalJSON(res, &order)
 			return cliCtx.PrintOutput(order)
 		},
@@ -64,7 +65,7 @@ $ hashgardcli exchange query-orders address
 				return err
 			}
 
-			params := exchange.NewQueryOrdersParams(seller)
+			params := queriers.NewQueryOrdersParams(seller)
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err
@@ -75,7 +76,7 @@ $ hashgardcli exchange query-orders address
 				return err
 			}
 
-			var orders exchange.Orders
+			var orders types.Orders
 			cdc.MustUnmarshalJSON(res, &orders)
 			return cliCtx.PrintOutput(orders)
 		},
@@ -98,7 +99,7 @@ $ hashgardcli exchange query-frozen address
 				return err
 			}
 
-			params := exchange.NewQueryFrozenFundParams(seller)
+			params := queriers.NewQueryFrozenFundParams(seller)
 			bz, err := cdc.MarshalJSON(params)
 			if err != nil {
 				return err

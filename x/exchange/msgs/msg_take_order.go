@@ -1,6 +1,8 @@
 package msgs
 
 import (
+	"encoding/json"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/exchange/types"
 )
@@ -43,7 +45,10 @@ func (msg MsgTakeOrder) ValidateBasic() sdk.Error {
 }
 
 func (msg MsgTakeOrder) GetSignBytes() []byte {
-	bz := types.MsgCdc.MustMarshalJSON(msg)
+	bz, err := json.Marshal(msg)
+	if err != nil {
+		panic(err)
+	}
 	return sdk.MustSortJSON(bz)
 }
 
