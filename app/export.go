@@ -32,7 +32,7 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 	}
 
 	// iterate to get the accounts
-	accounts := []GenesisAccount{}
+	var accounts []GenesisAccount
 	appendAccount := func(acc auth.Account) (stop bool) {
 		account := NewGenesisAccountI(acc)
 		accounts = append(accounts, account)
