@@ -69,6 +69,12 @@ workflows:
   version: 2
   test-suite:
     jobs:
+      - setup_dependencies:
+          # filters here are needed to enable this job also for tags
+          filters:
+            tags:
+              only:
+                - /^v.*/
       - lint:
           requires:
             - setup_dependencies
