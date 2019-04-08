@@ -65,6 +65,35 @@ jobs:
             export PATH="$GOBIN:$PATH"
             make ci-lint
 
+  test_cover:
+    <<: *linux_defaults
+    parallelism: 4
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - *dependencies
+      - run: mkdir -p /tmp/logs
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run:
+          name: Run tests
+          command: |
+            export PATH="$GOBIN:$PATH"
+            export VERSION="$(git describe --tags --long | sed 's/v\(.*\)/\1/')"
+            export GO111MODULE=on
+            for pkg in $(go list ./... | grep -v github.com/cosmos/cosmos-sdk/cmd/gaia/cli_test | grep -v '/simulation' | circleci tests split --split-by=timings); do
+              id=$(echo "$pkg" | sed 's|[/.]|_|g')
+              go test -mod=readonly -timeout 8m -race -coverprofile=/tmp/workspace/profiles/$id.out -covermode=atomic -tags='ledger test_ledger_mock' "$pkg" | tee "/tmp/logs/$id-$RANDOM.log"
+            done
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - "profiles/*"
+      - store_artifacts:
+          path: /tmp/logs
+
 workflows:
   version: 2
   test-suite:
@@ -76,5 +105,8 @@ workflows:
               only:
                 - /^v.*/
       - lint:
+          requires:
+            - setup_dependencies
+      - test_cover:
           requires:
             - setup_dependencies
