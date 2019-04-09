@@ -1,8 +1,6 @@
 package msgs
 
 import (
-	"encoding/json"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/exchange/types"
 )
