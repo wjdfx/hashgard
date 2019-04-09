@@ -48,10 +48,7 @@ func (msg MsgCreateOrder) ValidateBasic() sdk.Error {
 }
 
 func (msg MsgCreateOrder) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
+	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

@@ -129,7 +129,7 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 
 	// 判断
 	if val.Amount.LT(sharePrice) {
-		return supplyTurnover, targetTurnover, soldOut, sdk.NewError(keeper.codespace, types.CodeTooLess, fmt.Sprintf("minimum purchase threshold is %d%s", sharePrice, order.Target.Denom))
+		return supplyTurnover, targetTurnover, soldOut, sdk.NewError(keeper.codespace, types.CodeTooLess, fmt.Sprintf("minimum purchase threshold is %s%s", sharePrice.String(), order.Target.Denom))
 	}
 
 	// 计算实际购买量
