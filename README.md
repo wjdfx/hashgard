@@ -1,8 +1,12 @@
 # Hashgard
 
+[![version](https://img.shields.io/github/tag/hashgard/hashgard.svg)](https://github.com/hashgard/hashgard/releases/latest)
+[![Go](https://img.shields.io/badge/golang-%3E%3D1.12.1-green.svg?style=flat-square")](https://golang.org)
+[![license](https://img.shields.io/github/license/hashgard/hashgard.svg)](https://github.com/hashgard/hashgard/blob/master/LICENSE)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hashgard/hashgard)](https://goreportcard.com/report/github.com/hashgard/hashgard)
 [![CircleCI](https://circleci.com/gh/hashgard/hashgard/tree/master.svg?style=shield)](https://circleci.com/gh/hashgard/hashgard/tree/master)
 
-Public blockchain, based on [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) development.
+Hashgard is new generation digital finance public chain, based on [cosmos-sdk](https://github.com/cosmos/cosmos-sdk) development.
 
 ## Required
 [Go 1.12.1+](https://golang.org/dl/)
