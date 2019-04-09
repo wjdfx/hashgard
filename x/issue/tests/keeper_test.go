@@ -16,13 +16,14 @@ func TestAddIssue(t *testing.T) {
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
-	var _, _, err = keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.Equal(t, coinIssue.TotalSupply, CoinIssueInfo.TotalSupply)
 	coin := sdk.Coin{Denom: CoinIssueInfo.IssueId, Amount: sdk.NewInt(5000)}
-	keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
+	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
 		sdk.Coins{coin})
+	require.Nil(t, err)
 	coinIssue = keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(CoinIssueInfo.TotalSupply))
 	acc := mapp.AccountKeeper.GetAccount(ctx, ReceiverCoinsAccAddr)
@@ -39,7 +40,8 @@ func TestMint(t *testing.T) {
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	keeper.Mint(ctx, &CoinIssueInfo, sdk.NewInt(10000), IssuerCoinsAccAddr)
+	_, _, err = keeper.Mint(ctx, &CoinIssueInfo, sdk.NewInt(10000), IssuerCoinsAccAddr)
+	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(20000)))
 }
@@ -53,7 +55,8 @@ func TestBurn(t *testing.T) {
 
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	keeper.Burn(ctx, &CoinIssueInfo, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	_, _, err = keeper.Burn(ctx, &CoinIssueInfo, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(5000)))
 }
