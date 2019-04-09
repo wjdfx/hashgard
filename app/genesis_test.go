@@ -23,9 +23,6 @@ var (
 	addr1 = sdk.ValAddress(pk1.Address())
 	addr2 = sdk.ValAddress(pk2.Address())
 	addr3 = sdk.ValAddress(pk3.Address())
-
-	emptyAddr   sdk.ValAddress
-	emptyPubkey crypto.PubKey
 )
 
 func makeGenesisState(t *testing.T, genTxs []auth.StdTx) GenesisState {
