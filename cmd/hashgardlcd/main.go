@@ -30,7 +30,7 @@ import (
 	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
-	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 // rootCmd is the entry point for this binary
@@ -82,7 +82,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	staking.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
-	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, domain.StoreKey)
+	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, types.StoreKey)
 }
 
 func registerSwaggerUI(rs *lcd.RestServer) {

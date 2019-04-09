@@ -11,8 +11,8 @@ import (
 
 	"github.com/hashgard/hashgard/x/issue"
 	queriers2 "github.com/hashgard/hashgard/x/issue/client/queriers"
-	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/msgs"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 func TestQueries(t *testing.T) {
@@ -33,16 +33,16 @@ func TestQueries(t *testing.T) {
 	require.Equal(t, issueInfo.GetName(), CoinIssueInfo.GetName())
 
 }
-func getQueriedIssue(t *testing.T, ctx sdk.Context, cdc *codec.Codec, querier sdk.Querier, issueID string) domain.CoinIssueInfo {
+func getQueriedIssue(t *testing.T, ctx sdk.Context, cdc *codec.Codec, querier sdk.Querier, issueID string) types.CoinIssueInfo {
 	query := abci.RequestQuery{
-		Path: queriers2.GetQueryIssuePath(issueID, domain.StoreKey),
+		Path: queriers2.GetQueryIssuePath(issueID, types.StoreKey),
 		Data: nil,
 	}
-	bz, err := querier(ctx, []string{domain.StoreKey, issueID}, query)
+	bz, err := querier(ctx, []string{types.StoreKey, issueID}, query)
 	require.Nil(t, err)
 	require.NotNil(t, bz)
 
-	var issueInfo domain.CoinIssueInfo
+	var issueInfo types.CoinIssueInfo
 	cdc.UnmarshalJSON(bz, &issueInfo)
 
 	return issueInfo

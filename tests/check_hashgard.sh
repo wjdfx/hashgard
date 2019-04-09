@@ -13,7 +13,6 @@
 # WARNING!!!
 rm -rf ~/.hashgard ~/.hashgardcli
 cd $GOPATH/src/github.com/hashagard/hashgard
-# make get_vendor_deps
 make build
 
 # init stuff

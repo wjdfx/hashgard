@@ -2,18 +2,16 @@ package main
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client/keys"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"os"
 	"path"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
 	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
@@ -25,16 +23,16 @@ import (
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	stakecmd "github.com/cosmos/cosmos-sdk/x/staking/client/cli"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
-
-	issuecmd "github.com/hashgard/hashgard/x/issue/client/cli"
-	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
 	"github.com/hashgard/hashgard/x/exchange"
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
+	"github.com/hashgard/hashgard/x/issue"
 )
 
 // rootCmd is the entry point for this binary
@@ -67,8 +65,52 @@ func main() {
 	rootCmd.PersistentPreRunE = func(_ *cobra.Command, _ []string) error {
 		return initConfig(rootCmd)
 	}
-
+	rootCmd.AddCommand(
+		client.ConfigCmd(app.DefaultCLIHome),
+		rpc.StatusCommand(),
+		client.LineBreak,
+		keys.Commands(),
+	)
 	// Add tendermint subcommands
+	addTendermintCmd(cdc, rootCmd)
+	//add x moudle
+	rootCmd.AddCommand(client.LineBreak)
+	// Add bank subcommands
+	addBankCmd(cdc, rootCmd)
+	// Add distribution subcommands
+	addDistributionCmd(cdc, rootCmd)
+	// Add exchange subcommands
+	addExchangeCmd(cdc, rootCmd)
+	// Add gov subcommands
+	addGovCmd(cdc, rootCmd)
+	// Add issue subcommands
+	addIssueCmd(cdc, rootCmd)
+	// Add slashing subcommands
+	addSlashingCmd(cdc, rootCmd)
+	// Add stake subcommands
+	addStakeCmd(cdc, rootCmd)
+
+	rootCmd.AddCommand(
+		client.LineBreak,
+		version.VersionCmd,
+	)
+
+	// prepare and add flags
+	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
+	err := initConfig(rootCmd)
+	if err != nil {
+		panic(err)
+	}
+
+	err = executor.Execute()
+	if err != nil {
+		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
+		os.Exit(1)
+	}
+}
+
+// Add tendermint subcommands
+func addTendermintCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	tendermintCmd := &cobra.Command{
 		Use:   "tendermint",
 		Short: "Tendermint state querying subcommands",
@@ -79,15 +121,18 @@ func main() {
 		tx.SearchTxCmd(cdc),
 		tx.QueryTxCmd(cdc),
 	)
+	rootCmd.AddCommand(tendermintCmd)
+}
 
-	// Add bank subcommands
+// Add bank subcommands
+func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	bankCmd := &cobra.Command{
 		Use:   "bank",
 		Short: "Bank subcommands",
 	}
 	bankCmd.AddCommand(
 		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
-		issuecmd.GetAccountCmd(auth.StoreKey, cdc),
+		issue.GetAccountCmd(auth.StoreKey, cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
@@ -97,24 +142,46 @@ func main() {
 		tx.GetBroadcastCommand(cdc),
 		tx.GetEncodeCommand(cdc),
 	)
-	// Add issue subcommands
-	issueCmd := &cobra.Command{
-		Use:   "issue",
-		Short: "Issue subcommands",
+	rootCmd.AddCommand(bankCmd)
+}
+
+// Add issue subcommands
+func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	moduleClient := issue.NewModuleClient(issue.StoreKey, cdc)
+	rootCmd.AddCommand(moduleClient.GetTxCmd())
+}
+
+// Add gov subcommands
+func addGovCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	govCmd := &cobra.Command{
+		Use:   "gov",
+		Short: "Governance subcommands",
 	}
-	issueCmd.AddCommand(
-		client.PostCommands(
-			issuecmd.GetCmdIssueAdd(cdc),
-			issuecmd.GetCmdIssueMint(cdc),
-			issuecmd.GetCmdIssueBurn(cdc),
-			issuecmd.GetCmdIssueFinishMinting(cdc),
-		)...)
-	issueCmd.AddCommand(client.LineBreak)
-	issueCmd.AddCommand(
+	govCmd.AddCommand(
 		client.GetCommands(
-			issuecmd.GetCmdQueryIssue(issuedomain.StoreKey, cdc),
+			govcmd.GetCmdQueryProposal(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryProposals(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryVote(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryVotes(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryParam(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryParams(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryProposer(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryDeposit(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryDeposits(gov.StoreKey, cdc),
+			govcmd.GetCmdQueryTally(gov.StoreKey, cdc),
 		)...)
-	// Add stake subcommands
+	govCmd.AddCommand(client.LineBreak)
+	govCmd.AddCommand(
+		client.PostCommands(
+			govcmd.GetCmdDeposit(gov.StoreKey, cdc),
+			govcmd.GetCmdVote(gov.StoreKey, cdc),
+			govcmd.GetCmdSubmitProposal(cdc),
+		)...)
+	rootCmd.AddCommand(govCmd)
+}
+
+// Add stake subcommands
+func addStakeCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	stakeCmd := &cobra.Command{
 		Use:   "stake",
 		Short: "Stake and validation subcommands",
@@ -144,8 +211,11 @@ func main() {
 			stakecmd.GetCmdRedelegate(staking.StoreKey, cdc),
 			stakecmd.GetCmdUnbond(staking.StoreKey, cdc),
 		)...)
+	rootCmd.AddCommand(stakeCmd)
+}
 
-	// Add slashing subcommands
+// Add slashing subcommands
+func addSlashingCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	slashingCmd := &cobra.Command{
 		Use:   "slashing",
 		Short: "Slashing subcommands",
@@ -161,8 +231,11 @@ func main() {
 		client.PostCommands(
 			slashingcmd.GetCmdUnjail(cdc),
 		)...)
+	rootCmd.AddCommand(slashingCmd)
+}
 
-	// Add distribution subcommands
+// Add distribution subcommands
+func addDistributionCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	distributionCmd := &cobra.Command{
 		Use:   "distribution",
 		Short: "Distribution subcommands",
@@ -182,37 +255,14 @@ func main() {
 			distributioncmd.GetCmdSetWithdrawAddr(cdc),
 			distributioncmd.GetCmdWithdrawAllRewards(cdc, distribution.StoreKey),
 		)...)
+	rootCmd.AddCommand(distributionCmd)
+}
 
-	// Add gov subcommands
-	govCmd := &cobra.Command{
-		Use:   "gov",
-		Short: "Governance subcommands",
-	}
-	govCmd.AddCommand(
-		client.GetCommands(
-			govcmd.GetCmdQueryProposal(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryProposals(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryVote(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryVotes(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryParam(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryParams(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryProposer(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryDeposit(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryDeposits(gov.StoreKey, cdc),
-			govcmd.GetCmdQueryTally(gov.StoreKey, cdc),
-		)...)
-	govCmd.AddCommand(client.LineBreak)
-	govCmd.AddCommand(
-		client.PostCommands(
-			govcmd.GetCmdDeposit(gov.StoreKey, cdc),
-			govcmd.GetCmdVote(gov.StoreKey, cdc),
-			govcmd.GetCmdSubmitProposal(cdc),
-		)...)
-
-	// Add exchange subcommands
+// Add exchange subcommands
+func addExchangeCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	exchangeCmd := &cobra.Command{
-		Use:	"exchange",
-		Short:	"Exchange subcommands",
+		Use:   "exchange",
+		Short: "Exchange subcommands",
 	}
 	exchangeCmd.AddCommand(
 		client.GetCommands(
@@ -227,37 +277,7 @@ func main() {
 			exchangecmd.GetCmdWithdrawalOrder(cdc),
 			exchangecmd.GetCmdTakeOrder(cdc),
 		)...)
-
-	rootCmd.AddCommand(
-		client.ConfigCmd(app.DefaultCLIHome),
-		rpc.StatusCommand(),
-		client.LineBreak,
-		keys.Commands(),
-		tendermintCmd,
-		client.LineBreak,
-		bankCmd,
-		stakeCmd,
-		slashingCmd,
-		distributionCmd,
-		govCmd,
-		exchangeCmd,
-		issueCmd,
-		client.LineBreak,
-		version.VersionCmd,
-	)
-
-	// prepare and add flags
-	executor := cli.PrepareMainCmd(rootCmd, "BC", app.DefaultCLIHome)
-	err := initConfig(rootCmd)
-	if err != nil {
-		panic(err)
-	}
-
-	err = executor.Execute()
-	if err != nil {
-		fmt.Printf("Failed executing CLI command: %s, exiting...\n", err)
-		os.Exit(1)
-	}
+	rootCmd.AddCommand(exchangeCmd)
 }
 
 func initConfig(cmd *cobra.Command) error {

@@ -3,7 +3,7 @@ package issue
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/hashgard/hashgard/x/issue/keepers"
+	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/params"
 )
 
@@ -25,12 +25,12 @@ func DefaultGenesisState() GenesisState {
 }
 
 // InitGenesis sets distribution information for genesis.
-func InitGenesis(ctx sdk.Context, keeper keepers.Keeper, data GenesisState) {
+func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	keeper.SetIssueConfigParams(ctx, data.IssueConfigParams)
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
-func ExportGenesis(ctx sdk.Context, keeper keepers.Keeper) GenesisState {
+func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	return NewGenesisState(keeper.GetIssueConfigParams(ctx))
 }
 

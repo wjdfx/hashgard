@@ -24,8 +24,6 @@ import (
 
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/issue"
-	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
-	issuekeepers "github.com/hashgard/hashgard/x/issue/keepers"
 )
 
 const (
@@ -58,7 +56,7 @@ type HashgardApp struct {
 	keyGov           *sdk.KVStoreKey
 	keyIssue         *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
-  keyExchange			*sdk.KVStoreKey
+	keyExchange      *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
 
@@ -71,9 +69,9 @@ type HashgardApp struct {
 	mintKeeper          mint.Keeper
 	distributionKeeper  distribution.Keeper
 	govKeeper           gov.Keeper
-	exchangeKeeper		exchange.Keeper
+	exchangeKeeper      exchange.Keeper
 	paramsKeeper        params.Keeper
-	issueKeeper         issuekeepers.Keeper
+	issueKeeper         issue.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
@@ -97,9 +95,9 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		tkeyDistribution: sdk.NewTransientStoreKey(distribution.TStoreKey),
 		keySlashing:      sdk.NewKVStoreKey(slashing.StoreKey),
 		keyGov:           sdk.NewKVStoreKey(gov.StoreKey),
-		keyIssue:         sdk.NewKVStoreKey(issuedomain.StoreKey),
+		keyIssue:         sdk.NewKVStoreKey(issue.StoreKey),
 		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
-    keyExchange:		sdk.NewKVStoreKey(exchange.StoreKey),
+		keyExchange:      sdk.NewKVStoreKey(exchange.StoreKey),
 		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
 		tkeyParams:       sdk.NewTransientStoreKey(params.TStoreKey),
 	}
@@ -173,13 +171,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
-	app.issueKeeper = issuekeepers.NewKeeper(
+	app.issueKeeper = issue.NewKeeper(
 		app.cdc,
 		app.keyIssue,
 		app.paramsKeeper,
-		app.paramsKeeper.Subspace(issuedomain.DefaultParamspace),
+		app.paramsKeeper.Subspace(issue.DefaultParamspace),
 		app.bankKeeper,
-		issuedomain.DefaultCodespace)
+		issue.DefaultCodespace)
 
 	app.exchangeKeeper = exchange.NewKeeper(
 		app.cdc,
@@ -205,7 +203,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
-		AddRoute(issuedomain.RouterKey, issue.NewHandler(app.issueKeeper))
+		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -214,7 +212,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
 		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc)).
-		AddRoute(issuedomain.QuerierRoute, issue.NewQuerier(app.issueKeeper))
+		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper))
 
 	// initialize BaseApp
 	app.MountStores(

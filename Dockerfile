@@ -6,7 +6,7 @@
 FROM golang:1.12 as build
 ENV GOBIN /go/bin
 ADD . /go/src/github.com/hashgard/hashgard/
-RUN cd /go/src/github.com/hashgard/hashgard/ && make get_tools && make get_vendor_deps && make install
+RUN cd /go/src/github.com/hashgard/hashgard/ && make get_tools && make install
 
 
 # ----------------------------------------------------------------------

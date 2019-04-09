@@ -23,9 +23,6 @@ var (
 	addr1 = sdk.ValAddress(pk1.Address())
 	addr2 = sdk.ValAddress(pk2.Address())
 	addr3 = sdk.ValAddress(pk3.Address())
-
-	emptyAddr   sdk.ValAddress
-	emptyPubkey crypto.PubKey
 )
 
 func makeGenesisState(t *testing.T, genTxs []auth.StdTx) GenesisState {
@@ -54,7 +51,7 @@ func TestToAccount(t *testing.T) {
 	priv := ed25519.GenPrivKey()
 	addr := sdk.AccAddress(priv.PubKey().Address())
 	authAcc := auth.NewBaseAccountWithAddress(addr)
-	authAcc.SetCoins(sdk.Coins{sdk.NewInt64Coin(StakeDenom, 150)})
+	require.Nil(t, authAcc.SetCoins(sdk.Coins{sdk.NewInt64Coin(StakeDenom, 150)}))
 	genAcc := NewGenesisAccount(&authAcc)
 	acc := genAcc.ToAccount()
 	require.IsType(t, &auth.BaseAccount{}, acc)
@@ -83,7 +80,7 @@ func TestHashgardAppGenState(t *testing.T) {
 	_ = cdc
 	var genDoc tmtypes.GenesisDoc
 
-	// test unmarshalling error
+	// test unmarshal error
 	_, err := HashgardAppGenState(cdc, genDoc, []json.RawMessage{})
 	require.Error(t, err)
 
@@ -159,19 +156,19 @@ func TestGenesisStateSanitize(t *testing.T) {
 
 	addr1 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc1 := auth.NewBaseAccountWithAddress(addr1)
-	authAcc1.SetCoins(sdk.Coins{
+	require.Nil(t, authAcc1.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("bcoin", 150),
 		sdk.NewInt64Coin("acoin", 150),
-	})
-	authAcc1.SetAccountNumber(1)
+	}))
+	require.Nil(t, authAcc1.SetAccountNumber(1))
 	genAcc1 := NewGenesisAccount(&authAcc1)
 
 	addr2 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc2 := auth.NewBaseAccountWithAddress(addr2)
-	authAcc2.SetCoins(sdk.Coins{
+	require.Nil(t, authAcc2.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("acoin", 150),
 		sdk.NewInt64Coin("bcoin", 150),
-	})
+	}))
 	genAcc2 := NewGenesisAccount(&authAcc2)
 
 	genesisState.Accounts = []GenesisAccount{genAcc1, genAcc2}
