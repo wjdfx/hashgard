@@ -16,7 +16,7 @@ mkdir -p $GOPATH/src/github.com/hashgard
 cd $GOPATH/src/github.com/hashgard
 git clone https://github.com/hashgard/hashgard
 cd hashgard && git checkout master
-make get_tools && make get_vendor_deps && make install
+make get_tools && make install
 ```
 
 Check if the installation is successful:
