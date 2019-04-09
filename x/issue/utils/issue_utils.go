@@ -1,18 +1,20 @@
 package utils
 
 import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"math/rand"
 	"strings"
 
-	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/errors"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 var (
 	randomBytes = []rune("0123456789abcdefghijklmnopqrstuvwxyz")
 )
 
-func GetRandomString(l int) string {
+//nolint
+func getRandomString(l int) string {
 	result := make([]rune, l)
 	len := len(randomBytes)
 	for i := range result {
@@ -21,20 +23,24 @@ func GetRandomString(l int) string {
 	return string(result)
 }
 
+//nolint
 func GetIssueID() string {
-	randString := GetRandomString(11)
-	return domain.IDPreStr + randString
+	randString := getRandomString(11)
+	return types.IDPreStr + randString
 }
+
+//nolint
 func IsIssueId(issueID string) bool {
-	if len(issueID) == 15 && strings.HasPrefix(issueID, domain.IDPreStr) {
+	if len(issueID) == 15 && strings.HasPrefix(issueID, types.IDPreStr) {
 		return true
 	}
 	return false
 }
 
-func CheckIssueId(issueID string) error {
+//nolint
+func CheckIssueId(issueID string) sdk.Error {
 	if !IsIssueId(issueID) {
-		return errors.ErrIssueID(domain.DefaultCodespace, issueID)
+		return errors.ErrIssueID(types.DefaultCodespace, issueID)
 	}
 	return nil
 }

@@ -1,11 +1,10 @@
 package msgs
 
 import (
-	"encoding/json"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 // MsgIssueFinishMinting to allow a registered issuer
@@ -15,15 +14,16 @@ type MsgIssueFinishMinting struct {
 	From    sdk.AccAddress `json:"issuer"`
 }
 
+//New MsgIssueFinishMinting Instance
 func NewMsgIssueFinishMinting(issueId string, from sdk.AccAddress) MsgIssueFinishMinting {
 	return MsgIssueFinishMinting{issueId, from}
 }
 
 // Route Implements Msg.
-func (msg MsgIssueFinishMinting) Route() string { return domain.RouterKey }
+func (msg MsgIssueFinishMinting) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgIssueFinishMinting) Type() string { return domain.TypeMsgIssueFinishMinting }
+func (msg MsgIssueFinishMinting) Type() string { return types.TypeMsgIssueFinishMinting }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgIssueFinishMinting) ValidateBasic() sdk.Error {
@@ -35,10 +35,7 @@ func (msg MsgIssueFinishMinting) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgIssueFinishMinting) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
+	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

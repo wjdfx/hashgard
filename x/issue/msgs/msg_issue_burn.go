@@ -1,11 +1,10 @@
 package msgs
 
 import (
-	"encoding/json"
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 // MsgIssueBurn to allow a registered issuer
@@ -16,15 +15,16 @@ type MsgIssueBurn struct {
 	Amount  sdk.Int        `json:"amount"`
 }
 
+//New NewMsgIssue Instance
 func NewMsgIssueBurn(issueId string, issuer sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
 	return MsgIssueBurn{issueId, issuer, amount}
 }
 
 // Route Implements Msg.
-func (msg MsgIssueBurn) Route() string { return domain.RouterKey }
+func (msg MsgIssueBurn) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgIssueBurn) Type() string { return domain.TypeMsgIssueBurn }
+func (msg MsgIssueBurn) Type() string { return types.TypeMsgIssueBurn }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgIssueBurn) ValidateBasic() sdk.Error {
@@ -40,10 +40,7 @@ func (msg MsgIssueBurn) ValidateBasic() sdk.Error {
 
 // GetSignBytes Implements Msg.
 func (msg MsgIssueBurn) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
+	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

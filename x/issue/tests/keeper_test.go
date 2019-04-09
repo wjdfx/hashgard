@@ -32,6 +32,22 @@ func TestAddIssue(t *testing.T) {
 	require.True(t, flag1)
 }
 
+func TestGetIssues(t *testing.T) {
+
+	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp.BeginBlock(abci.RequestBeginBlock{})
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+	mapp.InitChainer(ctx, abci.RequestInitChain{})
+	cap := 10
+	for i := 0; i < cap; i++ {
+		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		require.Nil(t, err)
+	}
+	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
+
+	require.Len(t, issues, cap)
+}
+
 func TestMint(t *testing.T) {
 
 	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)

@@ -5,7 +5,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// Param around issue for issue
+// Param Config issue for issue
 type IssueConfigParams struct {
 	MinDeposit sdk.Coins `json:"min_deposit"`
 }

@@ -1,4 +1,4 @@
-package domain
+package types
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -17,21 +17,25 @@ const (
 	DefaultParamspace = ModuleName
 )
 const (
+	DefaultDecimals                    = 18
+	DefaultCodespace sdk.CodespaceType = ModuleName
+)
+const (
 	IDPreStr = "gard"
 	Custom   = "custom"
+)
+const (
+	QueryParams = "params"
+	QueryIssues = "issues"
+	QueryIssue  = "issue"
 )
 const (
 	TypeMsgIssue              = "issue"
 	TypeMsgIssueMint          = "issueMint"
 	TypeMsgIssueBurn          = "issueBurn"
 	TypeMsgIssueFinishMinting = "issueFinishMinting"
-	DefaultDecimals           = 18
 )
 const (
-	DefaultCodespace    sdk.CodespaceType = ModuleName
-	CodeIssuerMismatch  sdk.CodeType      = 1
-	CodeIssueIDNotValid sdk.CodeType      = 2
-	CodeUnknownIssue    sdk.CodeType      = 3
-	CanNotMint          sdk.CodeType      = 4
-	CanNotBurn          sdk.CodeType      = 5
+	CoinNameMaxLength   = 15
+	CoinSymbolMaxLength = 6
 )

@@ -11,9 +11,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hashgard/hashgard/x/issue/domain"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
+	"github.com/hashgard/hashgard/x/issue/types"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
@@ -47,11 +47,11 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 		if err != nil {
 			return
 		}
-		coinIssueInfo := domain.CoinIssueInfo{
+		coinIssueInfo := types.CoinIssueInfo{
 			Issuer:          fromAddress,
 			Name:            req.Name,
 			TotalSupply:     req.TotalSupply,
-			Decimals:        domain.DefaultDecimals,
+			Decimals:        types.DefaultDecimals,
 			MintingFinished: req.MintingFinished,
 		}
 		// create the message
@@ -73,19 +73,19 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
-		if error := issueutils.CheckIssueId(issueID); error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		num, error := strconv.ParseInt(vars[Amount], 10, 64)
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		num, err := strconv.ParseInt(vars[Amount], 10, 64)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		amount := sdk.NewInt(num)
-		to, error := sdk.AccAddressFromBech32(vars[To])
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		to, err := sdk.AccAddressFromBech32(vars[To])
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		var req PostIssueBaseReq
@@ -96,9 +96,9 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -119,13 +119,13 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
-		if error := issueutils.CheckIssueId(issueID); error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		num, error := strconv.ParseInt(vars[Amount], 10, 64)
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		num, err := strconv.ParseInt(vars[Amount], 10, 64)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		amount := sdk.NewInt(num)
@@ -139,9 +139,9 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
@@ -163,8 +163,8 @@ func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
-		if error := issueutils.CheckIssueId(issueID); error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		var req PostIssueBaseReq
@@ -176,9 +176,9 @@ func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, error := context.GetFromFields(req.BaseReq.From)
-		if error != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, error.Error())
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		msg := msgs.NewMsgIssueFinishMinting(issueID, fromAddress)

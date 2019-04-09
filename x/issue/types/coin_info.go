@@ -1,16 +1,22 @@
-package domain
+package types
 
 import (
 	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"strings"
+	"time"
 )
 
+//Issue interface
 type Issue interface {
 	GetIssueId() string
 	SetIssueId(string)
 
 	GetIssuer() sdk.AccAddress
 	SetIssuer(sdk.AccAddress)
+
+	GetIssueTime() time.Time
+	SetIssueTime(time.Time)
 
 	GetName() string
 	SetName(string)
@@ -29,9 +35,15 @@ type Issue interface {
 
 	String() string
 }
+
+// CoinIssues is an array of Issue
+type CoinIssues []CoinIssueInfo
+
+//Coin Issue Info
 type CoinIssueInfo struct {
 	IssueId         string         `json:"issue_id"`
 	Issuer          sdk.AccAddress `json:"issuer"`
+	IssueTime       time.Time      `json:"issue_time"`
 	Name            string         `json:"name"`
 	Symbol          string         `json:"symbol"`
 	TotalSupply     sdk.Int        `json:"total_supply"`
@@ -42,6 +54,7 @@ type CoinIssueInfo struct {
 // Implements Issue Interface
 var _ Issue = (*CoinIssueInfo)(nil)
 
+//nolint
 func (ci CoinIssueInfo) GetIssueId() string {
 	return ci.IssueId
 }
@@ -54,7 +67,12 @@ func (ci CoinIssueInfo) GetIssuer() sdk.AccAddress {
 func (ci CoinIssueInfo) SetIssuer(issuer sdk.AccAddress) {
 	ci.Issuer = issuer
 }
-
+func (ci CoinIssueInfo) GetIssueTime() time.Time {
+	return ci.IssueTime
+}
+func (ci CoinIssueInfo) SetIssueTime(issueTime time.Time) {
+	ci.IssueTime = issueTime
+}
 func (ci CoinIssueInfo) GetName() string {
 	return ci.Name
 }
@@ -90,7 +108,7 @@ func (ci CoinIssueInfo) SetSymbol(symbol string) {
 	ci.Symbol = symbol
 }
 
-//TODO
+//nolint
 func (ci CoinIssueInfo) String() string {
 	return fmt.Sprintf(`Issue:
   IssueId:          %s
@@ -104,8 +122,13 @@ func (ci CoinIssueInfo) String() string {
 		ci.Decimals, ci.MintingFinished)
 }
 
-type CoinIssue struct {
-	*sdk.Coin
-	IssueId string         `json:"issue_id"`
-	Issuer  sdk.AccAddress `json:"issuer"`
+//nolint
+func (coinIssues CoinIssues) String() string {
+	out := fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8s|%-15s|%s\n",
+		"IssueID", "Name", "Symbol", "TotalSupply", "Decimals", "MintingFinished", "IssueTime")
+	for _, issue := range coinIssues {
+		out += fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8d|%-15t|%s\n",
+			issue.IssueId, issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.MintingFinished, issue.IssueTime.String())
+	}
+	return strings.TrimSpace(out)
 }

@@ -27,16 +27,12 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
-	"github.com/hashgard/hashgard/version"
-	issueclient "github.com/hashgard/hashgard/x/issue/client"
-
-	issuecmd "github.com/hashgard/hashgard/x/issue/client/cli"
-	issuedomain "github.com/hashgard/hashgard/x/issue/domain"
-
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
+	"github.com/hashgard/hashgard/version"
 	"github.com/hashgard/hashgard/x/exchange"
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
+	"github.com/hashgard/hashgard/x/issue"
 )
 
 // rootCmd is the entry point for this binary
@@ -136,7 +132,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	}
 	bankCmd.AddCommand(
 		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
-		issuecmd.GetAccountCmd(auth.StoreKey, cdc),
+		issue.GetAccountCmd(auth.StoreKey, cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
@@ -151,7 +147,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 
 // Add issue subcommands
 func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
-	moduleClient := issueclient.NewModuleClient(issuedomain.StoreKey, cdc)
+	moduleClient := issue.NewModuleClient(issue.StoreKey, cdc)
 	rootCmd.AddCommand(moduleClient.GetTxCmd())
 }
 

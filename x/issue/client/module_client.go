@@ -6,7 +6,7 @@ import (
 	"github.com/tendermint/go-amino"
 
 	issueCli "github.com/hashgard/hashgard/x/issue/client/cli"
-	"github.com/hashgard/hashgard/x/issue/domain"
+	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 // ModuleClient exports all client functionality from this module
@@ -15,6 +15,7 @@ type ModuleClient struct {
 	cdc      *amino.Codec
 }
 
+//New ModuleClient Instance
 func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
 	return ModuleClient{storeKey, cdc}
 }
@@ -22,20 +23,21 @@ func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
 // GetTxCmd returns the transaction commands for this module
 func (mc ModuleClient) GetTxCmd() *cobra.Command {
 	issueCmd := &cobra.Command{
-		Use:   domain.ModuleName,
+		Use:   types.ModuleName,
 		Short: "Issue coin subcommands",
 	}
+	issueCmd.AddCommand(
+		client.GetCommands(
+			issueCli.GetCmdQueryIssue(mc.storeKey, mc.cdc),
+			issueCli.GetCmdQueryIssues(mc.storeKey, mc.cdc),
+		)...)
+	issueCmd.AddCommand(client.LineBreak)
 	issueCmd.AddCommand(
 		client.PostCommands(
 			issueCli.GetCmdIssueAdd(mc.cdc),
 			issueCli.GetCmdIssueMint(mc.cdc),
 			issueCli.GetCmdIssueBurn(mc.cdc),
 			issueCli.GetCmdIssueFinishMinting(mc.cdc),
-		)...)
-	issueCmd.AddCommand(client.LineBreak)
-	issueCmd.AddCommand(
-		client.GetCommands(
-			issueCli.GetCmdQueryIssue(mc.storeKey, mc.cdc),
 		)...)
 
 	return issueCmd
