@@ -43,7 +43,7 @@ func getQueriedIssue(t *testing.T, ctx sdk.Context, cdc *codec.Codec, querier sd
 	require.NotNil(t, bz)
 
 	var issueInfo types.CoinIssueInfo
-	cdc.UnmarshalJSON(bz, &issueInfo)
+	cdc.MustUnmarshalJSON(bz, &issueInfo)
 
 	return issueInfo
 }

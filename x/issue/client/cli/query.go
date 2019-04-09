@@ -56,7 +56,11 @@ func GetAccountCmd(storeName string, cdc *codec.Codec) *cobra.Command {
 				coins[i] = newCoin
 				i += 1
 			}
-			acc.SetCoins(coins)
+			err = acc.SetCoins(coins)
+			if err != nil {
+				return err
+			}
+
 			return cliCtx.PrintOutput(acc)
 		},
 	}
