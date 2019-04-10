@@ -228,7 +228,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	genDoc, err := tmtypes.GenesisDocFromFile(genesisFile)
 	require.Nil(t, err)
 	genDoc.Validators = nil
-	genDoc.SaveAs(genesisFile)
+	genDoc.SaveAs(genesisFile)	// nolint
 	genTxs := []json.RawMessage{}
 
 	// append any additional (non-proposing) validators
@@ -338,7 +338,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 	cleanup = func() {
 		logger.Debug("cleaning up LCD initialization")
-		node.Stop()
+		node.Stop()	// nolint
 		node.Wait()
 		lcd.Close()
 	}
@@ -395,7 +395,7 @@ func startLCD(logger log.Logger, listenAddr string, cdc *codec.Codec, t *testing
 	if err != nil {
 		return nil, err
 	}
-	go tmrpc.StartHTTPServer(listener, rs.Mux, logger)
+	go tmrpc.StartHTTPServer(listener, rs.Mux, logger)	// nolint
 	return listener, nil
 }
 
@@ -561,7 +561,7 @@ func getKeys(t *testing.T, port string) []keys.KeyOutput {
 
 // POST /keys Create a new account locally
 func doKeysPost(t *testing.T, port, name, password, mnemonic string, account int, index int) keys.KeyOutput {
-	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index}
+	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index}	// nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -587,7 +587,7 @@ func getKeysSeed(t *testing.T, port string) string {
 
 // POST /keys/{name}/recove Recover a account from a seed
 func doRecoverKey(t *testing.T, port, recoverName, recoverPassword, mnemonic string, account uint32, index uint32) {
-	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)}
+	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)}		// nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -615,7 +615,7 @@ func getKey(t *testing.T, port, name string) keys.KeyOutput {
 
 // PUT /keys/{name} Update the password for this account in the KMS
 func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail bool) {
-	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword}
+	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword}	// nolint
 	req, err := cdc.MarshalJSON(kr)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -629,7 +629,7 @@ func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail b
 
 // DELETE /keys/{name} Remove an account
 func deleteKey(t *testing.T, port, name, password string) {
-	dk := clientkeys.DeleteKeyReq{password}
+	dk := clientkeys.DeleteKeyReq{password}	// nolint
 	req, err := cdc.MarshalJSON(dk)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -652,6 +652,7 @@ func getAccount(t *testing.T, port string, addr sdk.AccAddress) auth.Account {
 // ----------------------------------------------------------------------
 
 // POST /tx/sign Sign a Tx
+// nolint
 func doSign(t *testing.T, port, name, password, chainID string, accnum, sequence uint64, msg auth.StdTx) auth.StdTx {
 	var signedMsg auth.StdTx
 	payload := authrest.SignBody{
@@ -929,6 +930,7 @@ func doBeginRedelegation(
 	return txResp
 }
 
+// nolint
 type msgBeginRedelegateInput struct {
 	BaseReq             rest.BaseReq   `json:"base_req"`
 	DelegatorAddress    sdk.AccAddress `json:"delegator_address"`     // in bech32
@@ -1410,6 +1412,7 @@ func getSigningInfo(t *testing.T, port string, validatorPubKey string) slashing.
 
 // TODO: Test this functionality, it is not currently in any of the tests
 // POST /slashing/validators/{validatorAddr}/unjail Unjail a jailed validator
+// nolint
 func doUnjail(
 	t *testing.T, port, seed, name, pwd string, valAddr sdk.ValAddress, fees sdk.Coins,
 ) sdk.TxResponse {
@@ -1435,6 +1438,7 @@ func doUnjail(
 	return txResp
 }
 
+// nolint
 type unjailReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 }
@@ -1469,6 +1473,7 @@ func doWithdrawDelegatorAllRewards(
 	return txResp
 }
 
+// nolint
 func mustParseDecCoins(dcstring string) sdk.DecCoins {
 	dcoins, err := sdk.ParseDecCoins(dcstring)
 	if err != nil {

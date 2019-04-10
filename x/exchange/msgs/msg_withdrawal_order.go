@@ -30,7 +30,7 @@ func (msg MsgWithdrawalOrder) Type() string {
 }
 
 func (msg MsgWithdrawalOrder) ValidateBasic() sdk.Error {
-	if msg.OrderId <= 0 {
+	if msg.OrderId == 0 {
 		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "order_id is invalid")
 	}
 	if msg.Seller.Empty() {

@@ -19,10 +19,7 @@ import (
 var (
 	pk1   = ed25519.GenPrivKey().PubKey()
 	pk2   = ed25519.GenPrivKey().PubKey()
-	pk3   = ed25519.GenPrivKey().PubKey()
 	addr1 = sdk.ValAddress(pk1.Address())
-	addr2 = sdk.ValAddress(pk2.Address())
-	addr3 = sdk.ValAddress(pk3.Address())
 )
 
 func makeGenesisState(t *testing.T, genTxs []auth.StdTx) GenesisState {

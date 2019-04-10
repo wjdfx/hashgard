@@ -327,6 +327,7 @@ func collectGenFiles(
 	return nil
 }
 
+// nolint
 func getIP(i int, startingIPAddr string) (string, error) {
 	var (
 		ip  string

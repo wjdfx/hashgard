@@ -145,7 +145,7 @@ func fingerprintForCertificate(certBytes []byte) (string, error) {
 		return "", err
 	}
 	h := sha256.New()
-	h.Write(cert.Raw)
+	h.Write(cert.Raw)	// nolint
 	fingerprintBytes := h.Sum(nil)
 	var buf bytes.Buffer
 	for i, b := range fingerprintBytes {
