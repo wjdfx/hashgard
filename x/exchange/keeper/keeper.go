@@ -118,21 +118,14 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 		return supplyTurnover, targetTurnover, soldOut, sdk.NewError(keeper.codespace, types.CodeNotMatchTarget, fmt.Sprintf("%s doesn't match order's target(%s)", val.Denom, order.Target.Denom))
 	}
 
-	// 计算最大公约数
 	divisor := GetGratestDivisor(order.Supply.Amount, order.Target.Amount)
-
-	// 剩余可供够买份额
 	remainShares := order.Remains.Amount.Quo(divisor)
-
-	// 计算每份单价
 	sharePrice := order.Target.Amount.Quo(divisor)
 
-	// 判断
 	if val.Amount.LT(sharePrice) {
 		return supplyTurnover, targetTurnover, soldOut, sdk.NewError(keeper.codespace, types.CodeTooLess, fmt.Sprintf("minimum purchase threshold is %s%s", sharePrice.String(), order.Target.Denom))
 	}
 
-	// 计算实际购买量
 	shares := val.Amount.Quo(sharePrice)
 
 	if shares.GTE(remainShares) {
@@ -140,11 +133,9 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 		soldOut = true
 	}
 
-	// 计算实际成交
 	supplyTurnover = sdk.NewCoin(order.Supply.Denom, order.Supply.Amount.Quo(divisor).Mul(shares))
 	targetTurnover = sdk.NewCoin(order.Target.Denom, sharePrice.Mul(shares))
 
-	// 转账
 	_, err = keeper.bankKeeper.SendCoins(ctx, buyer, order.Seller, []sdk.Coin{targetTurnover})
 	if err != nil {
 		return
@@ -154,8 +145,7 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 		return
 	}
 
-	// 更新订单状态
-	if soldOut {	// 卖光删除订单
+	if soldOut {
 		keeper.deleteOrder(ctx, orderId)
 		orderIdArr := keeper.GetAddressOrders(ctx, order.Seller)
 		for index := 0; index < len(orderIdArr); {
@@ -166,7 +156,7 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 			index++
 		}
 		keeper.setAddressOrders(ctx, order.Seller, orderIdArr)
-	} else {	// 更新状态
+	} else {
 		remains := order.Remains.Sub(supplyTurnover)
 		newOrder := types.Order{
 			OrderId:	orderId,
