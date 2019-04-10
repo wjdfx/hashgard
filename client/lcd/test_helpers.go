@@ -228,7 +228,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	genDoc, err := tmtypes.GenesisDocFromFile(genesisFile)
 	require.Nil(t, err)
 	genDoc.Validators = nil
-	genDoc.SaveAs(genesisFile)
+	genDoc.SaveAs(genesisFile)	// nolint
 	genTxs := []json.RawMessage{}
 
 	// append any additional (non-proposing) validators
@@ -248,7 +248,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 		msg := staking.NewMsgCreateValidator(
 			sdk.ValAddress(operAddr),
 			pubKey,
-			sdk.NewCoin(sdk.DefaultBondDenom, startTokens),
+			sdk.NewCoin(happ.StakeDenom, startTokens),
 			staking.NewDescription(fmt.Sprintf("validator-%d", i+1), "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
@@ -269,7 +269,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 		accAuth := auth.NewBaseAccountWithAddress(sdk.AccAddress(operAddr))
 		accTokens := sdk.TokensFromTendermintPower(150)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, accTokens)}
+		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
 		accs = append(accs, happ.NewGenesisAccount(&accAuth))
 	}
 
@@ -284,7 +284,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	for _, addr := range initAddrs {
 		accAuth := auth.NewBaseAccountWithAddress(addr)
 		accTokens := sdk.TokensFromTendermintPower(100)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, accTokens)}
+		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
 		acc := happ.NewGenesisAccount(&accAuth)
 		genesisState.Accounts = append(genesisState.Accounts, acc)
 		genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(accTokens)
@@ -327,6 +327,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	viper.Set(client.FlagTrustNode, true)
 
 	node, err := startTM(config, logger, genDoc, privVal, app)
+
 	require.NoError(t, err)
 
 	tests.WaitForNextHeightTM(tests.ExtractPortFromAddress(config.RPC.ListenAddress))
@@ -338,7 +339,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 	cleanup = func() {
 		logger.Debug("cleaning up LCD initialization")
-		node.Stop()
+		node.Stop()	// nolint
 		node.Wait()
 		lcd.Close()
 	}
@@ -362,6 +363,7 @@ func startTM(
 	if err != nil {
 		return nil, err
 	}
+
 	node, err := nm.NewNode(
 		tmcfg,
 		privVal,
@@ -395,7 +397,7 @@ func startLCD(logger log.Logger, listenAddr string, cdc *codec.Codec, t *testing
 	if err != nil {
 		return nil, err
 	}
-	go tmrpc.StartHTTPServer(listener, rs.Mux, logger)
+	go tmrpc.StartHTTPServer(listener, rs.Mux, logger)	// nolint
 	return listener, nil
 }
 
@@ -561,7 +563,7 @@ func getKeys(t *testing.T, port string) []keys.KeyOutput {
 
 // POST /keys Create a new account locally
 func doKeysPost(t *testing.T, port, name, password, mnemonic string, account int, index int) keys.KeyOutput {
-	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index}
+	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index}	// nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -587,7 +589,7 @@ func getKeysSeed(t *testing.T, port string) string {
 
 // POST /keys/{name}/recove Recover a account from a seed
 func doRecoverKey(t *testing.T, port, recoverName, recoverPassword, mnemonic string, account uint32, index uint32) {
-	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)}
+	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)}		// nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -615,7 +617,7 @@ func getKey(t *testing.T, port, name string) keys.KeyOutput {
 
 // PUT /keys/{name} Update the password for this account in the KMS
 func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail bool) {
-	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword}
+	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword}	// nolint
 	req, err := cdc.MarshalJSON(kr)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -629,7 +631,7 @@ func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail b
 
 // DELETE /keys/{name} Remove an account
 func deleteKey(t *testing.T, port, name, password string) {
-	dk := clientkeys.DeleteKeyReq{password}
+	dk := clientkeys.DeleteKeyReq{password}	// nolint
 	req, err := cdc.MarshalJSON(dk)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -652,6 +654,7 @@ func getAccount(t *testing.T, port string, addr sdk.AccAddress) auth.Account {
 // ----------------------------------------------------------------------
 
 // POST /tx/sign Sign a Tx
+// nolint
 func doSign(t *testing.T, port, name, password, chainID string, accnum, sequence uint64, msg auth.StdTx) auth.StdTx {
 	var signedMsg auth.StdTx
 	payload := authrest.SignBody{
@@ -675,6 +678,7 @@ func doBroadcast(t *testing.T, port string, tx auth.StdTx) (*http.Response, stri
 	req, err := cdc.MarshalJSON(txReq)
 	require.Nil(t, err)
 
+
 	return Request(t, port, "POST", "/txs", req)
 }
 
@@ -687,6 +691,7 @@ func doTransfer(
 	resp, body, recvAddr := doTransferWithGas(
 		t, port, seed, name, memo, pwd, addr, "", 1.0, false, false, fees,
 	)
+
 	require.Equal(t, http.StatusOK, resp.StatusCode, resp)
 
 	var txResp sdk.TxResponse
@@ -729,7 +734,7 @@ func doTransferWithGas(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1)},
+		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
 		BaseReq: baseReq,
 	}
 
@@ -769,7 +774,7 @@ func doTransferWithGasAccAuto(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1)},
+		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
 		BaseReq: baseReq,
 	}
 
@@ -832,7 +837,7 @@ func doDelegate(
 		BaseReq:          baseReq,
 		DelegatorAddress: delAddr,
 		ValidatorAddress: valAddr,
-		Delegation:       sdk.NewCoin(sdk.DefaultBondDenom, amount),
+		Delegation:       sdk.NewCoin(happ.StakeDenom, amount),
 	}
 
 	req, err := cdc.MarshalJSON(msg)
@@ -929,6 +934,7 @@ func doBeginRedelegation(
 	return txResp
 }
 
+// nolint
 type msgBeginRedelegateInput struct {
 	BaseReq             rest.BaseReq   `json:"base_req"`
 	DelegatorAddress    sdk.AccAddress `json:"delegator_address"`     // in bech32
@@ -1150,7 +1156,7 @@ func doSubmitProposal(
 		Description:    "test",
 		ProposalType:   "Text",
 		Proposer:       proposerAddr,
-		InitialDeposit: sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, amount)},
+		InitialDeposit: sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
 		BaseReq:        baseReq,
 	}
 
@@ -1238,7 +1244,7 @@ func doDeposit(
 	baseReq := rest.NewBaseReq(from, pwd, "", chainID, "", "", accnum, sequence, fees, nil, false, false)
 	dr := govrest.DepositReq{
 		Depositor: proposerAddr,
-		Amount:    sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, amount)},
+		Amount:    sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
 		BaseReq:   baseReq,
 	}
 
@@ -1410,6 +1416,7 @@ func getSigningInfo(t *testing.T, port string, validatorPubKey string) slashing.
 
 // TODO: Test this functionality, it is not currently in any of the tests
 // POST /slashing/validators/{validatorAddr}/unjail Unjail a jailed validator
+// nolint
 func doUnjail(
 	t *testing.T, port, seed, name, pwd string, valAddr sdk.ValAddress, fees sdk.Coins,
 ) sdk.TxResponse {
@@ -1435,6 +1442,7 @@ func doUnjail(
 	return txResp
 }
 
+// nolint
 type unjailReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 }
@@ -1469,6 +1477,7 @@ func doWithdrawDelegatorAllRewards(
 	return txResp
 }
 
+// nolint
 func mustParseDecCoins(dcstring string) sdk.DecCoins {
 	dcoins, err := sdk.ParseDecCoins(dcstring)
 	if err != nil {

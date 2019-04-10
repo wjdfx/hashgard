@@ -78,7 +78,7 @@ func TestEmptyState(t *testing.T) {
 	outC := make(chan string)
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, r)
+		io.Copy(&buf, r)	// nolint: errcheck
 		outC <- buf.String()
 	}()
 
@@ -118,12 +118,12 @@ func TestStartStandAlone(t *testing.T) {
 	svr, err := abciServer.NewServer(svrAddr, "socket", app)
 	require.Nil(t, err, "error creating listener")
 	svr.SetLogger(logger.With("module", "abci-server"))
-	svr.Start()
+	svr.Start()		// nolint: errcheck
 
 	timer := time.NewTimer(time.Duration(2) * time.Second)
-	select {
+	select {	// nolint
 	case <-timer.C:
-		svr.Stop()
+		svr.Stop()		// nolint: errcheck
 	}
 }
 

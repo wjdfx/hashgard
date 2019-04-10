@@ -17,6 +17,7 @@ type (
 var (
 	NewKeeper					= keeper.NewKeeper
 
+	RegisterCodec				= msgs.RegisterCodec
 	NewMsgCreateOrder			= msgs.NewMsgCreateOrder
 	NewMsgWithdrawalOrder		= msgs.NewMsgWithdrawalOrder
 	NewMsgTakeOrder				= msgs.NewMsgTakeOrder

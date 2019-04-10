@@ -31,9 +31,9 @@ func (order Order) String() string {
 type Orders []Order
 
 func (orders Orders) String() string {
-	out := "ID - (Supply) - (Target) - [Remains] - Create Time"
+	out := fmt.Sprintf("%10s - (%15s) - (%40s) - [%10s] - Create Time\n", "ID", "Supply", "Target", "Remains")
 	for _, order := range orders {
-		out += fmt.Sprintf("%d - (%s) - (%s) - [%s] - %s\n",
+		out += fmt.Sprintf("%10d - (%15s) - (%40s) - [%10s] - %s\n",
 			order.OrderId, order.Supply, order.Target, order.Remains, order.CreateTime)
 	}
 

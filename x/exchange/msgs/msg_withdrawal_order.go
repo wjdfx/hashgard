@@ -1,8 +1,6 @@
 package msgs
 
 import (
-	"encoding/json"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/exchange/types"
 )
@@ -32,7 +30,7 @@ func (msg MsgWithdrawalOrder) Type() string {
 }
 
 func (msg MsgWithdrawalOrder) ValidateBasic() sdk.Error {
-	if msg.OrderId <= 0 {
+	if msg.OrderId == 0 {
 		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "order_id is invalid")
 	}
 	if msg.Seller.Empty() {
@@ -43,10 +41,7 @@ func (msg MsgWithdrawalOrder) ValidateBasic() sdk.Error {
 }
 
 func (msg MsgWithdrawalOrder) GetSignBytes() []byte {
-	bz, err := json.Marshal(msg)
-	if err != nil {
-		panic(err)
-	}
+	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 

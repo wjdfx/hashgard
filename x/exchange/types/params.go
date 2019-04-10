@@ -10,5 +10,5 @@ type ExchangeParams struct {
 
 func (ep ExchangeParams) String() string {
 	return fmt.Sprintf(`Exchange Params:
-  Max Orders Per Address:		%s`, ep.MaxOrdersPerAddr)
+  Max Orders Per Address:		%d`, ep.MaxOrdersPerAddr)
 }
