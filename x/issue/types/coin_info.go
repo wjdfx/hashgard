@@ -42,7 +42,7 @@ type CoinIssues []CoinIssueInfo
 //Coin Issue Info
 type CoinIssueInfo struct {
 	IssueId         string         `json:"issue_id"`
-	Issuer          sdk.AccAddress `json:"issuer"`
+	Owner           sdk.AccAddress `json:"owner"`
 	IssueTime       time.Time      `json:"issue_time"`
 	Name            string         `json:"name"`
 	Symbol          string         `json:"symbol"`
@@ -62,10 +62,10 @@ func (ci CoinIssueInfo) SetIssueId(issueId string) {
 	ci.IssueId = issueId
 }
 func (ci CoinIssueInfo) GetIssuer() sdk.AccAddress {
-	return ci.Issuer
+	return ci.Owner
 }
-func (ci CoinIssueInfo) SetIssuer(issuer sdk.AccAddress) {
-	ci.Issuer = issuer
+func (ci CoinIssueInfo) SetIssuer(owner sdk.AccAddress) {
+	ci.Owner = owner
 }
 func (ci CoinIssueInfo) GetIssueTime() time.Time {
 	return ci.IssueTime
@@ -112,13 +112,13 @@ func (ci CoinIssueInfo) SetSymbol(symbol string) {
 func (ci CoinIssueInfo) String() string {
 	return fmt.Sprintf(`Issue:
   IssueId:          %s
-  Issuer:           %s
+  Owner:           %s
   Name:             %s
   Symbol:    	    %s
   TotalSupply:      %s
   Decimals:         %d
   MintingFinished:  %t `,
-		ci.IssueId, ci.Issuer.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
+		ci.IssueId, ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
 		ci.Decimals, ci.MintingFinished)
 }
 

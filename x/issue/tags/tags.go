@@ -7,7 +7,7 @@ import (
 // Issue tags
 var (
 	Action          = sdk.TagAction
-	Issuer          = "issuer"
+	Owner           = "owner"
 	IssueID         = "issue-id"
 	Name            = "name"
 	Symbol          = "symbol"

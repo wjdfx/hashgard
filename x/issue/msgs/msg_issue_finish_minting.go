@@ -7,11 +7,11 @@ import (
 	"github.com/hashgard/hashgard/x/issue/types"
 )
 
-// MsgIssueFinishMinting to allow a registered issuer
+// MsgIssueFinishMinting to allow a registered owner
 // to issue new coins.
 type MsgIssueFinishMinting struct {
 	IssueId string         `json:"issue_id"`
-	From    sdk.AccAddress `json:"issuer"`
+	From    sdk.AccAddress `json:"owner"`
 }
 
 //New MsgIssueFinishMinting Instance

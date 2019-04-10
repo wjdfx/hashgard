@@ -7,7 +7,7 @@ import (
 	"github.com/hashgard/hashgard/x/issue/types"
 )
 
-// MsgIssueBurn to allow a registered issuer
+// MsgIssueBurn to allow a registered owner
 // to issue new coins.
 type MsgIssueBurn struct {
 	IssueId string         `json:"issue_id"`
@@ -15,9 +15,9 @@ type MsgIssueBurn struct {
 	Amount  sdk.Int        `json:"amount"`
 }
 
-//New NewMsgIssue Instance
-func NewMsgIssueBurn(issueId string, issuer sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
-	return MsgIssueBurn{issueId, issuer, amount}
+//New CreateMsgIssue Instance
+func NewMsgIssueBurn(issueId string, owner sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
+	return MsgIssueBurn{issueId, owner, amount}
 }
 
 // Route Implements Msg.

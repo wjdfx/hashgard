@@ -24,7 +24,7 @@ func TestQueries(t *testing.T) {
 	querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
 
-	res := handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+	res := handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
 	var issueID string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &issueID)
 

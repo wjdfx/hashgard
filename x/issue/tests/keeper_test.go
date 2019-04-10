@@ -43,7 +43,7 @@ func TestGetIssues(t *testing.T) {
 		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 		require.Nil(t, err)
 	}
-	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
+	issues := keeper.GetIssues(ctx, CoinIssueInfo.Owner.String())
 
 	require.Len(t, issues, cap)
 }

@@ -24,7 +24,7 @@ func Errorf(err sdk.Error) error {
 
 // Error constructors
 func ErrIssuerMismatch(codespace sdk.CodespaceType, issueID string) sdk.Error {
-	return sdk.NewError(codespace, CodeIssuerMismatch, fmt.Sprintf("Issuer mismatch with coin %s", issueID))
+	return sdk.NewError(codespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with coin %s", issueID))
 }
 
 //nolint

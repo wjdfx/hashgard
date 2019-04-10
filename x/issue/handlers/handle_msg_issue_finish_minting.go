@@ -16,7 +16,7 @@ func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keeper.Keeper, msg msgs
 	if coinIssueInfo == nil {
 		return errors.ErrUnknownIssue(types.DefaultCodespace, msg.IssueId).Result()
 	}
-	if !coinIssueInfo.Issuer.Equals(msg.From) {
+	if !coinIssueInfo.Owner.Equals(msg.From) {
 		return errors.ErrIssuerMismatch(types.DefaultCodespace, msg.IssueId).Result()
 	}
 	if coinIssueInfo.MintingFinished {
