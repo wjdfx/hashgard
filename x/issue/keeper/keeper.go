@@ -65,7 +65,7 @@ func (keeper Keeper) GetIssue(ctx sdk.Context, issueID string) *types.CoinIssueI
 		return nil
 	}
 	var coinIssueInfo types.CoinIssueInfo
-	keeper.cdc.UnmarshalBinaryLengthPrefixed(bz, &coinIssueInfo)
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &coinIssueInfo)
 	coinIssueInfo.IssueId = issueID
 	return &coinIssueInfo
 }
