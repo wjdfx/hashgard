@@ -27,8 +27,8 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(3),
 		Short: "Issue a new coin",
 		Long: strings.TrimSpace(`
-Issue a new coin. For example:
-$ hashgardcli issue new foocoin FOO 100000000 --from foo
+Create a new coin. For example:
+$ hashgardcli issue create foocoin FOO 100000000 --from foo
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			totalSupply, ok := sdk.NewIntFromString(args[2])
@@ -57,7 +57,7 @@ $ hashgardcli issue new foocoin FOO 100000000 --from foo
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
-	cmd.Flags().Uint(flagDecimals, types.DefaultDecimals, "Decimals of coin")
+	cmd.Flags().Uint(flagDecimals, types.CoinDecimalsMaxValue, "Decimals of coin")
 	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
 	_ = cmd.MarkFlagRequired(client.FlagFrom)
 	return cmd

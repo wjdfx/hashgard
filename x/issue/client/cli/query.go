@@ -77,7 +77,7 @@ func GetCmdQueryIssue(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(`
 Query details for a issue. You can find the issue-id by running hashgardcli query issue coins:
 
-$ hashgardcli issue query-issue gardh1c7d59vebq
+$ hashgardcli issue query gardh1c7d59vebq
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -106,7 +106,7 @@ func GetCmdQueryIssues(queryRoute string, cdc *codec.Codec) *cobra.Command {
 		Long: strings.TrimSpace(`
 Query details for a address issues. You can find the address by running hashgardcli query issue coins:
 
-$ hashgardcli issue query-issues gard10cm9l6ly924d37qksn2x93xt3ezhduc2ntdj04
+$ hashgardcli issue list gard10cm9l6ly924d37qksn2x93xt3ezhduc2ntdj04
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

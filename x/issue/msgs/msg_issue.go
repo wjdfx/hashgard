@@ -40,6 +40,9 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 	if len(msg.Symbol) > types.CoinSymbolMaxLength {
 		return errors.ErrCoinSymbolNotValid(types.DefaultParamspace)
 	}
+	if msg.Decimals > types.CoinDecimalsMaxValue {
+		return errors.ErrCoinDecimalsMaxValueNotValid(types.DefaultParamspace)
+	}
 	return nil
 }
 
