@@ -13,31 +13,28 @@ var (
 	randomBytes = []rune("0123456789abcdefghijklmnopqrstuvwxyz")
 )
 
-//nolint
 func getRandomString(l int) string {
 	result := make([]rune, l)
-	len := len(randomBytes)
+	length := len(randomBytes)
 	for i := range result {
-		result[i] = randomBytes[rand.Intn(len)]
+		result[i] = randomBytes[rand.Intn(length)]
 	}
 	return string(result)
 }
 
-//nolint
 func GetIssueID() string {
-	randString := getRandomString(11)
+	randLength := types.IDLength - len(types.IDPreStr)
+	randString := getRandomString(randLength)
 	return types.IDPreStr + randString
 }
 
-//nolint
 func IsIssueId(issueID string) bool {
-	if len(issueID) == 15 && strings.HasPrefix(issueID, types.IDPreStr) {
+	if len(issueID) == types.IDLength && strings.HasPrefix(issueID, types.IDPreStr) {
 		return true
 	}
 	return false
 }
 
-//nolint
 func CheckIssueId(issueID string) sdk.Error {
 	if !IsIssueId(issueID) {
 		return errors.ErrIssueID(types.DefaultCodespace, issueID)

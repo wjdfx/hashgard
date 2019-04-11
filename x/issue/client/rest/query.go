@@ -25,7 +25,7 @@ func queryProposalHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Ha
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		res, err := queriers.QueryIssueByID(issueID, cliCtx, cdc, types.StoreKey)
+		res, err := queriers.QueryIssueByID(issueID, cliCtx, types.StoreKey)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

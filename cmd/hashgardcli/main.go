@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/cosmos/cosmos-sdk/x/auth"
 	"os"
 	"path"
 
@@ -132,7 +131,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	}
 	bankCmd.AddCommand(
 		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
-		issue.GetAccountCmd(auth.StoreKey, cdc),
+		issue.GetAccountCmd(cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
@@ -148,7 +147,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 // Add issue subcommands
 func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	moduleClient := issue.NewModuleClient(issue.StoreKey, cdc)
-	rootCmd.AddCommand(moduleClient.GetTxCmd())
+	rootCmd.AddCommand(moduleClient.GetIssueCmd())
 }
 
 // Add gov subcommands

@@ -48,14 +48,14 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			return
 		}
 		coinIssueInfo := types.CoinIssueInfo{
-			Issuer:          fromAddress,
+			Owner:           fromAddress,
 			Name:            req.Name,
 			TotalSupply:     req.TotalSupply,
 			Decimals:        types.DefaultDecimals,
 			MintingFinished: req.MintingFinished,
 		}
 		// create the message
-		msg := msgs.NewMsgIssue(&coinIssueInfo)
+		msg := msgs.CreateMsgIssue(&coinIssueInfo)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

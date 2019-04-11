@@ -107,7 +107,7 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 	keeper.setAddressIssues(ctx, coinIssueInfo.GetIssuer().String(), idAdders)
 
 	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
-	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Issuer, sdk.Coins{coin})
+	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})
 	coinIssueInfo.IssueId = issueID
 	return coins, tags, err
 }
