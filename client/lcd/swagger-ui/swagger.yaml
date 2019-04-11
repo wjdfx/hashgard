@@ -230,9 +230,14 @@ paths:
         200:
           description: All txs matching the provided tags
           schema:
-            type: array
-            items:
-              $ref: "#/definitions/TxQuery"
+            type: object
+            properties:
+              totalCount:
+                type: number
+              txs:
+                type: array
+                items:
+                  $ref: "#/definitions/TxQuery"
         400:
           description: Invalid search tags
         500:
