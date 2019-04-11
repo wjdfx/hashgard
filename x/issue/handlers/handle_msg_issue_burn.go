@@ -6,7 +6,6 @@ import (
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
-	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
@@ -14,7 +13,7 @@ import (
 func HandleMsgIssueBurn(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurn) sdk.Result {
 	coinIssueInfo := keeper.GetIssue(ctx, msg.IssueId)
 	if coinIssueInfo == nil {
-		return errors.ErrUnknownIssue(types.DefaultCodespace, msg.IssueId).Result()
+		return errors.ErrUnknownIssue(msg.IssueId).Result()
 	}
 	_, tags, err := keeper.Burn(ctx, coinIssueInfo, msg.Amount, msg.From)
 	if err != nil {

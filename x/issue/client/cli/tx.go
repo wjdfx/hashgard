@@ -2,7 +2,6 @@ package cli
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -11,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"strconv"
-	"strings"
+	"time"
 
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 
@@ -23,13 +22,11 @@ import (
 // GetCmdIssue implements issue a coin transaction command.
 func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create [name] [symbol] [total-supply]",
-		Args:  cobra.ExactArgs(3),
-		Short: "Issue a new coin",
-		Long: strings.TrimSpace(`
-Create a new coin. For example:
-$ hashgardcli issue create foocoin FOO 100000000 --from foo
-`),
+		Use:     "create [name] [symbol] [total-supply]",
+		Args:    cobra.ExactArgs(3),
+		Short:   "Issue a new coin",
+		Long:    "Issue a new coin",
+		Example: "$ hashgardcli issue create foocoin FOO 100000000 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			totalSupply, ok := sdk.NewIntFromString(args[2])
 			if !ok {
@@ -40,11 +37,16 @@ $ hashgardcli issue create foocoin FOO 100000000 --from foo
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
+			account, err := cliCtx.GetAccount(from)
+			if err != nil {
+				return err
+			}
 
 			msg := msgs.CreateMsgIssue(&types.CoinIssueInfo{
-				Owner:           from,
+				Owner:           account.GetAddress(),
 				Name:            args[0],
 				Symbol:          args[1],
+				IssueTime:       time.Now(),
 				MintingFinished: viper.GetBool(flagMintingFinished),
 				TotalSupply:     totalSupply,
 				Decimals:        uint(viper.GetInt(flagDecimals)),
@@ -57,22 +59,21 @@ $ hashgardcli issue create foocoin FOO 100000000 --from foo
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
+
 	cmd.Flags().Uint(flagDecimals, types.CoinDecimalsMaxValue, "Decimals of coin")
 	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
-	_ = cmd.MarkFlagRequired(client.FlagFrom)
+
 	return cmd
 }
 
 // GetCmdIssueMint implements mint a coinIssue transaction command.
 func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "mint [issue-id] [amount] [to]",
-		Args:  cobra.ExactArgs(3),
-		Short: "mint a coin",
-		Long: strings.TrimSpace(`
-mint a coin. For example:
-$ hashgardcli issue mint gardh1c7d59vebq 88888
-`),
+		Use:     "mint [issue-id] [amount] [to]",
+		Args:    cobra.ExactArgs(3),
+		Short:   "mint a coin",
+		Long:    "mint a coin to a address",
+		Example: "$ hashgardcli issue mint gardh1c7d59vebq 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -91,23 +92,31 @@ $ hashgardcli issue mint gardh1c7d59vebq 88888
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
+			_, err = cliCtx.GetAccount(from)
+			if err != nil {
+				return err
+			}
+			msg := msgs.MsgIssueMint{IssueId: issueID, From: from, Amount: amount, To: to}
+			validateErr := msg.ValidateBasic()
+			if validateErr != nil {
+				return errors.Errorf(validateErr)
+			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueMint{IssueId: issueID, From: from, Amount: amount, To: to}}, false)
+				[]sdk.Msg{msg}, false)
 		},
 	}
+
 	return cmd
 }
 
 // GetCmdIssueBurn implements burn a coinIssue transaction command.
 func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "burn [issue-id] [amount]",
-		Args:  cobra.ExactArgs(2),
-		Short: "burn a coin",
-		Long: strings.TrimSpace(`
-mint a coin. For example:
-$ hashgardcli issue burn gardh1c7d59vebq 88888
-`),
+		Use:     "burn [issue-id] [amount]",
+		Args:    cobra.ExactArgs(2),
+		Short:   "burn a coin",
+		Long:    "burn a coin",
+		Example: "$ hashgardcli issue burn gardh1c7d59vebq 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -123,6 +132,10 @@ $ hashgardcli issue burn gardh1c7d59vebq 88888
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
+			_, err = cliCtx.GetAccount(from)
+			if err != nil {
+				return err
+			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
 				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, From: from, Amount: amount}}, false)
 		},
@@ -133,13 +146,11 @@ $ hashgardcli issue burn gardh1c7d59vebq 88888
 // GetCmdIssueFinishMinting implements finishMinting a coinIssue transaction command.
 func GetCmdIssueFinishMinting(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "finish-minting [issue-id]",
-		Args:  cobra.ExactArgs(1),
-		Short: "finish-minting a coin",
-		Long: strings.TrimSpace(`
-mint a coin. For example:
-$ hashgardcli issue finish-minting gardh1c7d59vebq
-`),
+		Use:     "finish-minting [issue-id]",
+		Args:    cobra.ExactArgs(1),
+		Short:   "finish-minting a coin",
+		Long:    "finish-minting a coin",
+		Example: "$ hashgardcli issue finish-minting gardh1c7d59vebq--from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -150,6 +161,10 @@ $ hashgardcli issue finish-minting gardh1c7d59vebq
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
+			_, err := cliCtx.GetAccount(from)
+			if err != nil {
+				return err
+			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
 				[]sdk.Msg{msgs.MsgIssueFinishMinting{IssueId: issueID, From: from}}, false)
 		},

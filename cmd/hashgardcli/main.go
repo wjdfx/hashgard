@@ -146,7 +146,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 
 // Add issue subcommands
 func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
-	moduleClient := issue.NewModuleClient(issue.StoreKey, cdc)
+	moduleClient := issue.NewModuleClient(cdc)
 	rootCmd.AddCommand(moduleClient.GetIssueCmd())
 }
 

@@ -27,7 +27,7 @@ var (
 		Name:            "test",
 		Symbol:          "tst",
 		TotalSupply:     sdk.NewInt(10000),
-		Decimals:        types.DefaultDecimals,
+		Decimals:        types.CoinDecimalsMaxValue,
 		MintingFinished: false}
 )
 

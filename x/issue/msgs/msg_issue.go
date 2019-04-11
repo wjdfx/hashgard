@@ -35,13 +35,13 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 		return sdk.ErrInvalidCoins("Cannot issue 0 or negative coin amounts")
 	}
 	if len(msg.Name) > types.CoinNameMaxLength {
-		return errors.ErrCoinNamelNotValid(types.DefaultParamspace)
+		return errors.ErrCoinNamelNotValid()
 	}
 	if len(msg.Symbol) > types.CoinSymbolMaxLength {
-		return errors.ErrCoinSymbolNotValid(types.DefaultParamspace)
+		return errors.ErrCoinSymbolNotValid()
 	}
 	if msg.Decimals > types.CoinDecimalsMaxValue {
-		return errors.ErrCoinDecimalsMaxValueNotValid(types.DefaultParamspace)
+		return errors.ErrCoinDecimalsMaxValueNotValid()
 	}
 	return nil
 }

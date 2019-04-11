@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
@@ -52,6 +53,7 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			Name:            req.Name,
 			TotalSupply:     req.TotalSupply,
 			Decimals:        req.Decimals,
+			IssueTime:       time.Now(),
 			MintingFinished: req.MintingFinished,
 		}
 		// create the message

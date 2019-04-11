@@ -12,8 +12,8 @@ type Issue interface {
 	GetIssueId() string
 	SetIssueId(string)
 
-	GetIssuer() sdk.AccAddress
-	SetIssuer(sdk.AccAddress)
+	GetOwner() sdk.AccAddress
+	SetOwner(sdk.AccAddress)
 
 	GetIssueTime() time.Time
 	SetIssueTime(time.Time)
@@ -61,10 +61,10 @@ func (ci CoinIssueInfo) GetIssueId() string {
 func (ci CoinIssueInfo) SetIssueId(issueId string) {
 	ci.IssueId = issueId
 }
-func (ci CoinIssueInfo) GetIssuer() sdk.AccAddress {
+func (ci CoinIssueInfo) GetOwner() sdk.AccAddress {
 	return ci.Owner
 }
-func (ci CoinIssueInfo) SetIssuer(owner sdk.AccAddress) {
+func (ci CoinIssueInfo) SetOwner(owner sdk.AccAddress) {
 	ci.Owner = owner
 }
 func (ci CoinIssueInfo) GetIssueTime() time.Time {

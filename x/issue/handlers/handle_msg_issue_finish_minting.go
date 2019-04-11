@@ -6,7 +6,6 @@ import (
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
-	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
@@ -14,10 +13,10 @@ import (
 func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueFinishMinting) sdk.Result {
 	coinIssueInfo := keeper.GetIssue(ctx, msg.IssueId)
 	if coinIssueInfo == nil {
-		return errors.ErrUnknownIssue(types.DefaultCodespace, msg.IssueId).Result()
+		return errors.ErrUnknownIssue(msg.IssueId).Result()
 	}
 	if !coinIssueInfo.Owner.Equals(msg.From) {
-		return errors.ErrIssuerMismatch(types.DefaultCodespace, msg.IssueId).Result()
+		return errors.ErrIssuerMismatch(msg.IssueId).Result()
 	}
 	if coinIssueInfo.MintingFinished {
 		return sdk.Result{

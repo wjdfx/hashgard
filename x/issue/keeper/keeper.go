@@ -4,8 +4,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	"time"
-
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
@@ -98,13 +96,12 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 		}
 	}
 
-	coinIssueInfo.IssueTime = time.Now()
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
 	store.Set(KeyIssuer(issueID), bz)
 
-	idAdders := keeper.GetAddressIssues(ctx, coinIssueInfo.GetIssuer().String())
+	idAdders := keeper.GetAddressIssues(ctx, coinIssueInfo.GetOwner().String())
 	idAdders = append(idAdders, issueID)
-	keeper.setAddressIssues(ctx, coinIssueInfo.GetIssuer().String(), idAdders)
+	keeper.setAddressIssues(ctx, coinIssueInfo.GetOwner().String(), idAdders)
 
 	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
 	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})

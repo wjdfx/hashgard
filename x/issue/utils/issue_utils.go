@@ -37,7 +37,7 @@ func IsIssueId(issueID string) bool {
 
 func CheckIssueId(issueID string) sdk.Error {
 	if !IsIssueId(issueID) {
-		return errors.ErrIssueID(types.DefaultCodespace, issueID)
+		return errors.ErrIssueID(issueID)
 	}
 	return nil
 }

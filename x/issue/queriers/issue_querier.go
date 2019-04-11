@@ -7,13 +7,12 @@ import (
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keeper"
-	"github.com/hashgard/hashgard/x/issue/types"
 )
 
 func QueryIssue(ctx sdk.Context, issueID string, req abci.RequestQuery, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	issue := keeper.GetIssue(ctx, issueID)
 	if issue == nil {
-		return nil, errors.ErrUnknownIssue(types.DefaultCodespace, issueID)
+		return nil, errors.ErrUnknownIssue(issueID)
 	}
 
 	bz, err := codec.MarshalJSONIndent(keeper.Getcdc(), issue)
