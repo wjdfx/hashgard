@@ -366,6 +366,7 @@ func writeFile(name string, dir string, contents []byte) error {
 	return nil
 }
 
+// nolint
 func calculateIP(ip string, i int) (string, error) {
 	ipv4 := net.ParseIP(ip).To4()
 	if ipv4 == nil {

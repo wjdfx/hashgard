@@ -23,7 +23,7 @@ import (
 const defaultValidFor = 30 * 24 * time.Hour
 
 func generateSelfSignedCert(host string) (certBytes []byte, priv *ecdsa.PrivateKey, err error) {
-	priv, err = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	priv, _ = ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	notBefore := time.Now()
 	notAfter := notBefore.Add(defaultValidFor)
 	serialNumberLimit := new(big.Int).Lsh(big.NewInt(1), 128)

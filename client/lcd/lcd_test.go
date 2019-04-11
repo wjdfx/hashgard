@@ -34,11 +34,8 @@ import (
 
 const (
 	name1 = "test1"
-	name2 = "test2"
-	name3 = "test3"
 	memo  = "LCD test tx"
 	pw    = app.DefaultKeyPass
-	altPw = "12345678901"
 )
 
 var fees = sdk.Coins{sdk.NewInt64Coin(app.StakeDenom, 5)}
@@ -46,119 +43,6 @@ var fees = sdk.Coins{sdk.NewInt64Coin(app.StakeDenom, 5)}
 func init() {
 	mintkey.BcryptSecurityParameter = 1
 	version.Version = os.Getenv("VERSION")
-}
-
-func TestSeedsAreDifferent(t *testing.T) {
-	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
-	require.NoError(t, err)
-	addr, _ := CreateAddr(t, name1, pw, kb)
-	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr}, true)
-	defer cleanup()
-
-	mnemonic1 := getKeysSeed(t, port)
-	mnemonic2 := getKeysSeed(t, port)
-
-	require.NotEqual(t, mnemonic1, mnemonic2)
-}
-
-func TestKeyRecover(t *testing.T) {
-	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
-	require.NoError(t, err)
-	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{}, true)
-	defer cleanup()
-
-	myName1 := "TestKeyRecover_1"
-	myName2 := "TestKeyRecover_2"
-
-	mnemonic := getKeysSeed(t, port)
-	expectedInfo, _ := kb.CreateAccount(myName1, mnemonic, "", pw, 0, 0)
-	expectedAddress := expectedInfo.GetAddress().String()
-	expectedPubKey := sdk.MustBech32ifyAccPub(expectedInfo.GetPubKey())
-
-	// recover key
-	doRecoverKey(t, port, myName2, pw, mnemonic, 0, 0)
-
-	keys := getKeys(t, port)
-
-	require.Equal(t, expectedAddress, keys[0].Address)
-	require.Equal(t, expectedPubKey, keys[0].PubKey)
-}
-
-func TestKeyRecoverHDPath(t *testing.T) {
-	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
-	require.NoError(t, err)
-	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{}, true)
-	defer cleanup()
-
-	mnemonic := getKeysSeed(t, port)
-
-	for account := uint32(0); account < 50; account += 13 {
-		for index := uint32(0); index < 50; index += 15 {
-			name1Idx := fmt.Sprintf("name1_%d_%d", account, index)
-			name2Idx := fmt.Sprintf("name2_%d_%d", account, index)
-
-			expectedInfo, _ := kb.CreateAccount(name1Idx, mnemonic, "", pw, account, index)
-			expectedAddress := expectedInfo.GetAddress().String()
-			expectedPubKey := sdk.MustBech32ifyAccPub(expectedInfo.GetPubKey())
-
-			// recover key
-			doRecoverKey(t, port, name2Idx, pw, mnemonic, account, index)
-
-			keysName2Idx := getKey(t, port, name2Idx)
-
-			require.Equal(t, expectedAddress, keysName2Idx.Address)
-			require.Equal(t, expectedPubKey, keysName2Idx.PubKey)
-		}
-	}
-}
-
-func TestKeys(t *testing.T) {
-	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
-	require.NoError(t, err)
-	addr1, _ := CreateAddr(t, name1, pw, kb)
-	addr1Bech32 := addr1.String()
-
-	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr1}, true)
-	defer cleanup()
-
-	// get new seed & recover key
-	mnemonic2 := getKeysSeed(t, port)
-	doRecoverKey(t, port, name2, pw, mnemonic2, 0, 0)
-
-	// add key
-	mnemonic3 := mnemonic2
-	resp := doKeysPost(t, port, name3, pw, mnemonic3, 0, 0)
-
-	addr3Bech32 := resp.Address
-	_, err = sdk.AccAddressFromBech32(addr3Bech32)
-	require.NoError(t, err, "Failed to return a correct bech32 address")
-
-	// test if created account is the correct account
-	expectedInfo3, _ := kb.CreateAccount(name3, mnemonic3, "", pw, 0, 0)
-	expectedAddress3 := sdk.AccAddress(expectedInfo3.GetPubKey().Address()).String()
-	require.Equal(t, expectedAddress3, addr3Bech32)
-
-	// existing keys
-	require.Equal(t, name1, getKey(t, port, name1).Name, "Did not serve keys name correctly")
-	require.Equal(t, addr1Bech32, getKey(t, port, name1).Address, "Did not serve keys Address correctly")
-	require.Equal(t, name2, getKey(t, port, name2).Name, "Did not serve keys name correctly")
-	require.Equal(t, addr3Bech32, getKey(t, port, name2).Address, "Did not serve keys Address correctly")
-	require.Equal(t, name3, getKey(t, port, name3).Name, "Did not serve keys name correctly")
-	require.Equal(t, addr3Bech32, getKey(t, port, name3).Address, "Did not serve keys Address correctly")
-
-	// select key
-	key := getKey(t, port, name3)
-	require.Equal(t, name3, key.Name, "Did not serve keys name correctly")
-	require.Equal(t, addr3Bech32, key.Address, "Did not serve keys Address correctly")
-
-	// update key
-	updateKey(t, port, name3, pw, altPw, false)
-
-	// here it should say unauthorized as we changed the password before
-	updateKey(t, port, name3, pw, altPw, true)
-
-	// delete key
-	deleteKey(t, port, name3, altPw)
 }
 
 func TestVersion(t *testing.T) {
@@ -234,7 +118,6 @@ func TestCoinSend(t *testing.T) {
 
 	// create TX
 	receiveAddr, resultTx := doTransfer(t, port, seed, name1, memo, pw, addr, fees)
-
 	tests.WaitForHeight(resultTx.Height+1, port)
 
 	// check if tx was committed
@@ -256,7 +139,7 @@ func TestCoinSend(t *testing.T) {
 	require.Equal(t, int64(1), coins2[0].Amount.Int64())
 
 	// test failure with too little gas
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, "100", 0, false, false, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, "100", 0, false, true, fees)
 	require.Equal(t, http.StatusInternalServerError, res.StatusCode, body)
 	require.Nil(t, err)
 
@@ -269,11 +152,11 @@ func TestCoinSend(t *testing.T) {
 	require.Equal(t, http.StatusBadRequest, res.StatusCode, body)
 
 	// test failure with 0 gas
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, "0", 0, false, false, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, "0", 0, false, true, fees)
 	require.Equal(t, http.StatusInternalServerError, res.StatusCode, body)
 
 	// test failure with wrong adjustment
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, client.GasFlagAuto, 0.1, false, false, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, client.GasFlagAuto, 0.1, false, true, fees)
 
 	require.Equal(t, http.StatusInternalServerError, res.StatusCode, body)
 
@@ -292,7 +175,7 @@ func TestCoinSend(t *testing.T) {
 
 	// run successful tx
 	gas := fmt.Sprintf("%d", gasEstResp.GasEstimate)
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, gas, 1.0, false, false, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, gas, 1.0, false, true, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	err = cdc.UnmarshalJSON([]byte(body), &resultTx)
@@ -318,7 +201,7 @@ func TestCoinSendAccAuto(t *testing.T) {
 
 	// send a transfer tx without specifying account number and sequence
 	res, body, _ := doTransferWithGasAccAuto(
-		t, port, seed, name1, memo, pw, addr, "200000", 1.0, false, false, fees,
+		t, port, seed, name1, memo, pw, addr, "200000", 1.0, false, true, fees,
 	)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
@@ -339,7 +222,7 @@ func TestCoinMultiSendGenerateOnly(t *testing.T) {
 	defer cleanup()
 
 	// generate only
-	res, body, _ := doTransferWithGas(t, port, seed, "", memo, pw, addr, "200000", 1, false, true, fees)
+	res, body, _ := doTransferWithGas(t, port, seed, "", memo, "", addr, "200000", 1, false, false, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	var stdTx auth.StdTx
@@ -375,7 +258,7 @@ func TestCoinSendGenerateSignAndBroadcast(t *testing.T) {
 
 	// generate tx
 	gas := fmt.Sprintf("%d", gasEstResp.GasEstimate)
-	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, pw, addr, gas, 1, false, true, fees)
+	res, body, _ = doTransferWithGas(t, port, seed, name1, memo, "", addr, gas, 1, false, false, fees)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
 	var tx auth.StdTx
@@ -404,9 +287,9 @@ func TestEncodeTx(t *testing.T) {
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr}, true)
 	defer cleanup()
 
-	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, pw, addr, "2", 1, false, true, fees)	// nolint
+	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, "", addr, "2", 1, false, false, fees)	// nolint
 	var tx auth.StdTx
-	cdc.UnmarshalJSON([]byte(body), &tx)	// nolint
+	cdc.UnmarshalJSON([]byte(body), &tx)	// nolint: errcheck
 
 	req := clienttx.EncodeReq{Tx: tx}
 	encodedJSON, _ := cdc.MarshalJSON(req)
@@ -640,7 +523,7 @@ func TestBonding(t *testing.T) {
 	require.Equal(t, uint32(0), resultTx.Code)
 
 	// verify balance after paying fees
-	acc = getAccount(t, port, addr)		// nolint
+	acc = getAccount(t, port, addr)	// nolint
 	expectedBalance = expectedBalance.Sub(fees[0])
 	require.True(t,
 		expectedBalance.Amount.LT(coins.AmountOf(app.StakeDenom)) ||
