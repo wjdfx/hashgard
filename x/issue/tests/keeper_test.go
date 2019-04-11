@@ -54,6 +54,7 @@ func TestMint(t *testing.T) {
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	_, _, err = keeper.Mint(ctx, &CoinIssueInfo, sdk.NewInt(10000), IssuerCoinsAccAddr)
@@ -68,7 +69,7 @@ func TestBurn(t *testing.T) {
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
-
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	_, _, err = keeper.Burn(ctx, &CoinIssueInfo, sdk.NewInt(5000), IssuerCoinsAccAddr)
