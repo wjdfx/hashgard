@@ -161,7 +161,7 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 		}
 
 		validator.UnbondingHeight = 0
-		valConsAddrs = append(valConsAddrs, validator.ConsAddress())
+		valConsAddrs = append(valConsAddrs, validator.ConsAddress())	// nolint
 		if applyWhiteList && !whiteListMap[addr.String()] {
 			validator.Jailed = true
 		}

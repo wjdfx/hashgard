@@ -137,6 +137,7 @@ func ServeCommand(cdc *codec.Codec, registerRoutesFn func(*RestServer)) *cobra.C
 	return client.RegisterRestServerFlags(cmd)
 }
 
+// nolint
 func (rs *RestServer) registerSwaggerUI() {
 	statikFS, err := fs.New()
 	if err != nil {
