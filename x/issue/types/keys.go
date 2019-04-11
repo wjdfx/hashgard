@@ -17,7 +17,6 @@ const (
 	DefaultParamspace = ModuleName
 )
 const (
-	DefaultDecimals                    = uint(18)
 	DefaultCodespace sdk.CodespaceType = ModuleName
 )
 const (
@@ -27,8 +26,8 @@ const (
 )
 const (
 	QueryParams = "params"
-	QueryIssues = "issues"
-	QueryIssue  = "issue"
+	QueryIssues = "list"
+	QueryIssue  = "query"
 )
 const (
 	TypeMsgIssue              = "issue"
@@ -37,6 +36,7 @@ const (
 	TypeMsgIssueFinishMinting = "issueFinishMinting"
 )
 const (
-	CoinNameMaxLength   = 15
-	CoinSymbolMaxLength = 6
+	CoinDecimalsMaxValue = uint(18)
+	CoinNameMaxLength    = 15
+	CoinSymbolMaxLength  = 6
 )

@@ -11,13 +11,12 @@ import (
 
 // ModuleClient exports all client functionality from this module
 type ModuleClient struct {
-	storeKey string
-	cdc      *amino.Codec
+	cdc *amino.Codec
 }
 
 //New ModuleClient Instance
-func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
-	return ModuleClient{storeKey, cdc}
+func NewModuleClient(cdc *amino.Codec) ModuleClient {
+	return ModuleClient{cdc}
 }
 
 // GetIssueCmd returns the issue commands for this module
@@ -28,17 +27,21 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 	}
 	issueCmd.AddCommand(
 		client.GetCommands(
-			issueCli.GetCmdQueryIssue(mc.storeKey, mc.cdc),
-			issueCli.GetCmdQueryIssues(mc.storeKey, mc.cdc),
+			issueCli.GetCmdQueryIssue(mc.cdc),
+			issueCli.GetCmdQueryIssues(mc.cdc),
 		)...)
 	issueCmd.AddCommand(client.LineBreak)
-	issueCmd.AddCommand(
-		client.PostCommands(
-			issueCli.GetCmdIssueCreate(mc.cdc),
-			issueCli.GetCmdIssueMint(mc.cdc),
-			issueCli.GetCmdIssueBurn(mc.cdc),
-			issueCli.GetCmdIssueFinishMinting(mc.cdc),
-		)...)
+
+	txCmd := client.PostCommands(
+		issueCli.GetCmdIssueCreate(mc.cdc),
+		issueCli.GetCmdIssueMint(mc.cdc),
+		issueCli.GetCmdIssueBurn(mc.cdc),
+		issueCli.GetCmdIssueFinishMinting(mc.cdc),
+	)
+	for _, cmd := range txCmd {
+		_ = cmd.MarkFlagRequired(client.FlagFrom)
+		issueCmd.AddCommand(cmd)
+	}
 
 	return issueCmd
 }

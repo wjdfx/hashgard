@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
@@ -27,7 +28,7 @@ type PostIssueBaseReq struct {
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
-	r.HandleFunc("/issue/issues", postIssueHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc("/issue/create", postIssueHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/mint/{%s}/{%s}/{%s}", IssueID, Amount, To), postMintHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn/{%s}/{%s}", IssueID, Amount), postBurnHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/finish-minting/{%s}", IssueID), postFinishMintingHandlerFn(cdc, cliCtx)).Methods("POST")
@@ -51,7 +52,8 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			Owner:           fromAddress,
 			Name:            req.Name,
 			TotalSupply:     req.TotalSupply,
-			Decimals:        types.DefaultDecimals,
+			Decimals:        req.Decimals,
+			IssueTime:       time.Now(),
 			MintingFinished: req.MintingFinished,
 		}
 		// create the message

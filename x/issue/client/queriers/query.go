@@ -8,17 +8,17 @@ import (
 	"github.com/hashgard/hashgard/x/issue/types"
 )
 
-func GetQueryIssuePath(issueID string, queryRoute string) string {
-	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, queryRoute, types.QueryIssue, issueID)
+func GetQueryIssuePath(issueID string) string {
+	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryIssue, issueID)
 }
-func GetQueryAddressPath(owner sdk.AccAddress, queryRoute string) string {
-	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, queryRoute, types.QueryIssues, owner.String())
-}
-
-func QueryIssueByID(issueID string, cliCtx context.CLIContext, queryRoute string) ([]byte, error) {
-	return cliCtx.QueryWithData(GetQueryIssuePath(issueID, queryRoute), nil)
+func GetQueryAddressPath(owner sdk.AccAddress) string {
+	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryIssues, owner.String())
 }
 
-func QueryIssuesByAddress(owner sdk.AccAddress, cliCtx context.CLIContext, queryRoute string) ([]byte, error) {
-	return cliCtx.QueryWithData(GetQueryAddressPath(owner, queryRoute), nil)
+func QueryIssueByID(issueID string, cliCtx context.CLIContext) ([]byte, error) {
+	return cliCtx.QueryWithData(GetQueryIssuePath(issueID), nil)
+}
+
+func QueryIssuesByAddress(owner sdk.AccAddress, cliCtx context.CLIContext) ([]byte, error) {
+	return cliCtx.QueryWithData(GetQueryAddressPath(owner), nil)
 }
