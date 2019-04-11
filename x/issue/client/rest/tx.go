@@ -61,11 +61,7 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			return
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-			return
-		}
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
 
@@ -108,11 +104,7 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 			return
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-			return
-		}
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
 func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
@@ -151,11 +143,7 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 			return
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-			return
-		}
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
 
@@ -187,10 +175,6 @@ func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 			return
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-			return
-		}
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }

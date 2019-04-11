@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"net/http"
@@ -127,7 +126,6 @@ func queryFrozenFundByAddrHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext)
 
 type PostOrderReq struct {
 	BaseReq		rest.BaseReq	`json:"base_req"`
-	Seller		sdk.AccAddress	`json:"seller"`
 	Supply		sdk.Coin		`json:"supply"`
 	Target		sdk.Coin		`json:"target"`
 }
@@ -135,12 +133,10 @@ type PostOrderReq struct {
 type TakeOrderReq struct {
 	BaseReq		rest.BaseReq	`json:"base_req"`
 	Amount		sdk.Coin		`json:"seller"`
-	Buyer		sdk.AccAddress	`json:"buyer"`
 }
 
 type WithdrawalOrderReq struct {
 	BaseReq		rest.BaseReq	`json:"base_req"`
-	Seller		sdk.AccAddress	`json:"seller"`
 }
 
 func postOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
@@ -155,30 +151,18 @@ func postOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			return
 		}
 
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			return
+		}
+
 		// create the message
-		msg := exchange.NewMsgCreateOrder(req.Seller, req.Supply, req.Target)
+		msg := exchange.NewMsgCreateOrder(fromAddress, req.Supply, req.Target)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-		}
-
-		// derive the from account address and name from the Keybase
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		// check
-		if !bytes.Equal(fromAddress, req.Seller) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "seller address must be equal to from")
-			return
-		}
-
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
 
@@ -208,30 +192,18 @@ func postTakeOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Ha
 			return
 		}
 
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			return
+		}
+
 		// create the message
-		msg := exchange.NewMsgTakeOrder(orderId, req.Buyer, req.Amount)
+		msg := exchange.NewMsgTakeOrder(orderId, fromAddress, req.Amount)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-		}
-
-		// derive the from account address and name from the Keybase
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		// check
-		if !bytes.Equal(fromAddress, req.Buyer) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "buyer address must be equal to from")
-			return
-		}
-
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
 
@@ -261,29 +233,17 @@ func postWithdrawalOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) h
 			return
 		}
 
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			return
+		}
+
 		// create the message
-		msg := exchange.NewMsgWithdrawalOrder(orderId, req.Seller)
+		msg := exchange.NewMsgWithdrawalOrder(orderId, fromAddress)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		}
 
-		if req.BaseReq.GenerateOnly {
-			clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-		}
-
-		// derive the from account address and name from the Keybase
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		// check
-		if !bytes.Equal(fromAddress, req.Seller) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "seller address must be equal to from")
-			return
-		}
-
-		clientrest.CompleteAndBroadcastTxREST(w, cliCtx, req.BaseReq, []sdk.Msg{msg}, cdc)
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }

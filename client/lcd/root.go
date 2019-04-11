@@ -78,8 +78,7 @@ func (rs *RestServer) Start(listenAddr string, sslHosts string,
 	// handle certificates
 	if certFile != "" {
 		// validateCertKeyFiles() is needed to work around tendermint/tendermint#2460
-		err = validateCertKeyFiles(certFile, keyFile)
-		if err != nil {
+		if err := validateCertKeyFiles(certFile, keyFile); err != nil {
 			return err
 		}
 

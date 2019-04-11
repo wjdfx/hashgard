@@ -51,7 +51,7 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/go-amino v0.14.1
 	github.com/tendermint/iavl v0.12.0 // indirect
-	github.com/tendermint/tendermint v0.31.0-dev0
+	github.com/tendermint/tendermint v0.31.0-dev0-fix0
 	github.com/zondax/hid v0.9.0 // indirect
 	github.com/zondax/ledger-go v0.8.0 // indirect
 	golang.org/x/crypto v0.0.0 // indirect
@@ -61,6 +61,6 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.33.0-hashgard
+	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.33.2-hashgard
 	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
 )

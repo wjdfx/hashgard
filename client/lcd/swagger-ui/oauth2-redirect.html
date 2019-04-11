@@ -28,8 +28,8 @@
         isValid = qp.state === sentState
 
         if ((
-          oauth2.auth.schema.get("flow") === "accessCode"||
-          oauth2.auth.schema.get("flow") === "authorizationCode"
+                oauth2.auth.schema.get("flow") === "accessCode"||
+                oauth2.auth.schema.get("flow") === "authorizationCode"
         ) && !oauth2.auth.code) {
             if (!isValid) {
                 oauth2.errCb({
@@ -48,8 +48,8 @@
                 let oauthErrorMsg
                 if (qp.error) {
                     oauthErrorMsg = "["+qp.error+"]: " +
-                        (qp.error_description ? qp.error_description+ ". " : "no accessCode received from the server. ") +
-                        (qp.error_uri ? "More info: "+qp.error_uri : "");
+                            (qp.error_description ? qp.error_description+ ". " : "no accessCode received from the server. ") +
+                            (qp.error_uri ? "More info: "+qp.error_uri : "");
                 }
 
                 oauth2.errCb({
