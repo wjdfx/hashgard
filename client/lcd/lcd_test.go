@@ -30,6 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	"github.com/hashgard/hashgard/app"
+	hashgardInit "github.com/hashgard/hashgard/init"
 )
 
 const (
@@ -43,6 +44,12 @@ var fees = sdk.Coins{sdk.NewInt64Coin(app.StakeDenom, 5)}
 func init() {
 	mintkey.BcryptSecurityParameter = 1
 	version.Version = os.Getenv("VERSION")
+
+	config := sdk.GetConfig()
+	config.SetBech32PrefixForAccount(hashgardInit.Bech32PrefixAccAddr, hashgardInit.Bech32PrefixAccPub)
+	config.SetBech32PrefixForValidator(hashgardInit.Bech32PrefixValAddr, hashgardInit.Bech32PrefixValPub)
+	config.SetBech32PrefixForConsensusNode(hashgardInit.Bech32PrefixConsAddr, hashgardInit.Bech32PrefixConsPub)
+	config.Seal()
 }
 
 func TestVersion(t *testing.T) {
@@ -92,8 +99,8 @@ func TestValidators(t *testing.T) {
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{}, true)
 	defer cleanup()
 	resultVals := getValidatorSets(t, port, -1, false)
-	require.Contains(t, resultVals.Validators[0].Address.String(), "cosmosvalcons")
-	require.Contains(t, resultVals.Validators[0].PubKey, "cosmosvalconspub")
+	require.Contains(t, resultVals.Validators[0].Address.String(), "gardvalcons")
+	require.Contains(t, resultVals.Validators[0].PubKey, "gardvalconspub")
 	getValidatorSets(t, port, 2, false)
 	getValidatorSets(t, port, 10000000, true)
 }
@@ -376,7 +383,7 @@ func TestPoolParamsQuery(t *testing.T) {
 	defaultParams := staking.DefaultParams()
 
 	params := getStakingParams(t, port)
-	require.True(t, defaultParams.Equal(params))
+	require.False(t, defaultParams.Equal(params))
 
 	pool := getStakingPool(t, port)
 
@@ -428,6 +435,8 @@ func TestBonding(t *testing.T) {
 	kb, err := keys.NewKeyBaseFromDir(InitClientHome(t, ""))
 	require.NoError(t, err)
 	addr, _ := CreateAddr(t, name1, pw, kb)
+
+	fmt.Println(addr)
 
 	cleanup, valPubKeys, operAddrs, port := InitializeTestLCD(t, 2, []sdk.AccAddress{addr}, false)
 	tests.WaitForHeight(1, port)

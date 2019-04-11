@@ -248,7 +248,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 		msg := staking.NewMsgCreateValidator(
 			sdk.ValAddress(operAddr),
 			pubKey,
-			sdk.NewCoin(sdk.DefaultBondDenom, startTokens),
+			sdk.NewCoin(happ.StakeDenom, startTokens),
 			staking.NewDescription(fmt.Sprintf("validator-%d", i+1), "", "", ""),
 			staking.NewCommissionMsg(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()),
 			sdk.OneInt(),
@@ -269,7 +269,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 		accAuth := auth.NewBaseAccountWithAddress(sdk.AccAddress(operAddr))
 		accTokens := sdk.TokensFromTendermintPower(150)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, accTokens)}
+		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
 		accs = append(accs, happ.NewGenesisAccount(&accAuth))
 	}
 
@@ -284,7 +284,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	for _, addr := range initAddrs {
 		accAuth := auth.NewBaseAccountWithAddress(addr)
 		accTokens := sdk.TokensFromTendermintPower(100)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, accTokens)}
+		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
 		acc := happ.NewGenesisAccount(&accAuth)
 		genesisState.Accounts = append(genesisState.Accounts, acc)
 		genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(accTokens)
@@ -530,8 +530,15 @@ func getTransactionRequest(t *testing.T, port, hash string) (*http.Response, str
 
 // POST /txs broadcast txs
 
+
+type TxsRes struct {
+	TotalCount	int						`json:"totalCount"`
+	Txs			[]sdk.TxResponse		`json:"txs"`
+}
 // GET /txs search transactions
 func getTransactions(t *testing.T, port string, tags ...string) []sdk.TxResponse {
+
+	var txsRes TxsRes
 	var txs []sdk.TxResponse
 	if len(tags) == 0 {
 		return txs
@@ -540,8 +547,9 @@ func getTransactions(t *testing.T, port string, tags ...string) []sdk.TxResponse
 	res, body := Request(t, port, "GET", fmt.Sprintf("/txs?%s", queryStr), nil)
 	require.Equal(t, http.StatusOK, res.StatusCode, body)
 
-	err := cdc.UnmarshalJSON([]byte(body), &txs)
+	err := cdc.UnmarshalJSON([]byte(body), &txsRes)
 	require.NoError(t, err)
+	txs = txsRes.Txs
 	return txs
 }
 
@@ -714,7 +722,7 @@ func doTransferWithGas(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1)},
+		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
 		BaseReq: baseReq,
 	}
 
@@ -758,7 +766,7 @@ func doTransferWithGasAccAuto(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(sdk.DefaultBondDenom, 1)},
+		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
 		BaseReq: baseReq,
 	}
 
@@ -827,7 +835,7 @@ func doDelegate(
 		BaseReq:          baseReq,
 		DelegatorAddress: delAddr,
 		ValidatorAddress: valAddr,
-		Delegation:       sdk.NewCoin(sdk.DefaultBondDenom, amount),
+		Delegation:       sdk.NewCoin(happ.StakeDenom, amount),
 	}
 
 	req, err := cdc.MarshalJSON(msg)
@@ -1156,7 +1164,7 @@ func doSubmitProposal(
 		Description:    "test",
 		ProposalType:   "Text",
 		Proposer:       proposerAddr,
-		InitialDeposit: sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, amount)},
+		InitialDeposit: sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
 		BaseReq:        baseReq,
 	}
 
@@ -1247,7 +1255,7 @@ func doDeposit(
 	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
 	dr := govrest.DepositReq{
 		Depositor: proposerAddr,
-		Amount:    sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, amount)},
+		Amount:    sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
 		BaseReq:   baseReq,
 	}
 
