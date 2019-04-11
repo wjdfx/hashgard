@@ -9,12 +9,12 @@ import (
 )
 
 type Order struct {
-	OrderId		uint64			`json:"order_id"`
-	Seller		sdk.AccAddress	`json:"seller"`
-	Supply		sdk.Coin		`json:"supply"`
-	Target		sdk.Coin		`json:"target"`
-	Remains		sdk.Coin		`json:"remains"`
-	CreateTime	time.Time		`json:"create_time"`
+	OrderId    uint64         `json:"order_id"`
+	Seller     sdk.AccAddress `json:"seller"`
+	Supply     sdk.Coin       `json:"supply"`
+	Target     sdk.Coin       `json:"target"`
+	Remains    sdk.Coin       `json:"remains"`
+	CreateTime time.Time      `json:"create_time"`
 }
 
 func (order Order) String() string {

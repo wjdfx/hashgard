@@ -1,17 +1,17 @@
 package init
 
 import (
-"encoding/json"
-"fmt"
-"os"
-"path/filepath"
-"testing"
-"time"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+	"time"
 
-"github.com/cosmos/cosmos-sdk/codec"
-"github.com/cosmos/cosmos-sdk/tests"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/tests"
 
-"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/require"
 )
 
 func TestExportGenesisFileWithTime(t *testing.T) {

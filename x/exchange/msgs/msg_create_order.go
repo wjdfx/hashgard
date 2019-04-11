@@ -8,19 +8,18 @@ import (
 var _ sdk.Msg = MsgCreateOrder{}
 
 type MsgCreateOrder struct {
-	Seller 		sdk.AccAddress	`json:"seller"`
-	Supply		sdk.Coin		`json:"supply"`
-	Target		sdk.Coin		`json:"target"`
+	Seller sdk.AccAddress `json:"seller"`
+	Supply sdk.Coin       `json:"supply"`
+	Target sdk.Coin       `json:"target"`
 }
 
 func NewMsgCreateOrder(seller sdk.AccAddress, supply sdk.Coin, target sdk.Coin) MsgCreateOrder {
 	return MsgCreateOrder{
-		Seller:	seller,
-		Supply:	supply,
-		Target:	target,
+		Seller: seller,
+		Supply: supply,
+		Target: target,
 	}
 }
-
 
 // implement Msg interface
 func (msg MsgCreateOrder) Route() string {
@@ -36,10 +35,10 @@ func (msg MsgCreateOrder) ValidateBasic() sdk.Error {
 		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "seller address is nil")
 	}
 	if msg.Supply.Amount.LTE(sdk.ZeroInt()) {
-		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "supply amount is invalid: " + msg.Supply.String())
+		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "supply amount is invalid: "+msg.Supply.String())
 	}
 	if msg.Target.Amount.LTE(sdk.ZeroInt()) {
-		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "target amount is invalid: " + msg.Target.String())
+		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "target amount is invalid: "+msg.Target.String())
 	}
 
 	return nil

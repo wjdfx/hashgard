@@ -115,4 +115,3 @@ func (proc *Process) ReadAll() (stdout []byte, stderr []byte, err error) {
 	}
 	return outbz, errbz, nil
 }
-

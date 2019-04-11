@@ -5,7 +5,7 @@ import (
 )
 
 type ExchangeParams struct {
-	MaxOrdersPerAddr	uint64		`json:"max_orders_per_addr"`
+	MaxOrdersPerAddr uint64 `json:"max_orders_per_addr"`
 }
 
 func (ep ExchangeParams) String() string {

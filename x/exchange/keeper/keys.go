@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	KeyDelimiter			= []byte(":")
+	KeyDelimiter = []byte(":")
 
-	KeyNextOrderId			= []byte("newOrderId")
+	KeyNextOrderId = []byte("newOrderId")
 )
 
 // Key for getting a specific order from the store

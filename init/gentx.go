@@ -2,12 +2,12 @@ package init
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"errors"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -36,7 +36,7 @@ var (
 	defaultCommissionRate          = "0.1"
 	defaultCommissionMaxRate       = "0.2"
 	defaultCommissionMaxChangeRate = "0.01"
-	defaultMinSelfDelegation	   = "1"
+	defaultMinSelfDelegation       = "1"
 )
 
 // GenTxCmd builds the hashgard gentx command.
@@ -233,8 +233,8 @@ func prepareFlagsForTxCreateValidator(config *cfg.Config, nodeID, ip, chainID st
 	viper.Set(cli.FlagNodeID, nodeID)                              // --node-id
 	viper.Set(cli.FlagIP, ip)                                      // --ip
 	viper.Set(cli.FlagPubKey, sdk.MustBech32ifyConsPub(valPubKey)) // --pubkey
-	viper.Set(client.FlagGenerateOnly, true)                // --genesis-only
-	viper.Set(cli.FlagMoniker, config.Moniker)                    // --moniker
+	viper.Set(client.FlagGenerateOnly, true)                       // --genesis-only
+	viper.Set(cli.FlagMoniker, config.Moniker)                     // --moniker
 	if config.Moniker == "" {
 		viper.Set(cli.FlagMoniker, viper.GetString(client.FlagName))
 	}

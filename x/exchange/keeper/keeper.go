@@ -24,28 +24,27 @@ func ParamKeyTable() params.KeyTable {
 }
 
 type Keeper struct {
-	storeKey 		sdk.StoreKey
-	cdc				*codec.Codec
-	paramsKeeper 	params.Keeper
-	paramSpace		params.Subspace
-	bankKeeper		types.BankKeeper
-	codespace		sdk.CodespaceType
+	storeKey     sdk.StoreKey
+	cdc          *codec.Codec
+	paramsKeeper params.Keeper
+	paramSpace   params.Subspace
+	bankKeeper   types.BankKeeper
+	codespace    sdk.CodespaceType
 }
 
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	paramSpace params.Subspace, bankKeeper types.BankKeeper, codespace sdk.CodespaceType) Keeper {
-		return Keeper{
-			storeKey:		key,
-			cdc:			cdc,
-			paramsKeeper:	paramsKeeper,
-			paramSpace:		paramSpace.WithKeyTable(ParamKeyTable()),
-			bankKeeper:		bankKeeper,
-			codespace:		codespace,
-		}
+	return Keeper{
+		storeKey:     key,
+		cdc:          cdc,
+		paramsKeeper: paramsKeeper,
+		paramSpace:   paramSpace.WithKeyTable(ParamKeyTable()),
+		bankKeeper:   bankKeeper,
+		codespace:    codespace,
+	}
 }
 
-
-func (keeper Keeper) CreateOrder(ctx sdk.Context,seller sdk.AccAddress,
+func (keeper Keeper) CreateOrder(ctx sdk.Context, seller sdk.AccAddress,
 	supply sdk.Coin, target sdk.Coin) (order types.Order, err sdk.Error) {
 	orderId, err := keeper.getNewOrderId(ctx)
 	if err != nil {
@@ -55,12 +54,12 @@ func (keeper Keeper) CreateOrder(ctx sdk.Context,seller sdk.AccAddress,
 	createTime := ctx.BlockHeader().Time
 
 	order = types.Order{
-		OrderId:	orderId,
-		Seller:		seller,
-		Supply:		supply,
-		Target:		target,
-		Remains:	supply,
-		CreateTime:	createTime,
+		OrderId:    orderId,
+		Seller:     seller,
+		Supply:     supply,
+		Target:     target,
+		Remains:    supply,
+		CreateTime: createTime,
 	}
 
 	_, err = keeper.bankKeeper.SendCoins(ctx, seller, FrozenCoinsAccAddr, []sdk.Coin{supply})
@@ -159,12 +158,12 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 	} else {
 		remains := order.Remains.Sub(supplyTurnover)
 		newOrder := types.Order{
-			OrderId:	orderId,
-			Seller:		order.Seller,
-			Supply:		order.Supply,
-			Target:		order.Target,
-			Remains:	remains,
-			CreateTime:	order.CreateTime,
+			OrderId:    orderId,
+			Seller:     order.Seller,
+			Supply:     order.Supply,
+			Target:     order.Target,
+			Remains:    remains,
+			CreateTime: order.CreateTime,
 		}
 		keeper.setOrder(ctx, newOrder)
 	}
@@ -249,7 +248,6 @@ func (keeper Keeper) PeekCurrentOrderId(ctx sdk.Context) (orderId uint64, err sd
 	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &orderId)
 	return orderId, nil
 }
-
 
 // Set the initial order ID
 func (keeper Keeper) SetInitialOrderId(ctx sdk.Context, orderId uint64) sdk.Error {

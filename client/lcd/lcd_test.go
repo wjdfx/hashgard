@@ -294,9 +294,9 @@ func TestEncodeTx(t *testing.T) {
 	cleanup, _, _, port := InitializeTestLCD(t, 1, []sdk.AccAddress{addr}, true)
 	defer cleanup()
 
-	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, "", addr, "2", 1, false, false, fees)	// nolint
+	res, body, _ := doTransferWithGas(t, port, seed, name1, memo, "", addr, "2", 1, false, false, fees) // nolint
 	var tx auth.StdTx
-	cdc.UnmarshalJSON([]byte(body), &tx)	// nolint: errcheck
+	cdc.UnmarshalJSON([]byte(body), &tx) // nolint: errcheck
 
 	req := clienttx.EncodeReq{Tx: tx}
 	encodedJSON, _ := cdc.MarshalJSON(req)
@@ -532,7 +532,7 @@ func TestBonding(t *testing.T) {
 	require.Equal(t, uint32(0), resultTx.Code)
 
 	// verify balance after paying fees
-	acc = getAccount(t, port, addr)	// nolint
+	acc = getAccount(t, port, addr) // nolint
 	expectedBalance = expectedBalance.Sub(fees[0])
 	require.True(t,
 		expectedBalance.Amount.LT(coins.AmountOf(app.StakeDenom)) ||

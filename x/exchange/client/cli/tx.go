@@ -5,25 +5,23 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/hashgard/hashgard/x/exchange/msgs"
 )
 
 func GetCmdCreateOrder(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "create-order",
-		Short: "create a new order",
-		Long: strings.TrimSpace(`
-$ hashgardcli exchange create-order --suply=100gard --target=800apple --from mykey
-`),
-		RunE: func(cnd *cobra.Command, args []string) error {
+		Use:     "create-order",
+		Short:   "create a new order",
+		Example: "$ hashgardcli exchange create-order --suply=100gard --target=800apple --from mykey",
+		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().
 				WithCodec(cdc).
@@ -75,7 +73,7 @@ $ hashgardcli exchange create-order --suply=100gard --target=800apple --from myk
 
 func GetCmdWithdrawalOrder(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "withdrawal-order [order-id]",
+		Use:   "withdrawal-order [order-id]",
 		Args:  cobra.ExactArgs(1),
 		Short: "withdrawal a exist order",
 		Long: strings.TrimSpace(`
@@ -113,7 +111,7 @@ $ hashgardcli exchange withdrawal-order 3 --from mykey
 
 func GetCmdTakeOrder(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "take-order [order-id]",
+		Use:   "take-order [order-id]",
 		Args:  cobra.ExactArgs(1),
 		Short: "exchange with a active order",
 		Long: strings.TrimSpace(`

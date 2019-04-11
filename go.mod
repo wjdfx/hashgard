@@ -5,6 +5,8 @@ go 1.12
 require (
 	bou.ke/monkey v1.0.1 // indirect
 	github.com/VividCortex/gohistogram v1.0.0 // indirect
+	github.com/alecthomas/gometalinter v3.0.0+incompatible // indirect
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/bartekn/go-bip39 v0.0.0-20171116152956-a05967ea095d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.0.0-20190115013929-ed77733ec07d // indirect
@@ -20,6 +22,7 @@ require (
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf // indirect
+	github.com/google/shlex v0.0.0-20181106134648-c34317bd91bf // indirect
 	github.com/gorilla/context v1.1.1 // indirect
 	github.com/gorilla/mux v1.6.2
 	github.com/gorilla/websocket v0.0.0-20190306004257-0ec3d1bd7fe5 // indirect
@@ -29,6 +32,7 @@ require (
 	github.com/magiconair/properties v0.0.0-20190110142458-7757cc9fdb85 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
+	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/otiai10/copy v0.0.0-20180813032824-7e9a647135a1
 	github.com/otiai10/curr v0.0.0-20150429015615-9b4961190c95 // indirect
 	github.com/otiai10/mint v1.2.3 // indirect
@@ -56,6 +60,7 @@ require (
 	github.com/zondax/ledger-go v0.8.0 // indirect
 	golang.org/x/crypto v0.0.0 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
+	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
 
 )

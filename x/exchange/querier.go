@@ -11,9 +11,9 @@ import (
 
 // query endpoints supported by the governance Querier
 const (
-	QueryOrder				= "order"
-	QueryFrozenFund			= "frozen"
-	QueryAllOrdersByAddress	= "orders"
+	QueryOrder              = "order"
+	QueryFrozenFund         = "frozen"
+	QueryAllOrdersByAddress = "orders"
 )
 
 func NewQuerier(keeper keeper.Keeper, cdc *codec.Codec) sdk.Querier {

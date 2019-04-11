@@ -9,14 +9,14 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/cosmos/cosmos-sdk/server"
 	"github.com/cosmos/cosmos-sdk/server/mock"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/require"
 	abciServer "github.com/tendermint/tendermint/abci/server"
 	tcmd "github.com/tendermint/tendermint/cmd/tendermint/commands"
+	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
-	"github.com/spf13/viper"
 
 	"github.com/hashgard/hashgard/app"
 )
@@ -78,7 +78,7 @@ func TestEmptyState(t *testing.T) {
 	outC := make(chan string)
 	go func() {
 		var buf bytes.Buffer
-		io.Copy(&buf, r)	// nolint: errcheck
+		io.Copy(&buf, r) // nolint: errcheck
 		outC <- buf.String()
 	}()
 
@@ -118,12 +118,12 @@ func TestStartStandAlone(t *testing.T) {
 	svr, err := abciServer.NewServer(svrAddr, "socket", app)
 	require.Nil(t, err, "error creating listener")
 	svr.SetLogger(logger.With("module", "abci-server"))
-	svr.Start()		// nolint: errcheck
+	svr.Start() // nolint: errcheck
 
 	timer := time.NewTimer(time.Duration(2) * time.Second)
-	select {	// nolint
+	select { // nolint
 	case <-timer.C:
-		svr.Stop()		// nolint: errcheck
+		svr.Stop() // nolint: errcheck
 	}
 }
 

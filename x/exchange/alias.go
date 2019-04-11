@@ -9,36 +9,36 @@ import (
 )
 
 type (
-	Keeper						= keeper.Keeper
-	Order						= types.Order
-	Orders						= types.Orders
+	Keeper = keeper.Keeper
+	Order  = types.Order
+	Orders = types.Orders
 )
 
 var (
-	NewKeeper					= keeper.NewKeeper
+	NewKeeper = keeper.NewKeeper
 
-	RegisterCodec				= msgs.RegisterCodec
-	NewMsgCreateOrder			= msgs.NewMsgCreateOrder
-	NewMsgWithdrawalOrder		= msgs.NewMsgWithdrawalOrder
-	NewMsgTakeOrder				= msgs.NewMsgTakeOrder
+	RegisterCodec         = msgs.RegisterCodec
+	NewMsgCreateOrder     = msgs.NewMsgCreateOrder
+	NewMsgWithdrawalOrder = msgs.NewMsgWithdrawalOrder
+	NewMsgTakeOrder       = msgs.NewMsgTakeOrder
 
-	NewQueryOrderParams			= queriers.NewQueryOrderParams
-	NewQueryOrdersParams		= queriers.NewQueryOrdersParams
-	NewQueryFrozenFundParams	= queriers.NewQueryFrozenFundParams
+	NewQueryOrderParams      = queriers.NewQueryOrderParams
+	NewQueryOrdersParams     = queriers.NewQueryOrdersParams
+	NewQueryFrozenFundParams = queriers.NewQueryFrozenFundParams
 
-	TagAction					= tags.Action
-	TagOrderId					= tags.OrderId
-	TagSeller					= tags.Seller
-	TagBuyer					= tags.Buyer
-	TagSupplyToken				= tags.SupplyToken
-	TagTargetToken				= tags.TargetToken
-	TagOrderStatus				= tags.OrderStatus
+	TagAction      = tags.Action
+	TagOrderId     = tags.OrderId
+	TagSeller      = tags.Seller
+	TagBuyer       = tags.Buyer
+	TagSupplyToken = tags.SupplyToken
+	TagTargetToken = tags.TargetToken
+	TagOrderStatus = tags.OrderStatus
 )
 
 const (
-	StoreKey			= types.StoreKey
-	RouterKey			= types.RouterKey
-	QuerierRoute		= types.QuerierRoute
-	DefaultParamspace	= types.DefaultParamspace
-	DefaultCodespace	= types.DefaultCodespace
+	StoreKey          = types.StoreKey
+	RouterKey         = types.RouterKey
+	QuerierRoute      = types.QuerierRoute
+	DefaultParamspace = types.DefaultParamspace
+	DefaultCodespace  = types.DefaultCodespace
 )

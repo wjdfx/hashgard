@@ -10,7 +10,7 @@ import (
 )
 
 type GenesisState struct {
-	StartingOrderId		uint64	`json:"starting_order_id"`
+	StartingOrderId uint64 `json:"starting_order_id"`
 }
 
 func NewGenesisState(startingOrderId uint64) GenesisState {

@@ -10,7 +10,7 @@ import (
 )
 
 func HandleMsgCreateOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgCreateOrder) sdk.Result {
-	order, err := keeper.CreateOrder(ctx , msg.Seller, msg.Supply, msg.Target)
+	order, err := keeper.CreateOrder(ctx, msg.Seller, msg.Supply, msg.Target)
 
 	if err != nil {
 		return err.Result()

@@ -1,7 +1,7 @@
 package cli
 
 const (
-	FlagSupply		= "supply"
-	FlagTarget		= "target"
-	FlagAmount		= "amount"
+	FlagSupply = "supply"
+	FlagTarget = "target"
+	FlagAmount = "amount"
 )

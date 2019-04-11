@@ -228,7 +228,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	genDoc, err := tmtypes.GenesisDocFromFile(genesisFile)
 	require.Nil(t, err)
 	genDoc.Validators = nil
-	genDoc.SaveAs(genesisFile)	// nolint: errcheck
+	genDoc.SaveAs(genesisFile) // nolint: errcheck
 	genTxs := []json.RawMessage{}
 
 	// append any additional (non-proposing) validators
@@ -338,7 +338,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 	cleanup = func() {
 		logger.Debug("cleaning up LCD initialization")
-		node.Stop()		// nolint: errcheck
+		node.Stop() // nolint: errcheck
 		node.Wait()
 		lcd.Close()
 	}
@@ -395,7 +395,7 @@ func startLCD(logger log.Logger, listenAddr string, cdc *codec.Codec, t *testing
 	if err != nil {
 		return nil, err
 	}
-	go tmrpc.StartHTTPServer(listener, rs.Mux, logger)	// nolint: errcheck
+	go tmrpc.StartHTTPServer(listener, rs.Mux, logger) // nolint: errcheck
 	return listener, nil
 }
 
@@ -530,11 +530,11 @@ func getTransactionRequest(t *testing.T, port, hash string) (*http.Response, str
 
 // POST /txs broadcast txs
 
-
 type TxsRes struct {
-	TotalCount	int						`json:"totalCount"`
-	Txs			[]sdk.TxResponse		`json:"txs"`
+	TotalCount int              `json:"totalCount"`
+	Txs        []sdk.TxResponse `json:"txs"`
 }
+
 // GET /txs search transactions
 func getTransactions(t *testing.T, port string, tags ...string) []sdk.TxResponse {
 
@@ -570,7 +570,7 @@ func getKeys(t *testing.T, port string) []keys.KeyOutput {
 // POST /keys Create a new account locally
 // nolint
 func doKeysPost(t *testing.T, port, name, password, mnemonic string, account int, index int) keys.KeyOutput {
-	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index}	// nolint
+	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index} // nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -598,7 +598,7 @@ func getKeysSeed(t *testing.T, port string) string {
 // POST /keys/{name}/recove Recover a account from a seed
 // nolint
 func doRecoverKey(t *testing.T, port, recoverName, recoverPassword, mnemonic string, account uint32, index uint32) {
-	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)}		// nolint
+	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)} // nolint
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -628,7 +628,7 @@ func getKey(t *testing.T, port, name string) keys.KeyOutput {
 // PUT /keys/{name} Update the password for this account in the KMS
 // nolint
 func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail bool) {
-	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword}	// nolint
+	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword} // nolint
 	req, err := cdc.MarshalJSON(kr)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -643,7 +643,7 @@ func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail b
 // DELETE /keys/{name} Remove an account
 // nolint
 func deleteKey(t *testing.T, port, name, password string) {
-	dk := clientkeys.DeleteKeyReq{password}	// nolint
+	dk := clientkeys.DeleteKeyReq{password} // nolint
 	req, err := cdc.MarshalJSON(dk)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)

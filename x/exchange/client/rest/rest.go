@@ -18,8 +18,8 @@ import (
 
 // nolint
 const (
-	RestOrderId		= "order-id"
-	RestAddress		= "address"
+	RestOrderId = "order-id"
+	RestAddress = "address"
 )
 
 func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
@@ -125,18 +125,18 @@ func queryFrozenFundByAddrHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext)
 }
 
 type PostOrderReq struct {
-	BaseReq		rest.BaseReq	`json:"base_req"`
-	Supply		sdk.Coin		`json:"supply"`
-	Target		sdk.Coin		`json:"target"`
+	BaseReq rest.BaseReq `json:"base_req"`
+	Supply  sdk.Coin     `json:"supply"`
+	Target  sdk.Coin     `json:"target"`
 }
 
 type TakeOrderReq struct {
-	BaseReq		rest.BaseReq	`json:"base_req"`
-	Amount		sdk.Coin		`json:"seller"`
+	BaseReq rest.BaseReq `json:"base_req"`
+	Amount  sdk.Coin     `json:"seller"`
 }
 
 type WithdrawalOrderReq struct {
-	BaseReq		rest.BaseReq	`json:"base_req"`
+	BaseReq rest.BaseReq `json:"base_req"`
 }
 
 func postOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {

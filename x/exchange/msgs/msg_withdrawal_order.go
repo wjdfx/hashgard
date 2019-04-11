@@ -8,17 +8,16 @@ import (
 var _ sdk.Msg = MsgWithdrawalOrder{}
 
 type MsgWithdrawalOrder struct {
-	OrderId 	uint64			`json:"order_id"`
-	Seller		sdk.AccAddress	`json:"seller"`
+	OrderId uint64         `json:"order_id"`
+	Seller  sdk.AccAddress `json:"seller"`
 }
 
 func NewMsgWithdrawalOrder(orderId uint64, seller sdk.AccAddress) MsgWithdrawalOrder {
 	return MsgWithdrawalOrder{
-		OrderId:	orderId,
-		Seller:		seller,
+		OrderId: orderId,
+		Seller:  seller,
 	}
 }
-
 
 // implement Msg interface
 func (msg MsgWithdrawalOrder) Route() string {

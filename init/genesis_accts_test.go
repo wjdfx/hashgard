@@ -15,9 +15,9 @@ func TestAddGenesisAccount(t *testing.T) {
 	cdc := codec.New()
 	addr1 := sdk.AccAddress(secp256k1.GenPrivKey().PubKey().Address())
 	type args struct {
-		appState app.GenesisState
-		addr     sdk.AccAddress
-		coins    sdk.Coins
+		appState     app.GenesisState
+		addr         sdk.AccAddress
+		coins        sdk.Coins
 		vestingAmt   sdk.Coins
 		vestingStart int64
 		vestingEnd   int64

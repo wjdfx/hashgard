@@ -27,25 +27,25 @@ import (
 
 var (
 	// bonded tokens given to genesis validators/accounts
-	FreeFermionVal  = int64(100)
-	FreeFermionsAcc = sdk.NewInt(150)
+	FreeFermionVal                     = int64(100)
+	FreeFermionsAcc                    = sdk.NewInt(150)
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
-	GasDenom	= "apple"
-	StakeDenom       = "gard"
+	GasDenom                           = "apple"
+	StakeDenom                         = "gard"
 )
 
 // State to Unmarshal
 type GenesisState struct {
-	Accounts     		[]GenesisAccount			`json:"accounts"`
-	AuthData     		auth.GenesisState			`json:"auth"`
-	BankData     		bank.GenesisState     		`json:"bank"`
-	StakingData    		staking.GenesisState		`json:"staking"`
-	MintData     		mint.GenesisState			`json:"mint"`
-	DistributionData    distribution.GenesisState	`json:"distribution"`
-	SlashingData 		slashing.GenesisState		`json:"slashing"`
-	GovData				gov.GenesisState			`json:"gov"`
-	ExchangeData		exchange.GenesisState		`json:"exchange"`
-	GenTxs       		[]json.RawMessage			`json:"gentxs"`
+	Accounts         []GenesisAccount          `json:"accounts"`
+	AuthData         auth.GenesisState         `json:"auth"`
+	BankData         bank.GenesisState         `json:"bank"`
+	StakingData      staking.GenesisState      `json:"staking"`
+	MintData         mint.GenesisState         `json:"mint"`
+	DistributionData distribution.GenesisState `json:"distribution"`
+	SlashingData     slashing.GenesisState     `json:"slashing"`
+	GovData          gov.GenesisState          `json:"gov"`
+	ExchangeData     exchange.GenesisState     `json:"exchange"`
+	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
 func NewGenesisState(
@@ -61,15 +61,15 @@ func NewGenesisState(
 ) GenesisState {
 
 	return GenesisState{
-		Accounts:			accounts,
-		AuthData: 			authData,
-		BankData:			bankData,
-		StakingData:		stakingData,
-		MintData:			mintData,
-		DistributionData:	distributionData,
-		GovData:			govData,
-		SlashingData:		slashingData,
-		ExchangeData:		exchangeData,
+		Accounts:         accounts,
+		AuthData:         authData,
+		BankData:         bankData,
+		StakingData:      stakingData,
+		MintData:         mintData,
+		DistributionData: distributionData,
+		GovData:          govData,
+		SlashingData:     slashingData,
+		ExchangeData:     exchangeData,
 	}
 }
 
@@ -87,30 +87,30 @@ func (gs GenesisState) Sanitize() {
 // NewDefaultGenesisState generates the default state for hashgard.
 func NewDefaultGenesisState() GenesisState {
 	return GenesisState{
-		Accounts:			nil,
-		AuthData:     		auth.DefaultGenesisState(),
-		BankData:     		bank.DefaultGenesisState(),
-		StakingData:    	createStakingGenesisState(),
-		MintData:			createMintGenesisState(),
-		DistributionData:	distribution.DefaultGenesisState(),
-		GovData:			createGovGenesisState(),
-		SlashingData:		slashing.DefaultGenesisState(),
-		ExchangeData:		exchange.DefaultGenesisState(),
-		GenTxs:				nil,
+		Accounts:         nil,
+		AuthData:         auth.DefaultGenesisState(),
+		BankData:         bank.DefaultGenesisState(),
+		StakingData:      createStakingGenesisState(),
+		MintData:         createMintGenesisState(),
+		DistributionData: distribution.DefaultGenesisState(),
+		GovData:          createGovGenesisState(),
+		SlashingData:     slashing.DefaultGenesisState(),
+		ExchangeData:     exchange.DefaultGenesisState(),
+		GenTxs:           nil,
 	}
 }
 
 func createStakingGenesisState() staking.GenesisState {
 	return staking.GenesisState{
 		Pool: staking.Pool{
-			NotBondedTokens:  sdk.ZeroInt(),
-			BondedTokens: sdk.ZeroInt(),
+			NotBondedTokens: sdk.ZeroInt(),
+			BondedTokens:    sdk.ZeroInt(),
 		},
 		Params: staking.Params{
 			UnbondingTime: defaultUnbondingTime,
 			MaxValidators: 100,
-			MaxEntries: 7,
-			BondDenom: StakeDenom,
+			MaxEntries:    7,
+			BondDenom:     StakeDenom,
 		},
 	}
 }
@@ -140,9 +140,9 @@ func createGovGenesisState() gov.GenesisState {
 			VotingPeriod: time.Duration(172800) * time.Second,
 		},
 		TallyParams: gov.TallyParams{
-			Quorum:            sdk.NewDecWithPrec(334, 3),
-			Threshold:         sdk.NewDecWithPrec(5, 1),
-			Veto:              sdk.NewDecWithPrec(334, 3),
+			Quorum:    sdk.NewDecWithPrec(334, 3),
+			Threshold: sdk.NewDecWithPrec(5, 1),
+			Veto:      sdk.NewDecWithPrec(334, 3),
 		},
 	}
 }
@@ -151,8 +151,8 @@ func createGovGenesisState() gov.GenesisState {
 type GenesisAccount struct {
 	Address       sdk.AccAddress `json:"address"`
 	Coins         sdk.Coins      `json:"coins"`
-	Sequence      uint64          `json:"sequence_number"`
-	AccountNumber uint64          `json:"account_number"`
+	Sequence      uint64         `json:"sequence_number"`
+	AccountNumber uint64         `json:"account_number"`
 
 	// vesting account fields
 	OriginalVesting  sdk.Coins `json:"original_vesting"`  // total vesting coins upon initialization
@@ -239,7 +239,6 @@ func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	return NewGenesisAccount(&accAuth)
 }
 
-
 // HashgardAppGenState but with JSON
 func HashgardAppGenStateJSON(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs []json.RawMessage) (appState json.RawMessage, err error) {
 
@@ -254,7 +253,6 @@ func HashgardAppGenStateJSON(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGen
 // Create the core parameters for genesis initialization for hashgard
 // note that the pubkey input is this machines pubkey
 func HashgardAppGenState(cdc *codec.Codec, genDoc tmtypes.GenesisDoc, appGenTxs []json.RawMessage) (genesisState GenesisState, err error) {
-
 
 	if err = cdc.UnmarshalJSON(genDoc.AppState, &genesisState); err != nil {
 		return genesisState, err

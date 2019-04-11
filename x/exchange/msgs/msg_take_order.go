@@ -8,19 +8,18 @@ import (
 var _ sdk.Msg = MsgTakeOrder{}
 
 type MsgTakeOrder struct {
-	OrderId 	uint64			`json:"order_id"`
-	Buyer		sdk.AccAddress	`json:"buyer"`
-	Value		sdk.Coin		`json:"value"`
+	OrderId uint64         `json:"order_id"`
+	Buyer   sdk.AccAddress `json:"buyer"`
+	Value   sdk.Coin       `json:"value"`
 }
 
 func NewMsgTakeOrder(orderId uint64, buyer sdk.AccAddress, val sdk.Coin) MsgTakeOrder {
 	return MsgTakeOrder{
-		OrderId:	orderId,
-		Buyer:		buyer,
-		Value:		val,
+		OrderId: orderId,
+		Buyer:   buyer,
+		Value:   val,
 	}
 }
-
 
 // implement Msg interface
 func (msg MsgTakeOrder) Route() string {
@@ -36,7 +35,7 @@ func (msg MsgTakeOrder) ValidateBasic() sdk.Error {
 		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "order_id is invalid")
 	}
 	if msg.Value.Amount.LTE(sdk.ZeroInt()) {
-		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "value is invalid: " + msg.Value.String())
+		return sdk.NewError(types.DefaultCodespace, types.CodeInvalidInput, "value is invalid: "+msg.Value.String())
 	}
 
 	return nil

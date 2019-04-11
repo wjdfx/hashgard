@@ -21,7 +21,7 @@ import (
 const (
 	flagOverwrite    = "overwrite"
 	flagClientHome   = "home-client"
-	flagMoniker		 = "moniker"
+	flagMoniker      = "moniker"
 	flagVestingStart = "vesting-start-time"
 	flagVestingEnd   = "vesting-end-time"
 	flagVestingAmt   = "vesting-amount"
@@ -51,7 +51,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command { // nolint: 
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize genesis config, priv-validator file, p2p-node file, and application configuration files",
-		Long: `Initialize validators's and node's configuration files.`,
+		Long:  `Initialize validators's and node's configuration files.`,
 		Args:  cobra.NoArgs,
 		RunE: func(_ *cobra.Command, _ []string) error {
 
@@ -95,7 +95,7 @@ func InitCmd(ctx *server.Context, cdc *codec.Codec) *cobra.Command { // nolint: 
 	cmd.Flags().BoolP(flagOverwrite, "o", false, "overwrite the genesis.json file")
 	cmd.Flags().String(client.FlagChainID, "", "genesis file chain-id, if left blank will be randomly created")
 	cmd.Flags().String(flagMoniker, "", "set the validator's moniker")
-	cmd.MarkFlagRequired(flagMoniker)	// nolint: errcheck
+	cmd.MarkFlagRequired(flagMoniker) // nolint: errcheck
 
 	return cmd
 }

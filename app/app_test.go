@@ -28,15 +28,15 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 	}
 
 	genesisState := GenesisState{
-		Accounts:			genaccs,
-		AuthData:			auth.DefaultGenesisState(),
-		BankData:			bank.DefaultGenesisState(),
-		StakingData:		staking.DefaultGenesisState(),
-		MintData:			mint.DefaultGenesisState(),
-		DistributionData:	distribution.DefaultGenesisState(),
-		SlashingData:		slashing.DefaultGenesisState(),
-		GovData:			gov.DefaultGenesisState(),
-		ExchangeData:		exchange.DefaultGenesisState(),
+		Accounts:         genaccs,
+		AuthData:         auth.DefaultGenesisState(),
+		BankData:         bank.DefaultGenesisState(),
+		StakingData:      staking.DefaultGenesisState(),
+		MintData:         mint.DefaultGenesisState(),
+		DistributionData: distribution.DefaultGenesisState(),
+		SlashingData:     slashing.DefaultGenesisState(),
+		GovData:          gov.DefaultGenesisState(),
+		ExchangeData:     exchange.DefaultGenesisState(),
 	}
 
 	stateBytes, err := codec.MarshalJSONIndent(happ.cdc, genesisState)
