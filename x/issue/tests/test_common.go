@@ -23,7 +23,7 @@ var (
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
 
 	CoinIssueInfo = types.CoinIssueInfo{
-		Issuer:          IssuerCoinsAccAddr,
+		Owner:           IssuerCoinsAccAddr,
 		Name:            "test",
 		Symbol:          "tst",
 		TotalSupply:     sdk.NewInt(10000),

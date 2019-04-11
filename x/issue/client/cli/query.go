@@ -17,35 +17,37 @@ import (
 
 // GetAccountCmd returns a query account that will display the state of the
 // account at a given address.
-// nolint: unparam
-func GetAccountCmd(storeName string, cdc *codec.Codec) *cobra.Command {
+func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "account [address]",
 		Short: "Query account balance",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().
-				WithCodec(cdc).WithAccountDecoder(cdc)
-			key, err := sdk.AccAddressFromBech32(args[0])
+			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
+
+			addr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-			if err = cliCtx.EnsureAccountExistsFromAddr(key); err != nil {
+
+			if err = cliCtx.EnsureAccountExistsFromAddr(addr); err != nil {
 				return err
 			}
-			acc, err := cliCtx.GetAccount(key)
+
+			acc, err := cliCtx.GetAccount(addr)
 			if err != nil {
 				return err
 			}
+
 			if acc.GetCoins().Empty() {
 				return cliCtx.PrintOutput(acc)
 			}
+
 			coins := make(sdk.Coins, acc.GetCoins().Len())
-			i := 0
 			for _, coin := range acc.GetCoins() {
 				denom := coin.Denom
 				if issueutils.IsIssueId(coin.Denom) {
-					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx, cdc, types.QuerierRoute)
+					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx, types.QuerierRoute)
 					if err == nil {
 						var issueInfo types.Issue
 						cdc.MustUnmarshalJSON(res, &issueInfo)
@@ -53,11 +55,10 @@ func GetAccountCmd(storeName string, cdc *codec.Codec) *cobra.Command {
 					}
 				}
 				newCoin := sdk.Coin{Denom: denom, Amount: coin.Amount}
-				coins[i] = newCoin
-				i += 1
+				coins = append(coins, newCoin)
 			}
-			err = acc.SetCoins(coins)
-			if err != nil {
+
+			if err = acc.SetCoins(coins); err != nil {
 				return err
 			}
 
@@ -85,7 +86,7 @@ $ hashgardcli issue query-issue gardh1c7d59vebq
 				return errors.Errorf(err)
 			}
 			// Query the issue
-			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx, cdc, queryRoute)
+			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx, queryRoute)
 			if err != nil {
 				return err
 			}
@@ -114,7 +115,7 @@ $ hashgardcli issue query-issues gard10cm9l6ly924d37qksn2x93xt3ezhduc2ntdj04
 				return err
 			}
 			// Query the issue
-			res, err := issuequeriers.QueryIssuesByAddress(address, cliCtx, cdc, queryRoute)
+			res, err := issuequeriers.QueryIssuesByAddress(address, cliCtx, queryRoute)
 			if err != nil {
 				return err
 			}

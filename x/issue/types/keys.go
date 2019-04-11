@@ -17,11 +17,12 @@ const (
 	DefaultParamspace = ModuleName
 )
 const (
-	DefaultDecimals                    = 18
+	DefaultDecimals                    = uint(18)
 	DefaultCodespace sdk.CodespaceType = ModuleName
 )
 const (
-	IDPreStr = "gard"
+	IDLength = 15
+	IDPreStr = "coin"
 	Custom   = "custom"
 )
 const (

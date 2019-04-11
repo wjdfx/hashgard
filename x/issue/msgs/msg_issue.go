@@ -15,7 +15,7 @@ type MsgIssue struct {
 }
 
 //New MsgIssue Instance
-func NewMsgIssue(coinIssueInfo *types.CoinIssueInfo) MsgIssue {
+func CreateMsgIssue(coinIssueInfo *types.CoinIssueInfo) MsgIssue {
 	return MsgIssue{coinIssueInfo}
 }
 
@@ -27,8 +27,8 @@ func (msg MsgIssue) Type() string { return types.TypeMsgIssue }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgIssue) ValidateBasic() sdk.Error {
-	if len(msg.Issuer) == 0 {
-		return sdk.ErrInvalidAddress("Issuer address cannot be empty")
+	if len(msg.Owner) == 0 {
+		return sdk.ErrInvalidAddress("Owner address cannot be empty")
 	}
 	// Cannot issue zero or negative coins
 	if msg.CoinIssueInfo.TotalSupply.IsZero() || !msg.CoinIssueInfo.TotalSupply.IsPositive() {
@@ -51,9 +51,9 @@ func (msg MsgIssue) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssue) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Issuer}
+	return []sdk.AccAddress{msg.Owner}
 }
 
 func (msg MsgIssue) String() string {
-	return fmt.Sprintf("MsgIssue{%s - %s}", "", msg.Issuer.String())
+	return fmt.Sprintf("MsgIssue{%s - %s}", "", msg.Owner.String())
 }

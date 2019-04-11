@@ -20,8 +20,8 @@ func NewModuleClient(storeKey string, cdc *amino.Codec) ModuleClient {
 	return ModuleClient{storeKey, cdc}
 }
 
-// GetTxCmd returns the transaction commands for this module
-func (mc ModuleClient) GetTxCmd() *cobra.Command {
+// GetIssueCmd returns the issue commands for this module
+func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 	issueCmd := &cobra.Command{
 		Use:   types.ModuleName,
 		Short: "Issue coin subcommands",
@@ -34,7 +34,7 @@ func (mc ModuleClient) GetTxCmd() *cobra.Command {
 	issueCmd.AddCommand(client.LineBreak)
 	issueCmd.AddCommand(
 		client.PostCommands(
-			issueCli.GetCmdIssueAdd(mc.cdc),
+			issueCli.GetCmdIssueCreate(mc.cdc),
 			issueCli.GetCmdIssueMint(mc.cdc),
 			issueCli.GetCmdIssueBurn(mc.cdc),
 			issueCli.GetCmdIssueFinishMinting(mc.cdc),

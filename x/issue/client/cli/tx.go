@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -20,14 +21,14 @@ import (
 )
 
 // GetCmdIssue implements issue a coin transaction command.
-func GetCmdIssueAdd(cdc *codec.Codec) *cobra.Command {
+func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add [name] [symbol] [total-supply]",
+		Use:   "create [name] [symbol] [total-supply]",
 		Args:  cobra.ExactArgs(3),
-		Short: "issue a coin",
+		Short: "Issue a new coin",
 		Long: strings.TrimSpace(`
-issue a coin. For example:
-$ hashgardcli issue add mytestcoin test 1000000000000000
+Issue a new coin. For example:
+$ hashgardcli issue new foocoin FOO 100000000 --from foo
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			totalSupply, ok := sdk.NewIntFromString(args[2])
@@ -40,17 +41,15 @@ $ hashgardcli issue add mytestcoin test 1000000000000000
 				WithAccountDecoder(cdc)
 			from := cliCtx.GetFromAddress()
 
-			msg := msgs.NewMsgIssue(&types.CoinIssueInfo{
-				Issuer:          from,
+			msg := msgs.CreateMsgIssue(&types.CoinIssueInfo{
+				Owner:           from,
 				Name:            args[0],
 				Symbol:          args[1],
-				MintingFinished: false,
+				MintingFinished: viper.GetBool(flagMintingFinished),
 				TotalSupply:     totalSupply,
-				Decimals:        types.DefaultDecimals,
+				Decimals:        uint(viper.GetInt(flagDecimals)),
 			})
-			if viper.IsSet(flagMintingFinished) {
-				msg.MintingFinished = viper.GetBool(flagMintingFinished)
-			}
+
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
@@ -58,7 +57,9 @@ $ hashgardcli issue add mytestcoin test 1000000000000000
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
+	cmd.Flags().Uint(flagDecimals, types.DefaultDecimals, "Decimals of coin")
 	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
+	_ = cmd.MarkFlagRequired(client.FlagFrom)
 	return cmd
 }
 
