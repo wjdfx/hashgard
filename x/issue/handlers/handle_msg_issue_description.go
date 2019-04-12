@@ -9,8 +9,8 @@ import (
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
-//Handle MsgIssueFinishMinting
-func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueFinishMinting) sdk.Result {
+//Handle MsgIssueDescription
+func HandleMsgIssueDescription(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueDescription) sdk.Result {
 	coinIssueInfo := keeper.GetIssue(ctx, msg.IssueId)
 	if coinIssueInfo == nil {
 		return errors.ErrUnknownIssue(msg.IssueId).Result()
@@ -18,13 +18,11 @@ func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keeper.Keeper, msg msgs
 	if !coinIssueInfo.Owner.Equals(msg.From) {
 		return errors.ErrIssuerMismatch(msg.IssueId).Result()
 	}
-	if coinIssueInfo.MintingFinished {
-		return sdk.Result{
-			Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-			Tags: utils.AppendIssueInfoTag(msg.IssueId),
-		}
+
+	err := keeper.SetIssueDescription(ctx, msg.IssueId, msg.From, msg.Description)
+	if err != nil {
+		return err.Result()
 	}
-	coinIssueInfo = keeper.FinishMinting(ctx, msg.IssueId)
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 		Tags: utils.AppendIssueInfoTag(msg.IssueId),

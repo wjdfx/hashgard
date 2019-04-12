@@ -2,6 +2,7 @@ package issue
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/handlers"
@@ -15,6 +16,8 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case msgs.MsgIssue:
 			return handlers.HandleMsgIssue(ctx, keeper, msg)
+		case msgs.MsgIssueDescription:
+			return handlers.HandleMsgIssueDescription(ctx, keeper, msg)
 		case msgs.MsgIssueMint:
 			return handlers.HandleMsgIssueMint(ctx, keeper, msg)
 		case msgs.MsgIssueBurn:

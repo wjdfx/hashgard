@@ -1,18 +1,20 @@
 package cli
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/client/utils"
-	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
+	"io/ioutil"
 	"strconv"
 	"time"
 
+	"github.com/cosmos/cosmos-sdk/client/utils"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/msgs"
@@ -32,27 +34,28 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 			if !ok {
 				return fmt.Errorf("Total supply %s not a valid int, please input a valid total supply", args[2])
 			}
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().
-				WithCodec(cdc).
-				WithAccountDecoder(cdc)
-			from := cliCtx.GetFromAddress()
-			account, err := cliCtx.GetAccount(from)
+
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
 
-			msg := msgs.CreateMsgIssue(&types.CoinIssueInfo{
+			coinIssueInfo := types.CoinIssueInfo{
+				Issuer:          account.GetAddress(),
 				Owner:           account.GetAddress(),
 				Name:            args[0],
 				Symbol:          args[1],
 				IssueTime:       time.Now(),
+				BurningFinished: viper.GetBool(flagBurningFinished),
 				MintingFinished: viper.GetBool(flagMintingFinished),
 				TotalSupply:     totalSupply,
 				Decimals:        uint(viper.GetInt(flagDecimals)),
-			})
+			}
+			coinIssueInfo.SetTotalSupply(issueutils.MulDecimals(coinIssueInfo.TotalSupply, coinIssueInfo.Decimals))
+			msg := msgs.CreateMsgIssue(&coinIssueInfo)
 
 			validateErr := msg.ValidateBasic()
+
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
 			}
@@ -61,7 +64,55 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 	}
 
 	cmd.Flags().Uint(flagDecimals, types.CoinDecimalsMaxValue, "Decimals of coin")
+	cmd.Flags().Bool(flagBurningFinished, false, "can burning of coin")
 	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
+
+	return cmd
+}
+
+// GetCmdIssue implements issue a coin transaction command.
+func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "describe [issue-id] [description-file]",
+		Args:    cobra.ExactArgs(2),
+		Short:   "Describe a new coin",
+		Long:    "Describe a new coin",
+		Example: "$ hashgardcli issue describe foocoin path/description.json --from foo",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			if err != nil {
+				return err
+			}
+			contents, err := ioutil.ReadFile(args[1])
+			if err != nil {
+				return err
+			}
+			buffer := bytes.Buffer{}
+			err = json.Compact(&buffer, contents)
+			if err != nil {
+				return errors.ErrCoinDescriptionNotValid()
+			}
+			contents = buffer.Bytes()
+
+			// Query the issue
+			_, err = issuequeriers.QueryIssueByID(issueID, cliCtx)
+			if err != nil {
+				return err
+			}
+			msg := msgs.NewMsgIssueDescription(issueID, account.GetAddress(), contents)
+
+			validateErr := msg.ValidateBasic()
+
+			if validateErr != nil {
+				return errors.Errorf(validateErr)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
+		},
+	}
 
 	return cmd
 }
@@ -87,16 +138,20 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().
-				WithCodec(cdc).
-				WithAccountDecoder(cdc)
-			from := cliCtx.GetFromAddress()
-			_, err = cliCtx.GetAccount(from)
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
-			msg := msgs.MsgIssueMint{IssueId: issueID, From: from, Amount: amount, To: to}
+			// Query the issue
+			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
+			if err != nil {
+				return err
+			}
+			var issueInfo types.Issue
+			cdc.MustUnmarshalJSON(res, &issueInfo)
+			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
+
+			msg := msgs.MsgIssueMint{IssueId: issueID, From: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
@@ -127,17 +182,22 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("amount %s not a valid int, please input a valid amount", args[1])
 			}
 			amount := sdk.NewInt(num)
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().
-				WithCodec(cdc).
-				WithAccountDecoder(cdc)
-			from := cliCtx.GetFromAddress()
-			_, err = cliCtx.GetAccount(from)
+
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
+
+			// Query the issue
+			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
+			if err != nil {
+				return err
+			}
+			var issueInfo types.Issue
+			cdc.MustUnmarshalJSON(res, &issueInfo)
+			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, From: from, Amount: amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, From: account.GetAddress(), Amount: amount}}, false)
 		},
 	}
 	return cmd
@@ -156,17 +216,18 @@ func GetCmdIssueFinishMinting(cdc *codec.Codec) *cobra.Command {
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
-			cliCtx := context.NewCLIContext().
-				WithCodec(cdc).
-				WithAccountDecoder(cdc)
-			from := cliCtx.GetFromAddress()
-			_, err := cliCtx.GetAccount(from)
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
+			// Query the issue
+			_, err = issuequeriers.QueryIssueByID(issueID, cliCtx)
+			if err != nil {
+				return err
+			}
+
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueFinishMinting{IssueId: issueID, From: from}}, false)
+				[]sdk.Msg{msgs.MsgIssueFinishMinting{IssueId: issueID, From: account.GetAddress()}}, false)
 		},
 	}
 	return cmd

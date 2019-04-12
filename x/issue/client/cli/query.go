@@ -2,6 +2,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -87,6 +88,7 @@ func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {
 			}
 			var issueInfo types.Issue
 			cdc.MustUnmarshalJSON(res, &issueInfo)
+			issueInfo.SetTotalSupply(issueutils.QuoDecimals(issueInfo.GetTotalSupply(), issueInfo.GetDecimals()))
 			return cliCtx.PrintOutput(issueInfo)
 		},
 	}
@@ -113,6 +115,9 @@ func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 			}
 			var coinIssues types.CoinIssues
 			cdc.MustUnmarshalJSON(res, &coinIssues)
+			for i, coin := range coinIssues {
+				coinIssues[i].TotalSupply = issueutils.QuoDecimals(coin.TotalSupply, coin.Decimals)
+			}
 			return cliCtx.PrintOutput(coinIssues)
 		},
 	}

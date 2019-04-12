@@ -3,7 +3,7 @@ package client
 import (
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/go-amino"
+	amino "github.com/tendermint/go-amino"
 
 	issueCli "github.com/hashgard/hashgard/x/issue/client/cli"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -34,6 +34,7 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 
 	txCmd := client.PostCommands(
 		issueCli.GetCmdIssueCreate(mc.cdc),
+		issueCli.GetCmdIssueDescription(mc.cdc),
 		issueCli.GetCmdIssueMint(mc.cdc),
 		issueCli.GetCmdIssueBurn(mc.cdc),
 		issueCli.GetCmdIssueFinishMinting(mc.cdc),

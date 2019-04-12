@@ -1,9 +1,12 @@
 package utils
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"math"
 	"math/rand"
+	"strconv"
 	"strings"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -40,4 +43,20 @@ func CheckIssueId(issueID string) sdk.Error {
 		return errors.ErrIssueID(issueID)
 	}
 	return nil
+}
+func MulDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
+
+	multiple := math.Pow10(int(decimals))
+	multipleStr := strconv.FormatFloat(multiple, 'f', 0, 64)
+	multipleDecimals, _ := sdk.NewIntFromString(multipleStr)
+
+	return totalSupply.Mul(multipleDecimals)
+}
+func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
+
+	quo := math.Pow10(int(decimals))
+	quoStr := strconv.FormatFloat(quo, 'f', 0, 64)
+	quoDecimals, _ := sdk.NewIntFromString(quoStr)
+
+	return totalSupply.Quo(quoDecimals)
 }

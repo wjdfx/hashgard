@@ -1,8 +1,10 @@
 package tests
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/require"
 
 	"github.com/tendermint/tendermint/crypto"
 
@@ -23,11 +25,14 @@ var (
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
 
 	CoinIssueInfo = types.CoinIssueInfo{
+		Issuer:          IssuerCoinsAccAddr,
 		Owner:           IssuerCoinsAccAddr,
+		IssueTime:       time.Now(),
 		Name:            "test",
 		Symbol:          "tst",
 		TotalSupply:     sdk.NewInt(10000),
 		Decimals:        types.CoinDecimalsMaxValue,
+		BurningFinished: false,
 		MintingFinished: false}
 )
 

@@ -2,8 +2,6 @@ package handlers
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/utils"
@@ -11,22 +9,13 @@ import (
 
 //Handle MsgIssueMint
 func HandleMsgIssueMint(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueMint) sdk.Result {
-	coinIssueInfo := keeper.GetIssue(ctx, msg.IssueId)
-	if coinIssueInfo == nil {
-		return errors.ErrUnknownIssue(msg.IssueId).Result()
-	}
-	if !coinIssueInfo.Owner.Equals(msg.From) {
-		return errors.ErrIssuerMismatch(msg.IssueId).Result()
-	}
-	if coinIssueInfo.MintingFinished {
-		return errors.ErrCanNotMint(msg.IssueId).Result()
-	}
-	_, tags, err := keeper.Mint(ctx, coinIssueInfo, msg.Amount, msg.To)
+
+	_, tags, err := keeper.Mint(ctx, msg.IssueId, msg.Amount, msg.From, msg.To)
 	if err != nil {
 		return err.Result()
 	}
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: tags.AppendTags(utils.AppendIssueInfoTag(msg.IssueId, coinIssueInfo)),
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(msg.IssueId)),
 	}
 }

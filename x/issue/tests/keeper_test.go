@@ -1,10 +1,12 @@
 package tests
 
 import (
+	"testing"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
-	"testing"
 
 	"github.com/hashgard/hashgard/x/issue"
 )
@@ -43,7 +45,7 @@ func TestGetIssues(t *testing.T) {
 		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 		require.Nil(t, err)
 	}
-	issues := keeper.GetIssues(ctx, CoinIssueInfo.Owner.String())
+	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
 
 	require.Len(t, issues, cap)
 }
@@ -57,7 +59,7 @@ func TestMint(t *testing.T) {
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	_, _, err = keeper.Mint(ctx, &CoinIssueInfo, sdk.NewInt(10000), IssuerCoinsAccAddr)
+	_, _, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(20000)))
@@ -72,7 +74,7 @@ func TestBurn(t *testing.T) {
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	_, _, err = keeper.Burn(ctx, &CoinIssueInfo, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	_, _, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(5000)))

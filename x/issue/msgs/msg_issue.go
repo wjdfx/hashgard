@@ -2,6 +2,9 @@ package msgs
 
 import (
 	"fmt"
+
+	"github.com/hashgard/hashgard/x/issue/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
@@ -34,14 +37,20 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 	if msg.CoinIssueInfo.TotalSupply.IsZero() || !msg.CoinIssueInfo.TotalSupply.IsPositive() {
 		return sdk.ErrInvalidCoins("Cannot issue 0 or negative coin amounts")
 	}
+	if utils.QuoDecimals(msg.CoinIssueInfo.TotalSupply, msg.CoinIssueInfo.Decimals).GT(types.CoinMaxTotalSupply) {
+		return errors.ErrCoinTotalSupplyMaxValueNotValid()
+	}
 	if len(msg.Name) > types.CoinNameMaxLength {
 		return errors.ErrCoinNamelNotValid()
 	}
-	if len(msg.Symbol) > types.CoinSymbolMaxLength {
+	if len(msg.Symbol) < types.CoinSymbolMinLength || len(msg.Symbol) > types.CoinSymbolMaxLength {
 		return errors.ErrCoinSymbolNotValid()
 	}
 	if msg.Decimals > types.CoinDecimalsMaxValue {
 		return errors.ErrCoinDecimalsMaxValueNotValid()
+	}
+	if len(msg.Description) > types.CoinDescriptionMaxLength {
+		return errors.ErrCoinDescriptionMaxLengthNotValid()
 	}
 	return nil
 }

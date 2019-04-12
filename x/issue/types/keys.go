@@ -19,6 +19,11 @@ const (
 const (
 	DefaultCodespace sdk.CodespaceType = ModuleName
 )
+
+var (
+	CoinMaxTotalSupply, _ = sdk.NewIntFromString("10000000000000000000000000000000000")
+)
+
 const (
 	IDLength = 15
 	IDPreStr = "coin"
@@ -34,9 +39,12 @@ const (
 	TypeMsgIssueMint          = "issueMint"
 	TypeMsgIssueBurn          = "issueBurn"
 	TypeMsgIssueFinishMinting = "issueFinishMinting"
+	TypeMsgIssueDescription   = "issueDescription"
 )
 const (
-	CoinDecimalsMaxValue = uint(18)
-	CoinNameMaxLength    = 15
-	CoinSymbolMaxLength  = 6
+	CoinDecimalsMaxValue     = uint(18)
+	CoinNameMaxLength        = 32
+	CoinSymbolMinLength      = 2
+	CoinSymbolMaxLength      = 8
+	CoinDescriptionMaxLength = 1024
 )

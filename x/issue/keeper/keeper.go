@@ -4,6 +4,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	"github.com/hashgard/hashgard/x/issue/errors"
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
@@ -99,9 +100,9 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
 	store.Set(KeyIssuer(issueID), bz)
 
-	idAdders := keeper.GetAddressIssues(ctx, coinIssueInfo.GetOwner().String())
+	idAdders := keeper.GetAddressIssues(ctx, coinIssueInfo.GetIssuer().String())
 	idAdders = append(idAdders, issueID)
-	keeper.setAddressIssues(ctx, coinIssueInfo.GetOwner().String(), idAdders)
+	keeper.setAddressIssues(ctx, coinIssueInfo.GetIssuer().String(), idAdders)
 
 	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
 	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})
@@ -125,7 +126,22 @@ func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 }
 
 //Mint a issue
-func (keeper Keeper) Mint(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, from sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+
+	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+	if coinIssueInfo == nil {
+		return nil, nil, errors.ErrUnknownIssue(issueID)
+	}
+	if !coinIssueInfo.Owner.Equals(from) {
+		return nil, nil, errors.ErrIssuerMismatch(issueID)
+	}
+	if coinIssueInfo.MintingFinished {
+		return nil, nil, errors.ErrCanNotMint(issueID)
+	}
+	if utils.QuoDecimals(coinIssueInfo.TotalSupply.Add(amount), coinIssueInfo.Decimals).GT(types.CoinMaxTotalSupply) {
+		return nil, nil, errors.ErrCoinTotalSupplyMaxValueNotValid()
+	}
+
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
 	coins, tags, err := keeper.ck.AddCoins(ctx, to, sdk.Coins{coin})
 	if err != nil {
@@ -139,8 +155,12 @@ func (keeper Keeper) Mint(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, a
 }
 
 //Burn a issue
-func (keeper Keeper) Burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
-	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
+func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+	if coinIssueInfo == nil {
+		return nil, nil, errors.ErrUnknownIssue(issueID)
+	}
+	coin := sdk.Coin{Denom: issueID, Amount: amount}
 	coins, tags, err := keeper.ck.SubtractCoins(ctx, who, sdk.Coins{coin})
 	if err != nil {
 		return coins, tags, err
@@ -149,6 +169,19 @@ func (keeper Keeper) Burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, a
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 	return coins, tags, err
+}
+func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, from sdk.AccAddress, description []byte) sdk.Error {
+	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+	if coinIssueInfo == nil {
+		return errors.ErrUnknownIssue(issueID)
+	}
+	if !coinIssueInfo.Owner.Equals(from) {
+		return errors.ErrIssuerMismatch(issueID)
+	}
+	coinIssueInfo.Description = string(description)
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return nil
 }
 
 //Send coins

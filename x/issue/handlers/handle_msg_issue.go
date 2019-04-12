@@ -16,7 +16,7 @@ func HandleMsgIssue(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssue) sd
 		return err.Result()
 	}
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(coinIssueInfo.IssueId),
-		Tags: tags.AppendTags(utils.AppendIssueInfoTag(coinIssueInfo.IssueId, coinIssueInfo)),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(coinIssueInfo.IssueId)),
 	}
 }
