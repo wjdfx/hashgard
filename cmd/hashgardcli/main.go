@@ -31,6 +31,7 @@ import (
 	"github.com/hashgard/hashgard/version"
 	"github.com/hashgard/hashgard/x/exchange"
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
+	faucetcmd "github.com/hashgard/hashgard/x/faucet/client/cli"
 	"github.com/hashgard/hashgard/x/issue"
 )
 
@@ -88,6 +89,8 @@ func main() {
 	addSlashingCmd(cdc, rootCmd)
 	// Add stake subcommands
 	addStakeCmd(cdc, rootCmd)
+	// Add faucet subcommands
+	addFaucetCmd(cdc, rootCmd)
 
 	rootCmd.AddCommand(
 		client.LineBreak,
@@ -278,6 +281,20 @@ func addExchangeCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		)...)
 	rootCmd.AddCommand(exchangeCmd)
 }
+
+// Add faucet subcommands
+func addFaucetCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	faucetCmd := &cobra.Command{
+		Use:   "faucet",
+		Short: "faucet subcommands",
+	}
+	faucetCmd.AddCommand(
+		client.PostCommands(
+			faucetcmd.GetCmdFaucetSend(cdc),
+		)...)
+	rootCmd.AddCommand(faucetCmd)
+}
+
 
 func initConfig(cmd *cobra.Command) error {
 	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)

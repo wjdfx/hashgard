@@ -24,6 +24,7 @@ import (
 
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/issue"
+	"github.com/hashgard/hashgard/x/faucet"
 )
 
 const (
@@ -57,6 +58,7 @@ type HashgardApp struct {
 	keyIssue         *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
 	keyExchange      *sdk.KVStoreKey
+	keyFaucet		 *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
 
@@ -72,6 +74,7 @@ type HashgardApp struct {
 	exchangeKeeper      exchange.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
+	faucetKeeper		faucet.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
@@ -188,6 +191,13 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		exchange.DefaultCodespace,
 	)
 
+	app.faucetKeeper = faucet.NewKeeper(
+		app.cdc,
+		app.paramsKeeper.Subspace(faucet.DefaultParamspace),
+		app.bankKeeper,
+		faucet.DefaultCodespace,
+	)
+
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
@@ -203,7 +213,8 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
-		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper))
+		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper)).
+		AddRoute(faucet.RouterKey, faucet.NewHandler(app.faucetKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -260,6 +271,7 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
+	faucet.RegisterCodec(cdc)
 
 	return cdc
 }
@@ -330,6 +342,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
+	faucet.InitGenesis(ctx, app.faucetKeeper, genesisState.FaucetData)
 
 	// validate genesis state
 	if err := HashgardValidateGenesisState(genesisState); err != nil {
