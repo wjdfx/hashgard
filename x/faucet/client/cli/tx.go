@@ -14,7 +14,7 @@ import (
 func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "send",
-		Short:   "get some test coins from faucet account",
+		Short:   "get some test coins from faucet account, this function just be available in testnet",
 		Example: "$ hashgardcli faucet send --from mykey",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
