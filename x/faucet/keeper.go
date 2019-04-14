@@ -24,7 +24,7 @@ type Keeper struct {
 func NewKeeper(cdc *codec.Codec, paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper {
 		cdc:		cdc,
-		paramSpace:	paramSpace,
+		paramSpace:	paramSpace.WithKeyTable(ParamKeyTable()),
 		bankKeeper:	ck,
 		codespace:	codespace,
 	}

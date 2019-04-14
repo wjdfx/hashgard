@@ -70,9 +70,5 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	sendCoins := keeper.GetSendCoins(ctx)
 	limitCoins := keeper.GetLimitCoins(ctx)
 
-	return GenesisState {
-		FaucetOrigin:	faucetOrigin,
-		SendCoins:		sendCoins,
-		LimitCoins:		limitCoins,
-	}
+	return NewGenesisState(faucetOrigin, sendCoins, limitCoins)
 }

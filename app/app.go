@@ -58,7 +58,6 @@ type HashgardApp struct {
 	keyIssue         *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
 	keyExchange      *sdk.KVStoreKey
-	keyFaucet		 *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
 	tkeyParams       *sdk.TransientStoreKey
 
