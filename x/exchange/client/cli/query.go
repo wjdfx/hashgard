@@ -18,7 +18,7 @@ func GetCmdQueryOrder(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "query-order [order-id]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query details of a order",
+		Short: "Query detail info of the order with the specific order-id",
 		Long: strings.TrimSpace(`
 $ hashgardcli exchange query-order 1
 `),
@@ -53,9 +53,9 @@ func GetCmdQueryOrdersByAddr(queryRoute string, cdc *codec.Codec) *cobra.Command
 	return &cobra.Command{
 		Use:   "query-orders [address]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query orders of a address",
+		Short: "Query all orders of a specific address",
 		Long: strings.TrimSpace(`
-$ hashgardcli exchange query-orders address
+$ hashgardcli exchange query-orders gard1hf4n743fujvxrwx8af7u35anjqpdd2cx8p6cdd
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
@@ -87,9 +87,9 @@ func GetCmdFrozenFund(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "query-frozen [address]",
 		Args:  cobra.ExactArgs(1),
-		Short: "Query frozen fund of an address",
+		Short: "Query frozen fund of a specific address",
 		Long: strings.TrimSpace(`
-$ hashgardcli exchange query-frozen address
+$ hashgardcli exchange query-frozen gard1hf4n743fujvxrwx8af7u35anjqpdd2cx8p6cdd
 `),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

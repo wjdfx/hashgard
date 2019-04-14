@@ -18,6 +18,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/faucet"
 )
 
 // export the state of hashgard for a genesis file
@@ -50,6 +51,7 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		gov.ExportGenesis(ctx, app.govKeeper),
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		exchange.ExportGenesis(ctx, app.exchangeKeeper),
+		faucet.ExportGenesis(ctx, app.faucetKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {

@@ -20,7 +20,13 @@ func GetCmdCreateOrder(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create-order",
 		Short:   "create a new order",
-		Example: "$ hashgardcli exchange create-order --suply=100gard --target=800apple --from mykey",
+		Example: `
+$ hashgardcli exchange create-order --suply=100gard --target=800apple --from mykey
+
+The supply must have specific amount and coin name, that's what you want to sell.
+So make sure your address have sufficient balance.
+The target is what you want to get by this order.
+`,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
 			cliCtx := context.NewCLIContext().
@@ -78,6 +84,9 @@ func GetCmdWithdrawalOrder(cdc *codec.Codec) *cobra.Command {
 		Short: "withdrawal a exist order",
 		Long: strings.TrimSpace(`
 $ hashgardcli exchange withdrawal-order 3 --from mykey
+
+If the order's owner is not you, will output error.
+When withdrawal an order successfully, the remains coin of the order will return to the owner address.'
 `),
 		RunE: func(cnd *cobra.Command, args []string) error {
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
@@ -116,6 +125,12 @@ func GetCmdTakeOrder(cdc *codec.Codec) *cobra.Command {
 		Short: "exchange with a active order",
 		Long: strings.TrimSpace(`
 $ hashgardcli exchange take-order 3 --amount=800apple --from mykey
+
+Make sure the --amount is match the order's target coin.
+if send more than the remains of the order target, the order will be filled,
+The extra part will be returned to you. If your amount is more than the exchange threshold,
+but less than the remains target, the order will be executed partially, you can get supply coins
+of corresponding amount.
 `),
 		RunE: func(cnd *cobra.Command, args []string) error {
 			txBldr := authtxb.NewTxBuilderFromCLI().WithTxEncoder(utils.GetTxEncoder(cdc))
