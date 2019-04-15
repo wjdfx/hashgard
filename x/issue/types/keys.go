@@ -38,8 +38,12 @@ const (
 	TypeMsgIssue              = "issue"
 	TypeMsgIssueMint          = "issueMint"
 	TypeMsgIssueBurn          = "issueBurn"
+	TypeMsgIssueBurnFrom      = "issueBurnFrom"
 	TypeMsgIssueFinishMinting = "issueFinishMinting"
 	TypeMsgIssueDescription   = "issueDescription"
+	TypeMsgIssueBurnOff       = "issueBurnOff"
+	TypeMsgIssueBurnFromOff   = "issueBurnFromOff"
+	TypeMsgIssueBurnAnyOff    = "issueBurnAnyOff"
 )
 const (
 	CoinDecimalsMaxValue     = uint(18)

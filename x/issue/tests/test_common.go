@@ -23,6 +23,7 @@ import (
 var (
 	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
+	OperatorAccAddr      = sdk.AccAddress(crypto.AddressHash([]byte("operatorAddress")))
 
 	CoinIssueInfo = types.CoinIssueInfo{
 		Issuer:          IssuerCoinsAccAddr,
@@ -32,7 +33,9 @@ var (
 		Symbol:          "tst",
 		TotalSupply:     sdk.NewInt(10000),
 		Decimals:        types.CoinDecimalsMaxValue,
-		BurningFinished: false,
+		BurnOff:         false,
+		BurnAnyOff:      false,
+		BurnFromOff:     false,
 		MintingFinished: false}
 )
 

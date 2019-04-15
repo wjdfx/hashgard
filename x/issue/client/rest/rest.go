@@ -1,15 +1,15 @@
 package rest
 
 import (
-	"github.com/gorilla/mux"
-
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/gorilla/mux"
 )
 
 const (
 	ParamsType = "type"
 	IssueID    = "issue-id"
+	AccAddress = "accAddress"
 	Owner      = "owner"
 	Amount     = "amount"
 	To         = "to"

@@ -8,27 +8,28 @@ import (
 	"github.com/hashgard/hashgard/x/issue/types"
 )
 
-// MsgIssueBurn to allow a registered owner
+// MsgIssueBurnFrom to allow a registered owner
 // to issue new coins.
-type MsgIssueBurn struct {
+type MsgIssueBurnFrom struct {
 	IssueId  string         `json:"issue_id"`
 	Operator sdk.AccAddress `json:"operator"`
+	From     sdk.AccAddress `json:"from"`
 	Amount   sdk.Int        `json:"amount"`
 }
 
 //New CreateMsgIssue Instance
-func NewMsgIssueBurn(issueId string, operator sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
-	return MsgIssueBurn{issueId, operator, amount}
+func NewMsgIssueBurnFrom(issueId string, operator sdk.AccAddress, from sdk.AccAddress, amount sdk.Int) MsgIssueBurnFrom {
+	return MsgIssueBurnFrom{issueId, operator, from, amount}
 }
 
 // Route Implements Msg.
-func (msg MsgIssueBurn) Route() string { return types.RouterKey }
+func (msg MsgIssueBurnFrom) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgIssueBurn) Type() string { return types.TypeMsgIssueBurn }
+func (msg MsgIssueBurnFrom) Type() string { return types.TypeMsgIssueBurnFrom }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
-func (msg MsgIssueBurn) ValidateBasic() sdk.Error {
+func (msg MsgIssueBurnFrom) ValidateBasic() sdk.Error {
 	if len(msg.IssueId) == 0 {
 		return sdk.ErrInvalidAddress("IssueId cannot be empty")
 	}
@@ -40,16 +41,16 @@ func (msg MsgIssueBurn) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgIssueBurn) GetSignBytes() []byte {
+func (msg MsgIssueBurnFrom) GetSignBytes() []byte {
 	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // GetSigners Implements Msg.
-func (msg MsgIssueBurn) GetSigners() []sdk.AccAddress {
+func (msg MsgIssueBurnFrom) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Operator}
 }
 
-func (msg MsgIssueBurn) String() string {
-	return fmt.Sprintf("MsgIssueBurn{%s - %s}", msg.IssueId, msg.Amount.String())
+func (msg MsgIssueBurnFrom) String() string {
+	return fmt.Sprintf("MsgIssueBurnFrom{%s - %s}", msg.IssueId, msg.Amount.String())
 }

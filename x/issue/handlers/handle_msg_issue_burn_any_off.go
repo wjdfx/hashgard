@@ -8,9 +8,9 @@ import (
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
-//Handle MsgIssueDescription
-func HandleMsgIssueDescription(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueDescription) sdk.Result {
-	err := keeper.SetIssueDescription(ctx, msg.IssueId, msg.From, msg.Description)
+//Handle MsgIssueBurnAnyOff
+func HandleMsgIssueBurnAnyOff(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnAnyOff) sdk.Result {
+	err := keeper.BurnAnyOff(ctx, msg.From, msg.IssueId)
 	if err != nil {
 		return err.Result()
 	}

@@ -109,23 +109,88 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 	coinIssueInfo.IssueId = issueID
 	return coins, tags, err
 }
-
-//Finished Minting a issue
-func (keeper Keeper) FinishMinting(ctx sdk.Context, issueID string) *types.CoinIssueInfo {
+func (keeper Keeper) getIssueByOwner(ctx sdk.Context, operator sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+	if coinIssueInfo == nil {
+		return nil, errors.ErrUnknownIssue(issueID)
+	}
+	if !coinIssueInfo.Owner.Equals(operator) {
+		return nil, errors.ErrOwnerMismatch(issueID)
+	}
+	return coinIssueInfo, nil
+}
+
+//Finished Minting a coin
+func (keeper Keeper) FinishMinting(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+	if err != nil {
+		return err
+	}
+
+	if coinIssueInfo.MintingFinished {
+		return nil
+	}
 	coinIssueInfo.MintingFinished = true
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	return coinIssueInfo
+	return nil
 }
 
-//Can mint a issue
+//BurnOff a coin
+func (keeper Keeper) BurnOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+	if err != nil {
+		return err
+	}
+
+	if coinIssueInfo.BurnOff {
+		return nil
+	}
+	coinIssueInfo.BurnOff = true
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return nil
+}
+
+//BurnFromOff a coin
+func (keeper Keeper) BurnFromOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+	if err != nil {
+		return err
+	}
+
+	if coinIssueInfo.BurnFromOff {
+		return nil
+	}
+	coinIssueInfo.BurnFromOff = true
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return nil
+}
+
+//BurnAnyOff a coin
+func (keeper Keeper) BurnAnyOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+	if err != nil {
+		return err
+	}
+
+	if coinIssueInfo.BurnAnyOff {
+		return nil
+	}
+	coinIssueInfo.BurnAnyOff = true
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return nil
+}
+
+//Can mint a coin
 func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 	return !coinIssueInfo.MintingFinished
 }
 
-//Mint a issue
+//Mint a coin
 func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, from sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
@@ -133,7 +198,7 @@ func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, from 
 		return nil, nil, errors.ErrUnknownIssue(issueID)
 	}
 	if !coinIssueInfo.Owner.Equals(from) {
-		return nil, nil, errors.ErrIssuerMismatch(issueID)
+		return nil, nil, errors.ErrOwnerMismatch(issueID)
 	}
 	if coinIssueInfo.MintingFinished {
 		return nil, nil, errors.ErrCanNotMint(issueID)
@@ -154,21 +219,57 @@ func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, from 
 	return coins, tags, err
 }
 
-//Burn a issue
-func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+//Burn a coin
+func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+
 	if coinIssueInfo == nil {
 		return nil, nil, errors.ErrUnknownIssue(issueID)
 	}
-	coin := sdk.Coin{Denom: issueID, Amount: amount}
+	if coinIssueInfo.GetBurnOff() {
+		return nil, nil, errors.ErrCanNotBurn(issueID)
+	}
+	if !coinIssueInfo.Owner.Equals(operator) {
+		return nil, nil, errors.ErrOwnerMismatch(issueID)
+	}
+
+	return keeper.burn(ctx, coinIssueInfo, amount, operator)
+}
+func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
 	coins, tags, err := keeper.ck.SubtractCoins(ctx, who, sdk.Coins{coin})
 	if err != nil {
-		return coins, tags, err
+		return nil, nil, err
 	}
+
 	coinIssueInfo.TotalSupply = coinIssueInfo.TotalSupply.Sub(amount)
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	return coins, tags, err
+	return coins, tags, nil
+}
+
+//Burn a coin from address
+func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, burnfrom sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+	coinIssueInfo := keeper.GetIssue(ctx, issueID)
+
+	if coinIssueInfo == nil {
+		return nil, nil, errors.ErrUnknownIssue(issueID)
+	}
+
+	if operator.Equals(coinIssueInfo.GetOwner()) {
+		if coinIssueInfo.GetBurnAnyOff() {
+			return nil, nil, errors.ErrCanNotBurn(issueID)
+		}
+	} else {
+		if coinIssueInfo.GetBurnFromOff() {
+			return nil, nil, errors.ErrCanNotBurn(issueID)
+		}
+		if !burnfrom.Equals(operator) {
+			return nil, nil, errors.ErrOwnerMismatch(issueID)
+		}
+	}
+
+	return keeper.burn(ctx, coinIssueInfo, amount, burnfrom)
 }
 func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, from sdk.AccAddress, description []byte) sdk.Error {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
@@ -176,8 +277,9 @@ func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, from s
 		return errors.ErrUnknownIssue(issueID)
 	}
 	if !coinIssueInfo.Owner.Equals(from) {
-		return errors.ErrIssuerMismatch(issueID)
+		return errors.ErrOwnerMismatch(issueID)
 	}
+
 	coinIssueInfo.Description = string(description)
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))

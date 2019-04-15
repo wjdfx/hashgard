@@ -11,6 +11,8 @@ type IssueParams struct {
 	TotalSupply     sdk.Int `json:"total_supply"`
 	Decimals        uint    `json:"decimals"`
 	Description     string  `json:"description"`
-	BurningFinished bool    `json:"burning_finished"`
+	BurnOff         bool    `json:"burning_off"`
+	BurnFromOff     bool    `json:"burning_from_off"`
+	BurnAnyOff      bool    `json:"burning_any_off"`
 	MintingFinished bool    `json:"minting_finished"`
 }

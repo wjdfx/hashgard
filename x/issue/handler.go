@@ -22,6 +22,14 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgIssueMint(ctx, keeper, msg)
 		case msgs.MsgIssueBurn:
 			return handlers.HandleMsgIssueBurn(ctx, keeper, msg)
+		case msgs.MsgIssueBurnFrom:
+			return handlers.HandleMsgIssueBurnFrom(ctx, keeper, msg)
+		case msgs.MsgIssueBurnOff:
+			return handlers.HandleMsgIssueBurnOff(ctx, keeper, msg)
+		case msgs.MsgIssueBurnFromOff:
+			return handlers.HandleMsgIssueBurnFromOff(ctx, keeper, msg)
+		case msgs.MsgIssueBurnAnyOff:
+			return handlers.HandleMsgIssueBurnAnyOff(ctx, keeper, msg)
 		case msgs.MsgIssueFinishMinting:
 			return handlers.HandleMsgIssueFinishMinting(ctx, keeper, msg)
 		default:

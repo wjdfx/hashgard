@@ -2,6 +2,7 @@ package msgs
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -17,6 +18,19 @@ type MsgIssueFinishMinting struct {
 //New MsgIssueFinishMinting Instance
 func NewMsgIssueFinishMinting(issueId string, from sdk.AccAddress) MsgIssueFinishMinting {
 	return MsgIssueFinishMinting{issueId, from}
+}
+
+func (ci MsgIssueFinishMinting) GetIssueId() string {
+	return ci.IssueId
+}
+func (ci MsgIssueFinishMinting) SetIssueId(issueId string) {
+	ci.IssueId = issueId
+}
+func (ci MsgIssueFinishMinting) GetFrom() sdk.AccAddress {
+	return ci.From
+}
+func (ci MsgIssueFinishMinting) SetFrom(from sdk.AccAddress) {
+	ci.From = from
 }
 
 // Route Implements Msg.

@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	"os"
 	"path"
+
+	"github.com/cosmos/cosmos-sdk/client/keys"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	_ "github.com/cosmos/cosmos-sdk/client/lcd/statik"
@@ -13,7 +14,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
-	bankcmd "github.com/cosmos/cosmos-sdk/x/bank/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -138,7 +138,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
-		bankcmd.SendTxCmd(cdc),
+		issue.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
 		tx.GetBroadcastCommand(cdc),
@@ -294,7 +294,6 @@ func addFaucetCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		)...)
 	rootCmd.AddCommand(faucetCmd)
 }
-
 
 func initConfig(cmd *cobra.Command) error {
 	home, err := cmd.PersistentFlags().GetString(cli.HomeFlag)

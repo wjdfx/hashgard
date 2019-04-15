@@ -14,6 +14,10 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgIssueDescription{}, "issue/MsgIssueDescription", nil)
 	cdc.RegisterConcrete(MsgIssueMint{}, "issue/MsgIssueMint", nil)
 	cdc.RegisterConcrete(MsgIssueBurn{}, "issue/MsgIssueBurn", nil)
+	cdc.RegisterConcrete(MsgIssueBurnFrom{}, "issue/MsgIssueBurnFrom", nil)
+	cdc.RegisterConcrete(MsgIssueBurnOff{}, "issue/MsgIssueBurnOff", nil)
+	cdc.RegisterConcrete(MsgIssueBurnFromOff{}, "issue/MsgIssueBurnFromOff", nil)
+	cdc.RegisterConcrete(MsgIssueBurnAnyOff{}, "issue/MsgIssueBurnAnyOff", nil)
 	cdc.RegisterConcrete(MsgIssueFinishMinting{}, "issue/MsgIssueFinishMinting", nil)
 
 	cdc.RegisterInterface((*types.Issue)(nil), nil)

@@ -1,9 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,59 +10,6 @@ import (
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 )
-
-// GetAccountCmd returns a query account that will display the state of the
-// account at a given address.
-func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "account [address]",
-		Short: "Query account balance",
-		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
-
-			addr, err := sdk.AccAddressFromBech32(args[0])
-			if err != nil {
-				return err
-			}
-
-			if err = cliCtx.EnsureAccountExistsFromAddr(addr); err != nil {
-				return err
-			}
-
-			acc, err := cliCtx.GetAccount(addr)
-			if err != nil {
-				return err
-			}
-
-			if acc.GetCoins().Empty() {
-				return cliCtx.PrintOutput(acc)
-			}
-
-			coins := make(sdk.Coins, 0, acc.GetCoins().Len())
-			for _, coin := range acc.GetCoins() {
-				denom := coin.Denom
-				if issueutils.IsIssueId(coin.Denom) {
-					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
-					if err == nil {
-						var issueInfo types.Issue
-						cdc.MustUnmarshalJSON(res, &issueInfo)
-						denom = fmt.Sprintf("%s(%s)", issueInfo.GetName(), coin.Denom)
-					}
-				}
-				newCoin := sdk.Coin{Denom: denom, Amount: coin.Amount}
-				coins = append(coins, newCoin)
-			}
-
-			if err = acc.SetCoins(coins); err != nil {
-				return err
-			}
-
-			return cliCtx.PrintOutput(acc)
-		},
-	}
-	return client.GetCommands(cmd)[0]
-}
 
 // GetCmdQueryIssue implements the query issue command.
 func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {

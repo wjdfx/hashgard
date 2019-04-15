@@ -34,8 +34,14 @@ type Issue interface {
 	GetDescription() string
 	SetDescription(string)
 
-	GetBurningFinished() bool
-	SetBurningFinished(bool)
+	GetBurnOff() bool
+	SetBurnOff(bool)
+
+	GetBurnFromOff() bool
+	SetBurnFromOff(bool)
+
+	GetBurnAnyOff() bool
+	SetBurnAnyOff(bool)
 
 	GetMintingFinished() bool
 	SetMintingFinished(bool)
@@ -60,7 +66,9 @@ type CoinIssueInfo struct {
 	TotalSupply     sdk.Int        `json:"total_supply"`
 	Decimals        uint           `json:"decimals"`
 	Description     string         `json:"description"`
-	BurningFinished bool           `json:"burning_finished"`
+	BurnOff         bool           `json:"burning_off"`      //销毁功能
+	BurnFromOff     bool           `json:"burning_from_off"` //用户销毁
+	BurnAnyOff      bool           `json:"burning_any_off"`  //管理销毁
 	MintingFinished bool           `json:"minting_finished"`
 }
 
@@ -122,11 +130,23 @@ func (ci CoinIssueInfo) GetMintingFinished() bool {
 func (ci *CoinIssueInfo) SetMintingFinished(mintingFinished bool) {
 	ci.MintingFinished = mintingFinished
 }
-func (ci CoinIssueInfo) GetBurningFinished() bool {
-	return ci.BurningFinished
+func (ci CoinIssueInfo) GetBurnOff() bool {
+	return ci.BurnOff
 }
-func (ci *CoinIssueInfo) SetBurningFinished(burningFinished bool) {
-	ci.BurningFinished = burningFinished
+func (ci *CoinIssueInfo) SetBurnOff(burnOff bool) {
+	ci.BurnOff = burnOff
+}
+func (ci CoinIssueInfo) GetBurnFromOff() bool {
+	return ci.BurnFromOff
+}
+func (ci *CoinIssueInfo) SetBurnFromOff(burnFromOff bool) {
+	ci.BurnFromOff = burnFromOff
+}
+func (ci CoinIssueInfo) GetBurnAnyOff() bool {
+	return ci.BurnAnyOff
+}
+func (ci *CoinIssueInfo) SetBurnAnyOff(burnAnyOff bool) {
+	ci.BurnAnyOff = burnAnyOff
 }
 func (ci CoinIssueInfo) GetSymbol() string {
 	return ci.Symbol
@@ -145,20 +165,22 @@ func (ci CoinIssueInfo) String() string {
   Symbol:    	    %s
   TotalSupply:      %s
   Decimals:         %d
-  Description	    %s
-  BurningFinished   %t 
+  Description:	    %s
+  BurnOff:  		%t 
+  BurnFromOff:  	%t 
+  BurnAnyOff:  		%t 
   MintingFinished:  %t `,
 		ci.IssueId, ci.Issuer.String(), ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
-		ci.Decimals, ci.Description, ci.BurningFinished, ci.MintingFinished)
+		ci.Decimals, ci.Description, ci.BurnOff, ci.BurnFromOff, ci.BurnAnyOff, ci.MintingFinished)
 }
 
 //nolint
 func (coinIssues CoinIssues) String() string {
-	out := fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8s|%-15s|%s\n",
-		"IssueID", "Name", "Symbol", "TotalSupply", "Decimals", "MintingFinished", "IssueTime")
+	out := fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8s|%s\n",
+		"IssueID", "Name", "Symbol", "TotalSupply", "Decimals", "IssueTime")
 	for _, issue := range coinIssues {
-		out += fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8d|%-15t|%s\n",
-			issue.IssueId, issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.MintingFinished, issue.IssueTime.String())
+		out += fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8d|%s\n",
+			issue.IssueId, issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.IssueTime.String())
 	}
 	return strings.TrimSpace(out)
 }

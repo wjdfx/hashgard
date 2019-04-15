@@ -37,6 +37,10 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 		issueCli.GetCmdIssueDescription(mc.cdc),
 		issueCli.GetCmdIssueMint(mc.cdc),
 		issueCli.GetCmdIssueBurn(mc.cdc),
+		issueCli.GetCmdIssueBurnFrom(mc.cdc),
+		issueCli.GetCmdIssueBurnOff(mc.cdc),
+		issueCli.GetCmdIssueBurnFromOff(mc.cdc),
+		issueCli.GetCmdIssueBurnAnyOff(mc.cdc),
 		issueCli.GetCmdIssueFinishMinting(mc.cdc),
 	)
 	for _, cmd := range txCmd {

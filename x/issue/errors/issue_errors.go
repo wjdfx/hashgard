@@ -27,8 +27,11 @@ func Errorf(err sdk.Error) error {
 }
 
 // Error constructors
-func ErrIssuerMismatch(issueID string) sdk.Error {
+func ErrOwnerMismatch(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with coin %s", issueID))
+}
+func ErrCoinCanNotBurnOverFromAmount(issueID string, amount sdk.Int) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Can not burn %d from %s", amount.String(), issueID))
 }
 func ErrCoinDecimalsMaxValueNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueCoinDecimalsNotValid, fmt.Sprintf("Decimals max value is %d", types.CoinDecimalsMaxValue))
@@ -56,13 +59,9 @@ func ErrIssueID(issueID string) sdk.Error {
 func ErrCanNotMint(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CanNotMint, fmt.Sprintf("Can not mint with coin %s", issueID))
 }
-
-//nolint
 func ErrCanNotBurn(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CanNotBurn, fmt.Sprintf("Can not burn with coin %s", issueID))
 }
-
-//nolint
 func ErrUnknownIssue(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownIssue, fmt.Sprintf("Unknown issue with id %s", issueID))
 }
