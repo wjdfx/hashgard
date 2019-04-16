@@ -17,11 +17,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const (
-	flagTo     = "to"
-	flagAmount = "amount"
-)
-
 // SendTxCmd will create a send tx and sign it with the given key.
 func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{

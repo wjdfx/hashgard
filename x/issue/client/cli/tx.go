@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
@@ -43,7 +44,7 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				Issuer:          account.GetAddress(),
 				Owner:           account.GetAddress(),
 				Name:            args[0],
-				Symbol:          args[1],
+				Symbol:          strings.ToUpper(args[1]),
 				IssueTime:       time.Now(),
 				BurnOff:         viper.GetBool(flagBurnOff),
 				BurnFromOff:     viper.GetBool(flagBurnFromOff),
