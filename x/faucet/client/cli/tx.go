@@ -105,7 +105,7 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			sigBytes, pubkey, err := kb.Sign(FaucetName, "12345678", stdSignMsg.Bytes())
+			sigBytes, pubkey, err := kb.Sign(FaucetName, FaucetPswd, stdSignMsg.Bytes())
 			if err != nil {
 				return err
 			}
