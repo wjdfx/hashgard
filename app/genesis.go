@@ -23,7 +23,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/faucet"
 )
 
 var (
@@ -46,7 +45,6 @@ type GenesisState struct {
 	SlashingData     slashing.GenesisState     `json:"slashing"`
 	GovData          gov.GenesisState          `json:"gov"`
 	ExchangeData     exchange.GenesisState     `json:"exchange"`
-	FaucetData		 faucet.GenesisState	   `json:"faucet"`
 	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
@@ -60,7 +58,6 @@ func NewGenesisState(
 	govData gov.GenesisState,
 	slashingData slashing.GenesisState,
 	exchangeData exchange.GenesisState,
-	faucetData faucet.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -73,7 +70,6 @@ func NewGenesisState(
 		GovData:          govData,
 		SlashingData:     slashingData,
 		ExchangeData:     exchangeData,
-		FaucetData:		  faucetData,
 	}
 }
 
@@ -100,7 +96,6 @@ func NewDefaultGenesisState() GenesisState {
 		GovData:          createGovGenesisState(),
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
-		FaucetData:		  faucet.DefaultGenesisState(),
 		GenTxs:           nil,
 	}
 }
@@ -333,9 +328,6 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
-		return err
-	}
-	if err := faucet.ValidateGenesis(genesisState.FaucetData); err != nil {
 		return err
 	}
 

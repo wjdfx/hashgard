@@ -19,7 +19,6 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/faucet"
 )
 
 func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
@@ -38,7 +37,6 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 		SlashingData:     slashing.DefaultGenesisState(),
 		GovData:          gov.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
-		FaucetData:		  faucet.DefaultGenesisState(),
 	}
 
 	stateBytes, err := codec.MarshalJSONIndent(happ.cdc, genesisState)
