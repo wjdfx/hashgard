@@ -1,10 +1,14 @@
 package rest
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/hashgard/hashgard/x/issue/errors"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
@@ -59,9 +63,14 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 		if err != nil {
 			return
 		}
+		if len(req.Description) > 0 && !json.Valid([]byte(req.Description)) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrCoinDescriptionNotValid().Error())
+			return
+		}
 		coinIssueInfo := types.CoinIssueInfo{
 			Owner:           fromAddress,
 			Name:            req.Name,
+			Symbol:          strings.ToUpper(req.Symbol),
 			TotalSupply:     req.TotalSupply,
 			Decimals:        req.Decimals,
 			IssueTime:       time.Now(),
@@ -332,6 +341,10 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if len(req.Description) <= 0 || !json.Valid([]byte(req.Description)) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrCoinDescriptionNotValid().Error())
 			return
 		}
 

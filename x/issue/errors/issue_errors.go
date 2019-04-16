@@ -30,9 +30,6 @@ func Errorf(err sdk.Error) error {
 func ErrOwnerMismatch(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with coin %s", issueID))
 }
-func ErrCoinCanNotBurnOverFromAmount(issueID string, amount sdk.Int) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Can not burn %d from %s", amount.String(), issueID))
-}
 func ErrCoinDecimalsMaxValueNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueCoinDecimalsNotValid, fmt.Sprintf("Decimals max value is %d", types.CoinDecimalsMaxValue))
 }
