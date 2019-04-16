@@ -118,7 +118,8 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 	}
 
 	divisor := GetGratestDivisor(order.Supply.Amount, order.Target.Amount)
-	remainShares := order.Remains.Amount.Quo(divisor)
+	supplyPrice := order.Supply.Amount.Quo(divisor)
+	remainShares := order.Remains.Amount.Quo(supplyPrice)
 	sharePrice := order.Target.Amount.Quo(divisor)
 
 	if val.Amount.LT(sharePrice) {
