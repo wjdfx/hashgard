@@ -52,7 +52,6 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		gov.ExportGenesis(ctx, app.govKeeper),
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		exchange.ExportGenesis(ctx, app.exchangeKeeper),
-		faucet.ExportGenesis(ctx, app.faucetKeeper),
 		issue.ExportGenesis(ctx, app.issueKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)

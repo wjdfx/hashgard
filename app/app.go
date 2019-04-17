@@ -23,7 +23,6 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/faucet"
 	"github.com/hashgard/hashgard/x/issue"
 )
 
@@ -73,7 +72,6 @@ type HashgardApp struct {
 	exchangeKeeper      exchange.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
-	faucetKeeper        faucet.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
