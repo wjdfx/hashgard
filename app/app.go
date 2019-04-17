@@ -190,13 +190,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		exchange.DefaultCodespace,
 	)
 
-	app.faucetKeeper = faucet.NewKeeper(
-		app.cdc,
-		app.paramsKeeper.Subspace(faucet.DefaultParamspace),
-		app.bankKeeper,
-		faucet.DefaultCodespace,
-	)
-
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
@@ -212,8 +205,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
-		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper)).
-		AddRoute(faucet.RouterKey, faucet.NewHandler(app.faucetKeeper))
+		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -270,7 +262,6 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
-	faucet.RegisterCodec(cdc)
 
 	return cdc
 }
@@ -342,7 +333,6 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	issue.InitGenesis(ctx, app.issueKeeper, genesisState.IssueData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
-	faucet.InitGenesis(ctx, app.faucetKeeper, genesisState.FaucetData)
 
 	// validate genesis state
 	if err := HashgardValidateGenesisState(genesisState); err != nil {

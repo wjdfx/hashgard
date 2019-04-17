@@ -20,7 +20,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/faucet"
 )
 
 // export the state of hashgard for a genesis file

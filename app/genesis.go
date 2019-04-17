@@ -25,7 +25,6 @@ import (
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/faucet"
 )
 
 var (
@@ -339,9 +338,6 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
-		return err
-	}
-	if err := faucet.ValidateGenesis(genesisState.FaucetData); err != nil {
 		return err
 	}
 
