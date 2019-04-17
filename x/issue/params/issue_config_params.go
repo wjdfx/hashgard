@@ -2,12 +2,14 @@ package params
 
 import (
 	"fmt"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // Param Config issue for issue
 type IssueConfigParams struct {
-	MinDeposit sdk.Coins `json:"min_deposit"`
+	MinDeposit      sdk.Coins `json:"min_deposit"`
+	StartingIssueId uint64    `json:"starting_issue_id"`
 }
 
 func (dp IssueConfigParams) String() string {
@@ -27,8 +29,8 @@ type Params struct {
 func (iss Params) String() string {
 	return iss.IssueConfigParams.String()
 }
-func NewParams(ip IssueConfigParams) Params {
+func NewParams(config IssueConfigParams) Params {
 	return Params{
-		IssueConfigParams: ip,
+		IssueConfigParams: config,
 	}
 }

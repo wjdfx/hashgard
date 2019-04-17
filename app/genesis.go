@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashgard/hashgard/x/issue"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
@@ -45,6 +47,8 @@ type GenesisState struct {
 	SlashingData     slashing.GenesisState     `json:"slashing"`
 	GovData          gov.GenesisState          `json:"gov"`
 	ExchangeData     exchange.GenesisState     `json:"exchange"`
+	IssueData        issue.GenesisState        `json:"issue"`
+	FaucetData       faucet.GenesisState       `json:"faucet"`
 	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
@@ -58,6 +62,8 @@ func NewGenesisState(
 	govData gov.GenesisState,
 	slashingData slashing.GenesisState,
 	exchangeData exchange.GenesisState,
+	faucetData faucet.GenesisState,
+	issueData issue.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -69,7 +75,9 @@ func NewGenesisState(
 		DistributionData: distributionData,
 		GovData:          govData,
 		SlashingData:     slashingData,
+		IssueData:        issueData,
 		ExchangeData:     exchangeData,
+		FaucetData:       faucetData,
 	}
 }
 
@@ -96,6 +104,8 @@ func NewDefaultGenesisState() GenesisState {
 		GovData:          createGovGenesisState(),
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
+		FaucetData:       faucet.DefaultGenesisState(),
+		IssueData:        issue.DefaultGenesisState(),
 		GenTxs:           nil,
 	}
 }

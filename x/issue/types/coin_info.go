@@ -165,22 +165,23 @@ func (ci CoinIssueInfo) String() string {
   Symbol:    	    %s
   TotalSupply:      %s
   Decimals:         %d
+  IssueTime:		%s
   Description:	    %s
   BurnOff:  		%t 
   BurnFromOff:  	%t 
   BurnAnyOff:  		%t 
   MintingFinished:  %t `,
 		ci.IssueId, ci.Issuer.String(), ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
-		ci.Decimals, ci.Description, ci.BurnOff, ci.BurnFromOff, ci.BurnAnyOff, ci.MintingFinished)
+		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOff, ci.BurnFromOff, ci.BurnAnyOff, ci.MintingFinished)
 }
 
 //nolint
 func (coinIssues CoinIssues) String() string {
-	out := fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8s|%s\n",
-		"IssueID", "Name", "Symbol", "TotalSupply", "Decimals", "IssueTime")
+	out := fmt.Sprintf("%-17s|%-44s|%-10s|%-6s|%-18s|%-8s|%s\n",
+		"IssueID", "Owner", "Name", "Symbol", "TotalSupply", "Decimals", "IssueTime")
 	for _, issue := range coinIssues {
-		out += fmt.Sprintf("%-15s|%-10s|%-6s|%-18s|%-8d|%s\n",
-			issue.IssueId, issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.IssueTime.String())
+		out += fmt.Sprintf("%-17s|%-44s|%-10s|%-6s|%-18s|%-8d|%s\n",
+			issue.IssueId, issue.GetOwner().String(), issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.IssueTime.String())
 	}
 	return strings.TrimSpace(out)
 }

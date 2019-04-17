@@ -8,14 +8,15 @@ import (
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
-//Handle MsgIssueBurnOff
-func HandleMsgIssueBurnOff(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnOff) sdk.Result {
-	err := keeper.BurnOff(ctx, msg.Operator, msg.IssueId)
+//Handle MsgIssueBurnAny
+func HandleMsgIssueBurnAny(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnAny) sdk.Result {
+
+	_, tags, err := keeper.BurnFrom(ctx, msg.IssueId, msg.Amount, msg.Operator, msg.From)
 	if err != nil {
 		return err.Result()
 	}
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: utils.AppendIssueInfoTag(msg.IssueId),
+		Tags: tags.AppendTags(utils.AppendIssueInfoTag(msg.IssueId)),
 	}
 }

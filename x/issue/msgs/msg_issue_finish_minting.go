@@ -11,13 +11,13 @@ import (
 // MsgIssueFinishMinting to allow a registered owner
 // to issue new coins.
 type MsgIssueFinishMinting struct {
-	IssueId string         `json:"issue_id"`
-	From    sdk.AccAddress `json:"owner"`
+	IssueId  string         `json:"issue_id"`
+	Operator sdk.AccAddress `json:"operator"`
 }
 
 //New MsgIssueFinishMinting Instance
-func NewMsgIssueFinishMinting(issueId string, from sdk.AccAddress) MsgIssueFinishMinting {
-	return MsgIssueFinishMinting{issueId, from}
+func NewMsgIssueFinishMinting(issueId string, operator sdk.AccAddress) MsgIssueFinishMinting {
+	return MsgIssueFinishMinting{issueId, operator}
 }
 
 func (ci MsgIssueFinishMinting) GetIssueId() string {
@@ -26,11 +26,11 @@ func (ci MsgIssueFinishMinting) GetIssueId() string {
 func (ci MsgIssueFinishMinting) SetIssueId(issueId string) {
 	ci.IssueId = issueId
 }
-func (ci MsgIssueFinishMinting) GetFrom() sdk.AccAddress {
-	return ci.From
+func (ci MsgIssueFinishMinting) GetOperator() sdk.AccAddress {
+	return ci.Operator
 }
-func (ci MsgIssueFinishMinting) SetFrom(from sdk.AccAddress) {
-	ci.From = from
+func (ci MsgIssueFinishMinting) SetOperator(operator sdk.AccAddress) {
+	ci.Operator = operator
 }
 
 // Route Implements Msg.
@@ -55,7 +55,7 @@ func (msg MsgIssueFinishMinting) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueFinishMinting) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.From}
+	return []sdk.AccAddress{msg.Operator}
 }
 
 func (msg MsgIssueFinishMinting) String() string {

@@ -10,7 +10,7 @@ const (
 	ParamsType = "type"
 	IssueID    = "issue-id"
 	AccAddress = "accAddress"
-	Owner      = "owner"
+	Symbol     = "symbol"
 	Amount     = "amount"
 	To         = "to"
 )

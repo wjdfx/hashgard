@@ -13,7 +13,7 @@ import (
 
 func TestAddIssue(t *testing.T) {
 
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -36,7 +36,7 @@ func TestAddIssue(t *testing.T) {
 
 func TestGetIssues(t *testing.T) {
 
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -52,7 +52,7 @@ func TestGetIssues(t *testing.T) {
 
 func TestMint(t *testing.T) {
 
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -67,7 +67,7 @@ func TestMint(t *testing.T) {
 
 func TestBurn(t *testing.T) {
 
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -88,7 +88,7 @@ func TestBurn(t *testing.T) {
 }
 
 func TestBurnFrom(t *testing.T) {
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -114,7 +114,7 @@ func TestBurnFrom(t *testing.T) {
 }
 
 func TestBurnAny(t *testing.T) {
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})

@@ -14,15 +14,15 @@ import (
 // to issue new coins.
 type MsgIssueMint struct {
 	IssueId  string         `json:"issue_id"`
-	From     sdk.AccAddress `json:"from"`
+	Operator sdk.AccAddress `json:"operator"`
 	Amount   sdk.Int        `json:"amount"`
 	Decimals uint           `json:"decimals"`
 	To       sdk.AccAddress `json:"to"`
 }
 
 //New MsgIssueMint Instance
-func NewMsgIssueMint(issueId string, from sdk.AccAddress, amount sdk.Int, decimals uint, to sdk.AccAddress) MsgIssueMint {
-	return MsgIssueMint{issueId, from, amount, decimals, to}
+func NewMsgIssueMint(issueId string, operator sdk.AccAddress, amount sdk.Int, decimals uint, to sdk.AccAddress) MsgIssueMint {
+	return MsgIssueMint{issueId, operator, amount, decimals, to}
 }
 
 // Route Implements Msg.
@@ -54,7 +54,7 @@ func (msg MsgIssueMint) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueMint) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.From}
+	return []sdk.AccAddress{msg.Operator}
 }
 
 func (msg MsgIssueMint) String() string {

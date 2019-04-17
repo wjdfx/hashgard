@@ -23,6 +23,7 @@ import (
 	"github.com/tendermint/tendermint/libs/log"
 
 	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/faucet"
 	"github.com/hashgard/hashgard/x/issue"
 )
 
@@ -72,6 +73,7 @@ type HashgardApp struct {
 	exchangeKeeper      exchange.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
+	faucetKeeper        faucet.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
@@ -329,6 +331,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	slashing.InitGenesis(ctx, app.slashingKeeper, genesisState.SlashingData, genesisState.StakingData.Validators.ToSDKValidators())
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
+	issue.InitGenesis(ctx, app.issueKeeper, genesisState.IssueData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
 
 	// validate genesis state

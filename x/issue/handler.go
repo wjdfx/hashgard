@@ -16,6 +16,8 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 		switch msg := msg.(type) {
 		case msgs.MsgIssue:
 			return handlers.HandleMsgIssue(ctx, keeper, msg)
+		case msgs.MsgIssueTransferOwnership:
+			return handlers.HandleMsgIssueTransferOwnership(ctx, keeper, msg)
 		case msgs.MsgIssueDescription:
 			return handlers.HandleMsgIssueDescription(ctx, keeper, msg)
 		case msgs.MsgIssueMint:
@@ -24,6 +26,8 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgIssueBurn(ctx, keeper, msg)
 		case msgs.MsgIssueBurnFrom:
 			return handlers.HandleMsgIssueBurnFrom(ctx, keeper, msg)
+		case msgs.MsgIssueBurnAny:
+			return handlers.HandleMsgIssueBurnAny(ctx, keeper, msg)
 		case msgs.MsgIssueBurnOff:
 			return handlers.HandleMsgIssueBurnOff(ctx, keeper, msg)
 		case msgs.MsgIssueBurnFromOff:

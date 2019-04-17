@@ -27,20 +27,24 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 	}
 	issueCmd.AddCommand(
 		client.GetCommands(
-			issueCli.GetCmdQueryIssue(mc.cdc),
 			issueCli.GetCmdQueryIssues(mc.cdc),
+			issueCli.GetCmdQueryIssue(mc.cdc),
+			issueCli.GetCmdSearchIssues(mc.cdc),
 		)...)
 	issueCmd.AddCommand(client.LineBreak)
 
 	txCmd := client.PostCommands(
+		issueCli.GetCmdIssueBurn(mc.cdc),
+		issueCli.GetCmdIssueBurnAny(mc.cdc),
+		issueCli.GetCmdIssueBurnFrom(mc.cdc),
 		issueCli.GetCmdIssueCreate(mc.cdc),
 		issueCli.GetCmdIssueDescription(mc.cdc),
 		issueCli.GetCmdIssueMint(mc.cdc),
-		issueCli.GetCmdIssueBurn(mc.cdc),
-		issueCli.GetCmdIssueBurnFrom(mc.cdc),
-		issueCli.GetCmdIssueBurnOff(mc.cdc),
-		issueCli.GetCmdIssueBurnFromOff(mc.cdc),
+		issueCli.GetCmdIssueTransferOwnership(mc.cdc),
+		client.LineBreak,
 		issueCli.GetCmdIssueBurnAnyOff(mc.cdc),
+		issueCli.GetCmdIssueBurnFromOff(mc.cdc),
+		issueCli.GetCmdIssueBurnOff(mc.cdc),
 		issueCli.GetCmdIssueFinishMinting(mc.cdc),
 	)
 	for _, cmd := range txCmd {

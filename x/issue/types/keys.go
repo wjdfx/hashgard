@@ -21,11 +21,13 @@ const (
 )
 
 var (
-	CoinMaxTotalSupply, _ = sdk.NewIntFromString("10000000000000000000000000000000000")
+	CoinMaxTotalSupply, _       = sdk.NewIntFromString("1000000000000000000000000000000000000")
+	CoinIssueMaxTimestamp int64 = 253402271999 //9999-12-31 23:59:59
+	CoinIssueMinTimestamp int64 = 1546272000   //2019-01-01 00:00:00
 )
 
 const (
-	IDLength = 15
+	IDLength = 16
 	IDPreStr = "coin"
 	Custom   = "custom"
 )
@@ -33,22 +35,32 @@ const (
 	QueryParams = "params"
 	QueryIssues = "list"
 	QueryIssue  = "query"
+	QuerySearch = "search"
 )
 const (
-	TypeMsgIssue              = "issue"
-	TypeMsgIssueMint          = "issueMint"
-	TypeMsgIssueBurn          = "issueBurn"
-	TypeMsgIssueBurnFrom      = "issueBurnFrom"
-	TypeMsgIssueFinishMinting = "issueFinishMinting"
-	TypeMsgIssueDescription   = "issueDescription"
-	TypeMsgIssueBurnOff       = "issueBurnOff"
-	TypeMsgIssueBurnFromOff   = "issueBurnFromOff"
-	TypeMsgIssueBurnAnyOff    = "issueBurnAnyOff"
+	BurnOwner = "burnOwner"
+	BurnFrom  = "burnFrom"
+	BurnAny   = "burnAny"
+)
+
+const (
+	TypeMsgIssue                  = "issue"
+	TypeMsgIssueMint              = "issueMint"
+	TypeMsgIssueBurn              = "issueBurn"
+	TypeMsgIssueBurnFrom          = "issueBurnFrom"
+	TypeMsgIssueBurnAny           = "issueBurnAny"
+	TypeMsgIssueFinishMinting     = "issueFinishMinting"
+	TypeMsgIssueDescription       = "issueDescription"
+	TypeMsgIssueTransferOwnership = "issueTransferOwnership"
+	TypeMsgIssueBurnOff           = "issueBurnOff"
+	TypeMsgIssueBurnFromOff       = "issueBurnFromOff"
+	TypeMsgIssueBurnAnyOff        = "issueBurnAnyOff"
 )
 const (
-	CoinDecimalsMaxValue     = uint(18)
-	CoinNameMaxLength        = 32
-	CoinSymbolMinLength      = 2
-	CoinSymbolMaxLength      = 8
-	CoinDescriptionMaxLength = 1024
+	CoinDecimalsMaxValue                  = uint(18)
+	CodeInvalidGenesis       sdk.CodeType = 102
+	CoinNameMaxLength                     = 32
+	CoinSymbolMinLength                   = 2
+	CoinSymbolMaxLength                   = 8
+	CoinDescriptionMaxLength              = 1024
 )
