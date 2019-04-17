@@ -20,7 +20,7 @@ var (
 	randomBytes = []rune("0123456789abcdefghijklmnopqrstuvwxyz")
 )
 
-func getRandomString(l int) string {
+func GetRandomString(l int) string {
 	result := make([]rune, l)
 	length := len(randomBytes)
 	for i := range result {
@@ -29,9 +29,10 @@ func getRandomString(l int) string {
 	return string(result)
 }
 
+//nolint
 func GetIssueID() string {
 	randLength := types.IDLength - len(types.IDPreStr)
-	randString := getRandomString(randLength)
+	randString := GetRandomString(randLength)
 	return types.IDPreStr + randString
 }
 
@@ -39,7 +40,9 @@ func IsIssueId(issueID string) bool {
 	if len(issueID) == types.IDLength && strings.HasPrefix(issueID, types.IDPreStr) {
 		return true
 	}
-	return false
+	_, err := strconv.ParseInt(strings.Replace(issueID, types.IDPreStr, "", 1), 10, 64)
+
+	return err == nil
 }
 
 func CheckIssueId(issueID string) sdk.Error {
@@ -64,7 +67,7 @@ func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
 
 	return totalSupply.Quo(quoDecimals)
 }
-func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int) (sdk.Int, error) {
+func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int, burnType string) (sdk.Int, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
@@ -74,43 +77,50 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 
 	cdc.MustUnmarshalJSON(res, &issueInfo)
 
-	if burnFrom == nil {
-		if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
-			return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
-		}
-		if issueInfo.GetBurnOff() {
-			return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-		}
-	}
-
 	amount = MulDecimals(amount, issueInfo.GetDecimals())
 
 	coins := operator.GetCoins()
 
-	if operator.GetAddress().Equals(issueInfo.GetOwner()) {
-		if operator.GetAddress().Equals(burnFrom) {
+	switch burnType {
+	case types.BurnOwner:
+		{
+			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+			}
 			if issueInfo.GetBurnOff() {
 				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
 			}
-		} else {
+		}
+	case types.BurnFrom:
+		{
+			if issueInfo.GetBurnFromOff() {
+				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
+			}
+			if !operator.GetAddress().Equals(burnFrom) {
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+			}
+		}
+	case types.BurnAny:
+		{
+			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+			}
 			if issueInfo.GetBurnAnyOff() {
 				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
 			}
+			if operator.GetAddress().Equals(burnFrom) {
+				//burnFrom
+				if issueInfo.GetBurnFromOff() {
+					return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
+				}
+			}
 		}
-	} else {
-		if !operator.GetAddress().Equals(burnFrom) {
-			return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+	default:
+		{
+			panic("not support")
 		}
-		if issueInfo.GetBurnFromOff() {
-			return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-		}
-		burnAccount, err := cliCtx.GetAccount(burnFrom)
-		if err != nil {
-			return amount, err
-		}
-		coins = burnAccount.GetCoins()
-	}
 
+	}
 	// ensure account has enough coins
 	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueID, Amount: amount}}) {
 		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", operator.GetAddress())
@@ -118,17 +128,17 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 
 	return amount, nil
 }
-func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, issueID string) error {
+func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	cdc.MustUnmarshalJSON(res, &issueInfo)
 
 	if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
-		return errors.Errorf(errors.ErrOwnerMismatch(issueID))
+		return nil, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 	}
-	return nil
+	return issueInfo, nil
 }

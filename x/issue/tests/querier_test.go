@@ -2,6 +2,9 @@ package tests
 
 import (
 	"testing"
+	"time"
+
+	"github.com/hashgard/hashgard/x/issue/params"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -15,7 +18,7 @@ import (
 )
 
 func TestQueryIssue(t *testing.T) {
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -27,7 +30,7 @@ func TestQueryIssue(t *testing.T) {
 	var issueID string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &issueID)
 
-	bz := getQueried(t, ctx, querier, types.QueryIssue, issueID)
+	bz := getQueried(t, ctx, querier, queriers2.GetQueryIssuePath(issueID), types.QueryIssue, issueID)
 
 	var issueInfo types.CoinIssueInfo
 	keeper.Getcdc().MustUnmarshalJSON(bz, &issueInfo)
@@ -38,7 +41,27 @@ func TestQueryIssue(t *testing.T) {
 }
 
 func TestQueryIssues(t *testing.T) {
-	mapp, keeper, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp.BeginBlock(abci.RequestBeginBlock{})
+	ctx := mapp.NewContext(false, abci.Header{})
+	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
+	//querier := issue.NewQuerier(keeper)
+	handler := issue.NewHandler(keeper)
+
+	cap := 10
+	for i := 0; i < cap; i++ {
+		handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
+	}
+
+	issues := keeper.List(ctx, params.IssueQueryParams{Limit: 10})
+
+	require.Len(t, issues, cap)
+
+}
+
+func TestSearchIssues(t *testing.T) {
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
@@ -48,10 +71,13 @@ func TestQueryIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
+		CoinIssueInfo.SetIssueTime(time.Now())
 		handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
 	}
 
-	bz := getQueried(t, ctx, querier, types.QueryIssues, CoinIssueInfo.Owner.String())
+	//issues := keeper.SearchIssues(ctx, "tes")
+
+	bz := getQueried(t, ctx, querier, queriers2.GetQueryIssuePath("TES"), types.QuerySearch, "TES")
 
 	var issues types.CoinIssues
 	keeper.Getcdc().MustUnmarshalJSON(bz, &issues)
@@ -59,10 +85,9 @@ func TestQueryIssues(t *testing.T) {
 	require.Len(t, issues, cap)
 
 }
-
-func getQueried(t *testing.T, ctx sdk.Context, querier sdk.Querier, querierRoute string, queryPathParam string) (res []byte) {
+func getQueried(t *testing.T, ctx sdk.Context, querier sdk.Querier, path string, querierRoute string, queryPathParam string) (res []byte) {
 	query := abci.RequestQuery{
-		Path: queriers2.GetQueryIssuePath(queryPathParam),
+		Path: path,
 		Data: nil,
 	}
 	bz, err := querier(ctx, []string{querierRoute, queryPathParam}, query)

@@ -1,6 +1,9 @@
 package keeper
 
 import (
+	"strings"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -65,48 +68,115 @@ func (keeper Keeper) GetIssue(ctx sdk.Context, issueID string) *types.CoinIssueI
 	}
 	var coinIssueInfo types.CoinIssueInfo
 	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &coinIssueInfo)
-	coinIssueInfo.IssueId = issueID
 	return &coinIssueInfo
 }
 
 //Returns issues by accAddress
 func (keeper Keeper) GetIssues(ctx sdk.Context, accAddress string) []*types.CoinIssueInfo {
 
-	idAdders := keeper.GetAddressIssues(ctx, accAddress)
-	length := len(idAdders)
+	issueIDs := keeper.GetAddressIssues(ctx, accAddress)
+	length := len(issueIDs)
 	if length == 0 {
 		return []*types.CoinIssueInfo{}
 	}
 	issues := make([]*types.CoinIssueInfo, 0, length)
 
-	for _, v := range idAdders {
+	for _, v := range issueIDs {
 		issues = append(issues, keeper.GetIssue(ctx, v))
 	}
 
 	return issues
 }
+func (keeper Keeper) SearchIssues(ctx sdk.Context, symbol string) []*types.CoinIssueInfo {
+	store := ctx.KVStore(keeper.storeKey)
+
+	iterator := sdk.KVStorePrefixIterator(store, KeySymbolIssues(symbol))
+	defer iterator.Close()
+	list := make([]*types.CoinIssueInfo, 0, 1)
+	for ; iterator.Valid(); iterator.Next() {
+		bz := iterator.Value()
+		if len(bz) == 0 {
+			continue
+		}
+		issueIDs := make([]string, 0, 1)
+		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &issueIDs)
+
+		for _, v := range issueIDs {
+			list = append(list, keeper.GetIssue(ctx, v))
+		}
+	}
+	return list
+}
+func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) []*types.CoinIssueInfo {
+	store := ctx.KVStore(keeper.storeKey)
+	startIssueId := params.StartIssueId
+	endIssueId := startIssueId
+
+	if len(startIssueId) == 0 {
+		endIssueId = KeyIssueIdStr(types.CoinIssueMaxTimestamp, 99)
+		startIssueId = KeyIssueIdStr(types.CoinIssueMinTimestamp, 0)
+	} else {
+		startIssueId = KeyIssueIdStr(types.CoinIssueMinTimestamp, 0)
+	}
+
+	iterator := store.ReverseIterator(KeyIssuer(startIssueId), KeyIssuer(endIssueId))
+	defer iterator.Close()
+	list := make([]*types.CoinIssueInfo, 0, params.Limit)
+	for ; iterator.Valid(); iterator.Next() {
+		if len(startIssueId) > 0 && strings.Contains(string(iterator.Key()), startIssueId) {
+			continue
+		}
+		bz := iterator.Value()
+		if len(bz) == 0 {
+			continue
+		}
+		var info types.CoinIssueInfo
+		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &info)
+		list = append(list, &info)
+		if len(list) >= params.Limit {
+			break
+		}
+	}
+	return list
+}
+
+func (keeper Keeper) getIssueId(store sdk.KVStore) string {
+	issueID := ""
+	i := 0
+	for {
+		if i > 99 {
+			i = 0
+		}
+		id := KeyIssueIdStr(time.Now().Unix(), i)
+		if !store.Has(KeyIssuer(id)) {
+			issueID = id
+			break
+		}
+		i += 1
+	}
+	return issueID
+}
 
 //Add a issue
 func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo) (sdk.Coins, sdk.Tags, sdk.Error) {
 	store := ctx.KVStore(keeper.storeKey)
-	issueID := ""
-	for {
-		issueID = utils.GetIssueID()
-		if !store.Has(KeyIssuer(issueID)) {
-			break
-		}
-	}
-
-	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
-	store.Set(KeyIssuer(issueID), bz)
-
-	idAdders := keeper.GetAddressIssues(ctx, coinIssueInfo.GetIssuer().String())
-	idAdders = append(idAdders, issueID)
-	keeper.setAddressIssues(ctx, coinIssueInfo.GetIssuer().String(), idAdders)
-
-	coin := sdk.Coin{Denom: issueID, Amount: coinIssueInfo.TotalSupply}
-	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})
+	issueID := keeper.getIssueId(store)
 	coinIssueInfo.IssueId = issueID
+	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
+
+	store.Set(KeyIssuer(coinIssueInfo.IssueId), bz)
+
+	issueIDs := keeper.GetAddressIssues(ctx, coinIssueInfo.GetIssuer().String())
+	issueIDs = append(issueIDs, coinIssueInfo.IssueId)
+	keeper.setAddressIssues(ctx, coinIssueInfo.GetIssuer().String(), issueIDs)
+
+	issueIDs = keeper.GetSymbolIssues(ctx, coinIssueInfo.Symbol)
+	issueIDs = append(issueIDs, coinIssueInfo.IssueId)
+	keeper.setSymbolIssues(ctx, coinIssueInfo.Symbol, issueIDs)
+
+	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: coinIssueInfo.TotalSupply}
+	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})
+
 	return coins, tags, err
 }
 func (keeper Keeper) getIssueByOwner(ctx sdk.Context, operator sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
@@ -191,15 +261,14 @@ func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 }
 
 //Mint a coin
-func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, from sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 
-	coinIssueInfo := keeper.GetIssue(ctx, issueID)
-	if coinIssueInfo == nil {
-		return nil, nil, errors.ErrUnknownIssue(issueID)
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+
+	if err != nil {
+		return nil, nil, err
 	}
-	if !coinIssueInfo.Owner.Equals(from) {
-		return nil, nil, errors.ErrOwnerMismatch(issueID)
-	}
+
 	if coinIssueInfo.MintingFinished {
 		return nil, nil, errors.ErrCanNotMint(issueID)
 	}
@@ -265,22 +334,34 @@ func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, o
 			return nil, nil, errors.ErrCanNotBurn(issueID)
 		}
 		if !burnfrom.Equals(operator) {
-			return nil, nil, errors.ErrOwnerMismatch(issueID)
+			return nil, nil, errors.ErrCanNotBurn(issueID)
 		}
 	}
 
 	return keeper.burn(ctx, coinIssueInfo, amount, burnfrom)
 }
-func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, from sdk.AccAddress, description []byte) sdk.Error {
-	coinIssueInfo := keeper.GetIssue(ctx, issueID)
-	if coinIssueInfo == nil {
-		return errors.ErrUnknownIssue(issueID)
-	}
-	if !coinIssueInfo.Owner.Equals(from) {
-		return errors.ErrOwnerMismatch(issueID)
+func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, operator sdk.AccAddress, description []byte) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+
+	if err != nil {
+		return err
 	}
 
 	coinIssueInfo.Description = string(description)
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
+	return nil
+}
+
+//TransferOwnership
+func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, operator sdk.AccAddress, to sdk.AccAddress) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+
+	if err != nil {
+		return err
+	}
+
+	coinIssueInfo.Owner = to
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 	return nil
@@ -294,21 +375,39 @@ func (keeper Keeper) SendCoins(ctx sdk.Context,
 }
 
 //Get address from a issue
-func (keeper Keeper) GetAddressIssues(ctx sdk.Context, accAddress string) (idAdders []string) {
+func (keeper Keeper) GetAddressIssues(ctx sdk.Context, accAddress string) (issueIDs []string) {
 	store := ctx.KVStore(keeper.storeKey)
 	bz := store.Get(KeyAddressIssues(accAddress))
 	if bz == nil {
 		return []string{}
 	}
-	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &idAdders)
-	return idAdders
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &issueIDs)
+	return issueIDs
 }
 
-//Set address to a issue
-func (keeper Keeper) setAddressIssues(ctx sdk.Context, accAddress string, idAdders []string) {
+//Set issueIDs to a issue
+func (keeper Keeper) setAddressIssues(ctx sdk.Context, accAddress string, issueIDs []string) {
 	store := ctx.KVStore(keeper.storeKey)
-	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(idAdders)
+	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(issueIDs)
 	store.Set(KeyAddressIssues(accAddress), bz)
+}
+
+//Get issueIDs from a issue
+func (keeper Keeper) GetSymbolIssues(ctx sdk.Context, symbol string) (issueIDs []string) {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := store.Get(KeySymbolIssues(symbol))
+	if bz == nil {
+		return []string{}
+	}
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &issueIDs)
+	return issueIDs
+}
+
+//Set symbol to a issue
+func (keeper Keeper) setSymbolIssues(ctx sdk.Context, symbol string, issueIDs []string) {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(issueIDs)
+	store.Set(KeySymbolIssues(symbol), bz)
 }
 
 // Params

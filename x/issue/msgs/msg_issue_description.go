@@ -14,13 +14,13 @@ import (
 // to issue new coins.
 type MsgIssueDescription struct {
 	IssueId     string         `json:"issue_id"`
-	From        sdk.AccAddress `json:"owner"`
+	Operator    sdk.AccAddress `json:"operator"`
 	Description []byte         `json:"description"`
 }
 
 //New MsgIssueDescription Instance
-func NewMsgIssueDescription(issueId string, from sdk.AccAddress, description []byte) MsgIssueDescription {
-	return MsgIssueDescription{issueId, from, description}
+func NewMsgIssueDescription(issueId string, operator sdk.AccAddress, description []byte) MsgIssueDescription {
+	return MsgIssueDescription{issueId, operator, description}
 }
 
 // Route Implements Msg.
@@ -49,7 +49,7 @@ func (msg MsgIssueDescription) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueDescription) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.From}
+	return []sdk.AccAddress{msg.Operator}
 }
 
 func (msg MsgIssueDescription) String() string {

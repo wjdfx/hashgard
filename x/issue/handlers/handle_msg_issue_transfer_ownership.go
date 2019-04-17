@@ -2,15 +2,15 @@ package handlers
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
-//Handle MsgIssueBurnOff
-func HandleMsgIssueBurnOff(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnOff) sdk.Result {
-	err := keeper.BurnOff(ctx, msg.Operator, msg.IssueId)
+//Handle MsgIssueMint
+func HandleMsgIssueTransferOwnership(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueTransferOwnership) sdk.Result {
+
+	err := keeper.TransferOwnership(ctx, msg.IssueId, msg.Operator, msg.To)
 	if err != nil {
 		return err.Result()
 	}

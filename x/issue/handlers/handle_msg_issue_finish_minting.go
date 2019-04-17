@@ -10,7 +10,7 @@ import (
 
 //Handle MsgIssueFinishMinting
 func HandleMsgIssueFinishMinting(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueFinishMinting) sdk.Result {
-	err := keeper.FinishMinting(ctx, msg.From, msg.IssueId)
+	err := keeper.FinishMinting(ctx, msg.Operator, msg.IssueId)
 	if err != nil {
 		return err.Result()
 	}

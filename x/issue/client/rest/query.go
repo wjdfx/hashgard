@@ -2,13 +2,16 @@ package rest
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	"github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
-	"net/http"
 
 	"github.com/hashgard/hashgard/x/issue/client/queriers"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
@@ -17,7 +20,8 @@ import (
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
 	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QueryIssue, IssueID), queryIssueHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QueryIssues, Owner), queryIssuesHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QuerySearch, Symbol), queryIssueSearchHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/%s", types.QuerierRoute, types.QueryIssues), queryIssuesHandlerFn(cdc, cliCtx)).Methods("GET")
 }
 func queryIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -35,16 +39,44 @@ func queryIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handl
 		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
-func queryIssuesHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func queryIssueSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		owner := vars[Owner]
-		accAddress, err := sdk.AccAddressFromBech32(owner)
+		symbol := vars[Symbol]
+
+		res, err := queriers.QueryIssueBySymbol(symbol, cliCtx)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		res, err := queriers.QueryIssuesByAddress(accAddress, cliCtx)
+		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+	}
+}
+func queryIssuesHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		address, err := sdk.AccAddressFromBech32(r.URL.Query().Get(restAddress))
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		issueQueryParams := params.IssueQueryParams{
+			StartIssueId: r.URL.Query().Get(restStartIssueId),
+			Owner:        address,
+			Limit:        30,
+		}
+		strNumLimit := r.URL.Query().Get(restLimit)
+		if len(strNumLimit) > 0 {
+			limit, err := strconv.Atoi(r.URL.Query().Get(restLimit))
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+				return
+			}
+			issueQueryParams.Limit = limit
+		}
+
+		res, err := queriers.QueryIssuesList(issueQueryParams, cdc, cliCtx)
+
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

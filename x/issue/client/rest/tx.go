@@ -17,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
-	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -42,11 +41,13 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 	r.HandleFunc(fmt.Sprintf("/issue/describe/{%s}", IssueID), postDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/mint/{%s}/{%s}/{%s}", IssueID, Amount, To), postMintHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn/{%s}/{%s}", IssueID, Amount), postBurnHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}", IssueID, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/burn-any/{%s}/{%s}/{%s}", IssueID, Amount, AccAddress), postBurnAnyHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-off/{%s}", IssueID), postBurnOffHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-from-off/{%s}", IssueID), postBurnFromOffHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-any-off/{%s}", IssueID), postBurnAnyOffHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/finish-minting/{%s}", IssueID), postFinishMintingHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/transfer/ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
 }
 func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -123,14 +124,17 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		// Query the issue
-		res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
+		account, err := cliCtx.GetAccount(fromAddress)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		var issueInfo types.Issue
-		cdc.MustUnmarshalJSON(res, &issueInfo)
+		issueInfo, err := issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
 		msg := msgs.NewMsgIssueMint(issueID, fromAddress, amount, issueInfo.GetDecimals(), to)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -141,64 +145,19 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 	}
 }
 func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		issueID := vars[IssueID]
-		if err := issueutils.CheckIssueId(issueID); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		amount, ok := sdk.NewIntFromString(vars[Amount])
-		if !ok {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "Amount not a valid int")
-			return
-		}
-
-		var req PostIssueBaseReq
-		if !rest.ReadRESTReq(w, r, cdc, &req) {
-			return
-		}
-
-		req.BaseReq = req.BaseReq.Sanitize()
-		if !req.BaseReq.ValidateBasic(w) {
-			return
-		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		account, err := cliCtx.GetAccount(fromAddress)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		amount, err = issueutils.BurnCheck(cdc, cliCtx, account, nil, issueID, amount)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		msg := msgs.NewMsgIssueBurn(issueID, fromAddress, amount)
-		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-	}
+	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnOwner)
 }
 func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
+}
+func postBurnAnyHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnAny)
+}
+func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, burnFromType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
 		if err := issueutils.CheckIssueId(issueID); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		accAddress, err := sdk.AccAddressFromBech32(vars[AccAddress])
-		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -227,14 +186,31 @@ func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		accAddress := fromAddress
 
-		amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount)
+		if types.BurnAny == burnFromType {
+			accAddress, err = sdk.AccAddressFromBech32(vars[AccAddress])
+			if err != nil {
+				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+				return
+			}
+		}
+
+		amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount, burnFromType)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		var msg sdk.Msg
 
-		msg := msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
+		if types.BurnFrom == burnFromType {
+			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
+		} else if types.BurnAny == burnFromType {
+			msg = msgs.NewMsgIssueBurnAny(issueID, fromAddress, accAddress, amount)
+		} else {
+			msg = msgs.NewMsgIssueBurn(issueID, fromAddress, amount)
+		}
+
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -299,7 +275,7 @@ func postIssueFlag(cdc *codec.Codec, cliCtx context.CLIContext, w http.ResponseW
 		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
-	err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+	_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 	if err != nil {
 		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -353,12 +329,64 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		// Query the issue
-		_, err = issuequeriers.QueryIssueByID(issueID, cliCtx)
+		account, err := cliCtx.GetAccount(fromAddress)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
+}
+func postTransferOwnershipHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		var req PostIssueBaseReq
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			return
+		}
+
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
+		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		to, err := sdk.AccAddressFromBech32(vars[To])
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		msg := msgs.NewMsgIssueTransferOwnership(issueID, fromAddress, to)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		account, err := cliCtx.GetAccount(fromAddress)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }

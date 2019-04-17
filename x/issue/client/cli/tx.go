@@ -11,7 +11,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -74,13 +73,53 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
+// GetCmdIssueTransferOwnership implements transfer a coin owner ship transaction command.
+func GetCmdIssueTransferOwnership(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "transfer-ownership [issue-id] [to_address]",
+		Args:    cobra.ExactArgs(2),
+		Short:   "Describe a new coin",
+		Long:    "Describe a new coin",
+		Example: "$ hashgardcli issue transfer-ownership coin155547350020 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			if err != nil {
+				return err
+			}
+			to, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+			if err != nil {
+				return err
+			}
+			msg := msgs.NewMsgIssueTransferOwnership(issueID, account.GetAddress(), to)
+
+			validateErr := msg.ValidateBasic()
+
+			if validateErr != nil {
+				return errors.Errorf(validateErr)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
+		},
+	}
+
+	return cmd
+}
+
 // GetCmdIssue implements issue a coin transaction command.
 func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "describe [issue-id] [description-file]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Describe a new coin",
-		Long:    "Describe a new coin",
+		Short:   "Describe a coin",
+		Long:    "Describe a coin",
 		Example: "$ hashgardcli issue describe foocoin path/description.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -102,8 +141,7 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 			}
 			contents = buffer.Bytes()
 
-			// Query the issue
-			_, err = issuequeriers.QueryIssueByID(issueID, cliCtx)
+			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
@@ -151,22 +189,20 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 					return err
 				}
 			}
-			// Query the issue
-			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
+
+			issueInfo, err := issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
-			var issueInfo types.Issue
-			cdc.MustUnmarshalJSON(res, &issueInfo)
+
 			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
 
-			msg := msgs.MsgIssueMint{IssueId: issueID, From: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
+			msg := msgs.MsgIssueMint{IssueId: issueID, Operator: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
 			}
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msg}, false)
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
 	cmd.Flags().String(flagMintTo, "", "Mint to account address")
@@ -195,7 +231,7 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, nil, issueID, amount)
+			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, nil, issueID, amount, types.BurnOwner)
 			if err != nil {
 				return err
 			}
@@ -207,14 +243,49 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-// GetCmdIssueBurn implements burn a coinIssue transaction command.
+// GetCmdIssueBurnFrom implements burn a coinIssue transaction command.
 func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "burn-from [issue-id] [accAddress] [amount]",
+		Use:     "burn-from [issue-id] [amount]",
+		Args:    cobra.ExactArgs(2),
+		Short:   "burn a coin from my account",
+		Long:    "burn a coin from my account",
+		Example: "$ hashgardcli issue burn-from gardh1c7d59vebq 88888 --from foo",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			amount, ok := sdk.NewIntFromString(args[1])
+			if !ok {
+				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
+			}
+
+			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			if err != nil {
+				return err
+			}
+
+			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, account.GetAddress(), issueID, amount, types.BurnFrom)
+			if err != nil {
+				return err
+			}
+
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
+				[]sdk.Msg{msgs.MsgIssueBurnFrom{IssueId: issueID, Operator: account.GetAddress(), From: account.GetAddress(), Amount: amount}}, false)
+		},
+	}
+	return cmd
+}
+
+// GetCmdIssueBurnAny implements burn a coinIssue transaction command.
+func GetCmdIssueBurnAny(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "burn-any [issue-id] [accAddress] [amount]",
 		Args:    cobra.ExactArgs(3),
-		Short:   "burn a coin from address",
-		Long:    "burn a coin from address",
-		Example: "$ hashgardcli issue burn-from gardh1c7d59vebq gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
+		Short:   "burn a coin from any address",
+		Long:    "burn a coin from any address",
+		Example: "$ hashgardcli issue burn-any gardh1c7d59vebq gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -235,13 +306,13 @@ func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount)
+			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount, types.BurnAny)
 			if err != nil {
 				return err
 			}
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurnFrom{IssueId: issueID, Operator: account.GetAddress(), From: accAddress, Amount: amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurnAny{IssueId: issueID, Operator: account.GetAddress(), From: accAddress, Amount: amount}}, false)
 		},
 	}
 	return cmd
@@ -316,7 +387,7 @@ func getIssueFlagCmd(cdc *codec.Codec, cmd *cobra.Command, args []string, msg ms
 	if err != nil {
 		return err
 	}
-	err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+	_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 	if err != nil {
 		return err
 	}
