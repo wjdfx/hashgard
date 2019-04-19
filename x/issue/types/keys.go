@@ -44,16 +44,16 @@ const (
 
 const (
 	TypeMsgIssue                  = "issue"
-	TypeMsgIssueMint              = "issueMint"
-	TypeMsgIssueBurn              = "issueBurn"
-	TypeMsgIssueBurnFrom          = "issueBurnFrom"
-	TypeMsgIssueBurnAny           = "issueBurnAny"
-	TypeMsgIssueFinishMinting     = "issueFinishMinting"
-	TypeMsgIssueDescription       = "issueDescription"
-	TypeMsgIssueTransferOwnership = "issueTransferOwnership"
-	TypeMsgIssueBurnOff           = "issueBurnOff"
-	TypeMsgIssueBurnFromOff       = "issueBurnFromOff"
-	TypeMsgIssueBurnAnyOff        = "issueBurnAnyOff"
+	TypeMsgIssueMint              = "issue_mint"
+	TypeMsgIssueBurn              = "issue_burn"
+	TypeMsgIssueBurnFrom          = "issue_burn_from"
+	TypeMsgIssueBurnAny           = "issue_burnAny"
+	TypeMsgIssueFinishMinting     = "issue_finish_minting"
+	TypeMsgIssueDescription       = "issue_description"
+	TypeMsgIssueTransferOwnership = "issue_transfer_ownership"
+	TypeMsgIssueBurnOff           = "issue_burn_off"
+	TypeMsgIssueBurnFromOff       = "issue_burn_from_off"
+	TypeMsgIssueBurnAnyOff        = "issue_burn_any_off"
 )
 const (
 	CoinDecimalsMaxValue                  = uint(18)
