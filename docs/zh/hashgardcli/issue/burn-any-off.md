@@ -16,7 +16,7 @@ Owner关闭自己发行的某个代币的可销毁任意持币者的该币的功
 ## 例子
 ### 关闭销毁功能
 ```shell
-hashgardcli issue burn-any-off coin155556750600 --from foo -o=json
+hashgardcli issue burn-any-off coin174876e800 --from foo -o=json
 ```
 输入正确的密码之后，你的该代币便关闭了可由Owner销毁的功能。
 ```txt
@@ -40,7 +40,7 @@ hashgardcli issue burn-any-off coin155556750600 --from foo -o=json
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }

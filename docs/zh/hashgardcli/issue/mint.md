@@ -17,7 +17,7 @@
 ## 例子
 ### 增发到指定的地址
 ```shell
-hashgardcli issue mint coin155556750600 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
+hashgardcli issue mint coin174876e800 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
 ```
 输入正确的密码之后，你的该代币的便完成了增发。
 ```txt
@@ -45,7 +45,7 @@ hashgardcli issue mint coin155556750600 88888 --to=gard1vf7pnhwh5v4lmdp59dms2and
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }

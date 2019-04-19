@@ -59,7 +59,7 @@ hashgardcli issue create foocoin FOO 100000000 --from foo -o=json
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }
@@ -80,11 +80,7 @@ hashgardcli bank account gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye
   "address": "gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye",
   "coins": [
    {
-    "denom": "mycoin(coin155548903200)",
-    "amount": "9999999998999858889"
-   },
-   {
-    "denom": "foocoin(coin155556750600)",
+    "denom": "foocoin(coin174876e800)",
     "amount": "100000000"
    },
    {
