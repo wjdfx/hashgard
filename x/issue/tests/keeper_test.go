@@ -1,7 +1,9 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -35,7 +37,7 @@ func TestAddIssue(t *testing.T) {
 }
 
 func TestGetIssues(t *testing.T) {
-
+	fmt.Print(time.Now().Unix())
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 	mapp.BeginBlock(abci.RequestBeginBlock{})
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
