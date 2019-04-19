@@ -36,7 +36,7 @@ hashgardcli issue burn-any-off coin174876e800 --from foo -o=json
  "tags": [
   {
    "key": "action",
-   "value": "issueBurnAnyOff"
+   "value": "issue_burn_any_off"
   },
   {
    "key": "issue-id",

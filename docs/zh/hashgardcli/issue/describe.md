@@ -42,7 +42,7 @@ hashgardcli issue describe coin174876e800 path/description.json --from=foo -o=js
  "tags": [
   {
    "key": "action",
-   "value": "issueDescription"
+   "value": "issue_description"
   },
   {
    "key": "issue-id",

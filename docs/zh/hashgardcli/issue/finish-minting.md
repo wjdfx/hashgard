@@ -36,7 +36,7 @@ hashgardcli issue finish-minting  coin174876e800 --from foo -o=json
  "tags": [
   {
    "key": "action",
-   "value": "issueFinishMinting"
+   "value": "issue_finish_minting"
   },
   {
    "key": "issue-id",

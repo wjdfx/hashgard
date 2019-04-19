@@ -37,7 +37,7 @@ hashgardcli issue mint coin174876e800 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2
  "tags": [
   {
    "key": "action",
-   "value": "issueMint"
+   "value": "issue_mint"
   },
   {
    "key": "recipient",

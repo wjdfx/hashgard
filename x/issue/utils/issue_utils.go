@@ -38,11 +38,7 @@ func GetRandomString(l int) string {
 //}
 
 func IsIssueId(issueID string) bool {
-	if strings.HasPrefix(issueID, types.IDPreStr) {
-		return true
-	}
-
-	return true
+	return strings.HasPrefix(issueID, types.IDPreStr)
 }
 
 func CheckIssueId(issueID string) sdk.Error {

@@ -33,7 +33,7 @@ hashgardcli issue burn-from coin174876e800 88888 --from=foo -o=json
  "tags": [
   {
    "key": "action",
-   "value": "issueBurnFrom"
+   "value": "issue_burn_from"
   },
   {
    "key": "sender",

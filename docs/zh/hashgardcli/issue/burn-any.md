@@ -33,7 +33,7 @@ hashgardcli issue burn-any coin174876e800 gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4
  "tags": [
   {
    "key": "action",
-   "value": "issueBurnAny"
+   "value": "issue_burn_any"
   },
   {
    "key": "sender",

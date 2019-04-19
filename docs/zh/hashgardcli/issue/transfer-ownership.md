@@ -33,7 +33,7 @@ hashgardcli issue transfer-ownership coin174876e800 gard1vf7pnhwh5v4lmdp59dms2an
  "tags": [
   {
    "key": "action",
-   "value": "issueTransferOwnership"
+   "value": "issue_transfer_ownership"
   },
   {
    "key": "issue-id",
