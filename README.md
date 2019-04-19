@@ -16,11 +16,11 @@ Please make sure have already installed `Go` correctly, and set environment vari
 
 Put the Hashgard project in the specific path，switch to `master` branch，download related dependencies, then make install:
 ```
-mkdir -p $GOPATH/src/github.com/hashgard
-cd $GOPATH/src/github.com/hashgard
-git clone https://github.com/hashgard/hashgard
-cd hashgard && git checkout master
-make get_tools && make install
+mkdir -p $HOME/go/bin
+echo "export GOPATH=$HOME/go" >> ~/.bash_profile
+echo "export GOBIN=\$GOPATH/bin" >> ~/.bash_profile
+echo "export PATH=\$PATH:\$GOBIN" >> ~/.bash_profile
+source ~/.bash_profile
 ```
 
 Check if the installation is successful:

@@ -4,14 +4,16 @@
 
 其中包含的模块列表：
 
-1. [bank command](./hashgardcli/bank/)
-2. [distribution command](./hashgardcli/distribution)
-3. [gov command](./hashgardcli/gov)
-4. [keys command](./hashgardcli/keys)
-5. [stake command](./hashgardcli/stake)
-6. [status command](./hashgardcli/status)
-7. [tendermint command](./hashgardcli/tendermint)
-8. [slashing command](./hashgardcli/slashing)
+1.  [bank command](./hashgardcli/bank/)
+2.  [distribution command](./hashgardcli/distribution)
+3.  [gov command](./hashgardcli/gov)
+4.  [keys command](./hashgardcli/keys)
+5.  [stake command](./hashgardcli/stake)
+6.  [status command](./hashgardcli/status)
+7.  [tendermint command](./hashgardcli/tendermint)
+8.  [slashing command](./hashgardcli/slashing)
+9.  [issue command](./hashgardcli/issue)
+10. [exchange command](./hashgardcli/exchange)
 
 # hashgard
 
