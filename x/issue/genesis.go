@@ -3,6 +3,8 @@ package issue
 import (
 	"bytes"
 
+	"github.com/hashgard/hashgard/x/issue/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/keeper"
@@ -10,16 +12,17 @@ import (
 
 // GenesisState - all issue state that must be provided at genesis
 type GenesisState struct {
+	StartingIssueId uint64 `json:"starting_issue_id"`
 }
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState() GenesisState {
-	return GenesisState{}
+func NewGenesisState(startingIssueId uint64) GenesisState {
+	return GenesisState{startingIssueId}
 }
 
 // DefaultGenesisState returns a default genesis state
 func DefaultGenesisState() GenesisState {
-	return NewGenesisState()
+	return NewGenesisState(types.CoinIssueMinId)
 }
 
 // Returns if a GenesisState is empty or has data in it
@@ -37,12 +40,19 @@ func (data GenesisState) Equal(data2 GenesisState) bool {
 
 // InitGenesis sets distribution information for genesis.
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
-
+	err := keeper.SetInitialIssueStartingIssueId(ctx, data.StartingIssueId)
+	if err != nil {
+		// TODO: Handle this with #870
+		panic(err)
+	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
-	return GenesisState{}
+	startingIssueId, _ := keeper.PeekCurrentIssueID(ctx)
+	return GenesisState{
+		StartingIssueId: startingIssueId,
+	}
 }
 
 // ValidateGenesis performs basic validation of bank genesis data returning an

@@ -31,6 +31,7 @@ func KeySymbolIssues(symbol string) []byte {
 	return []byte(fmt.Sprintf("symbol:%s", strings.ToUpper(symbol)))
 }
 
-func KeyIssueIdStr(timestamp int64, seq int) string {
-	return fmt.Sprintf("%s%d%02d", types.IDPreStr, timestamp, seq)
+func KeyIssueIdStr(seq uint64) string {
+
+	return fmt.Sprintf("%s%x", types.IDPreStr, seq)
 }

@@ -13,7 +13,7 @@ Owner可以将代币的所有者转移到新的账户下，如要将代币也转
 ## 例子
 ### 转移Owner
 ```shell
-hashgardcli issue transfer-ownership coin155556750600 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
+hashgardcli issue transfer-ownership coin174876e800 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
 ```
 输入正确的密码之后，你的该代币的Onwer就完成了转移。
 ```txt
@@ -33,11 +33,11 @@ hashgardcli issue transfer-ownership coin155556750600 gard1vf7pnhwh5v4lmdp59dms2
  "tags": [
   {
    "key": "action",
-   "value": "issueTransferOwnership"
+   "value": "issue_transfer_ownership"
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }

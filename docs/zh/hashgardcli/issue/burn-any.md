@@ -13,7 +13,7 @@
 ## 例子
 ### 销毁代币
 ```shell
-hashgardcli issue burn-any coin155556750600 gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye 888 --from=foo -o=json
+hashgardcli issue burn-any coin174876e800 gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye 888 --from=foo -o=json
 ```
 输入正确的密码之后，你便对指定的持币者的该代币完成了销毁。
 ```txt
@@ -33,7 +33,7 @@ hashgardcli issue burn-any coin155556750600 gard1f203m5q7hr4tkf0vredrn4wpxkx7zng
  "tags": [
   {
    "key": "action",
-   "value": "issueBurnAny"
+   "value": "issue_burn_any"
   },
   {
    "key": "sender",
@@ -41,7 +41,7 @@ hashgardcli issue burn-any coin155556750600 gard1f203m5q7hr4tkf0vredrn4wpxkx7zng
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }

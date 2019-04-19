@@ -1,8 +1,13 @@
 package tests
 
 import (
+	"fmt"
+	"strconv"
 	"testing"
 	"time"
+
+	"github.com/hashgard/hashgard/x/issue/utils"
+	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/hashgard/hashgard/x/issue/params"
 
@@ -95,4 +100,40 @@ func getQueried(t *testing.T, ctx sdk.Context, querier sdk.Querier, path string,
 	require.NotNil(t, bz)
 
 	return bz
+}
+func TestList(t *testing.T) {
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+	mapp.BeginBlock(abci.RequestBeginBlock{})
+	ctx := mapp.NewContext(false, abci.Header{})
+	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
+	cap := 1000
+	for i := 0; i < cap; i++ {
+
+		duration, _ := time.ParseDuration(strconv.Itoa(i) + "m")
+		CoinIssueInfo.SetIssueTime(time.Now().Add(duration))
+		CoinIssueInfo.SetIssuer(sdk.AccAddress(crypto.AddressHash([]byte(utils.GetRandomString(10)))))
+		CoinIssueInfo.SetSymbol(utils.GetRandomString(6))
+		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		require.Nil(t, err)
+	}
+
+	issueId := ""
+	for i := 0; i < 100; i++ {
+		//fmt.Println("==================page:" + strconv.Itoa(i))
+		issues := keeper.List(ctx, params.IssueQueryParams{StartIssueId: issueId, Owner: nil, Limit: 10})
+		require.Len(t, issues, 10)
+		for j, issue := range issues {
+
+			if j > 0 {
+				require.True(t, issues[j].IssueTime.Before(issues[j-1].IssueTime))
+			}
+			//fmt.Println(issue.IssueId + "----" + issue.IssueTime.String())
+			issueId = issue.IssueId
+		}
+
+	}
 }

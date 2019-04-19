@@ -13,13 +13,13 @@ hashgardcli issue query [issue-id] [flags]
 ## 例子
 ### 查询发行信息
 ```shell
-hashgardcli issue query coin155548903200 -o=json
+hashgardcli issue query coin174876e800 -o=json
 ```
 ```txt
 {
  "type": "issue/CoinIssueInfo",
  "value": {
-  "issue_id": "coin155548903200",
+  "issue_id": "coin174876e800",
   "issuer": "gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye",
   "owner": "gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye",
   "issue_time": "2019-04-17T08:17:05.109247975Z",

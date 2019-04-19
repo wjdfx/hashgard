@@ -27,13 +27,50 @@ hashgardcli issue list [flags]
 ### 返回列表
 
 ```shell
-hashgardcli issue list --limit 1 -o=json
+hashgardcli issue list -o=json
 ```
-
 ```txt
 [
  {
-  "issue_id": "coin155556750600",
+  "issue_id": "coin174876e801",
+  "issuer": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "owner": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "issue_time": "2019-04-19T06:23:00.748062914Z",
+  "name": "joe234234",
+  "symbol": "AAA",
+  "total_supply": "1000000000000000",
+  "decimals": "18",
+  "description": "",
+  "burning_off": false,
+  "burning_from_off": false,
+  "burning_any_off": false,
+  "minting_finished": false
+ },
+ {
+  "issue_id": "coin174876e800",
+  "issuer": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "owner": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "issue_time": "2019-04-19T06:21:12.475597314Z",
+  "name": "joe2342342344444",
+  "symbol": "JOE",
+  "total_supply": "1000000000000000",
+  "decimals": "18",
+  "description": "",
+  "burning_off": false,
+  "burning_from_off": false,
+  "burning_any_off": false,
+  "minting_finished": false
+ }
+]
+```
+
+```shell
+hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
+```
+```txt
+[
+ {
+  "issue_id": "coin174876e800",
   "issuer": "gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc",
   "owner": "gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc",
   "issue_time": "2019-04-18T06:05:01.378656183Z",
@@ -46,6 +83,44 @@ hashgardcli issue list --limit 1 -o=json
   "burning_from_off": true,
   "burning_any_off": true,
   "minting_finished": true
+ }
+]
+```
+
+```shell
+hashgardcli issue list --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx -o=json
+```
+```txt
+[
+ {
+  "issue_id": "coin174876e801",
+  "issuer": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "owner": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "issue_time": "2019-04-19T06:23:00.748062914Z",
+  "name": "joe234234",
+  "symbol": "AAA",
+  "total_supply": "1000000000000000",
+  "decimals": "18",
+  "description": "",
+  "burning_off": false,
+  "burning_from_off": false,
+  "burning_any_off": false,
+  "minting_finished": false
+ },
+ {
+  "issue_id": "coin174876e800",
+  "issuer": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "owner": "gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx",
+  "issue_time": "2019-04-19T06:21:12.475597314Z",
+  "name": "joe2342342344444",
+  "symbol": "JOE",
+  "total_supply": "1000000000000000",
+  "decimals": "18",
+  "description": "",
+  "burning_off": false,
+  "burning_from_off": false,
+  "burning_any_off": false,
+  "minting_finished": false
  }
 ]
 ```

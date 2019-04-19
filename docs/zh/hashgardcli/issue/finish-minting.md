@@ -16,7 +16,7 @@ Owner对自己发行的某个代币设置为已经完成增发。
 ## 例子
 ### 完成增发
 ```shell
-hashgardcli issue finish-minting  coin155556750600 --from foo -o=json
+hashgardcli issue finish-minting  coin174876e800 --from foo -o=json
 ```
 输入正确的密码之后，你的该代币便关闭了可由Owner销毁的功能。
 ```txt
@@ -36,11 +36,11 @@ hashgardcli issue finish-minting  coin155556750600 --from foo -o=json
  "tags": [
   {
    "key": "action",
-   "value": "issueFinishMinting"
+   "value": "issue_finish_minting"
   },
   {
    "key": "issue-id",
-   "value": "coin155556750600"
+   "value": "coin174876e800"
   }
  ]
 }
