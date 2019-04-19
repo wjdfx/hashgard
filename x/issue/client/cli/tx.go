@@ -25,8 +25,8 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create [name] [symbol] [total-supply]",
 		Args:    cobra.ExactArgs(3),
-		Short:   "Issue a new coin",
-		Long:    "Issue a new coin",
+		Short:   "Issue a new token",
+		Long:    "Issue a new token",
 		Example: "$ hashgardcli issue create foocoin FOO 100000000 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			totalSupply, ok := sdk.NewIntFromString(args[2])
@@ -118,8 +118,8 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "describe [issue-id] [description-file]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Describe a coin",
-		Long:    "Describe a coin",
+		Short:   "Describe a token",
+		Long:    "Owner can add description of the token issued by owner, and the description need to be in json format. You can customize preferences or use recommended templates.",
 		Example: "$ hashgardcli issue describe coin155547350020 path/description.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -164,8 +164,8 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mint [issue-id] [amount]",
 		Args:  cobra.ExactArgs(2),
-		Short: "mint a coin",
-		Long:  "mint a coin to a address",
+		Short: "Mint a coin",
+		Long:  "Mint a coin to a address",
 		Example: "$ hashgardcli issue mint coin155547350020 88888 --from foo\n" +
 			"$ hashgardcli issue mint coin155547350020 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -215,8 +215,8 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn [issue-id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "burn a coin",
-		Long:    "burn a coin",
+		Short:   "Token owner burn a token",
+		Long:    "Token owner could burn the token issued by the owner under the condition that the burning function were enabled.",
 		Example: "$ hashgardcli issue burn coin155547350020 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -249,8 +249,8 @@ func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn-from [issue-id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "burn a coin from my account",
-		Long:    "burn a coin from my account",
+		Short:   "Burn a token from my account",
+		Long:    "Token holder could burn one's own token under the condition of token onnwer did not disable this function. ",
 		Example: "$ hashgardcli issue burn-from gardh1c7d59vebq 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -284,8 +284,8 @@ func GetCmdIssueBurnAny(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn-any [issue-id] [address] [amount]",
 		Args:    cobra.ExactArgs(3),
-		Short:   "burn a coin from any address",
-		Long:    "burn a coin from any address",
+		Short:   "Token owner burn a token from any address",
+		Long:    "Token owner has the right to burn token owned by any holder before disable the Token Burn function.",
 		Example: "$ hashgardcli issue burn-any gardh1c7d59vebq gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -324,8 +324,8 @@ func GetCmdIssueBurnOff(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn-off [issue-id]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "burn-off a coin",
-		Long:    "burn-off a coin",
+		Short:   "Burn-off a token",
+		Long:    "Token owner disable the burning token by owner function.",
 		Example: "$ hashgardcli issue burn-off gardh1c7d59vebq --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnOff{})
@@ -339,8 +339,8 @@ func GetCmdIssueBurnFromOff(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn-from-off [issue-id]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "burn-from-off a coin",
-		Long:    "burn-from-off a coin",
+		Short:   "Burn-from-off a token",
+		Long:    "Token owner disable the permission for token holder to burn the token.",
 		Example: "$ hashgardcli issue burn-from-off gardh1c7d59vebq --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnFromOff{})
@@ -354,8 +354,8 @@ func GetCmdIssueBurnAnyOff(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "burn-any-off [issue-id]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "burn-any-off a coin",
-		Long:    "burn-any-off a coin",
+		Short:   "Burn-any-off a token",
+		Long:    "Owner disabled the Burn Token function",
 		Example: "$ hashgardcli issue burn-any-off gardh1c7d59vebq --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnAnyOff{})
@@ -369,8 +369,8 @@ func GetCmdIssueFinishMinting(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "finish-minting [issue-id]",
 		Args:    cobra.ExactArgs(1),
-		Short:   "finish-minting a coin",
-		Long:    "finish-minting a coin",
+		Short:   "Finish-minting a coin",
+		Long:    "Finish-minting a coin",
 		Example: "$ hashgardcli issue finish-minting gardh1c7d59vebq --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueFinishMinting{})

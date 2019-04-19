@@ -18,7 +18,7 @@ Owner对自己发行的某个代币设置为已经完成增发。
 ```shell
 hashgardcli issue finish-minting  coin174876e800 --from foo -o=json
 ```
-输入正确的密码之后，你的该代币便关闭了可由Owner销毁的功能。
+输入正确的密码之后，你的该代币便关闭了可由Owner的增发功能。
 ```txt
 {
  "height": "4952",
