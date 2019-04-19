@@ -1,8 +1,7 @@
 package keeper
 
 import (
-	"strings"
-	"time"
+	"fmt"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -113,19 +112,16 @@ func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) 
 	endIssueId := startIssueId
 
 	if len(startIssueId) == 0 {
-		endIssueId = KeyIssueIdStr(types.CoinIssueMaxTimestamp, 99)
-		startIssueId = KeyIssueIdStr(types.CoinIssueMinTimestamp, 0)
+		endIssueId = KeyIssueIdStr(types.CoinIssueMaxId)
+		startIssueId = KeyIssueIdStr(types.CoinIssueMinId - 1)
 	} else {
-		startIssueId = KeyIssueIdStr(types.CoinIssueMinTimestamp, 0)
+		startIssueId = KeyIssueIdStr(types.CoinIssueMinId - 1)
 	}
 
 	iterator := store.ReverseIterator(KeyIssuer(startIssueId), KeyIssuer(endIssueId))
 	defer iterator.Close()
 	list := make([]*types.CoinIssueInfo, 0, params.Limit)
 	for ; iterator.Valid(); iterator.Next() {
-		if len(startIssueId) > 0 && strings.Contains(string(iterator.Key()), startIssueId) {
-			continue
-		}
 		bz := iterator.Value()
 		if len(bz) == 0 {
 			continue
@@ -141,26 +137,24 @@ func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) 
 }
 
 func (keeper Keeper) getIssueId(store sdk.KVStore) string {
-	issueID := ""
-	i := 0
-	for {
-		if i > 99 {
-			i = 0
-		}
-		id := KeyIssueIdStr(time.Now().Unix(), i)
-		if !store.Has(KeyIssuer(id)) {
-			issueID = id
-			break
-		}
-		i += 1
+
+	id, err := keeper.getNewIssueID(store)
+	if err != nil {
+		panic(err)
 	}
-	return issueID
+	return fmt.Sprintf("%s%d", types.IDPreStr, id)
 }
 
 //Add a issue
 func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo) (sdk.Coins, sdk.Tags, sdk.Error) {
 	store := ctx.KVStore(keeper.storeKey)
-	issueID := keeper.getIssueId(store)
+	id, err := keeper.getNewIssueID(store)
+	if err != nil {
+		return nil, nil, err
+	}
+	issueID := KeyIssueIdStr(id)
+
+	//issueID := keeper.getIssueId(store)
 	coinIssueInfo.IssueId = issueID
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo)
 
@@ -421,4 +415,49 @@ func (keeper Keeper) GetIssueConfigParams(ctx sdk.Context) issueparams.IssueConf
 //Set issueConfigParams
 func (keeper Keeper) SetIssueConfigParams(ctx sdk.Context, issueConfigParams issueparams.IssueConfigParams) {
 	keeper.paramSpace.Set(ctx, ParamStoreKeyIssueParams, &issueConfigParams)
+}
+
+// Set the initial issueCount
+func (keeper Keeper) SetInitialIssueStartingIssueId(ctx sdk.Context, issueID uint64) sdk.Error {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := store.Get(KeyNextIssueID)
+	if bz != nil {
+		return sdk.NewError(keeper.codespace, types.CodeInvalidGenesis, "Initial IssueId already set")
+	}
+	bz = keeper.cdc.MustMarshalBinaryLengthPrefixed(issueID)
+	store.Set(KeyNextIssueID, bz)
+	return nil
+}
+
+// Get the last used issueID
+func (keeper Keeper) GetLastIssueID(ctx sdk.Context) (issueID uint64) {
+	issueID, err := keeper.PeekCurrentIssueID(ctx)
+	if err != nil {
+		return 0
+	}
+	issueID--
+	return
+}
+
+// Gets the next available issueID and increments it
+func (keeper Keeper) getNewIssueID(store sdk.KVStore) (issueID uint64, err sdk.Error) {
+	bz := store.Get(KeyNextIssueID)
+	if bz == nil {
+		return 0, sdk.NewError(keeper.codespace, types.CodeInvalidGenesis, "InitialIssueID never set")
+	}
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &issueID)
+	bz = keeper.cdc.MustMarshalBinaryLengthPrefixed(issueID + 1)
+	store.Set(KeyNextIssueID, bz)
+	return issueID, nil
+}
+
+// Peeks the next available IssueID without incrementing it
+func (keeper Keeper) PeekCurrentIssueID(ctx sdk.Context) (issueID uint64, err sdk.Error) {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := store.Get(KeyNextIssueID)
+	if bz == nil {
+		return 0, sdk.NewError(keeper.codespace, types.CodeInvalidGenesis, "InitialIssueID never set")
+	}
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &issueID)
+	return issueID, nil
 }

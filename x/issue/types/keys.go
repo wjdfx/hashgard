@@ -21,13 +21,12 @@ const (
 )
 
 var (
-	CoinMaxTotalSupply, _       = sdk.NewIntFromString("1000000000000000000000000000000000000")
-	CoinIssueMaxTimestamp int64 = 253402271999 //9999-12-31 23:59:59
-	CoinIssueMinTimestamp int64 = 1546272000   //2019-01-01 00:00:00
+	CoinMaxTotalSupply, _        = sdk.NewIntFromString("1000000000000000000000000000000000000")
+	CoinIssueMaxId        uint64 = 999999999999 //9999-12-31 23:59:59
+	CoinIssueMinId        uint64 = 100000000000 //2019-01-01 00:00:00
 )
 
 const (
-	IDLength = 16
 	IDPreStr = "coin"
 	Custom   = "custom"
 )
