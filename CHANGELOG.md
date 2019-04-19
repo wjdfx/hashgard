@@ -1,5 +1,58 @@
 # Changelog
 
+## 0.4.0
+
+### BREAKING CHANGES
+
++ Hashgard REST API (hashgardlcd)
+    + [base_req] Remove `generate_only` and `password` field, all functional APIs only support generate tx, cannot use keybase to sign tx any more.
+    + [ICS1] Remove APIs of keys module.
+    + [ICS20] Do not support `/tx/sign`, `/tx/broadcast` any more. Now use POST `/txs` (ICS0)to broadcast tx. Move encoding endpoint to `/txs/encode`.
+    + [ICS24] Remove `/distribution/outstanding_rewards`, add new GET ``/distribution/validators/{validatorAddr}/outstanding_rewards` API to query the outstanding rewards of a specific validator.
+
++ Hashgard (hashgard)
+    + Update validator creation flow:
+        - Remove `NewMsgCreateValidatorOnBehalfOf` and corresponding business logic
+        - Ensure the validator address equals the delegator address during `MsgCreateValidator#ValidateBasic`
+
++ Tendermint
+    + Upgrade tendermint from `v0.30.0` to `v0.31.0-dev0-fix0`
+
++ Cosmos SDK
+    + Upgrade cosmos-sdk from `v0.32.0` to `v0.33.2`
+
++ Dependency Management Tool
+    + Now use `go mod` (go 1.11+) instead of `glide`
+
+### FEATURES
+
++ Hashgard CLI (hashgardcli)
+    + [faucet] Integrade `faucet send` function in CLI
+
++ Hashgard (hashgard)
+    + [issue] Add new module to issue and manage token asserts.
+    + [exchange] Add new module to support atomic-exchange of asserts.
+
+### IMPROVEMENTS
+
++ Hashgard REST API (hashgardlcd)
+    + Update the `TxResponse` type allowing for the `Logs` result to be JSON decoded automatically.
+
++ Hashgard CLI (hashgardcli)
+    + Prompt user confirmation prior to signing and broadcasting a transaction.
+    + Update `tx sign` to use `--from` instead of the deprecated `--name` CLI flag.
+    + Querying account related information using custom querier in auth module.
+
+### BUG FIXES
+
++ Hashgard CLI (hashgardcli)
+    + `keys add --interactive` bip32 passphrase regression fix.
+
++ Hashgard (hashgard)
+    + Fix distribution delegation for zero height export bug.
+    + Properly return errors from a couple of struct Unmarshal functions.
+
+
 ## 0.3.1
 
 ### BREAKING CHANGES

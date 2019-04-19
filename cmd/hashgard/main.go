@@ -97,6 +97,6 @@ func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.W
 		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	hApp := app.NewHashgardApp(logger, db, traceStore, false)
+	hApp := app.NewHashgardApp(logger, db, traceStore, true)
 	return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }
