@@ -47,7 +47,7 @@ const (
 	TypeMsgIssueMint              = "issue_mint"
 	TypeMsgIssueBurn              = "issue_burn"
 	TypeMsgIssueBurnFrom          = "issue_burn_from"
-	TypeMsgIssueBurnAny           = "issue_burnAny"
+	TypeMsgIssueBurnAny           = "issue_burn_any"
 	TypeMsgIssueFinishMinting     = "issue_finish_minting"
 	TypeMsgIssueDescription       = "issue_description"
 	TypeMsgIssueTransferOwnership = "issue_transfer_ownership"
