@@ -78,8 +78,8 @@ func GetCmdIssueTransferOwnership(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "transfer-ownership [issue-id] [to_address]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Describe a new coin",
-		Long:    "Describe a new coin",
+		Short:   "Transfer-ownership a coin",
+		Long:    "Transfer-ownership a coin",
 		Example: "$ hashgardcli issue transfer-ownership coin155547350020 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
@@ -120,7 +120,7 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		Short:   "Describe a coin",
 		Long:    "Describe a coin",
-		Example: "$ hashgardcli issue describe foocoin path/description.json --from foo",
+		Example: "$ hashgardcli issue describe coin155547350020 path/description.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -162,11 +162,12 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 // GetCmdIssueMint implements mint a coinIssue transaction command.
 func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "mint [issue-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "mint a coin",
-		Long:    "mint a coin to a address",
-		Example: "$ hashgardcli issue mint gardh1c7d59vebq 88888 --from foo",
+		Use:   "mint [issue-id] [amount]",
+		Args:  cobra.ExactArgs(2),
+		Short: "mint a coin",
+		Long:  "mint a coin to a address",
+		Example: "$ hashgardcli issue mint coin155547350020 88888 --from foo\n" +
+			"$ hashgardcli issue mint coin155547350020 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -216,7 +217,7 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		Short:   "burn a coin",
 		Long:    "burn a coin",
-		Example: "$ hashgardcli issue burn gardh1c7d59vebq 88888 --from foo",
+		Example: "$ hashgardcli issue burn coin155547350020 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -281,7 +282,7 @@ func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 // GetCmdIssueBurnAny implements burn a coinIssue transaction command.
 func GetCmdIssueBurnAny(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "burn-any [issue-id] [accAddress] [amount]",
+		Use:     "burn-any [issue-id] [address] [amount]",
 		Args:    cobra.ExactArgs(3),
 		Short:   "burn a coin from any address",
 		Long:    "burn a coin from any address",
