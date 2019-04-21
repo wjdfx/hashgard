@@ -78,12 +78,12 @@ hashgardcli bank send gard19thul47y2afwr67l4hlv9hu5593uw0rqhashgjdm7jj 10gard --
 2. 使用账户a1签名：
 
 ```
-hashgardcli bank sign unsignedTx.json --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n  --name=a1 --output-document=a1sign.json
+hashgardcli bank sign unsignedTx.json --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n  --from=a1 --output-document=a1sign.json
 ```
 3. 使用账户a2签名：
 
 ```
-hashgardcli bank sign unsignedTx.json --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n  --name=a2 --output-document=a2sign.json
+hashgardcli bank sign unsignedTx.json --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n  --from=a2 --output-document=a2sign.json
 ```
 4. 使用多签账号进行多签：
 
