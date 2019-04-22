@@ -16,7 +16,7 @@ hashgardcli bank sign [file] [flags]
 | ---------------- | ------- | -------- | --------------------- | ------------------------------------------------------------ |
 | --append | bool | 否 | true | 将签名附加到现有签名。如果禁用，旧签名将被覆盖。如果--multisig打开则忽略（默认为true） |
 | --multisig | string | 否 | | 代表交易签署的multisig帐户的地址 |
-| --name | string | 否 | | 与之签名的私钥的名称 |
+| --from | string | 否 | | 与之签名的私钥的名称 |
 | --offline | bool | 否 | false | 链下模式，不查询全节点 |
 | --output-document | string |  |  | 该文档将写入给定文件而不是STDOUT |
 | --signature-only | bool | 否 | | 仅打印生成的签名，然后退出 |
@@ -43,7 +43,7 @@ hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=t
 接着来签名这个离线文件。
 
 ```
-hashgardcli bank sign /root/node0/test_send_10hashgard.txt --name=test  --offline=false --print-response --append=true
+hashgardcli bank sign /root/node0/test_send_10hashgard.txt --from=test  --offline=false --print-response --append=true
 ```
 
 随后得到签名详细信息，在输出中你会看到签名信息:
