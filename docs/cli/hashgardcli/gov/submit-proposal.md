@@ -21,19 +21,23 @@ hashgardcli gov submit-proposal [flags]
 
 ## Global Flags
 
- ### 参考：[hashgardcli](../README.md)
+### 参考：[hashgardcli](../README.md)
  
 ## 例子
 
 ### 提交一个'Text'类型的提案
 
 ```shell
-hashgardcli gov submit-proposal --title="notice proposal" --type="Text" --description="a new text proposal" --from=hashgard --chain-id=hashgard -o json --indent
+hashgardcli gov submit-proposal \
+    --title="notice proposal" \
+    --type="Text" \
+    --description="a new text proposal" \
+    --from=foo
 ```
 
 输入正确的密码之后，你就完成提交了一个提案，需要注意的是要记下你的提案ID，这是可以检索你的提案的唯一要素。
 
-```txt
+```json
 {
  "height": "85719",
  "txhash": "8D65804B7259957971AA69515A71AFC1F423080C9484F35ACC6ECD3FBC8EDDDD",
@@ -58,11 +62,13 @@ hashgardcli gov submit-proposal --title="notice proposal" --type="Text" --descri
 }
 ```
 ### 以提案文件的方式提交一个'Text'类型的提案
-```shell
-hashgardcli gov submit-proposal --proposal="path/to/proposal.json" --from=hashgard --chain-id=hashgard ---o json --indent
+```bash
+hashgardcli gov submit-proposal \
+    --proposal="path/to/proposal.json" \
+    --from=foo
 ```
 提案文件内容如下：
-```
+```json
 {
   "title": "Test Proposal",
   "description": "My awesome proposal",
@@ -72,7 +78,7 @@ hashgardcli gov submit-proposal --proposal="path/to/proposal.json" --from=hashga
 ```
 
 输入正确的密码之后，你就完成提交了一个提案，需要注意的是要记下你的提案ID，这是可以检索你的提案的唯一要素。
-```
+```json
 {
  "height": "85903",
  "txhash": "9680C11E6631D4EA4B6CE06775D7AC1DAFDA5BD64A98F68E940990CF3E6142D0",
@@ -102,8 +108,12 @@ hashgardcli gov submit-proposal --proposal="path/to/proposal.json" --from=hashga
 ```
 ### 提交一个'SoftwareUpgrade'类型的提案
 
-```shell
-hashgardcli gov submit-proposal --title="hashgard" --type="SoftwareUpgrade" --description="a new software upgrade proposal" --from=hashgard --chain-id=hashgard
+```bash
+hashgardcli gov submit-proposal \
+    --title="hashgard" \
+    --type="SoftwareUpgrade" \
+    --description="a new software upgrade proposal" \
+    --from=hashgard 
 ```
 
 在这种场景下，提案的 --title、--type 和--description参数必不可少，另外你也应该保留好提案ID，这是检索所提交提案的唯一方法。
@@ -115,5 +125,5 @@ hashgardcli gov submit-proposal --title="hashgard" --type="SoftwareUpgrade" --de
 
 [proposal](proposal.md)
 
-[proposals](proposal.md)
+[proposals](proposals.md)
 
