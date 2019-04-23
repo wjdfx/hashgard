@@ -1,6 +1,6 @@
 # Hashgard浏览器使用指南
 
-首先进入[hashgard plorer](https://www.gardplorer.io/)
+首先进入[gardplorer](https://www.gardplorer.io/)
 
 # 什么是Hashgard plorer
 
