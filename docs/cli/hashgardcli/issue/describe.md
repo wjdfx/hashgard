@@ -21,7 +21,7 @@ hashgardcli issue describe coin174876e800 path/description.json --from=foo -o=js
     "organization":"Hashgard",
     "website":"https://www.hashgard.com",
     "logo":"https://cdn.hashgard.com/static/logo.2d949f3d.png",
-    "description":"这是一个牛逼的项目" 
+    "description":"临界是新一代数字金融公有链" 
 }
 ```
 输入正确的密码之后，你的该代币的描述就设置成功了。
@@ -68,7 +68,7 @@ hashgardcli issue query coin155547350023 -o=json
   "symbol": "qu8wh5",
   "total_supply": "100000000",
   "decimals": "18",
-  "description": "{\"organization\":\"Hashgard\",\"website\":\"https://www.hashgard.com\",\"logo\":\"https://cdn.hashgard.com/static/logo.2d949f3d.png\",\"description\":\"这是一个牛逼的项目\"}",
+  "description": "{\"organization\":\"Hashgard\",\"website\":\"https://www.hashgard.com\",\"logo\":\"https://cdn.hashgard.com/static/logo.2d949f3d.png\",\"description\":\"临界是新一代数字金融公有链\"}",
   "burning_off": false,
   "burning_from_off": false,
   "burning_any_off": false,
