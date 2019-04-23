@@ -4,7 +4,7 @@
 Owner can add Usage of the token issued by owner, and the Usage need to be in json format. You can customize preferences or use recommended templates.
 ## Usage
 ```
- hashgardcli issue describe [issue-id] [Usage-file] [flags]
+ hashgardcli issue describe [issue-id] [description-file] [flags]
 ```
 ## Global Flags
 

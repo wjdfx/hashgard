@@ -1,7 +1,7 @@
  # hashgardcli issue burn-from
 
 ## Description
-Token holder could burn one's own token under the condition of token onnwer did not disable this function. 
+Token holder could burn one's own token under the condition of token owner did not disable this function. 
 ## Usage
 ```
  hashgardcli issue burn-from [issue-id] [amount] [flags]
