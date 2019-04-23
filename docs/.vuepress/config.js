@@ -44,7 +44,7 @@ module.exports = {
         algolia: {},
         nav: [{
             text: 'Guide',
-            link: '/learn/'
+            link: '/learn/introduction.md'
           },
           {
             text: 'command',
@@ -87,119 +87,24 @@ module.exports = {
           ],
           '/cli/': [
             ['/cli/', 'cli'],
-            ['/cli/hashgardcli/', 'hashgardcli'],
             {
-              title: 'bank',
+              title: 'hashgardcli',
               children: [
-                ['/cli/hashgardcli/bank/', 'Bank Guide'],
-                ['/cli/hashgardcli/bank/account', 'account'],
-                ['/cli/hashgardcli/bank/send', 'send'],
-                ['/cli/hashgardcli/bank/sign', 'sign'],
-                ['/cli/hashgardcli/bank/multisign', 'multisign'],
-                ['/cli/hashgardcli/bank/broadcast', 'broadcast'],
-
-              ],
+                ['/cli/hashgardcli/', 'directory'],
+                ['/cli/hashgardcli/bank/', 'bank'],
+                ['/cli/hashgardcli/distribution/', 'distribution'],
+                ['/cli/hashgardcli/gov/', 'gov'],
+                ['/cli/hashgardcli/keys/', 'keys'],
+                ['/cli/hashgardcli/stake/', 'stake'],
+                ['/cli/hashgardcli/status', 'status'],
+                ['/cli/hashgardcli/tendermint/', 'tendermint'],
+                ['/cli/hashgardcli/slashing/', 'slashing']
+              ]
             },
-            {
-              title: 'distribution',
-              children: [
-                ['/cli/hashgardcli/distribution/', 'Distribution Guide'],
-                ['/cli/hashgardcli/distribution/params', 'params'],
-                ['/cli/hashgardcli/distribution/outstanding-rewards', 'outstanding-rewards'],
-                ['/cli/hashgardcli/distribution/commission', 'commission'],
-                ['/cli/hashgardcli/distribution/slashes', 'slashes'],
-                ['/cli/hashgardcli/distribution/rewards', 'rewards'],
-                ['/cli/hashgardcli/distribution/set-withdraw-address', 'set-withdraw-address'],
-                ['/cli/hashgardcli/distribution/withdraw-rewards', 'withdraw-rewards'],
-              ],
-            },
-            {
-              title: 'gov',
-              children: [
-                ['/cli/hashgardcli/gov/', 'Gov Guide'],
-                ['/cli/hashgardcli/gov/proposal', 'proposal'],
-                ['/cli/hashgardcli/gov/proposals', 'proposals'],
-                ['/cli/hashgardcli/gov/query-vote', 'query-vote'],
-                ['/cli/hashgardcli/gov/query-votes', 'query-votes'],
-                ['/cli/hashgardcli/gov/query-deposit', 'query-deposit'],
-                ['/cli/hashgardcli/gov/query-deposits', 'query-deposits'],
-                ['/cli/hashgardcli/gov/tally', 'tally'],
-                ['/cli/hashgardcli/gov/param', 'param'],
-                ['/cli/hashgardcli/gov/submit-proposal', 'submit-proposal'],
-                ['/cli/hashgardcli/gov/deposit', 'deposit'],
-                ['/cli/hashgardcli/gov/vote', 'vote'],
-
-              ],
-            },
-            {
-              title: 'keys',
-              children: [
-                ['/cli/hashgardcli/keys/', 'Keys Guide'],
-                ['/cli/hashgardcli/keys/mnemonic', 'mnemonic'],
-                ['/cli/hashgardcli/keys/add', 'add'],
-                ['/cli/hashgardcli/keys/list', 'list'],
-                ['/cli/hashgardcli/keys/show', 'show'],
-                ['/cli/hashgardcli/keys/delete', 'delete'],
-                ['/cli/hashgardcli/keys/update', 'update'],
-
-
-              ],
-            },
-            {
-              title: 'stake',
-              children: [
-                ['/cli/hashgardcli/stake/', 'Stake Guide'],
-                ['/cli/hashgardcli/stake/validator', 'validator'],
-                ['/cli/hashgardcli/stake/validators', 'validators'],
-                ['/cli/hashgardcli/stake/delegation', 'delegation'],
-                ['/cli/hashgardcli/stake/delegations', 'delegations'],
-                ['/cli/hashgardcli/stake/delegations-to', 'delegations-to'],
-                ['/cli/hashgardcli/stake/unbonding-delegation', 'unbonding-delegation'],
-                ['/cli/hashgardcli/stake/unbonding-delegations', 'unbonding-delegations'],
-                ['/cli/hashgardcli/stake/unbonding-delegations-from', 'unbonding-delegations-from'],
-                ['/cli/hashgardcli/stake/redelegation', 'redelegation'],
-                ['/cli/hashgardcli/stake/redelegations', 'redelegations'],
-                ['/cli/hashgardcli/stake/redelegations-from', 'redelegations-from'],
-                ['/cli/hashgardcli/stake/pool', 'pool'],
-                ['/cli/hashgardcli/stake/params', 'params'],
-                ['/cli/hashgardcli/stake/create-validator', 'create-validator'],
-                ['/cli/hashgardcli/stake/edit-validator', 'edit-validator'],
-                ['/cli/hashgardcli/stake/delegate', 'delegate'],
-                ['/cli/hashgardcli/stake/unbond', 'unbond'],
-                ['/cli/hashgardcli/stake/redelegate', 'redelegate'],
-
-              ],
-            },
-
-            ['/cli/hashgardcli/status', 'status'],
-
-
-            {
-              title: 'tendermint',
-              children: [
-                ['/cli/hashgardcli/tendermint/', 'tendermint Guide'],
-                ['/cli/hashgardcli/tendermint/block', 'block'],
-                ['/cli/hashgardcli/tendermint/tendermint-validator-set', 'vtendermint-validator-set'],
-                ['/cli/hashgardcli/tendermint/txs', 'txs'],
-                ['/cli/hashgardcli/tendermint/tx', 'tx'],
-
-
-              ],
-            },
-            {
-              title: 'slashing',
-              children: [
-                ['/cli/hashgardcli/slashing/', 'slashing Guide'],
-                ['/cli/hashgardcli/slashing/signing-info', 'signing-info'],
-                ['/cli/hashgardcli/slashing/params', 'params'],
-                ['/cli/hashgardcli/slashing/unjail', 'unjail'],
-              ],
-            },
-
             {
               title: 'hashgard',
               children: [
-                ['/cli/hashgard/', 'Hashgard Guid'],
+                ['/cli/hashgard/', 'directory'],
                 ['/cli/hashgard/init', 'hashgard init'],
                 ['/cli/hashgard/add-genesis-account', 'hashgard add-genesis-account'],
                 ['/cli/hashgard/gentx', 'hashgard gentx'],
@@ -216,8 +121,7 @@ module.exports = {
             ['/cli/hashgardlcd/', 'hashgardlcd'],
           ],
 
-
-          sidebarDepth: 1, // e'b将同时提取markdown中h2 和 h3 标题，显示在侧边栏上。
+          sidebarDepth: 2, // e'b将同时提取markdown中h2 和 h3 标题，显示在侧边栏上。
           lastUpdated: 'Last Updated', // 文档更新时间：每个文件git最后提交的时间,
 
         },
@@ -237,7 +141,7 @@ module.exports = {
         // 当前 locale 的 algolia docsearch 选项
         nav: [{
             text: '教程',
-            link: '/translations/zh/learn/'
+            link: '/translations/zh/learn/introduction.md'
           },
           {
             text: '命令',
@@ -246,120 +150,25 @@ module.exports = {
         ],
         sidebar: {
           '/translations/zh/cli/': [
-            ['/translations/zh/cli/', '开发手册'],
-            ['/translations/zh/cli/hashgardcli/', 'hashgardcli'],
+            ['/translations/zh/cli/', '命令手册'],
             {
-              title: 'bank',
+              title: 'hashgardcli',
               children: [
-                ['/translations/zh/cli/hashgardcli/bank/', 'Bank Guide'],
-                ['/translations/zh/cli/hashgardcli/bank/account', 'account'],
-                ['/translations/zh/cli/hashgardcli/bank/send', 'send'],
-                ['/translations/zh/cli/hashgardcli/bank/sign', 'sign'],
-                ['/translations/zh/cli/hashgardcli/bank/multisign', 'multisign'],
-                ['/translations/zh/cli/hashgardcli/bank/broadcast', 'broadcast'],
+                ['/translations/zh/cli/hashgardcli/', 'directory'],
+                ['/translations/zh/cli/hashgardcli/distribution/', 'distribution'],
+                ['/translations/zh/cli/hashgardcli/gov/', 'gov'],
+                ['/translations/zh/cli/hashgardcli/keys/', 'keys'],
+                ['/translations/zh/cli/hashgardcli/stake/', 'stake'],
+                ['/translations/zh/cli/hashgardcli/status', 'status'],
+                  ['/translations/zh/cli/hashgardcli/tendermint/', 'tendermint'],
+                    ['/translations/zh/cli/hashgardcli/slashing/', 'slashing'],
 
               ],
             },
-            {
-              title: 'distribution',
-              children: [
-                ['/translations/zh/cli/hashgardcli/distribution/', 'Distribution Guide'],
-                ['/translations/zh/cli/hashgardcli/distribution/params', 'params'],
-                ['/translations/zh/cli/hashgardcli/distribution/outstanding-rewards', 'outstanding-rewards'],
-                ['/translations/zh/cli/hashgardcli/distribution/commission', 'commission'],
-                ['/translations/zh/cli/hashgardcli/distribution/slashes', 'slashes'],
-                ['/translations/zh/cli/hashgardcli/distribution/rewards', 'rewards'],
-                ['/translations/zh/cli/hashgardcli/distribution/set-withdraw-address', 'set-withdraw-address'],
-                ['/translations/zh/cli/hashgardcli/distribution/withdraw-rewards', 'withdraw-rewards'],
-              ],
-            },
-            {
-              title: 'gov',
-              children: [
-                ['/translations/zh/cli/hashgardcli/gov/', 'Gov Guide'],
-                ['/translations/zh/cli/hashgardcli/gov/proposal', 'proposal'],
-                ['/translations/zh/cli/hashgardcli/gov/proposals', 'proposals'],
-                ['/translations/zh/cli/hashgardcli/gov/query-vote', 'query-vote'],
-                ['/translations/zh/cli/hashgardcli/gov/query-votes', 'query-votes'],
-                ['/translations/zh/cli/hashgardcli/gov/query-deposit', 'query-deposit'],
-                ['/translations/zh/cli/hashgardcli/gov/query-deposits', 'query-deposits'],
-                ['/translations/zh/cli/hashgardcli/gov/tally', 'tally'],
-                ['/translations/zh/cli/hashgardcli/gov/param', 'param'],
-                ['/translations/zh/cli/hashgardcli/gov/submit-proposal', 'submit-proposal'],
-                ['/translations/zh/cli/hashgardcli/gov/deposit', 'deposit'],
-                ['/translations/zh/cli/hashgardcli/gov/vote', 'vote'],
-
-              ],
-            },
-            {
-              title: 'keys',
-              children: [
-                ['/translations/zh/cli/hashgardcli/keys/', 'Keys Guide'],
-                ['/translations/zh/cli/hashgardcli/keys/mnemonic', 'mnemonic'],
-                ['/translations/zh/cli/hashgardcli/keys/add', 'add'],
-                ['/translations/zh/cli/hashgardcli/keys/list', 'list'],
-                ['/translations/zh/cli/hashgardcli/keys/show', 'show'],
-                ['/translations/zh/cli/hashgardcli/keys/delete', 'delete'],
-                ['/translations/zh/cli/hashgardcli/keys/update', 'update'],
-
-
-              ],
-            },
-            {
-              title: 'stake',
-              children: [
-                ['/translations/zh/cli/hashgardcli/stake/', 'Stake Guide'],
-                ['/translations/zh/cli/hashgardcli/stake/validator', 'validator'],
-                ['/translations/zh/cli/hashgardcli/stake/validators', 'validators'],
-                ['/translations/zh/cli/hashgardcli/stake/delegation', 'delegation'],
-                ['/translations/zh/cli/hashgardcli/stake/delegations', 'delegations'],
-                ['/translations/zh/cli/hashgardcli/stake/delegations-to', 'delegations-to'],
-                ['/translations/zh/cli/hashgardcli/stake/unbonding-delegation', 'unbonding-delegation'],
-                ['/translations/zh/cli/hashgardcli/stake/unbonding-delegations', 'unbonding-delegations'],
-                ['/translations/zh/cli/hashgardcli/stake/unbonding-delegations-from', 'unbonding-delegations-from'],
-                ['/translations/zh/cli/hashgardcli/stake/redelegation', 'redelegation'],
-                ['/translations/zh/cli/hashgardcli/stake/redelegations', 'redelegations'],
-                ['/translations/zh/cli/hashgardcli/stake/redelegations-from', 'redelegations-from'],
-                ['/translations/zh/cli/hashgardcli/stake/pool', 'pool'],
-                ['/translations/zh/cli/hashgardcli/stake/params', 'params'],
-                ['/translations/zh/cli/hashgardcli/stake/create-validator', 'create-validator'],
-                ['/translations/zh/cli/hashgardcli/stake/edit-validator', 'edit-validator'],
-                ['/translations/zh/cli/hashgardcli/stake/delegate', 'delegate'],
-                ['/translations/zh/cli/hashgardcli/stake/unbond', 'unbond'],
-                ['/translations/zh/cli/hashgardcli/stake/redelegate', 'redelegate'],
-
-              ],
-            },
-
-            ['/translations/zh/cli/hashgardcli/status', 'status'],
-
-
-            {
-              title: 'tendermint',
-              children: [
-                ['/translations/zh/cli/hashgardcli/tendermint/', 'tendermint Guide'],
-                ['/translations/zh/cli/hashgardcli/tendermint/block', 'block'],
-                ['/translations/zh/cli/hashgardcli/tendermint/tendermint-validator-set', 'vtendermint-validator-set'],
-                ['/translations/zh/cli/hashgardcli/tendermint/txs', 'txs'],
-                ['/translations/zh/cli/hashgardcli/tendermint/tx', 'tx'],
-
-
-              ],
-            },
-            {
-              title: 'slashing',
-              children: [
-                ['/translations/zh/cli/hashgardcli/slashing/', 'slashing Guide'],
-                ['/translations/zh/cli/hashgardcli/slashing/signing-info', 'signing-info'],
-                ['/translations/zh/cli/hashgardcli/slashing/params', 'params'],
-                ['/translations/zh/cli/hashgardcli/slashing/unjail', 'unjail'],
-              ],
-            },
-
             {
               title: 'hashgard',
               children: [
-                ['/translations/zh/cli/hashgard/', 'Hashgard Guid'],
+                ['/translations/zh/cli/hashgard/', 'directory'],
                 ['/translations/zh/cli/hashgard/init', 'hashgard init'],
                 ['/translations/zh/cli/hashgard/gentx', 'hashgard gentx'],
                 ['/translations/zh/cli/hashgard/collect-gentxs', 'hashgard collect-gentxs'],
@@ -409,7 +218,7 @@ module.exports = {
             },
           ],
         },
-        sidebarDepth: 1, // e'b将同时提取markdown中h2 和 h3 标题，显示在侧边栏上。
+        sidebarDepth: 2, // e'b将同时提取markdown中h2 和 h3 标题，显示在侧边栏上。
         lastUpdated: 'Last Updated', // 文档更新时间：每个文件git最后提交的时间,
 
       },

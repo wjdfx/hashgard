@@ -1,11 +1,3 @@
-# 欢迎来到Hashgard
-
-> Harhgard  是一 个面向金融领域服务的智能区块链基础设施，全球开源社区推动
-
-Hashgard文档库是所有Hashgard所有文档的集合，你可以在这里静心学习教程，也可以在查询获取Hashgard相关的技术手册，了解Hashgard社区及查看用户操作手册，也欢迎 广大的用户至github上提交更多宝贵的意见和建议，促使我们更快更好的建设整个智能金融网络。
-
-
-
 # hashgardcli
 
 1. [bank command](./hashgardcli/bank/)
