@@ -16,21 +16,11 @@
 
 ### 开发文档
 
-点击查看[开发手册](command/README.md)
+点击查看[开发手册](cli/README.md)
 
-
-
-### 测试贡献
-
-加入测试网络[测试任务](test/README.md)
 
 
 
 ### Hashgard 导航
 
 查看hashgard[导航](learn/UsersGuide/hashgardNav.md)
-
-
-
-
-
