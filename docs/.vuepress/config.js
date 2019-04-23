@@ -47,7 +47,7 @@ module.exports = {
             link: '/learn/'
           },
           {
-            text: 'Dev',
+            text: 'command',
             link: '/cli/'
           },
 
@@ -85,7 +85,7 @@ module.exports = {
               ]
             }
           ],
-          '/cli': [
+          '/cli/': [
             ['/cli/', 'cli'],
             ['/cli/hashgardcli/', 'hashgardcli'],
             {
@@ -240,7 +240,7 @@ module.exports = {
             link: '/translations/zh/learn/'
           },
           {
-            text: '开发',
+            text: '命令',
             link: '/translations/zh/cli/'
           },
         ],
