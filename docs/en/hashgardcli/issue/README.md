@@ -1,6 +1,6 @@
 # hashgardcli issue
 
-## Usage
+## Description
 Issue HRC10 token on Hashgard public chain. We provide additional issuance, burning, owner transfer and information check services. 
 ```
 Note: There is no requirement on GARD holdings under your account, as long as there is enough GARD to pay the gas fee for each process.
@@ -15,9 +15,7 @@ Print help messages:
 ```
 hashgardcli issue --help
 ```
-
 ## Available Commands
-
 | 命令                                        | 描述                                 |
 | ------------------------------------------- | ------------------------------------ |
 | [create](create.md)                         | Issue a new token。                   |
