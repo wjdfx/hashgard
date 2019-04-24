@@ -41,6 +41,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govrest "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	gcutils "github.com/cosmos/cosmos-sdk/x/gov/client/utils"
+	mintrest "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -409,6 +410,7 @@ func registerRoutes(rs *RestServer) {
 	stakingrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	slashingrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	govrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	mintrest.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
 // Request makes a test LCD test request. It returns a response object and a

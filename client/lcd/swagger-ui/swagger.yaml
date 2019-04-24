@@ -121,6 +121,7 @@ paths:
         description: Block height
         required: true
         type: number
+        x-example: 1
       responses:
         200:
           description: The block at a specific height
@@ -166,6 +167,7 @@ paths:
         description: Block height
         required: true
         type: number
+        x-example: 1
       responses:
         200:
           description: The validator set at a specific block height
@@ -197,6 +199,7 @@ paths:
         description: Tx hash
         required: true
         type: string
+        x-example: 88D6B85EAB87D43CDF50F39C22FC2237A37FEDC4CE723200AD0AF48CBEDBC317
       responses:
         200:
           description: Tx with the provided hash
@@ -218,14 +221,17 @@ paths:
         type: string
         description: "transaction tags such as 'action=submit-proposal' and 'proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc' which results in the following endpoint: 'GET /txs?action=submit-proposal&proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'"
         required: true
+        x-example: 'TODO'
       - in: query
         name: page
         description: Pagination number
         type: integer
+        x-example: 1
       - in: query
         name: limit
         description: Maximum number of items per page
         type: integer
+        x-example: 1
       responses:
         200:
           description: All txs matching the provided tags
@@ -317,6 +323,7 @@ paths:
         description: Account address in bech32 format
         required: true
         type: string
+        x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
       responses:
         200:
           description: Account balances
@@ -343,6 +350,7 @@ paths:
         description: Account address in bech32 format
         required: true
         type: string
+        x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
       - in: body
         name: account
         description: The sender and tx information
@@ -378,6 +386,7 @@ paths:
         description: Account address
         required: true
         type: string
+        x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
       responses:
         200:
           description: Account information on the blockchain
@@ -412,6 +421,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
     get:
       summary: Get all delegations from a delegator
       tags:
@@ -470,11 +480,13 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
     - in: path
       name: validatorAddr
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Query the current delegation between a delegator and a validator
       tags:
@@ -497,6 +509,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
     get:
       summary: Get all unbonding delegations from a delegator
       tags:
@@ -556,11 +569,13 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard16gdxm24ht2mxtpz9cma6tr6a6d47x63hlq4pxt
     - in: path
       name: validatorAddr
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Query all unbonding delegations between a delegator and a validator
       tags:
@@ -617,6 +632,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     post:
       summary: Submit a redelegation
       parameters:
@@ -659,6 +675,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     get:
       summary: Query all validators that a delegator is bonded to
       tags:
@@ -683,11 +700,13 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     - in: path
       name: validatorAddr
       description: Bech32 ValAddress of Delegator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Query a validator that a delegator is bonded to
       tags:
@@ -710,6 +729,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     get:
       summary: Get all staking txs (i.e msgs) from a delegator
       tags:
@@ -752,6 +772,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Query the information from a single validator
       tags:
@@ -774,6 +795,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Get all delegations from a validator
       tags:
@@ -798,6 +820,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Get all unbonding delegations from a validator
       tags:
@@ -885,6 +908,7 @@ paths:
         name: validatorPubKey
         required: true
         in: path
+        x-example: gardvalconspub1zcjduepq7mft6gfls57a0a42d7uhx656cckhfvtrlmw744jv4q0mvlv0dypskehfk8
       responses:
         200:
           description: OK
@@ -910,11 +934,13 @@ paths:
         description: Page number
         type: integer
         required: true
+        x-example: 1
       - in: query
         name: limit
         description: Maximum number of items per page
         type: integer
         required: true
+        x-example: 5
       responses:
         200:
           description: OK
@@ -944,6 +970,7 @@ paths:
         name: validatorAddr
         required: true
         in: path
+        x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
       - description: ""
         name: UnjailBody
         in: body
@@ -1080,6 +1107,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       responses:
         200:
           description: OK
@@ -1102,6 +1130,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       responses:
         200:
           description: OK
@@ -1124,6 +1153,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       responses:
         200:
           description: OK
@@ -1150,6 +1180,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       - description: ""
         name: post_deposit_body
         in: body
@@ -1190,11 +1221,13 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       - type: string
         description: Bech32 depositor address
         name: depositor
         required: true
         in: path
+        x-example: gard1xl6453f6q6dv5770c9ue6hspdc0vxfuqtudkhz
       responses:
         200:
           description: OK
@@ -1220,6 +1253,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       responses:
         200:
           description: OK
@@ -1246,6 +1280,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       - description: valid value of `"option"` field can be `"yes"`, `"no"`, `"no_with_veto"` and `"abstain"`
         name: post_vote_body
         in: body
@@ -1285,11 +1320,13 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       - type: string
         description: Bech32 voter address
         name: voter
         required: true
         in: path
+        x-example: gard1qwl879nx9t6kef4supyazayf7vjhennyjqwjgr
       responses:
         200:
           description: OK
@@ -1315,6 +1352,7 @@ paths:
         name: proposalId
         required: true
         in: path
+        x-example: '1'
       responses:
         200:
           description: OK
@@ -1408,6 +1446,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     get:
       summary: Get the total rewards balance from all delegations
       description: Get the sum of all the rewards earned by delegations by a single delegator
@@ -1460,11 +1499,13 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     - in: path
       name: validatorAddr
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Query a delegation reward
       description: Query a single delegation reward by a delegator
@@ -1517,6 +1558,7 @@ paths:
       description: Bech32 AccAddress of Delegator
       required: true
       type: string
+      x-example: gard167w96tdvmazakdwkw2u57227eduula2cy572lf
     get:
       summary: Get the rewards withdrawal address
       description: Get the delegations' rewards withdrawal address. This is the address in which the user will receive the reward funds
@@ -1569,6 +1611,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Validator distribution information
       description: Query the distribution information of a single validator
@@ -1592,6 +1635,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Fee distribution outstanding rewards of a single validator
       tags:
@@ -1614,6 +1658,7 @@ paths:
       description: Bech32 OperatorAddress of validator
       required: true
       type: string
+      x-example: gardvaloper1qwl879nx9t6kef4supyazayf7vjhennyh568ys
     get:
       summary: Commission and self-delegation rewards of a single validator
       description: Query the commission and self-delegation rewards of validator.
@@ -1693,6 +1738,54 @@ paths:
                 type: string
               community_tax:
                 type: string
+        500:
+          description: Internal Server Error
+  /minting/parameters:
+    get:
+      summary: Minting module parameters
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              mint_denom:
+                type: string
+              inflation_rate_change:
+                type: string
+              inflation_max:
+                type: string
+              inflation_min:
+                type: string
+              goal_bonded:
+                type: string
+              blocks_per_year:
+                type: integer
+        500:
+          description: Internal Server Error
+  /minting/inflation:
+    get:
+      summary: Current minting inflation value
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
+        500:
+          description: Internal Server Error
+  /minting/annual-provisions:
+    get:
+      summary: Current minting annual provisions value
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: string
         500:
           description: Internal Server Error
 definitions:

@@ -232,7 +232,8 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
 		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc)).
-		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper))
+		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper)).
+		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper))
 
 	// initialize BaseApp
 	app.MountStores(

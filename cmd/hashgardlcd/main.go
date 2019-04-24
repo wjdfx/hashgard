@@ -13,6 +13,7 @@ import (
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
 	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
+	mint "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
 	"github.com/rakyll/statik/fs"
@@ -80,6 +81,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	mint.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
 func registerSwaggerUI(rs *lcd.RestServer) {
