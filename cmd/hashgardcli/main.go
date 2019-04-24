@@ -250,6 +250,7 @@ func addDistributionCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 			distributioncmd.GetCmdQueryValidatorCommission(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryValidatorSlashes(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryDelegatorRewards(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryCommunityPool(distribution.StoreKey, cdc),
 		)...)
 	distributionCmd.AddCommand(
 		client.PostCommands(
