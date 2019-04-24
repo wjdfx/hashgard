@@ -14,6 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	crisiscmd "github.com/cosmos/cosmos-sdk/x/crisis/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/gov"
@@ -91,6 +92,8 @@ func main() {
 	addStakeCmd(cdc, rootCmd)
 	// Add faucet subcommands
 	addFaucetCmd(cdc, rootCmd)
+	// Add crisis subcommands
+	addCrisisCmd(cdc, rootCmd)
 
 	rootCmd.AddCommand(
 		client.LineBreak,
@@ -292,6 +295,19 @@ func addFaucetCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	faucetCmd.AddCommand(
 		client.PostCommands(
 			faucetcmd.GetCmdFaucetSend(cdc),
+		)...)
+	rootCmd.AddCommand(faucetCmd)
+}
+
+// Add crisis subcommands
+func addCrisisCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	faucetCmd := &cobra.Command{
+		Use:   "crisis",
+		Short: "crisis subcommands",
+	}
+	faucetCmd.AddCommand(
+		client.PostCommands(
+			crisiscmd.GetCmdInvariantBroken(cdc),
 		)...)
 	rootCmd.AddCommand(faucetCmd)
 }

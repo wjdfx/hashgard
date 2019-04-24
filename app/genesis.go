@@ -17,6 +17,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -48,6 +49,7 @@ type GenesisState struct {
 	GovData          gov.GenesisState          `json:"gov"`
 	ExchangeData     exchange.GenesisState     `json:"exchange"`
 	IssueData        issue.GenesisState        `json:"issue"`
+	CrisisData   	 crisis.GenesisState	   `json:"crisis"`
 	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
@@ -62,6 +64,7 @@ func NewGenesisState(
 	slashingData slashing.GenesisState,
 	exchangeData exchange.GenesisState,
 	issueData issue.GenesisState,
+	crisisData crisis.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -75,6 +78,7 @@ func NewGenesisState(
 		SlashingData:     slashingData,
 		IssueData:        issueData,
 		ExchangeData:     exchangeData,
+		CrisisData:		  crisisData,
 	}
 }
 
@@ -102,6 +106,7 @@ func NewDefaultGenesisState() GenesisState {
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
 		IssueData:        issue.DefaultGenesisState(),
+		CrisisData:		  crisis.DefaultGenesisState(),
 		GenTxs:           nil,
 	}
 }
@@ -334,6 +339,9 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
+		return err
+	}
+	if err := crisis.ValidateGenesis(genesisState.CrisisData); err != nil {
 		return err
 	}
 

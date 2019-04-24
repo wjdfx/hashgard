@@ -7,6 +7,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -37,6 +38,7 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 		SlashingData:     slashing.DefaultGenesisState(),
 		GovData:          gov.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
+		CrisisData:		  crisis.DefaultGenesisState(),
 	}
 
 	stateBytes, err := codec.MarshalJSONIndent(happ.cdc, genesisState)
@@ -54,12 +56,12 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 
 func TestHashgardExport(t *testing.T) {
 	db := db.NewMemDB()
-	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true)
+	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, false)
 	err := setGenesis(gapp)
 	require.NoError(t, err, "setGenesis should not have an error")
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true)
+	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, false)
 	_, _, err = newHapp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }
