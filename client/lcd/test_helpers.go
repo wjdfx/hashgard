@@ -228,7 +228,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	genDoc, err := tmtypes.GenesisDocFromFile(genesisFile)
 	require.Nil(t, err)
 	genDoc.Validators = nil
-	genDoc.SaveAs(genesisFile) // nolint: errcheck
+	require.NoError(t, genDoc.SaveAs(genesisFile))
 	genTxs := []json.RawMessage{}
 
 	// append any additional (non-proposing) validators
@@ -570,7 +570,7 @@ func getKeys(t *testing.T, port string) []keys.KeyOutput {
 // POST /keys Create a new account locally
 // nolint
 func doKeysPost(t *testing.T, port, name, password, mnemonic string, account int, index int) keys.KeyOutput {
-	pk := clientkeys.AddNewKey{name, password, mnemonic, account, index} // nolint
+	pk := clientkeys.NewAddNewKey(name, password, mnemonic, account, index)
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -598,7 +598,7 @@ func getKeysSeed(t *testing.T, port string) string {
 // POST /keys/{name}/recove Recover a account from a seed
 // nolint
 func doRecoverKey(t *testing.T, port, recoverName, recoverPassword, mnemonic string, account uint32, index uint32) {
-	pk := clientkeys.RecoverKey{recoverPassword, mnemonic, int(account), int(index)} // nolint
+	pk := clientkeys.NewRecoverKey(recoverPassword, mnemonic, int(account), int(index))
 	req, err := cdc.MarshalJSON(pk)
 	require.NoError(t, err)
 
@@ -628,7 +628,7 @@ func getKey(t *testing.T, port, name string) keys.KeyOutput {
 // PUT /keys/{name} Update the password for this account in the KMS
 // nolint
 func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail bool) {
-	kr := clientkeys.UpdateKeyReq{oldPassword, newPassword} // nolint
+	kr := clientkeys.NewUpdateKeyReq(oldPassword, newPassword)
 	req, err := cdc.MarshalJSON(kr)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
@@ -643,7 +643,7 @@ func updateKey(t *testing.T, port, name, oldPassword, newPassword string, fail b
 // DELETE /keys/{name} Remove an account
 // nolint
 func deleteKey(t *testing.T, port, name, password string) {
-	dk := clientkeys.DeleteKeyReq{password} // nolint
+	dk := clientkeys.NewDeleteKeyReq(password)
 	req, err := cdc.MarshalJSON(dk)
 	require.NoError(t, err)
 	keyEndpoint := fmt.Sprintf("/keys/%s", name)
