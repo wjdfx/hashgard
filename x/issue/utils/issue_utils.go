@@ -118,7 +118,7 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 
 	}
 	// ensure account has enough coins
-	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueID, Amount: amount}}) {
+	if !coins.IsAllGTE(sdk.NewCoins(sdk.NewCoin(issueID, amount))) {
 		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", operator.GetAddress())
 	}
 

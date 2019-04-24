@@ -139,7 +139,7 @@ func createGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin(StakeDenom, sdk.NewInt(10))},
+			MinDeposit:       sdk.NewCoins(sdk.NewCoin(StakeDenom, sdk.NewInt(10))),
 			MaxDepositPeriod: time.Duration(172800) * time.Second,
 		},
 		VotingParams: gov.VotingParams{
@@ -234,10 +234,10 @@ func (ga *GenesisAccount) ToAccount() auth.Account {
 
 func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	accAuth := auth.NewBaseAccountWithAddress(addr)
-	coins := sdk.Coins{
+	coins := sdk.NewCoins(
 		sdk.NewCoin(GasDenom, sdk.NewInt(1000)),
 		sdk.NewCoin(StakeDenom, FreeFermionsAcc),
-	}
+	)
 
 	coins.Sort()
 

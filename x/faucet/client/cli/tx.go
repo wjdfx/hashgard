@@ -50,7 +50,7 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 
 			acc, err := cliCtx.GetAccount(receiver)
 			if err == nil {
-				if acc.GetCoins().IsAllGTE(sdk.Coins{sdk.NewInt64Coin("gard", 300), sdk.NewInt64Coin("apple", 300)}.Sort()) {
+				if acc.GetCoins().IsAllGTE(sdk.NewCoins(sdk.NewInt64Coin("gard", 300), sdk.NewInt64Coin("apple", 300)).Sort()) {
 					return fmt.Errorf("you are too greedy")
 				}
 			}
@@ -94,7 +94,7 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 				txbldr = txbldr.WithSequence(accSeq)
 			}
 
-			msg := bank.NewMsgSend(Info.GetAddress(), receiver, sdk.Coins{sdk.NewInt64Coin("gard", 50), sdk.NewInt64Coin("apple", 50)}.Sort())
+			msg := bank.NewMsgSend(Info.GetAddress(), receiver, sdk.NewCoins(sdk.NewInt64Coin("gard", 50), sdk.NewInt64Coin("apple", 50)).Sort())
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

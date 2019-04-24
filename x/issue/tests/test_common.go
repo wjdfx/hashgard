@@ -70,7 +70,7 @@ func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAc
 	valTokens := sdk.TokensFromTendermintPower(42)
 	if len(genAccs) == 0 {
 		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(numGenAccs,
-			sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, valTokens)})
+			sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, valTokens)))
 	}
 
 	mock.SetGenesis(mapp, genAccs)

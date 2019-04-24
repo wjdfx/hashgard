@@ -39,7 +39,7 @@ const (
 	pw    = app.DefaultKeyPass
 )
 
-var fees = sdk.Coins{sdk.NewInt64Coin(app.StakeDenom, 5)}
+var fees = sdk.NewCoins(sdk.NewInt64Coin(app.StakeDenom, 5))
 
 func init() {
 	mintkey.BcryptSecurityParameter = 1
@@ -685,7 +685,7 @@ func TestDeposit(t *testing.T) {
 	require.Equal(t, resultTx.Height, txs[0].Height)
 
 	// query proposal
-	totalCoins := sdk.Coins{sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(10))}
+	totalCoins := sdk.NewCoins(sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(10)))
 	proposal = getProposal(t, port, proposalID)
 	require.True(t, proposal.GetTotalDeposit().IsEqual(totalCoins))
 

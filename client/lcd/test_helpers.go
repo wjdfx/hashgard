@@ -269,7 +269,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 		accAuth := auth.NewBaseAccountWithAddress(sdk.AccAddress(operAddr))
 		accTokens := sdk.TokensFromTendermintPower(150)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
+		accAuth.Coins = sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, accTokens))
 		accs = append(accs, happ.NewGenesisAccount(&accAuth))
 	}
 
@@ -284,7 +284,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	for _, addr := range initAddrs {
 		accAuth := auth.NewBaseAccountWithAddress(addr)
 		accTokens := sdk.TokensFromTendermintPower(100)
-		accAuth.Coins = sdk.Coins{sdk.NewCoin(happ.StakeDenom, accTokens)}
+		accAuth.Coins = sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, accTokens))
 		acc := happ.NewGenesisAccount(&accAuth)
 		genesisState.Accounts = append(genesisState.Accounts, acc)
 		genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(accTokens)
@@ -722,7 +722,7 @@ func doTransferWithGas(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
+		Amount:  sdk.NewCoins(sdk.NewInt64Coin(happ.StakeDenom, 1)),
 		BaseReq: baseReq,
 	}
 
@@ -766,7 +766,7 @@ func doTransferWithGasAccAuto(
 	)
 
 	sr := bankrest.SendReq{
-		Amount:  sdk.Coins{sdk.NewInt64Coin(happ.StakeDenom, 1)},
+		Amount:  sdk.NewCoins(sdk.NewInt64Coin(happ.StakeDenom, 1)),
 		BaseReq: baseReq,
 	}
 
@@ -1164,7 +1164,7 @@ func doSubmitProposal(
 		Description:    "test",
 		ProposalType:   "Text",
 		Proposer:       proposerAddr,
-		InitialDeposit: sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
+		InitialDeposit: sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, amount)),
 		BaseReq:        baseReq,
 	}
 
@@ -1255,7 +1255,7 @@ func doDeposit(
 	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
 	dr := govrest.DepositReq{
 		Depositor: proposerAddr,
-		Amount:    sdk.Coins{sdk.NewCoin(happ.StakeDenom, amount)},
+		Amount:    sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, amount)),
 		BaseReq:   baseReq,
 	}
 

@@ -190,7 +190,7 @@ func (keeper Keeper) GetFrozenFundByAddr(ctx sdk.Context, addr sdk.AccAddress) (
 	for _, orderId := range orderIdArr {
 		order, ok := keeper.GetOrder(ctx, orderId)
 		if !ok {
-			return sdk.Coins{}, sdk.NewError(keeper.codespace, types.CodeOrderNotExist, fmt.Sprintf("this orderId is invalid : %d", orderId))
+			return sdk.NewCoins(), sdk.NewError(keeper.codespace, types.CodeOrderNotExist, fmt.Sprintf("this orderId is invalid : %d", orderId))
 		}
 		fund = fund.Add([]sdk.Coin{order.Remains})
 	}
