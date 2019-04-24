@@ -15,6 +15,9 @@ export GO111MODULE = on
 BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=$(VERSION) \
     -X github.com/hashgard/hashgard/version.Commit=$(COMMIT)"
 
+ifneq ($(GOSUM),)
+ldflags += -X github.com/hashgard/hashgard/version.VendorDirHash=$(shell $(GOSUM) go.sum)
+endif
 
 all: get_tools install lint test
 

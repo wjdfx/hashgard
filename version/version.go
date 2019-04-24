@@ -5,4 +5,5 @@ package version
 var (
 	Version = ""
 	Commit  = ""
+	VendorDirHash = ""
 )
