@@ -831,11 +831,11 @@ func doDelegate(
 	from := acc.GetAddress().String()
 
 	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
-	msg := msgDelegationsInput{
+	msg := stakingrest.DelegateRequest{
 		BaseReq:          baseReq,
 		DelegatorAddress: delAddr,
 		ValidatorAddress: valAddr,
-		Delegation:       sdk.NewCoin(happ.StakeDenom, amount),
+		Amount:			  sdk.NewCoin(happ.StakeDenom, amount),
 	}
 
 	req, err := cdc.MarshalJSON(msg)
@@ -855,13 +855,6 @@ func doDelegate(
 	return txResp
 }
 
-type msgDelegationsInput struct {
-	BaseReq          rest.BaseReq   `json:"base_req"`
-	DelegatorAddress sdk.AccAddress `json:"delegator_address"` // in bech32
-	ValidatorAddress sdk.ValAddress `json:"validator_address"` // in bech32
-	Delegation       sdk.Coin       `json:"delegation"`
-}
-
 // POST /staking/delegators/{delegatorAddr}/delegations Submit delegation
 func doUndelegate(
 	t *testing.T, port, name, pwd string, delAddr sdk.AccAddress,
@@ -875,11 +868,11 @@ func doUndelegate(
 	from := acc.GetAddress().String()
 
 	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
-	msg := msgUndelegateInput{
+	msg := stakingrest.UndelegateRequest{
 		BaseReq:          baseReq,
 		DelegatorAddress: delAddr,
 		ValidatorAddress: valAddr,
-		SharesAmount:     amount.ToDec(),
+		Amount:     	  sdk.NewCoin(happ.StakeDenom, amount),
 	}
 
 	req, err := cdc.MarshalJSON(msg)
@@ -898,13 +891,6 @@ func doUndelegate(
 	return txResp
 }
 
-type msgUndelegateInput struct {
-	BaseReq          rest.BaseReq   `json:"base_req"`
-	DelegatorAddress sdk.AccAddress `json:"delegator_address"` // in bech32
-	ValidatorAddress sdk.ValAddress `json:"validator_address"` // in bech32
-	SharesAmount     sdk.Dec        `json:"shares"`
-}
-
 // POST /staking/delegators/{delegatorAddr}/delegations Submit delegation
 func doBeginRedelegation(
 	t *testing.T, port, name, pwd string, delAddr sdk.AccAddress, valSrcAddr,
@@ -918,12 +904,12 @@ func doBeginRedelegation(
 	from := acc.GetAddress().String()
 
 	baseReq := rest.NewBaseReq(from, "", chainID, "", "", accnum, sequence, fees, nil, false)
-	msg := stakingrest.MsgBeginRedelegateInput{
+	msg := stakingrest.RedelegateRequest{
 		BaseReq:             baseReq,
 		DelegatorAddress:    delAddr,
 		ValidatorSrcAddress: valSrcAddr,
 		ValidatorDstAddress: valDstAddr,
-		SharesAmount:        amount.ToDec(),
+		Amount:        		 sdk.NewCoin(happ.StakeDenom, amount),
 	}
 
 	req, err := cdc.MarshalJSON(msg)
@@ -940,15 +926,6 @@ func doBeginRedelegation(
 	require.NoError(t, err)
 
 	return txResp
-}
-
-// nolint
-type msgBeginRedelegateInput struct {
-	BaseReq             rest.BaseReq   `json:"base_req"`
-	DelegatorAddress    sdk.AccAddress `json:"delegator_address"`     // in bech32
-	ValidatorSrcAddress sdk.ValAddress `json:"validator_src_address"` // in bech32
-	ValidatorDstAddress sdk.ValAddress `json:"validator_dst_address"` // in bech32
-	SharesAmount        sdk.Dec        `json:"shares"`
 }
 
 // GET /staking/delegators/{delegatorAddr}/delegations Get all delegations from a delegator
