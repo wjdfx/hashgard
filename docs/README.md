@@ -26,7 +26,7 @@ Hashgard文档库是所有Hashgard所有文档的集合，你可以在这里静�
 
 ##  相关链接
 
-- Github：[https://github.com/hashgard/hashgrad](https://github.com/hashgard/hashgrad)
+- [Github](https://github.com/hashgard/hashgard)
 - [telegram](https://t.me/hashgard)
 - 微信公众号：临界Hashgard
 
