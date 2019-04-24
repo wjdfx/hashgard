@@ -106,7 +106,7 @@ func NewDefaultGenesisState() GenesisState {
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
 		IssueData:        issue.DefaultGenesisState(),
-		CrisisData:		  crisis.DefaultGenesisState(),
+		CrisisData:		  createCrisisGenesisState(),
 		GenTxs:           nil,
 	}
 }
@@ -155,6 +155,12 @@ func createGovGenesisState() gov.GenesisState {
 			Threshold: sdk.NewDecWithPrec(5, 1),
 			Veto:      sdk.NewDecWithPrec(334, 3),
 		},
+	}
+}
+
+func createCrisisGenesisState() crisis.GenesisState {
+	return crisis.GenesisState{
+		ConstantFee: sdk.NewCoin(StakeDenom, sdk.NewInt(1000)),
 	}
 }
 
