@@ -162,20 +162,20 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 
 	return coins, tags, err
 }
-func (keeper Keeper) getIssueByOwner(ctx sdk.Context, operator sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
+func (keeper Keeper) getIssueByOwner(ctx sdk.Context, sender sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 	if coinIssueInfo == nil {
 		return nil, errors.ErrUnknownIssue(issueID)
 	}
-	if !coinIssueInfo.Owner.Equals(operator) {
+	if !coinIssueInfo.Owner.Equals(sender) {
 		return nil, errors.ErrOwnerMismatch(issueID)
 	}
 	return coinIssueInfo, nil
 }
 
 //Finished Minting a coin
-func (keeper Keeper) FinishMinting(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) FinishMinting(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 	if err != nil {
 		return err
 	}
@@ -190,8 +190,8 @@ func (keeper Keeper) FinishMinting(ctx sdk.Context, operator sdk.AccAddress, iss
 }
 
 //BurnOff a coin
-func (keeper Keeper) BurnOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) BurnOff(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 	if err != nil {
 		return err
 	}
@@ -206,8 +206,8 @@ func (keeper Keeper) BurnOff(ctx sdk.Context, operator sdk.AccAddress, issueID s
 }
 
 //BurnFromOff a coin
-func (keeper Keeper) BurnFromOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) BurnFromOff(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 	if err != nil {
 		return err
 	}
@@ -222,8 +222,8 @@ func (keeper Keeper) BurnFromOff(ctx sdk.Context, operator sdk.AccAddress, issue
 }
 
 //BurnAnyOff a coin
-func (keeper Keeper) BurnAnyOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) BurnAnyOff(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 	if err != nil {
 		return err
 	}
@@ -244,9 +244,9 @@ func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 }
 
 //Mint a coin
-func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 
 	if err != nil {
 		return nil, nil, err
@@ -272,7 +272,7 @@ func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, opera
 }
 
 //Burn a coin
-func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 
 	if coinIssueInfo == nil {
@@ -281,11 +281,11 @@ func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, opera
 	if coinIssueInfo.GetBurnOff() {
 		return nil, nil, errors.ErrCanNotBurn(issueID)
 	}
-	if !coinIssueInfo.Owner.Equals(operator) {
+	if !coinIssueInfo.Owner.Equals(sender) {
 		return nil, nil, errors.ErrOwnerMismatch(issueID)
 	}
 
-	return keeper.burn(ctx, coinIssueInfo, amount, operator)
+	return keeper.burn(ctx, coinIssueInfo, amount, sender)
 }
 func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
@@ -301,14 +301,14 @@ func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, a
 }
 
 //Burn a coin from address
-func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, burnfrom sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress, burnfrom sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 
 	if coinIssueInfo == nil {
 		return nil, nil, errors.ErrUnknownIssue(issueID)
 	}
 
-	if operator.Equals(coinIssueInfo.GetOwner()) {
+	if sender.Equals(coinIssueInfo.GetOwner()) {
 		if coinIssueInfo.GetBurnAnyOff() {
 			return nil, nil, errors.ErrCanNotBurn(issueID)
 		}
@@ -316,15 +316,15 @@ func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, o
 		if coinIssueInfo.GetBurnFromOff() {
 			return nil, nil, errors.ErrCanNotBurn(issueID)
 		}
-		if !burnfrom.Equals(operator) {
+		if !burnfrom.Equals(sender) {
 			return nil, nil, errors.ErrCanNotBurn(issueID)
 		}
 	}
 
 	return keeper.burn(ctx, coinIssueInfo, amount, burnfrom)
 }
-func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, operator sdk.AccAddress, description []byte) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, sender sdk.AccAddress, description []byte) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 
 	if err != nil {
 		return err
@@ -337,8 +337,8 @@ func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, operat
 }
 
 //TransferOwnership
-func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, operator sdk.AccAddress, to sdk.AccAddress) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
+func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, sender sdk.AccAddress, to sdk.AccAddress) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 
 	if err != nil {
 		return err

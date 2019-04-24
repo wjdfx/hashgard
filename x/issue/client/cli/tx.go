@@ -198,7 +198,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 
 			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
 
-			msg := msgs.MsgIssueMint{IssueId: issueID, Operator: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
+			msg := msgs.MsgIssueMint{IssueId: issueID, Sender: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
@@ -238,7 +238,7 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 			}
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, Operator: account.GetAddress(), Amount: amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, Sender: account.GetAddress(), Amount: amount}}, false)
 		},
 	}
 	return cmd
@@ -273,7 +273,7 @@ func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 			}
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurnFrom{IssueId: issueID, Operator: account.GetAddress(), From: account.GetAddress(), Amount: amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurnFrom{IssueId: issueID, Sender: account.GetAddress(), From: account.GetAddress(), Amount: amount}}, false)
 		},
 	}
 	return cmd
@@ -313,7 +313,7 @@ func GetCmdIssueBurnAny(cdc *codec.Codec) *cobra.Command {
 			}
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurnAny{IssueId: issueID, Operator: account.GetAddress(), From: accAddress, Amount: amount}}, false)
+				[]sdk.Msg{msgs.MsgIssueBurnAny{IssueId: issueID, Sender: account.GetAddress(), From: accAddress, Amount: amount}}, false)
 		},
 	}
 	return cmd

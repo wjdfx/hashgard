@@ -27,7 +27,7 @@ import (
 var (
 	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
-	OperatorAccAddr      = sdk.AccAddress(crypto.AddressHash([]byte("operatorAddress")))
+	SenderAccAddr        = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
 
 	CoinIssueInfo = types.CoinIssueInfo{
 		Issuer:          IssuerCoinsAccAddr,

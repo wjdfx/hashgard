@@ -10,7 +10,7 @@ import (
 
 //Handle MsgIssueDescription
 func HandleMsgIssueDescription(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueDescription) sdk.Result {
-	err := keeper.SetIssueDescription(ctx, msg.IssueId, msg.Operator, msg.Description)
+	err := keeper.SetIssueDescription(ctx, msg.IssueId, msg.Sender, msg.Description)
 	if err != nil {
 		return err.Result()
 	}

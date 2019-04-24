@@ -10,7 +10,7 @@ import (
 
 //Handle MsgIssueBurnAnyOff
 func HandleMsgIssueBurnAnyOff(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnAnyOff) sdk.Result {
-	err := keeper.BurnAnyOff(ctx, msg.Operator, msg.IssueId)
+	err := keeper.BurnAnyOff(ctx, msg.Sender, msg.IssueId)
 	if err != nil {
 		return err.Result()
 	}

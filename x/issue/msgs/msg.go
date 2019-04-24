@@ -10,6 +10,6 @@ type MsgFlag interface {
 	GetIssueId() string
 	SetIssueId(string)
 
-	GetOperator() sdk.AccAddress
-	SetOperator(sdk.AccAddress)
+	GetSender() sdk.AccAddress
+	SetSender(sdk.AccAddress)
 }

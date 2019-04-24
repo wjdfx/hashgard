@@ -11,14 +11,14 @@ import (
 // MsgIssueBurn to allow a registered owner
 // to issue new coins.
 type MsgIssueBurn struct {
-	IssueId  string         `json:"issue_id"`
-	Operator sdk.AccAddress `json:"operator"`
-	Amount   sdk.Int        `json:"amount"`
+	IssueId string         `json:"issue_id"`
+	Sender  sdk.AccAddress `json:"sender"`
+	Amount  sdk.Int        `json:"amount"`
 }
 
 //New CreateMsgIssue Instance
-func NewMsgIssueBurn(issueId string, operator sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
-	return MsgIssueBurn{issueId, operator, amount}
+func NewMsgIssueBurn(issueId string, sender sdk.AccAddress, amount sdk.Int) MsgIssueBurn {
+	return MsgIssueBurn{issueId, sender, amount}
 }
 
 // Route Implements Msg.
@@ -47,7 +47,7 @@ func (msg MsgIssueBurn) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueBurn) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Operator}
+	return []sdk.AccAddress{msg.Sender}
 }
 
 func (msg MsgIssueBurn) String() string {

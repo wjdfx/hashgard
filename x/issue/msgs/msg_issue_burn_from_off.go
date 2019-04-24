@@ -11,13 +11,13 @@ import (
 // MsgIssueBurnFromOff to allow a registered owner
 // to issue new coins.
 type MsgIssueBurnFromOff struct {
-	IssueId  string         `json:"issue_id"`
-	Operator sdk.AccAddress `json:"operator"`
+	IssueId string         `json:"issue_id"`
+	Sender  sdk.AccAddress `json:"sender"`
 }
 
 //New MsgIssueBurnFromOff Instance
-func NewMsgIssueBurnFromOff(issueId string, operator sdk.AccAddress) MsgIssueBurnFromOff {
-	return MsgIssueBurnFromOff{issueId, operator}
+func NewMsgIssueBurnFromOff(issueId string, sender sdk.AccAddress) MsgIssueBurnFromOff {
+	return MsgIssueBurnFromOff{issueId, sender}
 }
 
 //nolint
@@ -27,11 +27,11 @@ func (ci MsgIssueBurnFromOff) GetIssueId() string {
 func (ci MsgIssueBurnFromOff) SetIssueId(issueId string) {
 	ci.IssueId = issueId
 }
-func (ci MsgIssueBurnFromOff) GetOperator() sdk.AccAddress {
-	return ci.Operator
+func (ci MsgIssueBurnFromOff) GetSender() sdk.AccAddress {
+	return ci.Sender
 }
-func (ci MsgIssueBurnFromOff) SetOperator(operator sdk.AccAddress) {
-	ci.Operator = operator
+func (ci MsgIssueBurnFromOff) SetSender(sender sdk.AccAddress) {
+	ci.Sender = sender
 }
 
 // Route Implements Msg.
@@ -56,7 +56,7 @@ func (msg MsgIssueBurnFromOff) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueBurnFromOff) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Operator}
+	return []sdk.AccAddress{msg.Sender}
 }
 
 func (msg MsgIssueBurnFromOff) String() string {

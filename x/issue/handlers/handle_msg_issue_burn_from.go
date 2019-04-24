@@ -11,7 +11,7 @@ import (
 //Handle MsgIssueBurnFrom
 func HandleMsgIssueBurnFrom(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnFrom) sdk.Result {
 
-	_, tags, err := keeper.BurnFrom(ctx, msg.IssueId, msg.Amount, msg.Operator, msg.From)
+	_, tags, err := keeper.BurnFrom(ctx, msg.IssueId, msg.Amount, msg.Sender, msg.From)
 	if err != nil {
 		return err.Result()
 	}

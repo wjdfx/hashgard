@@ -63,7 +63,7 @@ func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
 
 	return totalSupply.Quo(quoDecimals)
 }
-func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int, burnType string) (sdk.Int, error) {
+func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int, burnType string) (sdk.Int, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
@@ -75,12 +75,12 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 
 	amount = MulDecimals(amount, issueInfo.GetDecimals())
 
-	coins := operator.GetCoins()
+	coins := sender.GetCoins()
 
 	switch burnType {
 	case types.BurnOwner:
 		{
-			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+			if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
 				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 			}
 			if issueInfo.GetBurnOff() {
@@ -92,19 +92,19 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 			if issueInfo.GetBurnFromOff() {
 				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
 			}
-			if !operator.GetAddress().Equals(burnFrom) {
+			if !sender.GetAddress().Equals(burnFrom) {
 				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 			}
 		}
 	case types.BurnAny:
 		{
-			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+			if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
 				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 			}
 			if issueInfo.GetBurnAnyOff() {
 				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
 			}
-			if operator.GetAddress().Equals(burnFrom) {
+			if sender.GetAddress().Equals(burnFrom) {
 				//burnFrom
 				if issueInfo.GetBurnFromOff() {
 					return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
@@ -119,12 +119,12 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Accoun
 	}
 	// ensure account has enough coins
 	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueID, Amount: amount}}) {
-		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", operator.GetAddress())
+		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", sender.GetAddress())
 	}
 
 	return amount, nil
 }
-func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, issueID string) (types.Issue, error) {
+func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
@@ -133,7 +133,7 @@ func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.
 	}
 	cdc.MustUnmarshalJSON(res, &issueInfo)
 
-	if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+	if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
 		return nil, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 	}
 	return issueInfo, nil
