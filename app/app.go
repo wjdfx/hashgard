@@ -178,6 +178,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
+
 	app.issueKeeper = issue.NewKeeper(
 		app.cdc,
 		app.keyIssue,
@@ -271,8 +272,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 func MakeCodec() *codec.Codec {
 	cdc := codec.New()
 
-	codec.RegisterCrypto(cdc)
-	sdk.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
@@ -282,12 +281,13 @@ func MakeCodec() *codec.Codec {
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
 	crisis.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
 
 	return cdc
 }
 
-// BeginBlocker reflects logic to run before any TXs application are processed
-// by the application.
+// application updates every end block
 func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 
 	// mint new tokens for this new block
@@ -308,8 +308,7 @@ func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock
 	}
 }
 
-// EndBlocker reflects logic to run after all TXs are processed by the application.
-// Application updates every end block.
+// application updates every end block
 // nolint: unparam
 func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 
@@ -341,7 +340,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	// initialize distribution (must happen before staking)
 	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
 
-	// load the initial stake information
+	// load the initial staking information
 	validators, err := staking.InitGenesis(ctx, app.stakingKeeper, genesisState.StakingData)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
@@ -424,7 +423,7 @@ func (app *HashgardApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
 }
 
-//______________________________________________________________________________________________
+// ______________________________________________________________________________________________
 
 var _ sdk.StakingHooks = StakingHooks{}
 
