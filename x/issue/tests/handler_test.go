@@ -11,7 +11,8 @@ import (
 
 func TestHandlerNewMsgIssue(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
 	ctx := mapp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
 

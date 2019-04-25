@@ -9,6 +9,7 @@ import (
 const (
 	ParamsType = "type"
 	IssueID    = "issue-id"
+	Feature    = "feature"
 	AccAddress = "accAddress"
 	Symbol     = "symbol"
 	Amount     = "amount"

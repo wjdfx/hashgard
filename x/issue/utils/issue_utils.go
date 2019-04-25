@@ -87,6 +87,9 @@ func BurnCheck(sender auth.Account, burnFrom sdk.AccAddress, issueInfo types.Iss
 			if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
 				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueInfo.GetIssueId()))
 			}
+			if !sender.GetAddress().Equals(burnFrom) {
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueInfo.GetIssueId()))
+			}
 			if issueInfo.IsBurnOwnerDisabled() {
 				return amount, errors.Errorf(errors.ErrCanNotBurn(issueInfo.GetIssueId(), burnType))
 			}
@@ -122,10 +125,9 @@ func BurnCheck(sender auth.Account, burnFrom sdk.AccAddress, issueInfo types.Iss
 
 	}
 	// ensure account has enough coins
-	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueInfo.GetIssueId(), Amount: amount}}) {
+	if !coins.IsAllGTE(sdk.NewCoins(sdk.NewCoin(issueInfo.GetIssueId(), amount))) {
 		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", sender.GetAddress())
 	}
-
 	return amount, nil
 }
 func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, issueID string) (types.Issue, error) {

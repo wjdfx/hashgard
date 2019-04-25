@@ -41,13 +41,9 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 	r.HandleFunc(fmt.Sprintf("/issue/describe/{%s}", IssueID), postDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/mint/{%s}/{%s}/{%s}", IssueID, Amount, To), postMintHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn/{%s}/{%s}", IssueID, Amount), postBurnHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}", IssueID, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-any/{%s}/{%s}/{%s}", IssueID, Amount, AccAddress), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-off/{%s}", IssueID), postBurnOffHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-from-off/{%s}", IssueID), postBurnFromOffHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-any-off/{%s}", IssueID), postBurnFromOffHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/finish-minting/{%s}", IssueID), postFinishMintingHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/transfer/ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/disable-feature/{%s}/{%s}", IssueID, Feature), postDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/transfer-ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
 }
 func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -84,7 +80,7 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			MintingFinished:    req.MintingFinished,
 		}
 		// create the message
-		msg := msgs.CreateMsgIssue(&coinIssueInfo)
+		msg := msgs.NewMsgIssue(&coinIssueInfo)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -151,22 +147,9 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
 }
-func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
-}
+
 func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, burnFromType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		issueID := vars[IssueID]
-		if err := issueutils.CheckIssueId(issueID); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		amount, ok := sdk.NewIntFromString(vars[Amount])
-		if !ok {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "Amount not a valid int")
-			return
-		}
 
 		var req PostIssueBaseReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
@@ -177,18 +160,43 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
+
 		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		vars := mux.Vars(r)
+
+		issueID := vars[IssueID]
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		amount, ok := sdk.NewIntFromString(vars[Amount])
+		if !ok {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "Amount not a valid int")
+			return
+		}
+
 		account, err := cliCtx.GetAccount(fromAddress)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
+
+		//burn sender
 		accAddress := fromAddress
 
+		issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 		if types.BurnFrom == burnFromType {
+			//burn from holder address
 			accAddress, err = sdk.AccAddressFromBech32(vars[AccAddress])
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -196,7 +204,14 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 			}
 		}
 
-		amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount, burnFromType)
+		if types.BurnOwner == burnFromType {
+			if !issueInfo.GetOwner().Equals(fromAddress) {
+				burnFromType = types.BurnHolder
+			}
+
+		}
+
+		amount, err = issueutils.BurnCheck(account, accAddress, issueInfo, amount, burnFromType)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -205,10 +220,10 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 
 		if types.BurnFrom == burnFromType {
 			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
-		} else if types.BurnFrom == burnFromType {
-			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
+		} else if types.BurnOwner == burnFromType {
+			msg = msgs.NewMsgIssueBurnOwner(issueID, fromAddress, amount)
 		} else {
-			msg = msgs.NewMsgIssueBurn(issueID, fromAddress, amount)
+			msg = msgs.NewMsgIssueBurnHolder(issueID, fromAddress, amount)
 		}
 
 		if err := msg.ValidateBasic(); err != nil {
@@ -219,81 +234,59 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
-
-func postFinishMintingHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueFinishMinting{})
-	}
-}
-func postBurnOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnOff{})
-	}
-}
-func postBurnFromOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnFromOff{})
-	}
-}
-func postBurnFromOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnFromOff{})
-	}
-}
 
-func postIssueFlag(cdc *codec.Codec, cliCtx context.CLIContext, w http.ResponseWriter, r *http.Request, msg msgs.MsgFlag) {
+		var req PostIssueBaseReq
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			return
+		}
 
-	vars := mux.Vars(r)
-	issueID := vars[IssueID]
-	if err := issueutils.CheckIssueId(issueID); err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	var req PostIssueBaseReq
-	if !rest.ReadRESTReq(w, r, cdc, &req) {
-		return
-	}
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
 
-	req.BaseReq = req.BaseReq.Sanitize()
-	if !req.BaseReq.ValidateBasic(w) {
-		return
-	}
-	fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
-	if err != nil {
-		return
-	}
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		feature := vars[Feature]
 
-	//msg := msgs.NewMsgIssueBurnFromOff(issueID, fromAddress)
+		_, ok := types.Features[feature]
+		if !ok {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownFeatures().Error())
+			return
+		}
 
-	if err := msg.ValidateBasic(); err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	account, err := cliCtx.GetAccount(fromAddress)
-	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
-	_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
-	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-		return
-	}
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
+		if err != nil {
+			return
+		}
 
-	switch msg.(type) {
-	case msgs.MsgIssueBurnOff:
-		msg = msgs.NewMsgIssueBurnOff(issueID, account.GetAddress())
-	case msgs.MsgIssueBurnFromOff:
-		msg = msgs.NewMsgIssueBurnFromOff(issueID, account.GetAddress())
-	case msgs.MsgIssueBurnFromOff:
-		msg = msgs.NewMsgIssueBurnFromOff(issueID, account.GetAddress())
-	case msgs.MsgIssueFinishMinting:
-		msg = msgs.NewMsgIssueFinishMinting(issueID, account.GetAddress())
-	default:
+		account, err := cliCtx.GetAccount(fromAddress)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 
+		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		msg := msgs.NewMsgIssueDisableFeature(issueID, fromAddress, feature)
+
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
-
-	clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 
 }
 func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
