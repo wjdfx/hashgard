@@ -153,16 +153,16 @@ func TestGenesisStateSanitize(t *testing.T) {
 
 	addr1 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc1 := auth.NewBaseAccountWithAddress(addr1)
-	authAcc1.SetCoins(sdk.Coins{
+	_ = authAcc1.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("bcoin", 150),
 		sdk.NewInt64Coin("acoin", 150),
 	})
-	authAcc1.SetAccountNumber(1)
+	_ = authAcc1.SetAccountNumber(1)
 	genAcc1 := NewGenesisAccount(&authAcc1)
 
 	addr2 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc2 := auth.NewBaseAccountWithAddress(addr2)
-	authAcc2.SetCoins(sdk.Coins{
+	_ = authAcc2.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("acoin", 150),
 		sdk.NewInt64Coin("bcoin", 150),
 	})
