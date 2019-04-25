@@ -24,9 +24,11 @@ import (
 
 func TestQueryIssue(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
 	querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
@@ -47,9 +49,11 @@ func TestQueryIssue(t *testing.T) {
 
 func TestQueryIssues(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
 	//querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
@@ -67,9 +71,11 @@ func TestQueryIssues(t *testing.T) {
 
 func TestSearchIssues(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
 	querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
@@ -103,9 +109,11 @@ func getQueried(t *testing.T, ctx sdk.Context, querier sdk.Querier, path string,
 }
 func TestList(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
 	cap := 1000
 	for i := 0; i < cap; i++ {

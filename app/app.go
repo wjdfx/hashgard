@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -44,6 +45,9 @@ type HashgardApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
+	// do invariants check each block
+	assertInvariantsBlockly bool
+
 	// keys to access the multistore
 	keyMain          *sdk.KVStoreKey
 	keyAccount       *sdk.KVStoreKey
@@ -70,12 +74,15 @@ type HashgardApp struct {
 	distributionKeeper  distribution.Keeper
 	govKeeper           gov.Keeper
 	exchangeKeeper      exchange.Keeper
+	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
-func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
+func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
+	loadLatest bool, assertInvariantsBlockly bool,
+	baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
 
 	cdc := MakeCodec()
 
@@ -188,12 +195,24 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		exchange.DefaultCodespace,
 	)
 
+	app.crisisKeeper = crisis.NewKeeper(
+		app.paramsKeeper.Subspace(crisis.DefaultParamspace),
+		app.distributionKeeper,
+		app.bankKeeper,
+		app.feeCollectionKeeper,
+	)
+
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
+
+	// register the crisis routes
+	bank.RegisterInvariants(&app.crisisKeeper, app.accountKeeper)
+	distribution.RegisterInvariants(&app.crisisKeeper, app.distributionKeeper, app.stakingKeeper)
+	staking.RegisterInvariants(&app.crisisKeeper, app.stakingKeeper, app.feeCollectionKeeper, app.distributionKeeper, app.accountKeeper)
 
 	// register message routes
 	app.Router().
@@ -203,7 +222,8 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
-		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper))
+		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper)).
+		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -212,7 +232,8 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
 		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc)).
-		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper))
+		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper)).
+		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper))
 
 	// initialize BaseApp
 	app.MountStores(
@@ -260,6 +281,7 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
+	crisis.RegisterCodec(cdc)
 
 	return cdc
 }
@@ -295,7 +317,9 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	app.assertRuntimeInvariants()
+	if app.assertInvariantsBlockly {
+		app.assertRuntimeInvariants()
+	}
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
@@ -331,6 +355,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	issue.InitGenesis(ctx, app.issueKeeper, genesisState.IssueData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
+	crisis.InitGenesis(ctx, app.crisisKeeper, genesisState.CrisisData)
 
 	// validate genesis state
 	if err := HashgardValidateGenesisState(genesisState); err != nil {

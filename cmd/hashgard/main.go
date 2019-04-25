@@ -22,6 +22,10 @@ import (
 	"github.com/hashgard/hashgard/version"
 )
 
+const flagAssertInvariantsBlockly = "assert-invariants-blockly"
+
+var assertInvariantsBlockly bool
+
 func main() {
 	cdc := app.MakeCodec()
 
@@ -68,6 +72,8 @@ func main() {
 
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", app.DefaultNodeHome)
+	rootCmd.PersistentFlags().BoolVar(&assertInvariantsBlockly, flagAssertInvariantsBlockly,
+		false, "Assert registered invariants on a blockly basis")
 	err := executor.Execute()
 	if err != nil {
 		// handle with #870
@@ -81,6 +87,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		db,
 		traceStore,
 		true,
+		assertInvariantsBlockly,
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
 	)
@@ -89,7 +96,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		hApp := app.NewHashgardApp(logger, db, traceStore, false)
+		hApp := app.NewHashgardApp(logger, db, traceStore, false, false)
 		err := hApp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
@@ -97,6 +104,6 @@ func exportAppStateAndTMValidators(logger log.Logger, db dbm.DB, traceStore io.W
 		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	hApp := app.NewHashgardApp(logger, db, traceStore, true)
+	hApp := app.NewHashgardApp(logger, db, traceStore, true, false)
 	return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

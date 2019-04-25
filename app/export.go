@@ -13,6 +13,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -53,6 +54,7 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		exchange.ExportGenesis(ctx, app.exchangeKeeper),
 		issue.ExportGenesis(ctx, app.issueKeeper),
+		crisis.ExportGenesis(ctx, app.crisisKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {

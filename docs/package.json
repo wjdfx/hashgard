@@ -1,0 +1,24 @@
+{
+  "name": "hashgard",
+  "version": "1.0.0",
+  "description": "harhgard",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vuepress dev .",
+    "docs:build": "vuepress build .",
+    "deploy": "bash deploy.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hashgard/github-pages.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hashgard/github-pages/issues"
+  },
+  "homepage": "https://github.com/hashgard/github-pages#readme",
+  "devDependencies": {
+    "vuepress": "^0.14.11"
+  }
+}

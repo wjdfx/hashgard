@@ -158,7 +158,7 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 	keeper.setSymbolIssues(ctx, coinIssueInfo.Symbol, issueIDs)
 
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: coinIssueInfo.TotalSupply}
-	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.Coins{coin})
+	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.NewCoins(coin))
 
 	return coins, tags, err
 }
@@ -256,7 +256,7 @@ func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, sende
 	}
 
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
-	coins, tags, err := keeper.ck.AddCoins(ctx, to, sdk.Coins{coin})
+	coins, tags, err := keeper.ck.AddCoins(ctx, to, sdk.NewCoins(coin))
 	if err != nil {
 		return coins, tags, err
 	}
@@ -297,7 +297,7 @@ func (keeper Keeper) BurnHolder(ctx sdk.Context, issueID string, amount sdk.Int,
 }
 func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
-	coins, tags, err := keeper.ck.SubtractCoins(ctx, who, sdk.Coins{coin})
+	coins, tags, err := keeper.ck.SubtractCoins(ctx, who, sdk.NewCoins(coin))
 	if err != nil {
 		return nil, nil, err
 	}
