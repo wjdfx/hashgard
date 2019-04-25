@@ -16,9 +16,11 @@ import (
 func TestAddIssue(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
@@ -39,9 +41,12 @@ func TestAddIssue(t *testing.T) {
 func TestGetIssues(t *testing.T) {
 	fmt.Print(time.Now().Unix())
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
 	cap := 10
 	for i := 0; i < cap; i++ {
 		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
@@ -55,9 +60,12 @@ func TestGetIssues(t *testing.T) {
 func TestMint(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
@@ -70,9 +78,12 @@ func TestMint(t *testing.T) {
 func TestBurn(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
@@ -91,9 +102,12 @@ func TestBurn(t *testing.T) {
 
 func TestBurnFrom(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
@@ -117,9 +131,12 @@ func TestBurnFrom(t *testing.T) {
 
 func TestBurnAny(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-	mapp.BeginBlock(abci.RequestBeginBlock{})
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-	mapp.InitChainer(ctx, abci.RequestInitChain{})
+
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
 	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
