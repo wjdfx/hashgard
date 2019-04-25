@@ -30,6 +30,10 @@ func GetCommit() string {
 	return Commit
 }
 
+func GetVendorDirHash() string {
+	return VendorDirHash
+}
+
 // CMD
 func printVersion(cmd *cobra.Command, args []string) {
 	fmt.Println("hashgard:", GetVersion())
@@ -37,6 +41,7 @@ func printVersion(cmd *cobra.Command, args []string) {
 	if viper.GetBool(flagLong) {
 		fmt.Println("git commit:", GetCommit())
 		fmt.Printf("go version %s %s/%s\n", runtime.Version(), runtime.GOOS, runtime.GOARCH)
+		fmt.Println("vendor dir hash:", GetVendorDirHash())
 	}
 }
 

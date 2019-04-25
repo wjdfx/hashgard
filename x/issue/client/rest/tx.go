@@ -60,10 +60,12 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			return
 		}
+
 		if len(req.Description) > 0 && !json.Valid([]byte(req.Description)) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrCoinDescriptionNotValid().Error())
 			return
@@ -119,9 +121,8 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		account, err := cliCtx.GetAccount(fromAddress)
@@ -176,9 +177,8 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		account, err := cliCtx.GetAccount(fromAddress)
@@ -258,9 +258,8 @@ func postIssueFlag(cdc *codec.Codec, cliCtx context.CLIContext, w http.ResponseW
 	if !req.BaseReq.ValidateBasic(w) {
 		return
 	}
-	fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+	fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 	if err != nil {
-		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
@@ -314,9 +313,8 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		if len(req.Description) <= 0 || !json.Valid([]byte(req.Description)) {
@@ -360,9 +358,8 @@ func postTransferOwnershipHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext)
 		if !req.BaseReq.ValidateBasic(w) {
 			return
 		}
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		to, err := sdk.AccAddressFromBech32(vars[To])
