@@ -249,13 +249,13 @@ func accountInGenesis(genesisState app.GenesisState, key sdk.AccAddress, coins s
 func prepareFlagsForTxCreateValidator(
 	config *cfg.Config, nodeID, ip, chainID string, valPubKey crypto.PubKey, website, details, identity string,
 	) {
-	viper.Set(tmcli.HomeFlag, viper.GetString(flagClientHome))	   // --home
+	viper.Set(tmcli.HomeFlag, viper.GetString(flagClientHome))
 	viper.Set(client.FlagChainID, chainID)
-	viper.Set(client.FlagFrom, viper.GetString(client.FlagName))   // --from
-	viper.Set(cli.FlagNodeID, nodeID)                              // --node-id
-	viper.Set(cli.FlagIP, ip)                                      // --ip
-	viper.Set(cli.FlagPubKey, sdk.MustBech32ifyConsPub(valPubKey)) // --pubkey
-	viper.Set(cli.FlagMoniker, config.Moniker)                     // --moniker
+	viper.Set(client.FlagFrom, viper.GetString(client.FlagName))
+	viper.Set(cli.FlagNodeID, nodeID)
+	viper.Set(cli.FlagIP, ip)
+	viper.Set(cli.FlagPubKey, sdk.MustBech32ifyConsPub(valPubKey))
+	viper.Set(cli.FlagMoniker, config.Moniker)
 	viper.Set(cli.FlagWebsite, website)
 	viper.Set(cli.FlagDetails, details)
 	viper.Set(cli.FlagIdentity, identity)
