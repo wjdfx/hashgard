@@ -42,10 +42,10 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 	r.HandleFunc(fmt.Sprintf("/issue/mint/{%s}/{%s}/{%s}", IssueID, Amount, To), postMintHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn/{%s}/{%s}", IssueID, Amount), postBurnHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}", IssueID, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-any/{%s}/{%s}/{%s}", IssueID, Amount, AccAddress), postBurnAnyHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/burn-any/{%s}/{%s}/{%s}", IssueID, Amount, AccAddress), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-off/{%s}", IssueID), postBurnOffHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/burn-from-off/{%s}", IssueID), postBurnFromOffHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/burn-any-off/{%s}", IssueID), postBurnAnyOffHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/burn-any-off/{%s}", IssueID), postBurnFromOffHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/finish-minting/{%s}", IssueID), postFinishMintingHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/transfer/ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
 }
@@ -69,17 +69,17 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			return
 		}
 		coinIssueInfo := types.CoinIssueInfo{
-			Owner:           fromAddress,
-			Name:            req.Name,
-			Symbol:          strings.ToUpper(req.Symbol),
-			TotalSupply:     req.TotalSupply,
-			Decimals:        req.Decimals,
-			IssueTime:       time.Now(),
-			Description:     req.Description,
-			BurnOff:         req.BurnOff,
-			BurnFromOff:     req.BurnFromOff,
-			BurnAnyOff:      req.BurnAnyOff,
-			MintingFinished: req.MintingFinished,
+			Owner:              fromAddress,
+			Name:               req.Name,
+			Symbol:             strings.ToUpper(req.Symbol),
+			TotalSupply:        req.TotalSupply,
+			Decimals:           req.Decimals,
+			IssueTime:          time.Now(),
+			Description:        req.Description,
+			BurnOwnerDisabled:  req.BurnOwnerDisabled,
+			BurnHolderDisabled: req.BurnHolderDisabled,
+			BurnFromDisabled:   req.BurnFromDisabled,
+			MintingFinished:    req.MintingFinished,
 		}
 		// create the message
 		msg := msgs.CreateMsgIssue(&coinIssueInfo)
@@ -150,8 +150,8 @@ func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
 }
-func postBurnAnyHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnAny)
+func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
 }
 func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, burnFromType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -188,7 +188,7 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 		}
 		accAddress := fromAddress
 
-		if types.BurnAny == burnFromType {
+		if types.BurnFrom == burnFromType {
 			accAddress, err = sdk.AccAddressFromBech32(vars[AccAddress])
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -205,8 +205,8 @@ func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, b
 
 		if types.BurnFrom == burnFromType {
 			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
-		} else if types.BurnAny == burnFromType {
-			msg = msgs.NewMsgIssueBurnAny(issueID, fromAddress, accAddress, amount)
+		} else if types.BurnFrom == burnFromType {
+			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
 		} else {
 			msg = msgs.NewMsgIssueBurn(issueID, fromAddress, amount)
 		}
@@ -235,9 +235,9 @@ func postBurnFromOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.
 		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnFromOff{})
 	}
 }
-func postBurnAnyOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func postBurnFromOffHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnAnyOff{})
+		postIssueFlag(cdc, cliCtx, w, r, msgs.MsgIssueBurnFromOff{})
 	}
 }
 
@@ -264,7 +264,7 @@ func postIssueFlag(cdc *codec.Codec, cliCtx context.CLIContext, w http.ResponseW
 		return
 	}
 
-	//msg := msgs.NewMsgIssueBurnAnyOff(issueID, fromAddress)
+	//msg := msgs.NewMsgIssueBurnFromOff(issueID, fromAddress)
 
 	if err := msg.ValidateBasic(); err != nil {
 		rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -286,8 +286,8 @@ func postIssueFlag(cdc *codec.Codec, cliCtx context.CLIContext, w http.ResponseW
 		msg = msgs.NewMsgIssueBurnOff(issueID, account.GetAddress())
 	case msgs.MsgIssueBurnFromOff:
 		msg = msgs.NewMsgIssueBurnFromOff(issueID, account.GetAddress())
-	case msgs.MsgIssueBurnAnyOff:
-		msg = msgs.NewMsgIssueBurnAnyOff(issueID, account.GetAddress())
+	case msgs.MsgIssueBurnFromOff:
+		msg = msgs.NewMsgIssueBurnFromOff(issueID, account.GetAddress())
 	case msgs.MsgIssueFinishMinting:
 		msg = msgs.NewMsgIssueFinishMinting(issueID, account.GetAddress())
 	default:

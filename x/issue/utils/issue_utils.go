@@ -63,15 +63,19 @@ func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
 
 	return totalSupply.Quo(quoDecimals)
 }
-func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int, burnType string) (sdk.Int, error) {
+func GetIssueByID(cdc *codec.Codec, cliCtx context.CLIContext, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
 	if err != nil {
-		return amount, err
+		return nil, err
 	}
 
 	cdc.MustUnmarshalJSON(res, &issueInfo)
+
+	return issueInfo, nil
+}
+func BurnCheck(sender auth.Account, burnFrom sdk.AccAddress, issueInfo types.Issue, amount sdk.Int, burnType string) (sdk.Int, error) {
 
 	amount = MulDecimals(amount, issueInfo.GetDecimals())
 
@@ -81,33 +85,33 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account,
 	case types.BurnOwner:
 		{
 			if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueInfo.GetIssueId()))
 			}
-			if issueInfo.GetBurnOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
+			if issueInfo.IsBurnOwnerDisabled() {
+				return amount, errors.Errorf(errors.ErrCanNotBurn(issueInfo.GetIssueId(), burnType))
+			}
+		}
+	case types.BurnHolder:
+		{
+			if issueInfo.IsBurnHolderDisabled() {
+				return amount, errors.Errorf(errors.ErrCanNotBurn(issueInfo.GetIssueId(), burnType))
+			}
+			if !sender.GetAddress().Equals(burnFrom) {
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueInfo.GetIssueId()))
 			}
 		}
 	case types.BurnFrom:
 		{
-			if issueInfo.GetBurnFromOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-			}
-			if !sender.GetAddress().Equals(burnFrom) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
-			}
-		}
-	case types.BurnAny:
-		{
 			if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
+				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueInfo.GetIssueId()))
 			}
-			if issueInfo.GetBurnAnyOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
+			if issueInfo.IsBurnFromDisabled() {
+				return amount, errors.Errorf(errors.ErrCanNotBurn(issueInfo.GetIssueId(), burnType))
 			}
-			if sender.GetAddress().Equals(burnFrom) {
+			if issueInfo.GetOwner().Equals(burnFrom) {
 				//burnFrom
-				if issueInfo.GetBurnFromOff() {
-					return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
+				if issueInfo.IsBurnOwnerDisabled() {
+					return amount, errors.Errorf(errors.ErrCanNotBurn(issueInfo.GetIssueId(), types.BurnOwner))
 				}
 			}
 		}
@@ -118,7 +122,7 @@ func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account,
 
 	}
 	// ensure account has enough coins
-	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueID, Amount: amount}}) {
+	if !coins.IsAllGTE(sdk.Coins{sdk.Coin{Denom: issueInfo.GetIssueId(), Amount: amount}}) {
 		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", sender.GetAddress())
 	}
 

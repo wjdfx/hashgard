@@ -30,17 +30,17 @@ var (
 	SenderAccAddr        = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
 
 	CoinIssueInfo = types.CoinIssueInfo{
-		Issuer:          IssuerCoinsAccAddr,
-		Owner:           IssuerCoinsAccAddr,
-		IssueTime:       time.Now(),
-		Name:            "testCoin",
-		Symbol:          "TEST",
-		TotalSupply:     sdk.NewInt(10000),
-		Decimals:        types.CoinDecimalsMaxValue,
-		BurnOff:         false,
-		BurnAnyOff:      false,
-		BurnFromOff:     false,
-		MintingFinished: false}
+		Issuer:             IssuerCoinsAccAddr,
+		Owner:              IssuerCoinsAccAddr,
+		IssueTime:          time.Now(),
+		Name:               "testCoin",
+		Symbol:             "TEST",
+		TotalSupply:        sdk.NewInt(10000),
+		Decimals:           types.CoinDecimalsMaxValue,
+		BurnOwnerDisabled:  false,
+		BurnHolderDisabled: false,
+		BurnFromDisabled:   false,
+		MintingFinished:    false}
 )
 
 // initialize the mock application for this module

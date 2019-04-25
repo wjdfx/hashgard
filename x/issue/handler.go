@@ -22,20 +22,14 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgIssueDescription(ctx, keeper, msg)
 		case msgs.MsgIssueMint:
 			return handlers.HandleMsgIssueMint(ctx, keeper, msg)
-		case msgs.MsgIssueBurn:
-			return handlers.HandleMsgIssueBurn(ctx, keeper, msg)
+		case msgs.MsgIssueBurnOwner:
+			return handlers.HandleMsgIssueBurnOwner(ctx, keeper, msg)
+		case msgs.MsgIssueBurnHolder:
+			return handlers.HandleMsgIssueBurnHolder(ctx, keeper, msg)
 		case msgs.MsgIssueBurnFrom:
 			return handlers.HandleMsgIssueBurnFrom(ctx, keeper, msg)
-		case msgs.MsgIssueBurnAny:
-			return handlers.HandleMsgIssueBurnAny(ctx, keeper, msg)
-		case msgs.MsgIssueBurnOff:
-			return handlers.HandleMsgIssueBurnOff(ctx, keeper, msg)
-		case msgs.MsgIssueBurnFromOff:
-			return handlers.HandleMsgIssueBurnFromOff(ctx, keeper, msg)
-		case msgs.MsgIssueBurnAnyOff:
-			return handlers.HandleMsgIssueBurnAnyOff(ctx, keeper, msg)
-		case msgs.MsgIssueFinishMinting:
-			return handlers.HandleMsgIssueFinishMinting(ctx, keeper, msg)
+		case msgs.MsgIssueDisableFeature:
+			return handlers.HandleMsgIssueDisableFeature(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized gov msg type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()

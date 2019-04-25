@@ -19,6 +19,7 @@ const (
 	CodeUnknownIssue              sdk.CodeType = 8
 	CanNotMint                    sdk.CodeType = 9
 	CanNotBurn                    sdk.CodeType = 10
+	CodeUnknownFeature            sdk.CodeType = 11
 )
 
 //convert sdk.Error to error
@@ -28,7 +29,7 @@ func Errorf(err sdk.Error) error {
 
 // Error constructors
 func ErrOwnerMismatch(issueID string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with coin %s", issueID))
+	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with token %s", issueID))
 }
 func ErrCoinDecimalsMaxValueNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueCoinDecimalsNotValid, fmt.Sprintf("Decimals max value is %d", types.CoinDecimalsMaxValue))
@@ -54,11 +55,14 @@ func ErrIssueID(issueID string) sdk.Error {
 }
 
 func ErrCanNotMint(issueID string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CanNotMint, fmt.Sprintf("Can not mint with coin %s", issueID))
+	return sdk.NewError(types.DefaultCodespace, CanNotMint, fmt.Sprintf("Can not mint the token %s", issueID))
 }
-func ErrCanNotBurn(issueID string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CanNotBurn, fmt.Sprintf("Can not burn with coin %s", issueID))
+func ErrCanNotBurn(issueID string, burnType string) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CanNotBurn, fmt.Sprintf("Can not burn the token %s by %s", issueID, burnType))
 }
 func ErrUnknownIssue(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownIssue, fmt.Sprintf("Unknown issue with id %s", issueID))
+}
+func ErrUnknownFeatures() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeUnknownFeature, fmt.Sprintf("Unknown feature"))
 }

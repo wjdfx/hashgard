@@ -18,7 +18,7 @@ type MsgIssue struct {
 }
 
 //New MsgIssue Instance
-func CreateMsgIssue(coinIssueInfo *types.CoinIssueInfo) MsgIssue {
+func NewMsgIssue(coinIssueInfo *types.CoinIssueInfo) MsgIssue {
 	return MsgIssue{coinIssueInfo}
 }
 

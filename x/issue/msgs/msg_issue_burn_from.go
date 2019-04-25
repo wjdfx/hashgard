@@ -9,17 +9,16 @@ import (
 )
 
 // MsgIssueBurnFrom to allow a registered owner
-// to issue new coins.
 type MsgIssueBurnFrom struct {
 	IssueId string         `json:"issue_id"`
 	Sender  sdk.AccAddress `json:"sender"`
-	From    sdk.AccAddress `json:"from"`
+	Holder  sdk.AccAddress `json:"holder"`
 	Amount  sdk.Int        `json:"amount"`
 }
 
-//New CreateMsgIssue Instance
-func NewMsgIssueBurnFrom(issueId string, sender sdk.AccAddress, from sdk.AccAddress, amount sdk.Int) MsgIssueBurnFrom {
-	return MsgIssueBurnFrom{issueId, sender, from, amount}
+//New NewMsgIssueBurnFrom Instance
+func NewMsgIssueBurnFrom(issueId string, sender sdk.AccAddress, holder sdk.AccAddress, amount sdk.Int) MsgIssueBurnFrom {
+	return MsgIssueBurnFrom{issueId, sender, holder, amount}
 }
 
 // Route Implements Msg.

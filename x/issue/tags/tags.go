@@ -9,6 +9,7 @@ var (
 	Action          = sdk.TagAction
 	Owner           = "owner"
 	IssueID         = "issue-id"
+	Feature         = "feature"
 	Name            = "name"
 	Symbol          = "symbol"
 	TotalSupply     = "total-supply"
