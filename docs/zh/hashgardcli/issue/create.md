@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli issue create [name] [symbol] [total-supply] [flags]
 ```
 
@@ -24,17 +24,17 @@ hashgardcli issue create [name] [symbol] [total-supply] [flags]
 
 ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 发行一个新币
 
 ```shell
-hashgardcli issue create foocoin FOO 100000000 --from foo -o=json
+hashgardcli issue create foocoin FOO 100000000 --from foo 
 ```
 
 输入正确的密码之后，你就完成发行了一个代币，需要注意的是要记下你的issue-id值，这是可以检索及操作你的代币的唯一要素。
 
-```txt
+```json
 {
  "height": "3394",
  "txhash": "81D4B2054F741E901BE5A540DDA37BF53D1DEA16C94BF9E4BBDB1D1CD548DFA1",
@@ -67,13 +67,13 @@ hashgardcli issue create foocoin FOO 100000000 --from foo -o=json
 
 查询自己的账号
 
-```shell
+```bash
 hashgardcli bank account gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye
 ```
 
 你将会看到你的持币列表里多了一个形如“币名（issue-id）”特殊名称的币。后续对该币的操作请使用issue-id的值来进行，包括进行转账操作，要转的币也请使用该issue-id。
 
-```
+```json
 {
  "type": "auth/Account",
  "value": {
@@ -97,3 +97,4 @@ hashgardcli bank account gard1f203m5q7hr4tkf0vredrn4wpxkx7zngn4pntye
  }
 }
 ```
+

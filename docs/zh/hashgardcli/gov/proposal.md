@@ -6,24 +6,24 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli gov proposal [proposal-id] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
+
 ## 例子
 
 ### 查询指定的提案
 
-```shell
-hashgardcli gov proposal 1 --trust-node -o=json --indent
+```bash
+hashgardcli gov proposal 1 --trust-node
 ```
 
 查询指定提案的详情，可以得到结果如下：
 
-```txt
+```json
 {
   "type": "gov/TextProposal",
   "value": {

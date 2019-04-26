@@ -3,19 +3,19 @@
 ## 描述
 查询指定issue-id值的发行的币的信息。
 ## 使用方式
-```
+```bash
 hashgardcli issue query [issue-id] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 ### 查询发行信息
-```shell
-hashgardcli issue query coin174876e800 -o=json
+```bash
+hashgardcli issue query coin174876e800
 ```
-```txt
+```json
 {
  "type": "issue/CoinIssueInfo",
  "value": {
@@ -35,3 +35,4 @@ hashgardcli issue query coin174876e800 -o=json
  }
 }
 ```
+

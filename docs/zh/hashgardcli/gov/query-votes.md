@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli gov query-votes [proposal-id] [flags]
 ```
 
@@ -14,17 +14,17 @@ hashgardcli gov query-votes [proposal-id] [flags]
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### Query votes
 
-```shell
-hashgardcli gov query-votes 1 --trust-node -o=json --indent
+```bash
+hashgardcli gov query-votes 1 --trust-node
 ```
 
 通过指定的提案查询该提案所有投票者的投票详情。
 
-```txt
+```json
 [
   {
     "voter": "gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet",

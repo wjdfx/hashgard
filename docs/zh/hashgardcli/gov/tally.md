@@ -6,26 +6,26 @@
 
 ## 使用方式
 
-```
+```bash
  hashgardcli gov tally [proposal-id] [flags]
 ```
 
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
 
-## 例子
+
+## 示例
 
 ### 查询投票统计
 
-```shell
+```bash
 hashgardcli gov tally 1 --trust-node
 ```
 
 可以查询指定提案每个投票选项的投票统计。
 
-```txt
+```json
 {
   "yes": "89.1000000000",
   "abstain": "0.0000000000",

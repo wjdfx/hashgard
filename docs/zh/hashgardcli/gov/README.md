@@ -10,13 +10,13 @@
 
 ## 使用方式
 
-```shell
+```bash
 hashgardcli gov [command]
 ```
 
 打印子命令和参数
 
-```
+```bash
 hashgardcli gov --help
 ```
 ## 相关命令

@@ -6,7 +6,7 @@
 
 ## 用法
 
-```
+```bash
 hashgardcli distribution withdraw-rewards [validator-addr] [flags]
 ```
 
@@ -19,14 +19,19 @@ hashgardcli distribution withdraw-rewards [validator-addr] [flags]
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
+
 ## 示例
 
 1. 取回委托产生的收益
-    ```
-    hashgardcli distribution withdraw-rewards gard34mhjjyyc7mehvaay0f3d4hj8qx3ee3w3eq5nq --from mykey --chain-id=hashgard
+    ```bash
+    hashgardcli distribution withdraw-rewards gard34mhjjyyc7mehvaay0f3d4hj8qx3ee3w3eq5nq \
+        --from mykey \
+        --chain-id=hashgard
     ```
 2. 取回委托产生的收益以及验证人的佣金收益:
+    ```bash
+    hashgardcli distribution withdraw-rewards \
+         --commission=true from mykey  \
+        --chain-id=sif-4000
     ```
-    hashgardcli distribution withdraw-rewards --commission=true from mykey  --chain-id=sif-1000
-    ```
+

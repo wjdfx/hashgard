@@ -3,20 +3,21 @@
 ## 描述
 在发行的代币可以销毁的前提下，Owner可以对自己发行的代币进行销毁。
 ## 使用方式
-```
+```bash
  hashgardcli issue burn [issue-id] [amount] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
+
 ### 销毁代币
-```shell
-hashgardcli issue burn coin174876e800 88888 --from=foo -o=json
+```bash
+hashgardcli issue burn coin174876e800 88888 --from=foo
 ```
 输入正确的密码之后，你的该代币的便完成了销毁。
-```txt
+```json
 {
  "height": "4007",
  "txhash": "1972DC3A17E74FE8030CB9F551B0C14050D9397AB3ED3CD3F271A38BA7C831AB",

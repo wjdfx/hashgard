@@ -10,13 +10,14 @@ Owner可以对自己代币进行补充描述，描述文件使用不超过1MB的
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
+
 ### 给代币设置描述
 ```shell
-hashgardcli issue describe coin174876e800 path/description.json --from=foo -o=json
+hashgardcli issue describe coin174876e800 path/description.json --from=foo 
 ```
 #### 模板
-```
+```json
 {
     "organization":"Hashgard",
     "website":"https://www.hashgard.com",
@@ -25,7 +26,7 @@ hashgardcli issue describe coin174876e800 path/description.json --from=foo -o=js
 }
 ```
 输入正确的密码之后，你的该代币的描述就设置成功了。
-```txt
+```json
 {
  "height": "17941",
  "txhash": "196C1FC96A604D34B7B7815C2425458BFAC1512D9255D5845A540F50D614F6F0",
@@ -52,11 +53,11 @@ hashgardcli issue describe coin174876e800 path/description.json --from=foo -o=js
 }
 ```
 ### 查询发行信息
-```shell
-hashgardcli issue query coin155547350023 -o=json
+```bash
+hashgardcli issue query coin155547350023 
 ```
 最新的描述信息就生效了
-```
+```json
 {
  "type": "issue/CoinIssueInfo",
  "value": {
@@ -76,3 +77,4 @@ hashgardcli issue query coin155547350023 -o=json
  }
 }
 ```
+

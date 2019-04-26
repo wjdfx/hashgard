@@ -6,7 +6,7 @@
 
 ## 用法
 
-```
+```bash
 hashgardcli distribution rewards [delegator-addr] [<validator-addr>] [flags]
 ```
 
@@ -18,14 +18,15 @@ hashgardcli distribution rewards [delegator-addr] [<validator-addr>] [flags]
 
 查询参数信息
 
-```
-hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms -o=json --trust-node
-hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms gardvaloper1hr7vm7t7paeyg33ggd6efek2w58mu2huewltta -o=json --trust-node
+```bash
+hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms \
+    --trust-node
+
 ```
 
 运行成功以后，返回的结果如下：
 
-```
+```json
 [
  {
   "denom": "gard",
@@ -33,3 +34,4 @@ hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms gar
  }
 ]
 ```
+

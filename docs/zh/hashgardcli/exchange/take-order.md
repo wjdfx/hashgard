@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli exchange take-order [order_id] [flags]
 ```
 
@@ -49,20 +49,23 @@ Sum(supply) = Shares(actual) * Price(supply), 这部分的金额会从订单的 
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 进行交易
 
 已知order_id为3的订单的 supply 是 100gard， target 是 800apple，remains 是 100gard。
 使用18apple与之交易， 实际扣除 16 apple， 会获得 2 gard。
 
-```shell
-hashgardcli exchange take-order 3 --amount 18apple --from mykey --chain-id hashgard -o=json --indent
+```bash
+hashgardcli exchange take-order 3 \
+    --amount 18apple \
+    --from mykey \
+    --chain-id hashgard 
 ```
 
 输入正确的密码后，同order_id为3的订单交易。
 
-```txt
+```json
 {
  "height": "145",
  "txhash": "9560252F7F887A2DFFA30B5FC7C35BCC6B93608877590207F127595E5CFE7897",
@@ -99,3 +102,4 @@ hashgardcli exchange take-order 3 --amount 18apple --from mykey --chain-id hashg
 查询订单现在的状态：
 
 买家账户扣除了 16apple， 获得 2gard，order_id为3的订单 remains 更新为 98gard
+

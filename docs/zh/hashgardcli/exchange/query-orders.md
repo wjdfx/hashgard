@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli exchange query-orders [address] [flags]
 ```
 
@@ -19,12 +19,13 @@ hashgardcli exchange query-orders [address] [flags]
 ### 查询地址所有的有效订单
 
 ```shell
-hashgardcli exchange query-orders gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa --chain-id hashgard -o=json --indent
+hashgardcli exchange query-orders gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa \
+    --chain-id hashgard 
 ```
 
 下面是地址gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa所有有效的订单
 
-```txt
+```json
 [
  {
   "order_id": "1",

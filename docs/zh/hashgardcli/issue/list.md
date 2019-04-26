@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli issue list [flags]
 ```
 
@@ -22,14 +22,14 @@ hashgardcli issue list [flags]
 
 ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 返回列表
 
-```shell
-hashgardcli issue list -o=json
+```bash
+hashgardcli issue list
 ```
-```txt
+```json
 [
  {
   "issue_id": "coin174876e801",
@@ -64,10 +64,11 @@ hashgardcli issue list -o=json
 ]
 ```
 
-```shell
-hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
+### 返回分页列表
+```bash
+hashgardcli issue list --limit 1 --start-issue-id coin174876e801 
 ```
-```txt
+```json
 [
  {
   "issue_id": "coin174876e800",
@@ -86,11 +87,12 @@ hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
  }
 ]
 ```
+### 返回某一地址的列表
 
-```shell
-hashgardcli issue list --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx -o=json
+```bash
+hashgardcli issue list --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx
 ```
-```txt
+```json
 [
  {
   "issue_id": "coin174876e801",

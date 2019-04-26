@@ -6,13 +6,13 @@ Bank模块允许你管理你本地账户的资产。
 
 ## 使用方式
 
-```
+```bash
  hashgardcli bank [command]
 ```
 
 打印子命令和参数
 
-```
+```bash
 hashgardcli bank --help
 ```
 ## 相关命令

@@ -6,13 +6,13 @@
 
 ## 用法
 
-```
+```bash
 hashgardcli distribution [subcommand]
 ```
 
 打印子命令和参数
 
-```
+```bash
 hashgardcli distribution --help
 ```
 

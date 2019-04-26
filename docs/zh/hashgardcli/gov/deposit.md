@@ -6,24 +6,26 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli gov deposit [proposal-id] [deposit] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 充值保证金
 
 ```shell
- hashgardcli gov deposit  1 50gard --from=hashgard --chain-id=hashgard -o=json --indent
+ hashgardcli gov deposit  1 50gard \
+     --from=hashgard \
+     --chain-id=hashgard
 ```
 
 输入正确的密码后，你就充值了50个gard用以激活提案的投票状态。
 
-```txt
+```json
 {
  "height": "106707",
  "txhash": "1D048A63AB37015700F22C5C90DA79127E0FFDBC8A9F5D2418B00D1916389B74",
@@ -47,7 +49,7 @@ hashgardcli gov deposit [proposal-id] [deposit] [flags]
 }
 ```
 
-如何查询保证金充值明细？
+## 如何查询保证金充值明细？
 
 请点击下述链接：
 

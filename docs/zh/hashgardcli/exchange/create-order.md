@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli exchange create-order [flags]
 ```
 
@@ -22,17 +22,22 @@ hashgardcli exchange create-order [flags]
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 创建订单
 
-```shell
-hashgardcli exchange create-order --supply 100gard --target 800apple --from mykey --chain-id hashgard --indent -o=json
+```bash
+hashgardcli exchange create-order 
+    --supply 100gard 
+    --target 800apple 
+    --from mykey 
+    --chain-id hashgard 
+    --indent -o=json
 ```
 
 输入正确的密码后，创建了一笔100gard交换800apple的订单。
 
-```txt
+```json
 {
  "height": "6907",
  "txhash": "12FE1C3ECDF960AFB6A5E2D1A0DCE678EDB9A35812137AFA2CFA0DF7340C8F12",

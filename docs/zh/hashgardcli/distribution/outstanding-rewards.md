@@ -6,7 +6,7 @@
 
 ## 用法
 
-```
+```bash
 hashgardcli distribution outstanding-rewards [flags]
 ```
 
@@ -18,13 +18,13 @@ hashgardcli distribution outstanding-rewards [flags]
 
 查询参数信息
 
-```
-hashgardcli distribution outstanding-rewards -o=json --trust-node
+```bash
+hashgardcli distribution outstanding-rewards --trust-node
 ```
 
 运行成功以后，返回的结果如下：
 
-```
+```json
 [
  {
   "denom": "gard",
@@ -32,3 +32,4 @@ hashgardcli distribution outstanding-rewards -o=json --trust-node
  }
 ]
 ```
+

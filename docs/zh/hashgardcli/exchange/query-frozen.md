@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli exchange query-frozen [address] [flags]
 ```
 
@@ -18,13 +18,14 @@ hashgardcli exchange query-frozen [address] [flags]
 
 ### 查询地址的冻结资金
 
-```shell
-hashgardcli exchange query-frozen gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa --chain-id hashgard -o=json --indent
+```bash
+hashgardcli exchange query-frozen gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa \
+    --chain-id hashgard 
 ```
 
 下面是地址gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa的冻结资金
 
-```txt
+```json
 [
  {
   "denom": "apple",

@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli gov proposals [flags]
 ```
 ## Flags
@@ -21,32 +21,24 @@ hashgardcli gov proposals [flags]
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
-## 例子
+
+## 示例
 
 ### 查询提案
 
-```shell
+```bash
 hashgardcli gov proposals --trust-node
 ```
 
 默认查询所有的提案。
 
-```txt
-ID - (Status) [Type] Title
-1 - (DepositPeriod) [Text] Test Proposal
-2 - (DepositPeriod) [Text] Test Proposal
-3 - (DepositPeriod) [Text] Test Proposal
-4 - (VotingPeriod) [Text] Test Proposal
-```
 
 当然这里可以查询指定条件的提案，例如：
 
-```shell
-gov proposals --chain-id=hashgard --depositor=gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd
+```bash
+gov proposals \
+    --chain-id=hashgard \
+    --depositor=gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd
 ```
 
 可以得到存款人是gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd地址的提案。
-```txt
-  2 - new proposal
-```

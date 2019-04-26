@@ -3,7 +3,7 @@
 ## 描述
 在可以增发的前提下，Owner可以对自己发行的代币进行增发，默认增发到自己的账户，也可以增发到指定的账号。
 ## 使用方式
-```
+```bash
  hashgardcli issue mint [issue-id] [amount] [flags]
 ```
 | 名称                | 类型     | 是否必须                  | 默认值                      | 描述                                                                                                                                                 |
@@ -14,13 +14,15 @@
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 ### 增发到指定的地址
-```shell
-hashgardcli issue mint coin174876e800 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
+```bash
+hashgardcli issue mint coin174876e800 88888 \
+    --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc \
+    --from=foo
 ```
 输入正确的密码之后，你的该代币的便完成了增发。
-```txt
+```json
 {
  "height": "3896",
  "txhash": "EFA5BC8F97DB4697037A7E85E5A85237A57F819860E5B6595D33AC412F25DEF6",
@@ -50,3 +52,4 @@ hashgardcli issue mint coin174876e800 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2
  ]
 }
 ```
+

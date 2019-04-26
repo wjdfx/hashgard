@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli keys add <name> [flags]
 ```
 
@@ -24,24 +24,24 @@ hashgardcli keys add <name> [flags]
 | --pubkey | string | 否 | "" | 解析bech32格式的公钥并将其保存到磁盘 |
 | --recover       | string | 否 | "" | 提供助记词以恢复现有密钥而不是新建                                     |
 
-## 例子
+## 示例
 
 ### 创建密钥
 
-```shell
+```bash
 hashgardcli keys add MyKey
 ```
 
 执行命令后，系统会要求你输入密钥密码，注意：密码必须至少为8个字符。
 
-```txt
+```bash
 Enter a passphrase for your key:
 Repeat the passphrase:
 ```
 
 之后，你已经完成了创建新密钥的工作，但请记住备份你的助记词短语，如果你不慎忘记密码或丢失了密钥，这是唯一能恢复帐户的方法。
 
-```txt
+```bash
 NAME:	TYPE:	ADDRESS:						PUBKEY:
 MyKey	local	gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet	gardpub1addwnpepqvu549hgyhnxlveqmtdn2xywygxpgzcsqefxur47zkz4e0e9x67hvjr6r6p
 **Important** write this seed phrase in a safe place.
@@ -56,13 +56,13 @@ oval green shrug term already arena pilot spirit jump gain useful symbol hover g
 
 如果你忘记了密码或丢失了密钥，或者你想在其他地方使用密钥，则可以通过助记词短语来恢复。
 
-```txt
+```bash
 hashgardcli keys add MyKey --recover
 ```
 
 系统会要求你输入并确认密钥的新密码，然后输入助记词。这样就能恢复你的密钥。
 
-```txt
+```bash
 Enter a passphrase for your key:
 Repeat the passphrase:
 Enter your recovery seed phrase:

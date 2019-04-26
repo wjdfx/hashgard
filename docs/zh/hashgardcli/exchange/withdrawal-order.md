@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli exchange withdrawal-order [order_id] [flags]
 ```
 
@@ -14,17 +14,19 @@ hashgardcli exchange withdrawal-order [order_id] [flags]
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
 
 ### 撤销订单
 
-```shell
-hashgardcli exchange withdrawal-order 2 --from mykey --chain-id hashgard -o=json --indent
+```bash
+hashgardcli exchange withdrawal-order 2 \
+    --from mykey \
+    --chain-id hashgard
 ```
 
 必须是订单的seller账户操作，输入正确的密码后，order_id为2的订单已经撤销。
 
-```txt
+```json
 {
  "height": "7162",
  "txhash": "7FA99BF4C271E8145A8DB695B9B08883A58A46F1AA369D8A7F6002684FDBC06A",

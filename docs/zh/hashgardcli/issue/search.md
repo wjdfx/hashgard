@@ -3,19 +3,20 @@
 ## 描述
 根据代币符号来搜索发行的代币信息
 ## 使用方式
-```
+```bash
 hashgardcli issue search [symbol] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
+
 ### 搜索
-```shell
-hashgardcli issue search fo -o=json
+```bash
+hashgardcli issue search fo
 ```
-```txt
+```json
 [
  {
   "issue_id": "coin174876e800",
@@ -35,3 +36,4 @@ hashgardcli issue search fo -o=json
 ]
 
 ```
+

@@ -6,25 +6,24 @@
 
 ## 使用方式
 
-```
+```bash
  hashgardcli gov param [param-type] [flags]
 ```
 ## Global Flags
 
  ### 参考：[hashgardcli](../README.md)
- 
 
-## 例子
+## 示例
 
 ### 通过voting查
 
-```shell
-hashgardcli gov param voting --trust-node -o=json --indent
+```bash
+hashgardcli gov param voting --trust-node
 ```
 
 会得到类似如下结果。
 
-```txt
+```json
 {
   "voting_period": "172800000000000"
 }
@@ -32,13 +31,13 @@ hashgardcli gov param voting --trust-node -o=json --indent
 
 ### 通过deposit查
 
-```shell
-hashgardcli gov param deposit --trust-node -o=json --indent
+```bash
+hashgardcli gov param deposit --trust-node
 ```
 
 会得到类似如下结果。
 
-```txt
+```json
 {
   "min_deposit": [
     {
@@ -52,12 +51,12 @@ hashgardcli gov param deposit --trust-node -o=json --indent
 
 
 ### 通过tallying查
-```
-hashgardcli gov param tallying --trust-node -o=json --indent
+```bash
+hashgardcli gov param tallying --trust-node
 ```
 
 会得到如以下类似信息：
-```
+```json
 {
   "quorum": "0.3340000000",
   "threshold": "0.5000000000",

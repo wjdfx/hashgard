@@ -6,7 +6,7 @@
 
 ## 使用方式
 
-```
+```bash
 hashgardcli bank sign [file] [flags]
 ```
 
@@ -32,19 +32,30 @@ hashgardcli bank sign [file] [flags]
 
 首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下：
 
-```  
-hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=test --chain-id=hashgard --generate-only
+```  json
+hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard \
+    --from=test \
+    --chain-id=hashgard \
+    --generate-only
 
 {"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
 ```
 
-保存输出到文件中，如：/root/node0/test_send_10hashgard.txt
+保存输出到文件中，如：`/root/node0/test_send_10hashgard.txt`
 
 接着来签名这个离线文件。
 
-```
-hashgardcli bank sign /root/node0/test_send_10hashgard.txt --name=test  --offline=false --print-response --append=true
+```bash
+hashgardcli bank sign /root/node0/test_send_10hashgard.txt \
+    --name=test  \
+    --offline=false \
+    --print-response \
+    --append=true
 ```
 
 随后得到签名详细信息，在输出中你会看到签名信息:
-**ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==**
+
+```bash
+ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==
+```
+

@@ -2,9 +2,9 @@
 
 ## 描述
 Owner对自己发行的某个代币设置为已经完成增发。
-```
-注：一旦完成便不可再增发。
-```
+
+>注：一旦完成便不可再增发。
+
 ## 使用方式
 ```
  hashgardcli issue finish-minting  [issue-id] [flags]
@@ -13,13 +13,14 @@ Owner对自己发行的某个代币设置为已经完成增发。
 
  ### 参考：[hashgardcli](../README.md)
 
-## 例子
+## 示例
+
 ### 完成增发
-```shell
-hashgardcli issue finish-minting  coin174876e800 --from foo -o=json
+```bash
+hashgardcli issue finish-minting  coin174876e800 --from foo
 ```
 输入正确的密码之后，你的该代币便关闭了可由Owner的增发功能。
-```txt
+```json
 {
  "height": "4952",
  "txhash": "4D0C00B78A7403B5151822B064D6AA4210E32A173A44EC93061CC0CB8FD6DA43",
