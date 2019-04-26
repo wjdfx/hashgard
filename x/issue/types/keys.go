@@ -31,10 +31,11 @@ const (
 	Custom   = "custom"
 )
 const (
-	QueryParams = "params"
-	QueryIssues = "list"
-	QueryIssue  = "query"
-	QuerySearch = "search"
+	QueryParams    = "params"
+	QueryIssues    = "list"
+	QueryIssue     = "query"
+	QueryAllowance = "allowance"
+	QuerySearch    = "search"
 )
 
 const (
@@ -46,6 +47,10 @@ const (
 	TypeMsgIssueDisableFeature    = "issue_disable_feature"
 	TypeMsgIssueDescription       = "issue_description"
 	TypeMsgIssueTransferOwnership = "issue_transfer_ownership"
+	TypeMsgIssueApprove           = "issue_approve"
+	TypeMsgIssueSendFrom          = "issue_send_from"
+	TypeMsgIssueIncreaseApproval  = "issue_increase_approval"
+	TypeMsgIssueDecreaseApproval  = "issue_decrease_approval"
 )
 const (
 	CoinDecimalsMaxValue                  = uint(18)

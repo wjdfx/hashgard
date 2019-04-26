@@ -20,6 +20,7 @@ const (
 	CanNotMint                    sdk.CodeType = 9
 	CanNotBurn                    sdk.CodeType = 10
 	CodeUnknownFeature            sdk.CodeType = 11
+	CodeNotEnoughAmountToTransfer sdk.CodeType = 12
 )
 
 //convert sdk.Error to error
@@ -65,4 +66,7 @@ func ErrUnknownIssue(issueID string) sdk.Error {
 }
 func ErrUnknownFeatures() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownFeature, fmt.Sprintf("Unknown feature"))
+}
+func ErrNotEnoughAmountToTransfer() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughAmountToTransfer, fmt.Sprintf("Not enough amount allowed to transfer"))
 }

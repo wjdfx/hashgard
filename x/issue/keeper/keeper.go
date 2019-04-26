@@ -358,6 +358,54 @@ func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, sender s
 	return nil
 }
 
+//Query the amount of tokens that an owner allowed to a spender
+func (keeper Keeper) Allowance(ctx sdk.Context, owner sdk.AccAddress, spender sdk.AccAddress, issueID string) (amount sdk.Int) {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := store.Get(KeyAllowed(issueID, owner, spender))
+	if bz == nil {
+		return sdk.ZeroInt()
+	}
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &amount)
+	return amount
+}
+
+// Approve the passed address to spend the specified amount of tokens on behalf of sender
+func (keeper Keeper) Approve(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyAllowed(issueID, sender, spender), keeper.cdc.MustMarshalBinaryLengthPrefixed(amount))
+	return nil
+}
+
+//Increase the amount of tokens that an owner allowed to a spender
+func (keeper Keeper) IncreaseApproval(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, addedValue sdk.Int) sdk.Error {
+	allowance := keeper.Allowance(ctx, sender, spender, issueID)
+	return keeper.Approve(ctx, sender, spender, issueID, allowance.Add(addedValue))
+}
+
+//Decrease the amount of tokens that an owner allowed to a spender
+func (keeper Keeper) DecreaseApproval(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, subtractedValue sdk.Int) sdk.Error {
+	allowance := keeper.Allowance(ctx, sender, spender, issueID)
+	allowance = allowance.Sub(subtractedValue)
+	if allowance.LT(sdk.ZeroInt()) {
+		allowance = sdk.ZeroInt()
+	}
+	return keeper.Approve(ctx, sender, spender, issueID, allowance)
+}
+
+//Transfer tokens from one address to another
+func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
+	allowance := keeper.Allowance(ctx, from, sender, issueID)
+	if allowance.LT(amount) {
+		return errors.ErrNotEnoughAmountToTransfer()
+	}
+	_, err := keeper.SendCoins(ctx, from, to, sdk.Coins{sdk.NewCoin(issueID, amount)})
+	if err != nil {
+		return err
+	}
+
+	return keeper.Approve(ctx, from, sender, issueID, allowance.Sub(amount))
+}
+
 //Send coins
 func (keeper Keeper) SendCoins(ctx sdk.Context,
 	fromAddr sdk.AccAddress, toAddr sdk.AccAddress,

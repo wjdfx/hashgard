@@ -152,3 +152,118 @@ func TestBurnFrom(t *testing.T) {
 	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Error(t, err)
 }
+
+func TestApprove(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId)
+
+	require.Equal(t, amount, sdk.NewInt(5000))
+
+}
+func TestSendFrom(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(6000))
+
+	require.Error(t, err)
+
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
+
+	require.Nil(t, err)
+
+	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
+
+	require.Equal(t, amount, sdk.NewInt(2000))
+
+}
+
+func TestIncreaseApproval(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	keeper.IncreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(1000))
+	require.Nil(t, err)
+
+	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
+
+	require.Equal(t, amount, sdk.NewInt(6000))
+
+}
+
+func TestDecreaseApproval(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	keeper.DecreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(6000))
+	require.Nil(t, err)
+
+	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
+
+	require.Equal(t, amount, sdk.NewInt(0))
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	keeper.DecreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(4000))
+	require.Nil(t, err)
+
+	amount = keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
+
+	require.Equal(t, amount, sdk.NewInt(1000))
+
+}
