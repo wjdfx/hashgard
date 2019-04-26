@@ -43,6 +43,41 @@ func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
+// GetCmdQueryAllowance implements the query allowance command.
+func GetCmdQueryAllowance(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:     "query-allowance [issue-id] [owner-address] [spender-address]",
+		Args:    cobra.ExactArgs(3),
+		Short:   "Query allowance",
+		Long:    "Query the amount of tokens that an owner allowed to a spender",
+		Example: "$ hashgardcli issue query-allowance coin174876e800 gard1zu85q8a7wev675k527y7keyrea7wu7crr9vdrs gard1vud9ptwagudgq7yht53cwuf8qfmgkd0qcej0ah",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			ownerAddress, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+			spenderAddress, err := sdk.AccAddressFromBech32(args[2])
+			if err != nil {
+				return err
+			}
+
+			res, err := issuequeriers.QueryIssueAllowance(issueID, ownerAddress, spenderAddress, cliCtx)
+			if err != nil {
+				return err
+			}
+			var approval types.Approval
+			cdc.MustUnmarshalJSON(res, &approval)
+
+			return cliCtx.PrintOutput(approval)
+		},
+	}
+}
+
 // GetCmdQueryIssues implements the query issue command.
 func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
