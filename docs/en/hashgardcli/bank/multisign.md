@@ -91,7 +91,7 @@ gaiacli tx broadcast signedTx.json
 Tx query:
 
 ```
-hashgardcli tendermint tx 6A66C370834F097CA36F60FE9B4E8ABEEEF3549D089071FDB5EE33277B615035 -o=json --indent
+hashgardcli tendermint tx 6A66C370834F097CA36F60FE9B4E8ABEEEF3549D089071FDB5EE33277B615035
 ```
 
 ```json
