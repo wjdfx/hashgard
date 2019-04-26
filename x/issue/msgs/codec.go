@@ -18,6 +18,10 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgIssueBurnHolder{}, "issue/MsgIssueBurnHolder", nil)
 	cdc.RegisterConcrete(MsgIssueBurnFrom{}, "issue/MsgIssueBurnFrom", nil)
 	cdc.RegisterConcrete(MsgIssueDisableFeature{}, "issue/MsgIssueDisableFeature", nil)
+	cdc.RegisterConcrete(MsgIssueApprove{}, "issue/MsgIssueApprove", nil)
+	cdc.RegisterConcrete(MsgIssueSendFrom{}, "issue/MsgIssueSendFrom", nil)
+	cdc.RegisterConcrete(MsgIssueIncreaseApproval{}, "issue/MsgIssueIncreaseApproval", nil)
+	cdc.RegisterConcrete(MsgIssueDecreaseApproval{}, "issue/MsgIssueDecreaseApproval", nil)
 
 	cdc.RegisterInterface((*types.Issue)(nil), nil)
 	cdc.RegisterConcrete(&types.CoinIssueInfo{}, "issue/CoinIssueInfo", nil)

@@ -3,15 +3,16 @@ package queriers
 import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-
-	"github.com/hashgard/hashgard/x/issue/params"
-	abci "github.com/tendermint/tendermint/abci/types"
+	"github.com/hashgard/hashgard/x/issue/types"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/keeper"
+	"github.com/hashgard/hashgard/x/issue/params"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
-func QueryIssue(ctx sdk.Context, issueID string, req abci.RequestQuery, keeper keeper.Keeper) ([]byte, sdk.Error) {
+func QueryIssue(ctx sdk.Context, issueID string, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	issue := keeper.GetIssue(ctx, issueID)
 	if issue == nil {
 		return nil, errors.ErrUnknownIssue(issueID)
@@ -23,7 +24,23 @@ func QueryIssue(ctx sdk.Context, issueID string, req abci.RequestQuery, keeper k
 	}
 	return bz, nil
 }
-func QuerySymbol(ctx sdk.Context, symbol string, req abci.RequestQuery, keeper keeper.Keeper) ([]byte, sdk.Error) {
+func QueryAllowance(ctx sdk.Context, issueID string, owner string, spender string, keeper keeper.Keeper) ([]byte, sdk.Error) {
+	ownerAddress, _ := sdk.AccAddressFromBech32(owner)
+	spenderAddress, _ := sdk.AccAddressFromBech32(spender)
+	amount := keeper.Allowance(ctx, ownerAddress, spenderAddress, issueID)
+
+	if amount.GT(sdk.ZeroInt()) {
+		coinIssueInfo := keeper.GetIssue(ctx, issueID)
+		amount = issueutils.QuoDecimals(amount, coinIssueInfo.GetDecimals())
+	}
+
+	bz, err := codec.MarshalJSONIndent(keeper.Getcdc(), types.NewApproval(amount))
+	if err != nil {
+		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+	}
+	return bz, nil
+}
+func QuerySymbol(ctx sdk.Context, symbol string, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	issue := keeper.SearchIssues(ctx, symbol)
 	if issue == nil {
 		return nil, errors.ErrUnknownIssue(symbol)
@@ -35,7 +52,7 @@ func QuerySymbol(ctx sdk.Context, symbol string, req abci.RequestQuery, keeper k
 	}
 	return bz, nil
 }
-func QueryIssues(ctx sdk.Context, accAddress string, req abci.RequestQuery, keeper keeper.Keeper) ([]byte, sdk.Error) {
+func QueryIssues(ctx sdk.Context, req abci.RequestQuery, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	var params params.IssueQueryParams
 	err := keeper.Getcdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {

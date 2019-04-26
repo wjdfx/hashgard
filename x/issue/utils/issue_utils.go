@@ -63,6 +63,22 @@ func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
 
 	return totalSupply.Quo(quoDecimals)
 }
+func CheckAllowance(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, owner sdk.AccAddress, spender sdk.AccAddress, amount sdk.Int) error {
+
+	res, err := issuequeriers.QueryIssueAllowance(issueID, owner, spender, cliCtx)
+	if err != nil {
+		return err
+	}
+	var approval types.Approval
+	cdc.MustUnmarshalJSON(res, &approval)
+
+	if approval.Amount.LT(amount) {
+		return errors.Errorf(errors.ErrNotEnoughAmountToTransfer())
+	}
+
+	return nil
+
+}
 func GetIssueByID(cdc *codec.Codec, cliCtx context.CLIContext, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue

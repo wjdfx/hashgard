@@ -30,6 +30,14 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgIssueBurnFrom(ctx, keeper, msg)
 		case msgs.MsgIssueDisableFeature:
 			return handlers.HandleMsgIssueDisableFeature(ctx, keeper, msg)
+		case msgs.MsgIssueApprove:
+			return handlers.HandleMsgIssueApprove(ctx, keeper, msg)
+		case msgs.MsgIssueSendFrom:
+			return handlers.HandleMsgIssueSendFrom(ctx, keeper, msg)
+		case msgs.MsgIssueIncreaseApproval:
+			return handlers.HandleMsgIssueIncreaseApproval(ctx, keeper, msg)
+		case msgs.MsgIssueDecreaseApproval:
+			return handlers.HandleMsgIssueDecreaseApproval(ctx, keeper, msg)
 		default:
 			errMsg := fmt.Sprintf("Unrecognized gov msg type: %T", msg)
 			return sdk.ErrUnknownRequest(errMsg).Result()
