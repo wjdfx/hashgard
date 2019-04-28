@@ -32,7 +32,7 @@ func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
 // GetCmdIssueBurnFrom implements burn a coinIssue transaction command.
 func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "burn-from [issue-id] [address] [amount]",
+		Use:     "burn-from [issue-id] [from-address] [amount]",
 		Args:    cobra.ExactArgs(3),
 		Short:   "Token owner burn the token",
 		Long:    "Token Owner burn the token from any holder (the Owner can burn if 'burning_any_disabled' is false)",
@@ -72,7 +72,7 @@ func issueBurnFrom(cdc *codec.Codec, args []string, burnFromType string) error {
 
 	amount, ok := sdk.NewIntFromString(amountStr)
 	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
+		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", amountStr)
 	}
 
 	msg, err := clientutils.GetBurnMsg(cdc, cliCtx, account, accAddress, issueID, amount, burnFromType, true)

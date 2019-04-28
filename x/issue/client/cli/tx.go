@@ -221,7 +221,7 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 		Use:   "disable [issue-id] [feature]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Disable feature from a token",
-		Long: "Owner disabled the features:\n" +
+		Long: "Token Owner disabled the features:\n" +
 			types.BurnOwner + ":Token owner can burn the token\n" +
 			types.BurnHolder + ":Token holder can burn the token\n" +
 			types.BurnFrom + ":Token owner can burn the token from any holder\n" +

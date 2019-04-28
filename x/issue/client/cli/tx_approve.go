@@ -128,7 +128,7 @@ func issueApprove(cdc *codec.Codec, args []string, approveType string) error {
 
 	amount, ok := sdk.NewIntFromString(args[2])
 	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
+		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
 	}
 
 	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)

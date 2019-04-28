@@ -78,6 +78,37 @@ func GetCmdQueryAllowance(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
+// GetCmdQueryFreeze implements the query freeze command.
+func GetCmdQueryFreeze(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:     "query-freeze [issue-id] [acc-address]",
+		Args:    cobra.ExactArgs(2),
+		Short:   "Query freeze",
+		Long:    "Query freeze the transfer from a address",
+		Example: "$ hashgardcli issue query-freeze coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			accAddress, err := sdk.AccAddressFromBech32(args[1])
+			if err != nil {
+				return err
+			}
+
+			res, err := issuequeriers.QueryIssueFreeze(issueID, accAddress, cliCtx)
+			if err != nil {
+				return err
+			}
+			var freeze types.Freeze
+			cdc.MustUnmarshalJSON(res, &freeze)
+
+			return cliCtx.PrintOutput(freeze)
+		},
+	}
+}
+
 // GetCmdQueryIssues implements the query issue command.
 func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{

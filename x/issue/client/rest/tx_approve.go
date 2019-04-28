@@ -67,6 +67,11 @@ func approveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, approveType s
 			return
 		}
 
+		_, err = issueutils.GetIssueByID(cdc, cliCtx, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
 		var msg sdk.Msg
 
 		if types.Approve == approveType {

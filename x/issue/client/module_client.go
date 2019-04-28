@@ -30,6 +30,7 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 			issueCli.GetCmdQueryIssues(mc.cdc),
 			issueCli.GetCmdQueryIssue(mc.cdc),
 			issueCli.GetCmdQueryAllowance(mc.cdc),
+			issueCli.GetCmdQueryFreeze(mc.cdc),
 			issueCli.GetCmdSearchIssues(mc.cdc),
 		)...)
 	issueCmd.AddCommand(client.LineBreak)
@@ -41,6 +42,8 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 		issueCli.GetCmdIssueCreate(mc.cdc),
 		issueCli.GetCmdIssueDescription(mc.cdc),
 		issueCli.GetCmdIssueDecreaseApproval(mc.cdc),
+		issueCli.GetCmdIssueFreeze(mc.cdc),
+		issueCli.GetCmdIssueUnFreeze(mc.cdc),
 		issueCli.GetCmdIssueIncreaseApproval(mc.cdc),
 		issueCli.GetCmdIssueMint(mc.cdc),
 		issueCli.GetCmdIssueSendFrom(mc.cdc),
