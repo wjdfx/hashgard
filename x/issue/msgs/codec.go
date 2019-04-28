@@ -22,6 +22,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgIssueSendFrom{}, "issue/MsgIssueSendFrom", nil)
 	cdc.RegisterConcrete(MsgIssueIncreaseApproval{}, "issue/MsgIssueIncreaseApproval", nil)
 	cdc.RegisterConcrete(MsgIssueDecreaseApproval{}, "issue/MsgIssueDecreaseApproval", nil)
+	cdc.RegisterConcrete(MsgIssueFreeze{}, "issue/MsgIssueFreeze", nil)
+	cdc.RegisterConcrete(MsgIssueUnFreeze{}, "issue/MsgIssueUnFreeze", nil)
 
 	cdc.RegisterInterface((*types.Issue)(nil), nil)
 	cdc.RegisterConcrete(&types.CoinIssueInfo{}, "issue/CoinIssueInfo", nil)
