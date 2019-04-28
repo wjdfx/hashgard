@@ -6,6 +6,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const (
+	Approve          = "approve"
+	IncreaseApproval = "increaseApproval"
+	DecreaseApproval = "decreaseApproval"
+)
+
 type Approval struct {
 	Amount sdk.Int `json:"amount"`
 }

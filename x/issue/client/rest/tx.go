@@ -44,6 +44,10 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 	r.HandleFunc(fmt.Sprintf("/issue/burn-from/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postBurnFromHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/disable-feature/{%s}/{%s}", IssueID, Feature), postDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/transfer-ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/approve/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postApproveHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/approve/increase/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postIncreaseApproval(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/approve/decrease/{%s}/{%s}/{%s}", IssueID, AccAddress, Amount), postDecreaseApproval(cdc, cliCtx)).Methods("POST")
+
 }
 func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -141,99 +145,7 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
-func postBurnHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnOwner)
-}
-func postBurnFromHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return postBurnFromAddressHandlerFn(cdc, cliCtx, types.BurnFrom)
-}
 
-func postBurnFromAddressHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, burnFromType string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		var req PostIssueBaseReq
-		if !rest.ReadRESTReq(w, r, cdc, &req) {
-			return
-		}
-
-		req.BaseReq = req.BaseReq.Sanitize()
-		if !req.BaseReq.ValidateBasic(w) {
-			return
-		}
-
-		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		vars := mux.Vars(r)
-
-		issueID := vars[IssueID]
-		if err := issueutils.CheckIssueId(issueID); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		amount, ok := sdk.NewIntFromString(vars[Amount])
-		if !ok {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, "Amount not a valid int")
-			return
-		}
-
-		account, err := cliCtx.GetAccount(fromAddress)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		//burn sender
-		accAddress := fromAddress
-
-		issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		if types.BurnFrom == burnFromType {
-			//burn from holder address
-			accAddress, err = sdk.AccAddressFromBech32(vars[AccAddress])
-			if err != nil {
-				rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-				return
-			}
-		}
-
-		if types.BurnOwner == burnFromType {
-			if !issueInfo.GetOwner().Equals(fromAddress) {
-				burnFromType = types.BurnHolder
-			}
-
-		}
-
-		amount, err = issueutils.BurnCheck(account, accAddress, issueInfo, amount, burnFromType)
-		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		var msg sdk.Msg
-
-		if types.BurnFrom == burnFromType {
-			msg = msgs.NewMsgIssueBurnFrom(issueID, fromAddress, accAddress, amount)
-		} else if types.BurnOwner == burnFromType {
-			msg = msgs.NewMsgIssueBurnOwner(issueID, fromAddress, amount)
-		} else {
-			msg = msgs.NewMsgIssueBurnHolder(issueID, fromAddress, amount)
-		}
-
-		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-
-		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
-	}
-}
 func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

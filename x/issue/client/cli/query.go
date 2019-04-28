@@ -84,7 +84,7 @@ func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 		Use:     "list-issues",
 		Short:   "Query issue list",
 		Long:    "Query all or one of the account issue list, the limit default is 30",
-		Example: "$ hashgardcli issue list-issues gard10cm9l6ly924d37qksn2x93xt3ezhduc2ntdj04",
+		Example: "$ hashgardcli issue list-issues",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 

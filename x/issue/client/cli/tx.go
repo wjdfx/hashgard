@@ -11,6 +11,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,7 +35,7 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Total supply %s not a valid int, please input a valid total supply", args[2])
 			}
 
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -86,7 +87,7 @@ func GetCmdIssueTransferOwnership(cdc *codec.Codec) *cobra.Command {
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -126,7 +127,7 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -178,7 +179,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
 			}
 
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -214,113 +215,6 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-// GetCmdIssueBurnFrom implements burn a coinIssue transaction command.
-func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn [issue-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Token holder burn the token",
-		Long:    "Token holder or the Owner burn the token he holds (the Owner can burn if 'burning_owner_disabled' is false, the holder can burn if 'burning_holder_disabled' is false)",
-		Example: "$ hashgardcli issue burn coin174876e800 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			amount, ok := sdk.NewIntFromString(args[1])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-
-			burnType := types.BurnHolder
-
-			if issueInfo.GetOwner().Equals(account.GetAddress()) {
-				burnType = types.BurnOwner
-			}
-			amount, err = issueutils.BurnCheck(account, account.GetAddress(), issueInfo, amount, burnType)
-			if err != nil {
-				return err
-			}
-
-			var msg sdk.Msg
-
-			if types.BurnOwner == burnType {
-				msg = msgs.NewMsgIssueBurnOwner(issueID, account.GetAddress(), amount)
-			} else {
-				msg = msgs.NewMsgIssueBurnHolder(issueID, account.GetAddress(), amount)
-			}
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueBurnFrom implements burn a coinIssue transaction command.
-func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-from [issue-id] [address] [amount]",
-		Args:    cobra.ExactArgs(3),
-		Short:   "Token owner burn the token",
-		Long:    "Token Owner burn the token from any holder (the Owner can burn if 'burning_any_disabled' is false)",
-		Example: "$ hashgardcli issue burn-from coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			accAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-
-			amount, err = issueutils.BurnCheck(account, accAddress, issueInfo, amount, types.BurnFrom)
-			if err != nil {
-				return err
-			}
-			msg := msgs.NewMsgIssueBurnFrom(issueID, account.GetAddress(), accAddress, amount)
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	return cmd
-}
-
 // GetCmdIssueDisableFeature implements disable feature a coinIssue transaction command.
 func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
@@ -348,7 +242,7 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -358,203 +252,6 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 			}
 
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msgs.NewMsgIssueDisableFeature(issueID, account.GetAddress(), feature)}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueApprove implements approve a token transaction command.
-func GetCmdIssueApprove(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "approve [issue-id] [address] [amount]",
-		Args:    cobra.ExactArgs(3),
-		Short:   "Approve spend tokens on behalf of sender",
-		Long:    "Approve the passed address to spend the specified amount of tokens on behalf of sender",
-		Example: "$ hashgardcli issue approve coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			accAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
-
-			msg := msgs.NewMsgIssueApprove(issueID, account.GetAddress(), accAddress, amount)
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueSendFrom implements send from a token transaction command.
-func GetCmdIssueSendFrom(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:   "send-from [issue-id] [from_address] [to_address] [amount]",
-		Args:  cobra.ExactArgs(4),
-		Short: "Send tokens from one address to another",
-		Long:  "Send tokens from one address to another by allowance",
-		Example: "$ hashgardcli issue send-from coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n gard1vud9ptwagudgq7yht53cwuf8qfmgkd0qcej0ah " +
-			"88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			fromAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-			toAddress, err := sdk.AccAddressFromBech32(args[2])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[3])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			if err := issueutils.CheckAllowance(cdc, cliCtx, issueID, fromAddress, account.GetAddress(), amount); err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
-
-			msg := msgs.NewMsgIssueSendFrom(issueID, account.GetAddress(), fromAddress, toAddress, amount)
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueIncreaseApproval implements increase approval a token transaction command.
-func GetCmdIssueIncreaseApproval(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "increase-approval [issue-id] [address] [amount]",
-		Args:    cobra.ExactArgs(3),
-		Short:   "Increase approve spend tokens on behalf of sender",
-		Long:    "Increase approve the passed address to spend the specified amount of tokens on behalf of sender",
-		Example: "$ hashgardcli issue increase-approval coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			accAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
-
-			msg := msgs.NewMsgIssueIncreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueDecreaseApproval implements decrease approval a token transaction command.
-func GetCmdIssueDecreaseApproval(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "decrease-approval [issue-id] [address] [amount]",
-		Args:    cobra.ExactArgs(3),
-		Short:   "Decrease approve spend tokens on behalf of sender",
-		Long:    "Decrease approve the passed address to spend the specified amount of tokens on behalf of sender",
-		Example: "$ hashgardcli issue increase-approval coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			accAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
-			if err != nil {
-				return err
-			}
-			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
-
-			msg := msgs.NewMsgIssueDecreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
 	return cmd
