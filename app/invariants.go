@@ -25,5 +25,6 @@ func (app *HashgardApp) assertRuntimeInvariantsOnContext(ctx sdk.Context) {
 	}
 	end := time.Now()
 	diff := end.Sub(start)
-	app.BaseApp.Logger().With("module", "invariants").Info("Asserted all invariants", "duration", diff)
+	app.BaseApp.Logger().With("module", "invariants").Info(
+		"Asserted all invariants", "duration", diff, "height", app.LastBlockHeight())
 }

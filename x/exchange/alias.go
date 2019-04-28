@@ -4,7 +4,6 @@ import (
 	"github.com/hashgard/hashgard/x/exchange/keeper"
 	"github.com/hashgard/hashgard/x/exchange/msgs"
 	"github.com/hashgard/hashgard/x/exchange/queriers"
-	"github.com/hashgard/hashgard/x/exchange/tags"
 	"github.com/hashgard/hashgard/x/exchange/types"
 )
 

@@ -222,7 +222,7 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 	privVal.Reset()
 
 	db := dbm.NewMemDB()
-	app := happ.NewHashgardApp(logger, db, nil, true, false)
+	app := happ.NewHashgardApp(logger, db, nil, true, 0)
 	cdc = happ.MakeCodec()
 
 	genesisFile := config.GenesisFile()
