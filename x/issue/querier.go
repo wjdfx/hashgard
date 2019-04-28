@@ -17,6 +17,8 @@ func NewQuerier(keeper keeper.Keeper) sdk.Querier {
 			return queriers.QueryIssue(ctx, path[1], keeper)
 		case types.QueryAllowance:
 			return queriers.QueryAllowance(ctx, path[1], path[2], path[3], keeper)
+		case types.QueryFreeze:
+			return queriers.QueryFreeze(ctx, path[1], path[2], keeper)
 		case types.QuerySearch:
 			return queriers.QuerySymbol(ctx, path[1], keeper)
 		case types.QueryIssues:

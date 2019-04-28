@@ -14,4 +14,5 @@ var (
 	Symbol          = "symbol"
 	TotalSupply     = "total-supply"
 	MintingFinished = "minting-finished"
+	FreezeType      = "freeze-type"
 )
