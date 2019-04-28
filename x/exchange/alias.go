@@ -25,14 +25,6 @@ var (
 	NewQueryOrderParams      = queriers.NewQueryOrderParams
 	NewQueryOrdersParams     = queriers.NewQueryOrdersParams
 	NewQueryFrozenFundParams = queriers.NewQueryFrozenFundParams
-
-	TagAction      = tags.Action
-	TagOrderId     = tags.OrderId
-	TagSeller      = tags.Seller
-	TagBuyer       = tags.Buyer
-	TagSupplyToken = tags.SupplyToken
-	TagTargetToken = tags.TargetToken
-	TagOrderStatus = tags.OrderStatus
 )
 
 const (

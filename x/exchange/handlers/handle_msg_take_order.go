@@ -25,8 +25,9 @@ func HandleMsgTakeOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgTakeO
 	}
 
 	resTags := sdk.NewTags(
+		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", msg.OrderId),
-		tags.Buyer, msg.Buyer.String(),
+		tags.Sender, msg.Buyer.String(),
 		tags.OrderStatus, status,
 	)
 
