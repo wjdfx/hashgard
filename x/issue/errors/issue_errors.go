@@ -74,10 +74,3 @@ func ErrUnknownFreezeType() sdk.Error {
 func ErrNotEnoughAmountToTransfer() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughAmountToTransfer, fmt.Sprintf("Not enough amount allowed to transfer"))
 }
-
-func ErrCanNotTransferIn(issueID string, accAddress string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CanNotBurn, fmt.Sprintf("Can not transfer %s to %s", issueID, accAddress))
-}
-func ErrCanNotTransferOut(issueID string, accAddress string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CanNotBurn, fmt.Sprintf("Can not transfer %s from %s", issueID, accAddress))
-}

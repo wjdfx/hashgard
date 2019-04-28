@@ -43,8 +43,6 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			from := cliCtx.GetFromAddress()
-
 			for i, coin := range coins {
 				if issueutils.IsIssueId(coin.Denom) {
 					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
@@ -52,13 +50,11 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 						var issueInfo types.Issue
 						cdc.MustUnmarshalJSON(res, &issueInfo)
 						coins[i].Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
-						if err = issueutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
-							return err
-						}
 					}
 				}
 			}
 
+			from := cliCtx.GetFromAddress()
 			account, err := cliCtx.GetAccount(from)
 			if err != nil {
 				return err

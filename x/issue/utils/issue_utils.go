@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -105,33 +104,4 @@ func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Ac
 		return nil, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 	}
 	return issueInfo, nil
-}
-
-func CheckFreeze(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, from sdk.AccAddress, to sdk.AccAddress) error {
-
-	res, err := issuequeriers.QueryIssueFreeze(issueID, from, cliCtx)
-	if err != nil {
-		return err
-	}
-	var nowTime = time.Now()
-
-	var freeze types.Freeze
-	cdc.MustUnmarshalJSON(res, &freeze)
-
-	if freeze.OutEndTime > 0 && time.Unix(freeze.OutEndTime, 0).After(nowTime) {
-		return errors.Errorf(errors.ErrCanNotTransferOut(issueID, from.String()))
-	}
-
-	res, err = issuequeriers.QueryIssueFreeze(issueID, to, cliCtx)
-	if err != nil {
-		return err
-	}
-
-	cdc.MustUnmarshalJSON(res, &freeze)
-
-	if freeze.InEndTime > 0 && time.Unix(freeze.InEndTime, 0).After(nowTime) {
-		return errors.Errorf(errors.ErrCanNotTransferIn(issueID, to.String()))
-	}
-
-	return nil
 }
