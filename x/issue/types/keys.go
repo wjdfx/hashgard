@@ -35,6 +35,7 @@ const (
 	QueryIssues    = "list"
 	QueryIssue     = "query"
 	QueryAllowance = "allowance"
+	QueryFreeze    = "freeze"
 	QuerySearch    = "search"
 )
 
@@ -51,6 +52,8 @@ const (
 	TypeMsgIssueSendFrom          = "issue_send_from"
 	TypeMsgIssueIncreaseApproval  = "issue_increase_approval"
 	TypeMsgIssueDecreaseApproval  = "issue_decrease_approval"
+	TypeMsgIssueFreeze            = "issue_freeze"
+	TypeMsgIssueUnFreeze          = "issue_unfreeze"
 )
 const (
 	CoinDecimalsMaxValue                  = uint(18)

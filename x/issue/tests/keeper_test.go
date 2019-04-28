@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashgard/hashgard/x/issue/types"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/stretchr/testify/require"
@@ -265,5 +267,41 @@ func TestDecreaseApproval(t *testing.T) {
 	amount = keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
 
 	require.Equal(t, amount, sdk.NewInt(1000))
+
+}
+
+func TestFreeze(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeIn, time.Now().Unix())
+	require.Nil(t, err)
+
+	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut, time.Now().Unix())
+	require.Nil(t, err)
+
+	freeze := keeper.GetFreeze(ctx, CoinIssueInfo.IssueId, TransferAccAddr)
+	require.NotZero(t, freeze.InEndTime)
+	require.NotZero(t, freeze.OutEndTime)
+
+	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeIn)
+	require.Nil(t, err)
+
+	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut)
+	require.Nil(t, err)
+
+	freeze = keeper.GetFreeze(ctx, CoinIssueInfo.IssueId, TransferAccAddr)
+	require.Zero(t, freeze.InEndTime)
+	require.Zero(t, freeze.OutEndTime)
 
 }

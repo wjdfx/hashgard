@@ -31,6 +31,9 @@ func KeyAddressIssues(addr string) []byte {
 func KeyAllowed(issueID string, sender sdk.AccAddress, spender sdk.AccAddress) []byte {
 	return []byte(fmt.Sprintf("allowed:%s:%s:%s", issueID, sender.String(), spender.String()))
 }
+func KeyFreeze(issueID string, accAddress sdk.AccAddress) []byte {
+	return []byte(fmt.Sprintf("freeze:%s:%s", issueID, accAddress.String()))
+}
 func KeySymbolIssues(symbol string) []byte {
 	return []byte(fmt.Sprintf("symbol:%s", strings.ToUpper(symbol)))
 }

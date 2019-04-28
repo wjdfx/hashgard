@@ -40,6 +40,17 @@ func QueryAllowance(ctx sdk.Context, issueID string, owner string, spender strin
 	}
 	return bz, nil
 }
+func QueryFreeze(ctx sdk.Context, issueID string, accAddress string, keeper keeper.Keeper) ([]byte, sdk.Error) {
+	address, _ := sdk.AccAddressFromBech32(accAddress)
+
+	freeze := keeper.GetFreeze(ctx, address, issueID)
+
+	bz, err := codec.MarshalJSONIndent(keeper.Getcdc(), freeze)
+	if err != nil {
+		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+	}
+	return bz, nil
+}
 func QuerySymbol(ctx sdk.Context, symbol string, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	issue := keeper.SearchIssues(ctx, symbol)
 	if issue == nil {

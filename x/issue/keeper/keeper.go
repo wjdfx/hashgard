@@ -105,6 +105,11 @@ func (keeper Keeper) SearchIssues(ctx sdk.Context, symbol string) []*types.CoinI
 	return list
 }
 func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) []*types.CoinIssueInfo {
+
+	if params.Owner != nil {
+		return keeper.GetIssues(ctx, params.Owner.String())
+	}
+
 	store := ctx.KVStore(keeper.storeKey)
 	startIssueId := params.StartIssueId
 	endIssueId := startIssueId
@@ -331,6 +336,67 @@ func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, s
 
 	return keeper.burn(ctx, coinIssueInfo, amount, who)
 }
+func (keeper Keeper) GetFreeze(ctx sdk.Context, accAddress sdk.AccAddress, issueID string) types.Freeze {
+	store := ctx.KVStore(keeper.storeKey)
+	bz := store.Get(KeyFreeze(issueID, accAddress))
+	if len(bz) == 0 {
+		return types.NewFreeze(0, 0)
+	}
+	var freeze types.Freeze
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &freeze)
+	return freeze
+}
+func (keeper Keeper) Freeze(ctx sdk.Context, issueID string, sender sdk.AccAddress, accAddress sdk.AccAddress, freezeType string, endTime int64) sdk.Error {
+
+	_, err := keeper.getIssueByOwner(ctx, sender, issueID)
+	if err != nil {
+		return err
+	}
+
+	switch freezeType {
+	case types.FreezeIn:
+		return keeper.freezeIn(ctx, issueID, accAddress, endTime)
+	case types.FreezeOut:
+		return keeper.freezeOut(ctx, issueID, accAddress, endTime)
+	case types.FreezeInAndOut:
+		return keeper.freezeInAndOut(ctx, issueID, accAddress, endTime)
+	}
+
+	return errors.ErrUnknownFreezeType()
+
+}
+func (keeper Keeper) UnFreeze(ctx sdk.Context, issueID string, sender sdk.AccAddress, accAddress sdk.AccAddress, freezeType string) sdk.Error {
+
+	return keeper.Freeze(ctx, issueID, sender, accAddress, freezeType, types.UnFreezeEndTime)
+
+}
+func (keeper Keeper) freeze(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, freeze types.Freeze) sdk.Error {
+	store := ctx.KVStore(keeper.storeKey)
+	store.Set(KeyFreeze(issueID, accAddress), keeper.cdc.MustMarshalBinaryLengthPrefixed(freeze))
+	return nil
+}
+func (keeper Keeper) freezeIn(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
+	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
+	freeze.InEndTime = endTime
+
+	return keeper.freeze(ctx, issueID, accAddress, freeze)
+}
+
+func (keeper Keeper) freezeOut(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
+	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
+	freeze.OutEndTime = endTime
+
+	return keeper.freeze(ctx, issueID, accAddress, freeze)
+}
+
+func (keeper Keeper) freezeInAndOut(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
+	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
+	freeze.InEndTime = endTime
+	freeze.OutEndTime = endTime
+
+	return keeper.freeze(ctx, issueID, accAddress, freeze)
+}
+
 func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, sender sdk.AccAddress, description []byte) sdk.Error {
 	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
 
