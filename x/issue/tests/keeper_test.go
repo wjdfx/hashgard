@@ -22,12 +22,12 @@ func TestAddIssue(t *testing.T) {
 
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.Equal(t, coinIssue.TotalSupply, CoinIssueInfo.TotalSupply)
 	coin := sdk.Coin{Denom: CoinIssueInfo.IssueId, Amount: sdk.NewInt(5000)}
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
 		sdk.NewCoins(coin))
 	require.Nil(t, err)
 	coinIssue = keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
@@ -49,7 +49,7 @@ func TestGetIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
-		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 		require.Nil(t, err)
 	}
 	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
@@ -67,9 +67,9 @@ func TestMint(t *testing.T) {
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	_, _, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
+	_, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(20000)))
@@ -86,16 +86,16 @@ func TestBurn(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	_, _, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	_, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Nil(t, err)
 
 	err = keeper.BurnOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
 	require.Nil(t, err)
 
-	_, _, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	_, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Error(t, err)
 
 }
@@ -110,22 +110,22 @@ func TestBurnFrom(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
 	err = keeper.BurnFromOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Error(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 }
 
@@ -139,21 +139,21 @@ func TestBurnAny(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
 	err = keeper.BurnAnyOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Error(t, err)
 }

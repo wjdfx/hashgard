@@ -122,7 +122,7 @@ func TestList(t *testing.T) {
 		CoinIssueInfo.SetIssueTime(time.Now().Add(duration))
 		CoinIssueInfo.SetIssuer(sdk.AccAddress(crypto.AddressHash([]byte(utils.GetRandomString(10)))))
 		CoinIssueInfo.SetSymbol(utils.GetRandomString(6))
-		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
