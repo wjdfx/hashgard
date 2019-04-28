@@ -22,9 +22,9 @@ import (
 	"github.com/hashgard/hashgard/version"
 )
 
-const flagAssertInvariantsBlockly = "assert-invariants-blockly"
+const flagInvCheckPeriod = "inv-check-period"
 
-var assertInvariantsBlockly bool
+var invCheckPeriod uint
 
 func main() {
 	cdc := app.MakeCodec()
@@ -42,6 +42,7 @@ func main() {
 		Short:             "Hashgard Daemon (server)",
 		PersistentPreRunE: server.PersistentPreRunEFn(ctx),
 	}
+
 	tendermintCmd := &cobra.Command{
 		Use:   "tendermint",
 		Short: "Tendermint subcommands",
@@ -72,8 +73,8 @@ func main() {
 
 	// prepare and add flags
 	executor := cli.PrepareBaseCmd(rootCmd, "BC", app.DefaultNodeHome)
-	rootCmd.PersistentFlags().BoolVar(&assertInvariantsBlockly, flagAssertInvariantsBlockly,
-		false, "Assert registered invariants on a blockly basis")
+	rootCmd.PersistentFlags().UintVar(&invCheckPeriod, flagInvCheckPeriod,
+		0, "Assert registered invariants every N blocks")
 	err := executor.Execute()
 	if err != nil {
 		// handle with #870
@@ -87,7 +88,7 @@ func newApp(logger log.Logger, db dbm.DB, traceStore io.Writer) abci.Application
 		db,
 		traceStore,
 		true,
-		assertInvariantsBlockly,
+		invCheckPeriod,
 		baseapp.SetPruning(store.NewPruningOptionsFromString(viper.GetString("pruning"))),
 		baseapp.SetMinGasPrices(viper.GetString(server.FlagMinGasPrices)),
 	)
@@ -98,7 +99,7 @@ func exportAppStateAndTMValidators(
 	jailWhiteList []string) (json.RawMessage, []tmtypes.GenesisValidator, error) {
 
 	if height != -1 {
-		hApp := app.NewHashgardApp(logger, db, traceStore, false, false)
+		hApp := app.NewHashgardApp(logger, db, traceStore, false, uint(1))
 		err := hApp.LoadHeight(height)
 		if err != nil {
 			return nil, nil, err
@@ -106,6 +107,6 @@ func exportAppStateAndTMValidators(
 		return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 	}
 
-	hApp := app.NewHashgardApp(logger, db, traceStore, true, false)
+	hApp := app.NewHashgardApp(logger, db, traceStore, true, uint(1))
 	return hApp.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
 }

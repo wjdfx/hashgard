@@ -17,8 +17,9 @@ func HandleMsgCreateOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgCre
 	}
 
 	resTags := sdk.NewTags(
+		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", order.OrderId),
-		tags.Seller, order.Seller.String(),
+		tags.Sender, order.Seller.String(),
 		tags.SupplyToken, order.Supply.Denom,
 		tags.TargetToken, order.Target.Denom,
 	)

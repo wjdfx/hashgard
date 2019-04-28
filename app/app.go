@@ -45,8 +45,7 @@ type HashgardApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
-	// do invariants check each block
-	assertInvariantsBlockly bool
+	invCheckPeriod uint
 
 	// keys to access the multistore
 	keyMain          *sdk.KVStoreKey
@@ -81,7 +80,8 @@ type HashgardApp struct {
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
 func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
-	loadLatest bool, assertInvariantsBlockly bool,
+	loadLatest bool,
+	invCheckPeriod uint,
 	baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
 
 	cdc := MakeCodec()
@@ -93,6 +93,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 	var app = &HashgardApp{
 		BaseApp:          bApp,
 		cdc:              cdc,
+		invCheckPeriod:   invCheckPeriod,
 		keyMain:          sdk.NewKVStoreKey(bam.MainStoreKey),
 		keyAccount:       sdk.NewKVStoreKey(auth.StoreKey),
 		keyStaking:       sdk.NewKVStoreKey(staking.StoreKey),
@@ -316,7 +317,7 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
 
-	if app.assertInvariantsBlockly {
+	if app.invCheckPeriod != 0 && ctx.BlockHeight()%int64(app.invCheckPeriod) == 0 {
 		app.assertRuntimeInvariants()
 	}
 

@@ -62,7 +62,7 @@ func (keeper Keeper) CreateOrder(ctx sdk.Context, seller sdk.AccAddress,
 		CreateTime: createTime,
 	}
 
-	_, err = keeper.bankKeeper.SendCoins(ctx, seller, FrozenCoinsAccAddr, []sdk.Coin{supply})
+	err = keeper.bankKeeper.SendCoins(ctx, seller, FrozenCoinsAccAddr, []sdk.Coin{supply})
 	if err != nil {
 		return
 	}
@@ -86,7 +86,7 @@ func (keeper Keeper) WithdrawalOrder(ctx sdk.Context, orderId uint64, addr sdk.A
 	}
 
 	amt = order.Remains
-	_, err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, addr, []sdk.Coin{amt})
+	err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, addr, []sdk.Coin{amt})
 	if err != nil {
 		return
 	}
@@ -136,11 +136,11 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 	supplyTurnover = sdk.NewCoin(order.Supply.Denom, order.Supply.Amount.Quo(divisor).Mul(shares))
 	targetTurnover = sdk.NewCoin(order.Target.Denom, sharePrice.Mul(shares))
 
-	_, err = keeper.bankKeeper.SendCoins(ctx, buyer, order.Seller, []sdk.Coin{targetTurnover})
+	err = keeper.bankKeeper.SendCoins(ctx, buyer, order.Seller, []sdk.Coin{targetTurnover})
 	if err != nil {
 		return
 	}
-	_, err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, buyer, []sdk.Coin{supplyTurnover})
+	err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, buyer, []sdk.Coin{supplyTurnover})
 	if err != nil {
 		return
 	}
