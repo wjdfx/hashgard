@@ -49,14 +49,19 @@ func GetCmdIssueSendFrom(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			if err := issueutils.CheckAllowance(cdc, cliCtx, issueID, fromAddress, account.GetAddress(), amount); err != nil {
-				return err
-			}
-
 			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
 			if err != nil {
 				return err
 			}
+
+			if err := issueutils.CheckAllowance(cdc, cliCtx, issueID, fromAddress, account.GetAddress(), amount); err != nil {
+				return err
+			}
+
+			if err = issueutils.CheckFreeze(cdc, cliCtx, issueID, fromAddress, toAddress); err != nil {
+				return err
+			}
+
 			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
 
 			msg := msgs.NewMsgIssueSendFrom(issueID, account.GetAddress(), fromAddress, toAddress, amount)

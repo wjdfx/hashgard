@@ -106,7 +106,7 @@ func (keeper Keeper) SearchIssues(ctx sdk.Context, symbol string) []*types.CoinI
 }
 func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) []*types.CoinIssueInfo {
 
-	if params.Owner != nil {
+	if params.Owner != nil && !params.Owner.Empty() {
 		return keeper.GetIssues(ctx, params.Owner.String())
 	}
 
