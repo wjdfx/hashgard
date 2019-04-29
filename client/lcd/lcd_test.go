@@ -41,7 +41,7 @@ const (
 	pw    = app.DefaultKeyPass
 )
 
-var fees = sdk.NewCoins(sdk.NewInt64Coin(app.StakeDenom, 5))
+var fees = sdk.NewCoins(sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(5)))
 
 func init() {
 	mintkey.BcryptSecurityParameter = 1
