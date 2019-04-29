@@ -32,7 +32,7 @@ var (
 	// bonded tokens given to genesis validators/accounts
 	FreeFermionsAcc                    = sdk.NewIntWithDecimal(150, 18)
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
-	
+
 	StakeDenom                         = "agard"
 )
 

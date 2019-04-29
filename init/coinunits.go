@@ -19,11 +19,11 @@ func init() {
 }
 
 func InitNativeCoinUnits() {
-	sdk.RegisterDenom(gard, sdk.OneDec())
-	sdk.RegisterDenom(mgard, sdk.NewDecWithPrec(1, 3))
-	sdk.RegisterDenom(ugard, sdk.NewDecWithPrec(1, 6))
-	sdk.RegisterDenom(ngard, sdk.NewDecWithPrec(1, 9))
-	sdk.RegisterDenom(pgard, sdk.NewDecWithPrec(1, 12))
-	sdk.RegisterDenom(fgard, sdk.NewDecWithPrec(1, 15))
-	sdk.RegisterDenom(agard, sdk.NewDecWithPrec(1, 18))
+	_ = sdk.RegisterDenom(gard, sdk.OneDec())
+	_ = sdk.RegisterDenom(mgard, sdk.NewDecWithPrec(1, 3))
+	_ = sdk.RegisterDenom(ugard, sdk.NewDecWithPrec(1, 6))
+	_ = sdk.RegisterDenom(ngard, sdk.NewDecWithPrec(1, 9))
+	_ = sdk.RegisterDenom(pgard, sdk.NewDecWithPrec(1, 12))
+	_ = sdk.RegisterDenom(fgard, sdk.NewDecWithPrec(1, 15))
+	_ = sdk.RegisterDenom(agard, sdk.NewDecWithPrec(1, 18))
 }
