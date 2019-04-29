@@ -22,6 +22,8 @@ func HandleMsgIssueDisableFeature(ctx sdk.Context, keeper keeper.Keeper, msg msg
 		err = keeper.DisableBurnHolder(ctx, msg.Sender, msg.IssueId)
 	case types.BurnFrom:
 		err = keeper.DisableBurnFrom(ctx, msg.Sender, msg.IssueId)
+	case types.Freeze:
+		err = keeper.DisableFreeze(ctx, msg.Sender, msg.IssueId)
 	case types.Minting:
 		err = keeper.FinishMinting(ctx, msg.Sender, msg.IssueId)
 	default:

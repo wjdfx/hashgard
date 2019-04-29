@@ -15,16 +15,16 @@ const (
 
 var FreezeType = map[string]int{FreezeIn: 1, FreezeOut: 1, FreezeInAndOut: 1}
 
-type Freeze struct {
+type IssueFreeze struct {
 	OutEndTime int64 `json:"out_end_time"`
 	InEndTime  int64 `json:"in_end_time"`
 }
 
-func NewFreeze(outEndTime int64, inEndTime int64) Freeze {
-	return Freeze{outEndTime, inEndTime}
+func NewIssueFreeze(outEndTime int64, inEndTime int64) IssueFreeze {
+	return IssueFreeze{outEndTime, inEndTime}
 }
 
-func (ci Freeze) String() string {
+func (ci IssueFreeze) String() string {
 
 	return fmt.Sprintf(`Freeze:\n
 	Out-end-time:			%T

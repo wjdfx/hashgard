@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
@@ -15,16 +16,84 @@ import (
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
-func postApproveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return approveHandlerFn(cdc, cliCtx, types.Approve)
+func postIssueSendFrom(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		issueID := vars[IssueID]
+		if err := issueutils.CheckIssueId(issueID); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		from, err := sdk.AccAddressFromBech32(vars[From])
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		to, err := sdk.AccAddressFromBech32(vars[To])
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		num, err := strconv.ParseInt(vars[Amount], 10, 64)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		amount := sdk.NewInt(num)
+
+		var req PostIssueBaseReq
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			return
+		}
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
+		sender, err := sdk.AccAddressFromBech32(req.BaseReq.From)
+		if err != nil {
+			return
+		}
+		account, err := cliCtx.GetAccount(sender)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		_, err = issueutils.GetIssueByID(cdc, cliCtx, issueID)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err := issueutils.CheckAllowance(cdc, cliCtx, issueID, from, account.GetAddress(), amount); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		if err = issueutils.CheckFreeze(cdc, cliCtx, issueID, from, to); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		msg := msgs.NewMsgIssueSendFrom(issueID, sender, from, to, amount)
+		if err := msg.ValidateBasic(); err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
+	}
 }
-func postIncreaseApproval(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return approveHandlerFn(cdc, cliCtx, types.IncreaseApproval)
+
+func postIssueApproveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return issueApproveHandlerFn(cdc, cliCtx, types.Approve)
 }
-func postDecreaseApproval(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
-	return approveHandlerFn(cdc, cliCtx, types.DecreaseApproval)
+func postIssueIncreaseApproval(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return issueApproveHandlerFn(cdc, cliCtx, types.IncreaseApproval)
 }
-func approveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, approveType string) http.HandlerFunc {
+func postIssueDecreaseApproval(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+	return issueApproveHandlerFn(cdc, cliCtx, types.DecreaseApproval)
+}
+func issueApproveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, approveType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var req PostIssueBaseReq

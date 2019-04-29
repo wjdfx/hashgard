@@ -22,6 +22,10 @@ const (
 	CodeUnknownFeature            sdk.CodeType = 11
 	CodeUnknownFreezeType         sdk.CodeType = 12
 	CodeNotEnoughAmountToTransfer sdk.CodeType = 13
+	CodeCanNotFreeze              sdk.CodeType = 14
+	CodeFreezeEndTimeNotValid     sdk.CodeType = 15
+	CodeNotTransferIn             sdk.CodeType = 16
+	CodeNotTransferOut            sdk.CodeType = 17
 )
 
 //convert sdk.Error to error
@@ -42,7 +46,9 @@ func ErrCoinTotalSupplyMaxValueNotValid() sdk.Error {
 func ErrCoinSymbolNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueSymbolNotValid, fmt.Sprintf("Symbol length is %d-%d character", types.CoinSymbolMinLength, types.CoinSymbolMaxLength))
 }
-
+func ErrFreezeEndTimestampNotValid() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeFreezeEndTimeNotValid, "end-time is not a valid timestamp")
+}
 func ErrCoinNamelNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueNameNotValid, fmt.Sprintf("Name max length is %d", types.CoinNameMaxLength))
 }
@@ -55,7 +61,6 @@ func ErrCoinDescriptionMaxLengthNotValid() sdk.Error {
 func ErrIssueID(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueIDNotValid, fmt.Sprintf("Issue-id %s is not a valid issueId", issueID))
 }
-
 func ErrCanNotMint(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CanNotMint, fmt.Sprintf("Can not mint the token %s", issueID))
 }
@@ -68,9 +73,18 @@ func ErrUnknownIssue(issueID string) sdk.Error {
 func ErrUnknownFeatures() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownFeature, fmt.Sprintf("Unknown feature"))
 }
+func ErrCanNotFreeze(issueID string) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeCanNotFreeze, fmt.Sprintf("Can not freeze the token %s", issueID))
+}
 func ErrUnknownFreezeType() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownFreezeType, fmt.Sprintf("Unknown type"))
 }
 func ErrNotEnoughAmountToTransfer() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughAmountToTransfer, fmt.Sprintf("Not enough amount allowed to transfer"))
+}
+func ErrCanNotTransferIn(issueID string, accAddress string) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransferIn, fmt.Sprintf("Can not transfer %s to %s", issueID, accAddress))
+}
+func ErrCanNotTransferOut(issueID string, accAddress string) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransferOut, fmt.Sprintf("Can not transfer %s from %s", issueID, accAddress))
 }

@@ -2,6 +2,9 @@ package msgs
 
 import (
 	"fmt"
+	"time"
+
+	"github.com/hashgard/hashgard/x/issue/errors"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -65,6 +68,14 @@ func (msg MsgIssueFreeze) ValidateBasic() sdk.Error {
 	if len(msg.IssueId) == 0 {
 		return sdk.ErrInvalidAddress("IssueId cannot be empty")
 	}
+	_, ok := types.FreezeType[msg.FreezeType]
+	if !ok {
+		return errors.ErrUnknownFreezeType()
+	}
+	if time.Unix(msg.EndTime, 0).Before(time.Now()) {
+		return errors.ErrFreezeEndTimestampNotValid()
+	}
+
 	return nil
 }
 

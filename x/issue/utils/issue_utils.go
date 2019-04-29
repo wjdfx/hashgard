@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -104,4 +105,46 @@ func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Ac
 		return nil, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 	}
 	return issueInfo, nil
+}
+
+func CheckFreezeByOut(issueID string, freeze types.IssueFreeze, from sdk.AccAddress) sdk.Error {
+
+	if freeze.OutEndTime > 0 && time.Unix(freeze.OutEndTime, 0).After(time.Now()) {
+		return errors.ErrCanNotTransferOut(issueID, from.String())
+	}
+	return nil
+}
+func CheckFreezeByIn(issueID string, freeze types.IssueFreeze, to sdk.AccAddress) sdk.Error {
+
+	if freeze.InEndTime > 0 && time.Unix(freeze.InEndTime, 0).After(time.Now()) {
+		return errors.ErrCanNotTransferIn(issueID, to.String())
+	}
+	return nil
+}
+func CheckFreeze(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, from sdk.AccAddress, to sdk.AccAddress) error {
+
+	res, err := issuequeriers.QueryIssueFreeze(issueID, from, cliCtx)
+	if err != nil {
+		return err
+	}
+
+	var freeze types.IssueFreeze
+	cdc.MustUnmarshalJSON(res, &freeze)
+
+	if checkErr := CheckFreezeByOut(issueID, freeze, from); checkErr != nil {
+		return errors.Errorf(checkErr)
+	}
+
+	res, err = issuequeriers.QueryIssueFreeze(issueID, to, cliCtx)
+	if err != nil {
+		return err
+	}
+
+	cdc.MustUnmarshalJSON(res, &freeze)
+
+	if checkErr := CheckFreezeByIn(issueID, freeze, to); checkErr != nil {
+		return errors.Errorf(checkErr)
+	}
+
+	return nil
 }

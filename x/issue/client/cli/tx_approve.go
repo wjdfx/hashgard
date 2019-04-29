@@ -53,6 +53,10 @@ func GetCmdIssueSendFrom(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
+			if err = issueutils.CheckFreeze(cdc, cliCtx, issueID, fromAddress, toAddress); err != nil {
+				return err
+			}
+
 			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
 			if err != nil {
 				return err

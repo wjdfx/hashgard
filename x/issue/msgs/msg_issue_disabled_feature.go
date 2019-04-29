@@ -3,6 +3,8 @@ package msgs
 import (
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/issue/errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -50,6 +52,10 @@ func (msg MsgIssueDisableFeature) Type() string { return types.TypeMsgIssueDisab
 func (msg MsgIssueDisableFeature) ValidateBasic() sdk.Error {
 	if len(msg.IssueId) == 0 {
 		return sdk.ErrInvalidAddress("IssueId cannot be empty")
+	}
+	_, ok := types.Features[msg.Feature]
+	if !ok {
+		return errors.ErrUnknownFeatures()
 	}
 	return nil
 }

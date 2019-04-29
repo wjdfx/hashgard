@@ -221,21 +221,25 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 		Use:   "disable [issue-id] [feature]",
 		Args:  cobra.ExactArgs(2),
 		Short: "Disable feature from a token",
-		Long: "Token Owner disabled the features:\n" +
-			types.BurnOwner + ":Token owner can burn the token\n" +
-			types.BurnHolder + ":Token holder can burn the token\n" +
-			types.BurnFrom + ":Token owner can burn the token from any holder\n" +
-			types.Minting + ":Token owner can mint the token",
-		Example: "$ hashgardcli issue disable coin174876e800 " + types.BurnOwner + " --from foo\n" +
-			"$ hashgardcli issue disable coin174876e800 " + types.BurnHolder + " --from foo\n" +
-			"$ hashgardcli issue disable coin174876e800 " + types.BurnFrom + " --from foo\n" +
-			"$ hashgardcli issue disable coin174876e800 " + types.Minting + " --from foo",
+		Long: fmt.Sprintf("Token Owner disabled the features:\n"+
+			"%s:Token owner can burn the token\n"+
+			"%s:Token holder can burn the token\n"+
+			"%s:Token owner can burn the token from any holder\n"+
+			"%s:Token owner can freeze in and out the token from any address\n"+
+			"%s:Token owner can mint the token", types.BurnOwner, types.BurnHolder, types.BurnFrom, types.Freeze, types.Minting),
+		Example: fmt.Sprintf("$ hashgardcli issue disable coin174876e800 %s --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo",
+			types.BurnOwner, types.BurnHolder, types.BurnFrom, types.Freeze, types.Minting),
+
 		RunE: func(cmd *cobra.Command, args []string) error {
 			feature := args[1]
 
 			_, ok := types.Features[feature]
 			if !ok {
-				return errors.ErrUnknownFeatures()
+				return errors.Errorf(errors.ErrUnknownFeatures())
 			}
 
 			issueID := args[0]
@@ -251,7 +255,12 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msgs.NewMsgIssueDisableFeature(issueID, account.GetAddress(), feature)}, false)
+			msg := msgs.NewMsgIssueDisableFeature(issueID, account.GetAddress(), feature)
+			validateErr := msg.ValidateBasic()
+			if validateErr != nil {
+				return errors.Errorf(validateErr)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
 	return cmd

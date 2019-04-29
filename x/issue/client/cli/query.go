@@ -101,7 +101,7 @@ func GetCmdQueryFreeze(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var freeze types.Freeze
+			var freeze types.IssueFreeze
 			cdc.MustUnmarshalJSON(res, &freeze)
 
 			return cliCtx.PrintOutput(freeze)

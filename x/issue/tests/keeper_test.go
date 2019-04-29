@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 	"time"
 
@@ -41,7 +40,6 @@ func TestAddIssue(t *testing.T) {
 }
 
 func TestGetIssues(t *testing.T) {
-	fmt.Print(time.Now().Unix())
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
@@ -208,6 +206,36 @@ func TestSendFrom(t *testing.T) {
 
 }
 
+func TestSendFromByFreeze(t *testing.T) {
+
+	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+
+	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
+
+	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	require.Nil(t, err)
+
+	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	require.Nil(t, err)
+
+	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, types.FreezeIn, time.Now().Add(time.Minute).Unix())
+	require.Nil(t, err)
+
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
+	require.Error(t, err)
+
+	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, IssuerCoinsAccAddr, types.FreezeOut, time.Now().Add(time.Minute).Unix())
+	require.Nil(t, err)
+
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
+	require.Error(t, err)
+}
+
 func TestIncreaseApproval(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
@@ -290,7 +318,7 @@ func TestFreeze(t *testing.T) {
 	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut, time.Now().Unix())
 	require.Nil(t, err)
 
-	freeze := keeper.GetFreeze(ctx, CoinIssueInfo.IssueId, TransferAccAddr)
+	freeze := keeper.GetFreeze(ctx, TransferAccAddr, CoinIssueInfo.IssueId)
 	require.NotZero(t, freeze.InEndTime)
 	require.NotZero(t, freeze.OutEndTime)
 
@@ -300,7 +328,7 @@ func TestFreeze(t *testing.T) {
 	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut)
 	require.Nil(t, err)
 
-	freeze = keeper.GetFreeze(ctx, CoinIssueInfo.IssueId, TransferAccAddr)
+	freeze = keeper.GetFreeze(ctx, TransferAccAddr, CoinIssueInfo.IssueId)
 	require.Zero(t, freeze.InEndTime)
 	require.Zero(t, freeze.OutEndTime)
 

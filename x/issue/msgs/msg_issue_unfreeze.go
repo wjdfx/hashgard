@@ -5,6 +5,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
+	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/types"
 )
 
@@ -57,6 +58,10 @@ func (msg MsgIssueUnFreeze) Type() string { return types.TypeMsgIssueUnFreeze }
 func (msg MsgIssueUnFreeze) ValidateBasic() sdk.Error {
 	if len(msg.IssueId) == 0 {
 		return sdk.ErrInvalidAddress("IssueId cannot be empty")
+	}
+	_, ok := types.FreezeType[msg.FreezeType]
+	if !ok {
+		return errors.ErrUnknownFreezeType()
 	}
 	return nil
 }

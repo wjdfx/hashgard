@@ -43,6 +43,9 @@ type Issue interface {
 	IsBurnFromDisabled() bool
 	SetBurnFromDisabled(bool)
 
+	IsFreezeDisabled() bool
+	SetFreezeDisabled(bool)
+
 	IsMintingFinished() bool
 	SetMintingFinished(bool)
 
@@ -69,6 +72,7 @@ type CoinIssueInfo struct {
 	BurnOwnerDisabled  bool           `json:"burn_owner_disabled"`
 	BurnHolderDisabled bool           `json:"burn_holder_disabled"`
 	BurnFromDisabled   bool           `json:"burn_from_disabled"`
+	FreezeDisabled     bool           `json:"freeze_disabled"`
 	MintingFinished    bool           `json:"minting_finished"`
 }
 
@@ -154,7 +158,13 @@ func (ci CoinIssueInfo) IsBurnFromDisabled() bool {
 func (ci CoinIssueInfo) SetBurnFromDisabled(burnFromDisabled bool) {
 	ci.BurnFromDisabled = burnFromDisabled
 }
+func (ci CoinIssueInfo) IsFreezeDisabled() bool {
+	return ci.FreezeDisabled
+}
 
+func (ci CoinIssueInfo) SetFreezeDisabled(freezeDisabled bool) {
+	ci.FreezeDisabled = freezeDisabled
+}
 func (ci CoinIssueInfo) IsMintingFinished() bool {
 	return ci.MintingFinished
 }
@@ -178,9 +188,11 @@ func (ci CoinIssueInfo) String() string {
   BurnOwnerDisabled:  			%t 
   BurnHolderDisabled:  			%t 
   BurnFromDisabled:  			%t 
+  FreezeDisabled:  				%t 
   MintingFinished:  			%t `,
 		ci.IssueId, ci.Issuer.String(), ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
-		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOwnerDisabled, ci.BurnHolderDisabled, ci.BurnFromDisabled, ci.MintingFinished)
+		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOwnerDisabled, ci.BurnHolderDisabled,
+		ci.BurnFromDisabled, ci.FreezeDisabled, ci.MintingFinished)
 }
 
 //nolint

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/hashgard/hashgard/x/issue/msgs"
@@ -128,5 +129,47 @@ func GetBurnMsg(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account
 		return nil, errors.Errorf(validateErr)
 	}
 
+	return msg, nil
+}
+func GetIssueFreezeMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account, freezeType string, issueID string, address string, endTime string, freeze bool) (sdk.Msg, error) {
+
+	_, ok := types.FreezeType[freezeType]
+	if !ok {
+		return nil, errors.ErrUnknownFreezeType()
+	}
+
+	if err := issueutils.CheckIssueId(issueID); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	accAddress, err := sdk.AccAddressFromBech32(address)
+	if err != nil {
+		return nil, err
+	}
+
+	issueInfo, err := issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+	if err != nil {
+		return nil, err
+	}
+
+	var msg sdk.Msg
+
+	if freeze {
+		if issueInfo.IsFreezeDisabled() {
+			return nil, errors.ErrCanNotFreeze(issueID)
+		}
+		freezeEndTime, err := strconv.ParseInt(endTime, 10, 64)
+
+		if err != nil {
+			return nil, errors.Errorf(errors.ErrFreezeEndTimestampNotValid())
+		}
+		msg = msgs.NewMsgIssueFreeze(issueID, account.GetAddress(), accAddress, freezeType, freezeEndTime)
+	} else {
+		msg = msgs.NewMsgIssueUnFreeze(issueID, account.GetAddress(), accAddress, freezeType)
+	}
+
+	validateErr := msg.ValidateBasic()
+	if validateErr != nil {
+		return nil, errors.Errorf(validateErr)
+	}
 	return msg, nil
 }
