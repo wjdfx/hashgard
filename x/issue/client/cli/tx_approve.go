@@ -122,9 +122,7 @@ func GetCmdIssueDecreaseApproval(cdc *codec.Codec) *cobra.Command {
 }
 func issueApprove(cdc *codec.Codec, args []string, approveType string) error {
 	issueID := args[0]
-	if err := issueutils.CheckIssueId(issueID); err != nil {
-		return errors.Errorf(err)
-	}
+
 	accAddress, err := sdk.AccAddressFromBech32(args[1])
 	if err != nil {
 		return err
@@ -140,30 +138,9 @@ func issueApprove(cdc *codec.Codec, args []string, approveType string) error {
 		return err
 	}
 
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
+	msg, err := clientutils.GetIssueApproveMsg(cdc, cliCtx, issueID, account, accAddress, approveType, amount, true)
+
 	if err != nil {
-		return err
-	}
-	amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
-
-	var msg sdk.Msg
-
-	switch approveType {
-
-	case types.Approve:
-		msg = msgs.NewMsgIssueApprove(issueID, account.GetAddress(), accAddress, amount)
-		break
-	case types.IncreaseApproval:
-		msg = msgs.NewMsgIssueIncreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-		break
-	case types.DecreaseApproval:
-		msg = msgs.NewMsgIssueDecreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-		break
-	default:
-		return sdk.ErrInternal("not support")
-	}
-
-	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
 	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)

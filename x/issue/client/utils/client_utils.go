@@ -135,7 +135,7 @@ func GetIssueFreezeMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth
 
 	_, ok := types.FreezeType[freezeType]
 	if !ok {
-		return nil, errors.ErrUnknownFreezeType()
+		return nil, errors.Errorf(errors.ErrUnknownFreezeType())
 	}
 
 	if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -171,5 +171,40 @@ func GetIssueFreezeMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth
 	if validateErr != nil {
 		return nil, errors.Errorf(validateErr)
 	}
+	return msg, nil
+}
+func GetIssueApproveMsg(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, account auth.Account, accAddress sdk.AccAddress, approveType string, amount sdk.Int, cli bool) (sdk.Msg, error) {
+	if err := issueutils.CheckIssueId(issueID); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, issueID)
+	if err != nil {
+		return nil, err
+	}
+
+	if cli {
+		amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
+	}
+	var msg sdk.Msg
+
+	switch approveType {
+
+	case types.Approve:
+		msg = msgs.NewMsgIssueApprove(issueID, account.GetAddress(), accAddress, amount)
+		break
+	case types.IncreaseApproval:
+		msg = msgs.NewMsgIssueIncreaseApproval(issueID, account.GetAddress(), accAddress, amount)
+		break
+	case types.DecreaseApproval:
+		msg = msgs.NewMsgIssueDecreaseApproval(issueID, account.GetAddress(), accAddress, amount)
+		break
+	default:
+		return nil, sdk.ErrInternal("not support")
+	}
+
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, errors.Errorf(err)
+	}
+
 	return msg, nil
 }

@@ -21,5 +21,5 @@ func NewApproval(amount sdk.Int) Approval {
 }
 
 func (ci Approval) String() string {
-	return fmt.Sprintf(`Allowance:%s`, ci.Amount)
+	return fmt.Sprintf(`Amount:%s`, ci.Amount)
 }

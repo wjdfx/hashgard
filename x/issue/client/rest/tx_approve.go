@@ -10,6 +10,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
+	clientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -115,10 +116,6 @@ func issueApproveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, approveT
 		vars := mux.Vars(r)
 
 		issueID := vars[IssueID]
-		if err := issueutils.CheckIssueId(issueID); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
 		accAddress, err := sdk.AccAddressFromBech32(vars[AccAddress])
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -136,22 +133,9 @@ func issueApproveHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, approveT
 			return
 		}
 
-		_, err = issueutils.GetIssueByID(cdc, cliCtx, issueID)
+		msg, err := clientutils.GetIssueApproveMsg(cdc, cliCtx, issueID, account, accAddress, approveType, amount, false)
+
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
-			return
-		}
-		var msg sdk.Msg
-
-		if types.Approve == approveType {
-			msg = msgs.NewMsgIssueApprove(issueID, account.GetAddress(), accAddress, amount)
-		} else if types.IncreaseApproval == approveType {
-			msg = msgs.NewMsgIssueIncreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-		} else {
-			msg = msgs.NewMsgIssueDecreaseApproval(issueID, account.GetAddress(), accAddress, amount)
-		}
-
-		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
