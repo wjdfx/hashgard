@@ -37,6 +37,6 @@ func HandleMsgIssueDisableFeature(ctx sdk.Context, keeper keeper.Keeper, msg msg
 
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: utils.AppendIssueInfoTag(msg.IssueId).AppendTag(tags.Feature, msg.GetFeature()),
+		Tags: utils.GetIssueTags(msg.IssueId, msg.Sender).AppendTag(tags.Feature, msg.GetFeature()),
 	}
 }
