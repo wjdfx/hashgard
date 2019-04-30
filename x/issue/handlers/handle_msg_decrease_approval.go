@@ -11,8 +11,7 @@ import (
 //Handle MsgIssueDecreaseApproval
 func HandleMsgIssueDecreaseApproval(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueDecreaseApproval) sdk.Result {
 
-	err := keeper.DecreaseApproval(ctx, msg.Sender, msg.Spender, msg.IssueId, msg.Amount)
-	if err != nil {
+	if err := keeper.DecreaseApproval(ctx, msg.Sender, msg.Spender, msg.IssueId, msg.Amount); err != nil {
 		return err.Result()
 	}
 

@@ -92,7 +92,7 @@ func TestBurnOwner(t *testing.T) {
 	_, err = keeper.BurnOwner(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.DisableBurnOwner(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	err = keeper.DisableFeature(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId, types.BurnOwner)
 	require.Nil(t, err)
 
 	_, err = keeper.BurnOwner(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
@@ -119,7 +119,7 @@ func TestBurnHolder(t *testing.T) {
 	_, err = keeper.BurnHolder(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.DisableBurnHolder(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	err = keeper.DisableFeature(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId, types.BurnHolder)
 	require.Nil(t, err)
 
 	_, err = keeper.BurnHolder(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr)
@@ -146,7 +146,7 @@ func TestBurnFrom(t *testing.T) {
 	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.DisableBurnFrom(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	err = keeper.DisableFeature(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId, types.BurnFrom)
 	require.Nil(t, err)
 
 	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
@@ -189,19 +189,19 @@ func TestSendFrom(t *testing.T) {
 	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(1000))
+	require.Error(t, err)
+
 	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
 	require.Nil(t, err)
 
 	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(6000))
-
 	require.Error(t, err)
 
 	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
-
 	require.Nil(t, err)
 
 	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
-
 	require.Equal(t, amount, sdk.NewInt(2000))
 
 }
@@ -234,6 +234,15 @@ func TestSendFromByFreeze(t *testing.T) {
 
 	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
 	require.Error(t, err)
+
+	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, IssuerCoinsAccAddr, types.FreezeInAndOut)
+	require.Nil(t, err)
+
+	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, types.FreezeInAndOut)
+	require.Nil(t, err)
+
+	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
+	require.Nil(t, err)
 }
 
 func TestIncreaseApproval(t *testing.T) {

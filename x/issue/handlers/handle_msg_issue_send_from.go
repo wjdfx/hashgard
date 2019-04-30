@@ -11,8 +11,7 @@ import (
 //Handle MsgIssueSendFrom
 func HandleMsgIssueSendFrom(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueSendFrom) sdk.Result {
 
-	err := keeper.SendFrom(ctx, msg.Sender, msg.From, msg.To, msg.IssueId, msg.Amount)
-	if err != nil {
+	if err := keeper.SendFrom(ctx, msg.Sender, msg.From, msg.To, msg.IssueId, msg.Amount); err != nil {
 		return err.Result()
 	}
 

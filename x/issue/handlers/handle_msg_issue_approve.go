@@ -11,8 +11,7 @@ import (
 //Handle MsgIssueApprove
 func HandleMsgIssueApprove(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueApprove) sdk.Result {
 
-	err := keeper.Approve(ctx, msg.Sender, msg.Spender, msg.IssueId, msg.Amount)
-	if err != nil {
+	if err := keeper.Approve(ctx, msg.Sender, msg.Spender, msg.IssueId, msg.Amount); err != nil {
 		return err.Result()
 	}
 

@@ -11,11 +11,10 @@ import (
 //Handle MsgIssueUnFreeze
 func HandleMsgIssueUnFreeze(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueUnFreeze) sdk.Result {
 
-	err := keeper.UnFreeze(ctx, msg.GetIssueId(), msg.GetSender(), msg.GetAccAddress(), msg.GetFreezeType())
-
-	if err != nil {
+	if err := keeper.UnFreeze(ctx, msg.GetIssueId(), msg.GetSender(), msg.GetAccAddress(), msg.GetFreezeType()); err != nil {
 		return err.Result()
 	}
+
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
 		Tags: utils.GetIssueTags(msg.IssueId, msg.Sender).AppendTag(tags.FreezeType, msg.GetFreezeType()),

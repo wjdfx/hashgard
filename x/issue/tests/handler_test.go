@@ -16,7 +16,6 @@ func TestHandlerNewMsgIssue(t *testing.T) {
 	ctx := mapp.NewContext(false, abci.Header{})
 	mapp.InitChainer(ctx, abci.RequestInitChain{})
 
-	//querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
 
 	res := handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
