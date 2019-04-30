@@ -30,11 +30,10 @@ import (
 
 var (
 	// bonded tokens given to genesis validators/accounts
-	FreeFermionVal                     = int64(100)
-	FreeFermionsAcc                    = sdk.NewInt(150)
+	FreeFermionsAcc                    = sdk.NewIntWithDecimal(150, 18)
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
-	GasDenom                           = "apple"
-	StakeDenom                         = "gard"
+
+	StakeDenom                         = "agard"
 )
 
 // State to Unmarshal
@@ -144,7 +143,7 @@ func createGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.NewCoins(sdk.NewCoin(StakeDenom, sdk.NewInt(10))),
+			MinDeposit:       sdk.NewCoins(sdk.NewCoin(StakeDenom, sdk.NewIntWithDecimal(10, 18))),
 			MaxDepositPeriod: time.Duration(172800) * time.Second,
 		},
 		VotingParams: gov.VotingParams{
@@ -160,7 +159,7 @@ func createGovGenesisState() gov.GenesisState {
 
 func createCrisisGenesisState() crisis.GenesisState {
 	return crisis.GenesisState{
-		ConstantFee: sdk.NewCoin(StakeDenom, sdk.NewInt(1000)),
+		ConstantFee: sdk.NewCoin(StakeDenom, sdk.NewIntWithDecimal(1000, 18)),
 	}
 }
 
@@ -246,7 +245,6 @@ func (ga *GenesisAccount) ToAccount() auth.Account {
 func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	accAuth := auth.NewBaseAccountWithAddress(addr)
 	coins := sdk.NewCoins(
-		sdk.NewCoin(GasDenom, sdk.NewInt(1000)),
 		sdk.NewCoin(StakeDenom, FreeFermionsAcc),
 	)
 

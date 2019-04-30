@@ -6,7 +6,11 @@ import (
 
 // Issue tags
 var (
+	TxCategory		= "issue"
+
 	Action          = sdk.TagAction
+	Category     	= sdk.TagCategory
+	Sender       	= sdk.TagSender
 	Owner           = "owner"
 	IssueID         = "issue-id"
 	Feature         = "feature"

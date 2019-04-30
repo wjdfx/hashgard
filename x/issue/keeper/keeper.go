@@ -105,11 +105,6 @@ func (keeper Keeper) SearchIssues(ctx sdk.Context, symbol string) []*types.CoinI
 	return list
 }
 func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) []*types.CoinIssueInfo {
-
-	if params.Owner != nil && !params.Owner.Empty() {
-		return keeper.GetIssues(ctx, params.Owner.String())
-	}
-
 	store := ctx.KVStore(keeper.storeKey)
 	startIssueId := params.StartIssueId
 	endIssueId := startIssueId
@@ -140,11 +135,11 @@ func (keeper Keeper) List(ctx sdk.Context, params issueparams.IssueQueryParams) 
 }
 
 //Add a issue
-func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo) (sdk.Coins, sdk.Error) {
 	store := ctx.KVStore(keeper.storeKey)
 	id, err := keeper.getNewIssueID(store)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	issueID := KeyIssueIdStr(id)
 
@@ -163,28 +158,29 @@ func (keeper Keeper) AddIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssueInf
 	keeper.setSymbolIssues(ctx, coinIssueInfo.Symbol, issueIDs)
 
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: coinIssueInfo.TotalSupply}
-	coins, tags, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.NewCoins(coin))
+	coins, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.NewCoins(coin))
 
-	return coins, tags, err
+	return coins, err
 }
-func (keeper Keeper) getIssueByOwner(ctx sdk.Context, sender sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
+func (keeper Keeper) getIssueByOwner(ctx sdk.Context, operator sdk.AccAddress, issueID string) (*types.CoinIssueInfo, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 	if coinIssueInfo == nil {
 		return nil, errors.ErrUnknownIssue(issueID)
 	}
-	if !coinIssueInfo.Owner.Equals(sender) {
+	if !coinIssueInfo.Owner.Equals(operator) {
 		return nil, errors.ErrOwnerMismatch(issueID)
 	}
 	return coinIssueInfo, nil
 }
 
-func (keeper Keeper) FinishMinting(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+//Finished Minting a coin
+func (keeper Keeper) FinishMinting(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 	if err != nil {
 		return err
 	}
 
-	if coinIssueInfo.IsMintingFinished() {
+	if coinIssueInfo.MintingFinished {
 		return nil
 	}
 	coinIssueInfo.MintingFinished = true
@@ -193,61 +189,49 @@ func (keeper Keeper) FinishMinting(ctx sdk.Context, sender sdk.AccAddress, issue
 	return nil
 }
 
-func (keeper Keeper) DisableBurnOwner(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+//BurnOff a coin
+func (keeper Keeper) BurnOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 	if err != nil {
 		return err
 	}
 
-	if coinIssueInfo.IsBurnOwnerDisabled() {
+	if coinIssueInfo.BurnOff {
 		return nil
 	}
-	coinIssueInfo.BurnOwnerDisabled = true
+	coinIssueInfo.BurnOff = true
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 	return nil
 }
 
-func (keeper Keeper) DisableBurnHolder(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+//BurnFromOff a coin
+func (keeper Keeper) BurnFromOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 	if err != nil {
 		return err
 	}
 
-	if coinIssueInfo.IsBurnHolderDisabled() {
+	if coinIssueInfo.BurnFromOff {
 		return nil
 	}
-	coinIssueInfo.BurnHolderDisabled = true
+	coinIssueInfo.BurnFromOff = true
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 	return nil
 }
 
-func (keeper Keeper) DisableFreeze(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+//BurnAnyOff a coin
+func (keeper Keeper) BurnAnyOff(ctx sdk.Context, operator sdk.AccAddress, issueID string) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 	if err != nil {
 		return err
 	}
 
-	if coinIssueInfo.IsBurnFromDisabled() {
+	if coinIssueInfo.BurnAnyOff {
 		return nil
 	}
-	coinIssueInfo.FreezeDisabled = true
-	store := ctx.KVStore(keeper.storeKey)
-	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	return nil
-}
-
-func (keeper Keeper) DisableBurnFrom(ctx sdk.Context, sender sdk.AccAddress, issueID string) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
-	if err != nil {
-		return err
-	}
-
-	if coinIssueInfo.IsBurnFromDisabled() {
-		return nil
-	}
-	coinIssueInfo.BurnFromDisabled = true
+	coinIssueInfo.BurnAnyOff = true
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(issueID), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 	return nil
@@ -260,160 +244,87 @@ func (keeper Keeper) CanMint(ctx sdk.Context, issueID string) bool {
 }
 
 //Mint a coin
-func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Mint(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, to sdk.AccAddress) (sdk.Coins, sdk.Error) {
 
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	if coinIssueInfo.IsMintingFinished() {
-		return nil, nil, errors.ErrCanNotMint(issueID)
+	if coinIssueInfo.MintingFinished {
+		return nil, errors.ErrCanNotMint(issueID)
 	}
 	if utils.QuoDecimals(coinIssueInfo.TotalSupply.Add(amount), coinIssueInfo.Decimals).GT(types.CoinMaxTotalSupply) {
-		return nil, nil, errors.ErrCoinTotalSupplyMaxValueNotValid()
+		return nil, errors.ErrCoinTotalSupplyMaxValueNotValid()
 	}
 
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
-	coins, tags, err := keeper.ck.AddCoins(ctx, to, sdk.NewCoins(coin))
+	coins, err := keeper.ck.AddCoins(ctx, to, sdk.NewCoins(coin))
 	if err != nil {
-		return coins, tags, err
+		return coins, err
 	}
 	coinIssueInfo.TotalSupply = coinIssueInfo.TotalSupply.Add(amount)
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
 
-	return coins, tags, err
-}
-func (keeper Keeper) BurnOwner(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if coinIssueInfo.IsBurnOwnerDisabled() {
-		return nil, nil, errors.ErrCanNotBurn(issueID, types.BurnOwner)
-	}
-
-	return keeper.burn(ctx, coinIssueInfo, amount, sender)
+	return coins, err
 }
 
 //Burn a coin
-func (keeper Keeper) BurnHolder(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) Burn(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress) (sdk.Coins, sdk.Error) {
 	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 
 	if coinIssueInfo == nil {
-		return nil, nil, errors.ErrUnknownIssue(issueID)
+		return nil, errors.ErrUnknownIssue(issueID)
 	}
-	if coinIssueInfo.IsBurnHolderDisabled() {
-		return nil, nil, errors.ErrCanNotBurn(issueID, types.BurnHolder)
+	if coinIssueInfo.GetBurnOff() {
+		return nil, errors.ErrCanNotBurn(issueID)
+	}
+	if !coinIssueInfo.Owner.Equals(operator) {
+		return nil, errors.ErrOwnerMismatch(issueID)
 	}
 
-	return keeper.burn(ctx, coinIssueInfo, amount, sender)
+	return keeper.burn(ctx, coinIssueInfo, amount, operator)
 }
-func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+func (keeper Keeper) burn(ctx sdk.Context, coinIssueInfo *types.CoinIssueInfo, amount sdk.Int, who sdk.AccAddress) (sdk.Coins, sdk.Error) {
 	coin := sdk.Coin{Denom: coinIssueInfo.IssueId, Amount: amount}
-	coins, tags, err := keeper.ck.SubtractCoins(ctx, who, sdk.NewCoins(coin))
+	coins, err := keeper.ck.SubtractCoins(ctx, who, sdk.NewCoins(coin))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	coinIssueInfo.TotalSupply = coinIssueInfo.TotalSupply.Sub(amount)
 	store := ctx.KVStore(keeper.storeKey)
 	store.Set(KeyIssuer(coinIssueInfo.IssueId), keeper.cdc.MustMarshalBinaryLengthPrefixed(coinIssueInfo))
-	return coins, tags, nil
+	return coins, nil
 }
 
-func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, sender sdk.AccAddress, who sdk.AccAddress) (sdk.Coins, sdk.Tags, sdk.Error) {
+//Burn a coin from address
+func (keeper Keeper) BurnFrom(ctx sdk.Context, issueID string, amount sdk.Int, operator sdk.AccAddress, burnfrom sdk.AccAddress) (sdk.Coins, sdk.Error) {
+	coinIssueInfo := keeper.GetIssue(ctx, issueID)
 
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
-	if err != nil {
-		return nil, nil, err
+	if coinIssueInfo == nil {
+		return nil, errors.ErrUnknownIssue(issueID)
 	}
 
-	if who.Equals(coinIssueInfo.GetOwner()) {
-		if coinIssueInfo.IsBurnOwnerDisabled() {
-			return nil, nil, errors.ErrCanNotBurn(issueID, types.BurnOwner)
+	if operator.Equals(coinIssueInfo.GetOwner()) {
+		if coinIssueInfo.GetBurnAnyOff() {
+			return nil, errors.ErrCanNotBurn(issueID)
 		}
 	} else {
-		if coinIssueInfo.IsBurnFromDisabled() {
-			return nil, nil, errors.ErrCanNotBurn(issueID, types.BurnFrom)
+		if coinIssueInfo.GetBurnFromOff() {
+			return nil, errors.ErrCanNotBurn(issueID)
+		}
+		if !burnfrom.Equals(operator) {
+			return nil, errors.ErrCanNotBurn(issueID)
 		}
 	}
 
-	return keeper.burn(ctx, coinIssueInfo, amount, who)
+	return keeper.burn(ctx, coinIssueInfo, amount, burnfrom)
 }
-func (keeper Keeper) GetFreeze(ctx sdk.Context, accAddress sdk.AccAddress, issueID string) types.IssueFreeze {
-	store := ctx.KVStore(keeper.storeKey)
-	bz := store.Get(KeyFreeze(issueID, accAddress))
-	if len(bz) == 0 {
-		return types.NewIssueFreeze(0, 0)
-	}
-	var freeze types.IssueFreeze
-	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &freeze)
-	return freeze
-}
-func (keeper Keeper) freeze(ctx sdk.Context, issueID string, sender sdk.AccAddress, accAddress sdk.AccAddress, freezeType string, endTime int64) sdk.Error {
-
-	switch freezeType {
-	case types.FreezeIn:
-		return keeper.freezeIn(ctx, issueID, accAddress, endTime)
-	case types.FreezeOut:
-		return keeper.freezeOut(ctx, issueID, accAddress, endTime)
-	case types.FreezeInAndOut:
-		return keeper.freezeInAndOut(ctx, issueID, accAddress, endTime)
-	}
-
-	return errors.ErrUnknownFreezeType()
-
-}
-func (keeper Keeper) Freeze(ctx sdk.Context, issueID string, sender sdk.AccAddress, accAddress sdk.AccAddress, freezeType string, endTime int64) sdk.Error {
-	issueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
-	if err != nil {
-		return err
-	}
-	if issueInfo.IsFreezeDisabled() {
-		return errors.ErrCanNotFreeze(issueID)
-
-	}
-	return keeper.freeze(ctx, issueID, sender, accAddress, freezeType, endTime)
-}
-func (keeper Keeper) UnFreeze(ctx sdk.Context, issueID string, sender sdk.AccAddress, accAddress sdk.AccAddress, freezeType string) sdk.Error {
-	_, err := keeper.getIssueByOwner(ctx, sender, issueID)
-	if err != nil {
-		return err
-	}
-	return keeper.freeze(ctx, issueID, sender, accAddress, freezeType, types.UnFreezeEndTime)
-}
-func (keeper Keeper) setFreeze(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, freeze types.IssueFreeze) sdk.Error {
-	store := ctx.KVStore(keeper.storeKey)
-	store.Set(KeyFreeze(issueID, accAddress), keeper.cdc.MustMarshalBinaryLengthPrefixed(freeze))
-	return nil
-}
-func (keeper Keeper) freezeIn(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
-	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
-	freeze.InEndTime = endTime
-
-	return keeper.setFreeze(ctx, issueID, accAddress, freeze)
-}
-
-func (keeper Keeper) freezeOut(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
-	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
-	freeze.OutEndTime = endTime
-
-	return keeper.setFreeze(ctx, issueID, accAddress, freeze)
-}
-
-func (keeper Keeper) freezeInAndOut(ctx sdk.Context, issueID string, accAddress sdk.AccAddress, endTime int64) sdk.Error {
-	freeze := keeper.GetFreeze(ctx, accAddress, issueID)
-	freeze.InEndTime = endTime
-	freeze.OutEndTime = endTime
-	return keeper.setFreeze(ctx, issueID, accAddress, freeze)
-}
-
-func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, sender sdk.AccAddress, description []byte) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, operator sdk.AccAddress, description []byte) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 
 	if err != nil {
 		return err
@@ -426,8 +337,8 @@ func (keeper Keeper) SetIssueDescription(ctx sdk.Context, issueID string, sender
 }
 
 //TransferOwnership
-func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, sender sdk.AccAddress, to sdk.AccAddress) sdk.Error {
-	coinIssueInfo, err := keeper.getIssueByOwner(ctx, sender, issueID)
+func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, operator sdk.AccAddress, to sdk.AccAddress) sdk.Error {
+	coinIssueInfo, err := keeper.getIssueByOwner(ctx, operator, issueID)
 
 	if err != nil {
 		return err
@@ -439,70 +350,10 @@ func (keeper Keeper) TransferOwnership(ctx sdk.Context, issueID string, sender s
 	return nil
 }
 
-//Query the amount of tokens that an owner allowed to a spender
-func (keeper Keeper) Allowance(ctx sdk.Context, owner sdk.AccAddress, spender sdk.AccAddress, issueID string) (amount sdk.Int) {
-	store := ctx.KVStore(keeper.storeKey)
-	bz := store.Get(KeyAllowed(issueID, owner, spender))
-	if bz == nil {
-		return sdk.ZeroInt()
-	}
-	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &amount)
-	return amount
-}
-
-// Approve the passed address to spend the specified amount of tokens on behalf of sender
-func (keeper Keeper) Approve(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
-	store := ctx.KVStore(keeper.storeKey)
-	store.Set(KeyAllowed(issueID, sender, spender), keeper.cdc.MustMarshalBinaryLengthPrefixed(amount))
-	return nil
-}
-
-//Increase the amount of tokens that an owner allowed to a spender
-func (keeper Keeper) IncreaseApproval(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, addedValue sdk.Int) sdk.Error {
-	allowance := keeper.Allowance(ctx, sender, spender, issueID)
-	return keeper.Approve(ctx, sender, spender, issueID, allowance.Add(addedValue))
-}
-
-//Decrease the amount of tokens that an owner allowed to a spender
-func (keeper Keeper) DecreaseApproval(ctx sdk.Context, sender sdk.AccAddress, spender sdk.AccAddress, issueID string, subtractedValue sdk.Int) sdk.Error {
-	allowance := keeper.Allowance(ctx, sender, spender, issueID)
-	allowance = allowance.Sub(subtractedValue)
-	if allowance.LT(sdk.ZeroInt()) {
-		allowance = sdk.ZeroInt()
-	}
-	return keeper.Approve(ctx, sender, spender, issueID, allowance)
-}
-
-//Transfer tokens from one address to another
-func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
-
-	allowance := keeper.Allowance(ctx, from, sender, issueID)
-	if allowance.LT(amount) {
-		return errors.ErrNotEnoughAmountToTransfer()
-	}
-
-	freeze := keeper.GetFreeze(ctx, from, issueID)
-	if checkErr := utils.CheckFreezeByOut(issueID, freeze, from); checkErr != nil {
-		return checkErr
-	}
-
-	freeze = keeper.GetFreeze(ctx, to, issueID)
-	if checkErr := utils.CheckFreezeByIn(issueID, freeze, to); checkErr != nil {
-		return checkErr
-	}
-
-	_, err := keeper.SendCoins(ctx, from, to, sdk.Coins{sdk.NewCoin(issueID, amount)})
-	if err != nil {
-		return err
-	}
-
-	return keeper.Approve(ctx, from, sender, issueID, allowance.Sub(amount))
-}
-
 //Send coins
 func (keeper Keeper) SendCoins(ctx sdk.Context,
 	fromAddr sdk.AccAddress, toAddr sdk.AccAddress,
-	amt sdk.Coins) (sdk.Tags, sdk.Error) {
+	amt sdk.Coins) sdk.Error {
 	return keeper.ck.SendCoins(ctx, fromAddr, toAddr, amt)
 }
 

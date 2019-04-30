@@ -41,7 +41,7 @@ const (
 	pw    = app.DefaultKeyPass
 )
 
-var fees = sdk.NewCoins(sdk.NewInt64Coin(app.StakeDenom, 5))
+var fees = sdk.NewCoins(sdk.NewCoin(app.StakeDenom, sdk.TokensFromTendermintPower(5)))
 
 func init() {
 	mintkey.BcryptSecurityParameter = 1
@@ -342,7 +342,7 @@ func TestTxs(t *testing.T) {
 	txs = getTransactions(t, port, fmt.Sprintf("sender=%s", addr.String()))
 	require.Equal(t, emptyTxs, txs)
 
-	txs = getTransactions(t, port, fmt.Sprintf("action=submit%%20proposal&proposer=%s", addr.String()))
+	txs = getTransactions(t, port, fmt.Sprintf("action=submit%%20proposal&sender=%s", addr.String()))
 	require.Equal(t, emptyTxs, txs)
 
 	// create tx
@@ -463,7 +463,7 @@ func TestBonding(t *testing.T) {
 
 	// query tx
 	txs := getTransactions(t, port,
-		fmt.Sprintf("action=delegate&delegator=%s", addr),
+		fmt.Sprintf("action=delegate&sender=%s", addr),
 		fmt.Sprintf("destination-validator=%s", operAddrs[0]),
 	)
 	require.Len(t, txs, 1)
@@ -516,7 +516,7 @@ func TestBonding(t *testing.T) {
 
 	// query tx
 	txs = getTransactions(t, port,
-		fmt.Sprintf("action=begin_unbonding&delegator=%s", addr),
+		fmt.Sprintf("action=begin_unbonding&sender=%s", addr),
 		fmt.Sprintf("source-validator=%s", operAddrs[0]),
 	)
 	require.Len(t, txs, 1)
@@ -553,7 +553,7 @@ func TestBonding(t *testing.T) {
 
 	// query tx
 	txs = getTransactions(t, port,
-		fmt.Sprintf("action=begin_redelegate&delegator=%s", addr),
+		fmt.Sprintf("action=begin_redelegate&sender=%s", addr),
 		fmt.Sprintf("source-validator=%s", operAddrs[0]),
 		fmt.Sprintf("destination-validator=%s", operAddrs[1]),
 	)
@@ -681,7 +681,7 @@ func TestDeposit(t *testing.T) {
 	require.Equal(t, expectedBalance.Amount.Sub(depositTokens), acc.GetCoins().AmountOf(app.StakeDenom))
 
 	// query tx
-	txs := getTransactions(t, port, fmt.Sprintf("action=deposit&depositor=%s", addr))
+	txs := getTransactions(t, port, fmt.Sprintf("action=deposit&sender=%s", addr))
 	require.Len(t, txs, 1)
 	require.Equal(t, resultTx.Height, txs[0].Height)
 
@@ -742,7 +742,7 @@ func TestVote(t *testing.T) {
 	expectedBalance = coins[0]
 
 	// query tx
-	txs := getTransactions(t, port, fmt.Sprintf("action=vote&voter=%s", addr))
+	txs := getTransactions(t, port, fmt.Sprintf("action=vote&sender=%s", addr))
 	require.Len(t, txs, 1)
 	require.Equal(t, resultTx.Height, txs[0].Height)
 

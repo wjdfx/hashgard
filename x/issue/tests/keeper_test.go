@@ -1,10 +1,9 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 	"time"
-
-	"github.com/hashgard/hashgard/x/issue/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -23,12 +22,12 @@ func TestAddIssue(t *testing.T) {
 
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.Equal(t, coinIssue.TotalSupply, CoinIssueInfo.TotalSupply)
 	coin := sdk.Coin{Denom: CoinIssueInfo.IssueId, Amount: sdk.NewInt(5000)}
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr,
 		sdk.NewCoins(coin))
 	require.Nil(t, err)
 	coinIssue = keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
@@ -40,6 +39,7 @@ func TestAddIssue(t *testing.T) {
 }
 
 func TestGetIssues(t *testing.T) {
+	fmt.Print(time.Now().Unix())
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
@@ -49,7 +49,7 @@ func TestGetIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
-		_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 		require.Nil(t, err)
 	}
 	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
@@ -67,15 +67,15 @@ func TestMint(t *testing.T) {
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
-	_, _, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
+	_, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.True(t, coinIssue.TotalSupply.Equal(sdk.NewInt(20000)))
 }
 
-func TestBurnOwner(t *testing.T) {
+func TestBurn(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 
@@ -86,43 +86,16 @@ func TestBurnOwner(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnOwner(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
+	_, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.DisableBurnOwner(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	err = keeper.BurnOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnOwner(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
-	require.Error(t, err)
-
-}
-
-func TestBurnHolder(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
-	require.Nil(t, err)
-
-	_, _, err = keeper.BurnHolder(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr)
-	require.Nil(t, err)
-
-	err = keeper.DisableBurnHolder(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
-	require.Nil(t, err)
-
-	_, _, err = keeper.BurnHolder(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr)
+	_, err = keeper.Burn(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
 	require.Error(t, err)
 
 }
@@ -137,77 +110,26 @@ func TestBurnFrom(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	_, err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.DisableBurnFrom(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	err = keeper.BurnFromOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
 	require.Nil(t, err)
 
-	_, _, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
-	require.Error(t, err)
-}
-
-func TestApprove(t *testing.T) {
-
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
-	require.Nil(t, err)
-
-	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId)
-
-	require.Equal(t, amount, sdk.NewInt(5000))
-
-}
-func TestSendFrom(t *testing.T) {
-
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
-	require.Nil(t, err)
-
-	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(6000))
-
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Error(t, err)
 
-	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
-
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
-
-	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
-
-	require.Equal(t, amount, sdk.NewInt(2000))
-
 }
 
-func TestSendFromByFreeze(t *testing.T) {
-
+func TestBurnAny(t *testing.T) {
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
@@ -217,119 +139,21 @@ func TestSendFromByFreeze(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
+	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
 	require.Nil(t, err)
 
-	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, types.FreezeIn, time.Now().Add(time.Minute).Unix())
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Nil(t, err)
 
-	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
+	err = keeper.BurnAnyOff(ctx, CoinIssueInfo.Owner, CoinIssueInfo.IssueId)
+	require.Nil(t, err)
+
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), ReceiverCoinsAccAddr, ReceiverCoinsAccAddr)
+	require.Nil(t, err)
+
+	_, err = keeper.BurnFrom(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr, ReceiverCoinsAccAddr)
 	require.Error(t, err)
-
-	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, IssuerCoinsAccAddr, types.FreezeOut, time.Now().Add(time.Minute).Unix())
-	require.Nil(t, err)
-
-	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(3000))
-	require.Error(t, err)
-}
-
-func TestIncreaseApproval(t *testing.T) {
-
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
-	require.Nil(t, err)
-
-	keeper.IncreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(1000))
-	require.Nil(t, err)
-
-	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
-
-	require.Equal(t, amount, sdk.NewInt(6000))
-
-}
-
-func TestDecreaseApproval(t *testing.T) {
-
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
-	require.Nil(t, err)
-
-	keeper.DecreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(6000))
-	require.Nil(t, err)
-
-	amount := keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
-
-	require.Equal(t, amount, sdk.NewInt(0))
-
-	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
-	require.Nil(t, err)
-
-	keeper.DecreaseApproval(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(4000))
-	require.Nil(t, err)
-
-	amount = keeper.Allowance(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId)
-
-	require.Equal(t, amount, sdk.NewInt(1000))
-
-}
-
-func TestFreeze(t *testing.T) {
-
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
-
-	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
-	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
-
-	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
-
-	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-
-	_, _, err := keeper.AddIssue(ctx, &CoinIssueInfo)
-	require.Nil(t, err)
-
-	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeIn, time.Now().Unix())
-	require.Nil(t, err)
-
-	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut, time.Now().Unix())
-	require.Nil(t, err)
-
-	freeze := keeper.GetFreeze(ctx, TransferAccAddr, CoinIssueInfo.IssueId)
-	require.NotZero(t, freeze.InEndTime)
-	require.NotZero(t, freeze.OutEndTime)
-
-	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeIn)
-	require.Nil(t, err)
-
-	err = keeper.UnFreeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeOut)
-	require.Nil(t, err)
-
-	freeze = keeper.GetFreeze(ctx, TransferAccAddr, CoinIssueInfo.IssueId)
-	require.Zero(t, freeze.InEndTime)
-	require.Zero(t, freeze.OutEndTime)
-
 }

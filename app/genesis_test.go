@@ -143,8 +143,7 @@ func TestHashgardGenesisValidation(t *testing.T) {
 func TestNewDefaultGenesisAccount(t *testing.T) {
 	addr := secp256k1.GenPrivKeySecp256k1([]byte("")).PubKey().Address()
 	acc := NewDefaultGenesisAccount(sdk.AccAddress(addr))
-	require.Equal(t, sdk.NewInt(1000), acc.Coins.AmountOf(GasDenom))
-	require.Equal(t, sdk.NewInt(150), acc.Coins.AmountOf(StakeDenom))
+	require.Equal(t, sdk.NewIntWithDecimal(150, 18), acc.Coins.AmountOf(StakeDenom))
 }
 
 func TestGenesisStateSanitize(t *testing.T) {

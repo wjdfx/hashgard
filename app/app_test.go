@@ -56,12 +56,12 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 
 func TestHashgardExport(t *testing.T) {
 	db := db.NewMemDB()
-	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, false)
+	gapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0)
 	err := setGenesis(gapp)
 	require.NoError(t, err, "setGenesis should not have an error")
 
 	// Making a new app object with the db, so that initchain hasn't been called
-	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, false)
+	newHapp := NewHashgardApp(log.NewTMLogger(log.NewSyncWriter(os.Stdout)), db, nil, true, 0)
 	_, _, err = newHapp.ExportAppStateAndValidators(false, []string{})
 	require.NoError(t, err, "ExportAppStateAndValidators should not have an error")
 }

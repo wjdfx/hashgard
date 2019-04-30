@@ -235,7 +235,7 @@ paths:
       - in: query
         name: tag
         type: string
-        description: "transaction tags such as 'action=submit-proposal' and 'proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc' which results in the following endpoint: 'GET /txs?action=submit-proposal&proposer=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'"
+        description: "transaction tags such as 'action=submit-proposal' and 'sender=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc' which results in the following endpoint: 'GET /txs?action=submit-proposal&sender=gard1g9ahr6xhht5rmqven628nklxluzyv8z9jqjcmc'"
         required: true
         x-example: 'TODO'
       - in: query
@@ -767,7 +767,23 @@ paths:
           description: Internal Server Error
   /staking/validators:
     get:
-      summary: Get all validator candidates
+      summary: Get all validator candidates. By default it returns only the bonded validators.
+      parameters:
+      - in: query
+        name: status
+        type: string
+        description: The validator bond status. Must be either 'bonded', 'unbonded', or 'unbonding'.
+        x-example: bonded
+      - in: query
+        name: page
+        description: The page number.
+        type: integer
+        x-example: 1
+      - in: query
+        name: limit
+        description: The maximum number of items per page.
+        type: integer
+        x-example: 1
       tags:
       - ICS21
       produces:
