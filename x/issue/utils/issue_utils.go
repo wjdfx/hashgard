@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"fmt"
 	"math"
 	"math/rand"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -63,68 +63,36 @@ func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
 
 	return totalSupply.Quo(quoDecimals)
 }
-func BurnCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, burnFrom sdk.AccAddress, issueID string, amount sdk.Int, burnType string) (sdk.Int, error) {
+func CheckAllowance(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, owner sdk.AccAddress, spender sdk.AccAddress, amount sdk.Int) error {
+
+	res, err := issuequeriers.QueryIssueAllowance(issueID, owner, spender, cliCtx)
+	if err != nil {
+		return err
+	}
+	var approval types.Approval
+	cdc.MustUnmarshalJSON(res, &approval)
+
+	if approval.Amount.LT(amount) {
+		return errors.Errorf(errors.ErrNotEnoughAmountToTransfer())
+	}
+
+	return nil
+
+}
+func GetIssueByID(cdc *codec.Codec, cliCtx context.CLIContext, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
 	if err != nil {
-		return amount, err
+		return nil, err
 	}
 
 	cdc.MustUnmarshalJSON(res, &issueInfo)
 
-	amount = MulDecimals(amount, issueInfo.GetDecimals())
-
-	coins := operator.GetCoins()
-
-	switch burnType {
-	case types.BurnOwner:
-		{
-			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
-			}
-			if issueInfo.GetBurnOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-			}
-		}
-	case types.BurnFrom:
-		{
-			if issueInfo.GetBurnFromOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-			}
-			if !operator.GetAddress().Equals(burnFrom) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
-			}
-		}
-	case types.BurnAny:
-		{
-			if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
-				return amount, errors.Errorf(errors.ErrOwnerMismatch(issueID))
-			}
-			if issueInfo.GetBurnAnyOff() {
-				return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-			}
-			if operator.GetAddress().Equals(burnFrom) {
-				//burnFrom
-				if issueInfo.GetBurnFromOff() {
-					return amount, errors.Errorf(errors.ErrCanNotBurn(issueID))
-				}
-			}
-		}
-	default:
-		{
-			panic("not support")
-		}
-
-	}
-	// ensure account has enough coins
-	if !coins.IsAllGTE(sdk.NewCoins(sdk.NewCoin(issueID, amount))) {
-		return amount, fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", operator.GetAddress())
-	}
-
-	return amount, nil
+	return issueInfo, nil
 }
-func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.Account, issueID string) (types.Issue, error) {
+
+func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, issueID string) (types.Issue, error) {
 	var issueInfo types.Issue
 	// Query the issue
 	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
@@ -133,8 +101,50 @@ func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, operator auth.
 	}
 	cdc.MustUnmarshalJSON(res, &issueInfo)
 
-	if !operator.GetAddress().Equals(issueInfo.GetOwner()) {
+	if !sender.GetAddress().Equals(issueInfo.GetOwner()) {
 		return nil, errors.Errorf(errors.ErrOwnerMismatch(issueID))
 	}
 	return issueInfo, nil
+}
+
+func CheckFreezeByOut(issueID string, freeze types.IssueFreeze, from sdk.AccAddress) sdk.Error {
+
+	if freeze.OutEndTime > 0 && time.Unix(freeze.OutEndTime, 0).After(time.Now()) {
+		return errors.ErrCanNotTransferOut(issueID, from.String())
+	}
+	return nil
+}
+func CheckFreezeByIn(issueID string, freeze types.IssueFreeze, to sdk.AccAddress) sdk.Error {
+
+	if freeze.InEndTime > 0 && time.Unix(freeze.InEndTime, 0).After(time.Now()) {
+		return errors.ErrCanNotTransferIn(issueID, to.String())
+	}
+	return nil
+}
+func CheckFreeze(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, from sdk.AccAddress, to sdk.AccAddress) error {
+
+	res, err := issuequeriers.QueryIssueFreeze(issueID, from, cliCtx)
+	if err != nil {
+		return err
+	}
+
+	var freeze types.IssueFreeze
+	cdc.MustUnmarshalJSON(res, &freeze)
+
+	if checkErr := CheckFreezeByOut(issueID, freeze, from); checkErr != nil {
+		return errors.Errorf(checkErr)
+	}
+
+	res, err = issuequeriers.QueryIssueFreeze(issueID, to, cliCtx)
+	if err != nil {
+		return err
+	}
+
+	cdc.MustUnmarshalJSON(res, &freeze)
+
+	if checkErr := CheckFreezeByIn(issueID, freeze, to); checkErr != nil {
+		return errors.Errorf(checkErr)
+	}
+
+	return nil
 }

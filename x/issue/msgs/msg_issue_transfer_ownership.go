@@ -11,14 +11,14 @@ import (
 // MsgIssueTransferOwnership to allow a registered owner
 // to issue new coins.
 type MsgIssueTransferOwnership struct {
-	IssueId  string         `json:"issue_id"`
-	Operator sdk.AccAddress `json:"operator"`
-	To       sdk.AccAddress `json:"to"`
+	IssueId string         `json:"issue_id"`
+	Sender  sdk.AccAddress `json:"sender"`
+	To      sdk.AccAddress `json:"to"`
 }
 
 //New MsgIssueTransferOwnership Instance
-func NewMsgIssueTransferOwnership(issueId string, operator sdk.AccAddress, to sdk.AccAddress) MsgIssueTransferOwnership {
-	return MsgIssueTransferOwnership{issueId, operator, to}
+func NewMsgIssueTransferOwnership(issueId string, sender sdk.AccAddress, to sdk.AccAddress) MsgIssueTransferOwnership {
+	return MsgIssueTransferOwnership{issueId, sender, to}
 }
 
 // Route Implements Msg.
@@ -43,7 +43,7 @@ func (msg MsgIssueTransferOwnership) GetSignBytes() []byte {
 
 // GetSigners Implements Msg.
 func (msg MsgIssueTransferOwnership) GetSigners() []sdk.AccAddress {
-	return []sdk.AccAddress{msg.Operator}
+	return []sdk.AccAddress{msg.Sender}
 }
 
 func (msg MsgIssueTransferOwnership) String() string {

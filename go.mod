@@ -6,7 +6,9 @@ require (
 	github.com/btcsuite/btcutil v0.0.0-20190207003914-4c204d697803 // indirect
 	github.com/cosmos/cosmos-sdk v0.34.1
 	github.com/gogo/protobuf v1.2.1 // indirect
+	github.com/google/pprof v0.0.0-20190404155422-f8f10df84213 // indirect
 	github.com/gorilla/mux v1.7.0
+	github.com/ianlancetaylor/demangle v0.0.0-20181102032728-5e5cf60278f6 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/otiai10/copy v0.0.0-20180813032824-7e9a647135a1
 	github.com/pkg/errors v0.8.1 // indirect
@@ -18,6 +20,7 @@ require (
 	github.com/stretchr/testify v1.2.2
 	github.com/tendermint/go-amino v0.14.1
 	github.com/tendermint/tendermint v0.31.4
+	golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c // indirect
 	golang.org/x/crypto v0.0.0 // indirect
 	google.golang.org/grpc v1.19.1 // indirect
 

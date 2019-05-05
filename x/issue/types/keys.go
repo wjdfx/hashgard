@@ -22,8 +22,8 @@ const (
 
 var (
 	CoinMaxTotalSupply, _        = sdk.NewIntFromString("1000000000000000000000000000000000000")
-	CoinIssueMaxId        uint64 = 999999999999 //9999-12-31 23:59:59
-	CoinIssueMinId        uint64 = 100000000000 //2019-01-01 00:00:00
+	CoinIssueMaxId        uint64 = 999999999999
+	CoinIssueMinId        uint64 = 100000000000
 )
 
 const (
@@ -31,29 +31,29 @@ const (
 	Custom   = "custom"
 )
 const (
-	QueryParams = "params"
-	QueryIssues = "list"
-	QueryIssue  = "query"
-	QuerySearch = "search"
-)
-const (
-	BurnOwner = "burnOwner"
-	BurnFrom  = "burnFrom"
-	BurnAny   = "burnAny"
+	QueryParams    = "params"
+	QueryIssues    = "list"
+	QueryIssue     = "query"
+	QueryAllowance = "allowance"
+	QueryFreeze    = "freeze"
+	QuerySearch    = "search"
 )
 
 const (
 	TypeMsgIssue                  = "issue"
 	TypeMsgIssueMint              = "issue_mint"
-	TypeMsgIssueBurn              = "issue_burn"
+	TypeMsgIssueBurnOwner         = "issue_burn_owner"
+	TypeMsgIssueBurnHolder        = "issue_burn_holder"
 	TypeMsgIssueBurnFrom          = "issue_burn_from"
-	TypeMsgIssueBurnAny           = "issue_burn_any"
-	TypeMsgIssueFinishMinting     = "issue_finish_minting"
+	TypeMsgIssueDisableFeature    = "issue_disable_feature"
 	TypeMsgIssueDescription       = "issue_description"
 	TypeMsgIssueTransferOwnership = "issue_transfer_ownership"
-	TypeMsgIssueBurnOff           = "issue_burn_off"
-	TypeMsgIssueBurnFromOff       = "issue_burn_from_off"
-	TypeMsgIssueBurnAnyOff        = "issue_burn_any_off"
+	TypeMsgIssueApprove           = "issue_approve"
+	TypeMsgIssueSendFrom          = "issue_send_from"
+	TypeMsgIssueIncreaseApproval  = "issue_increase_approval"
+	TypeMsgIssueDecreaseApproval  = "issue_decrease_approval"
+	TypeMsgIssueFreeze            = "issue_freeze"
+	TypeMsgIssueUnFreeze          = "issue_unfreeze"
 )
 const (
 	CoinDecimalsMaxValue                  = uint(18)

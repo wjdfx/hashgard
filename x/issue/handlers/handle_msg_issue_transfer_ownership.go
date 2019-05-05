@@ -4,25 +4,18 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
-	"github.com/hashgard/hashgard/x/issue/tags"
+	"github.com/hashgard/hashgard/x/issue/utils"
 )
 
 //Handle MsgIssueMint
 func HandleMsgIssueTransferOwnership(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueTransferOwnership) sdk.Result {
 
-	err := keeper.TransferOwnership(ctx, msg.IssueId, msg.Operator, msg.To)
-	if err != nil {
+	if err := keeper.TransferOwnership(ctx, msg.IssueId, msg.Sender, msg.To); err != nil {
 		return err.Result()
 	}
 
-	resTags := sdk.NewTags(
-		tags.Category, tags.TxCategory,
-		tags.IssueID, msg.IssueId,
-		tags.Sender, msg.Operator.String(),
-	)
-
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: resTags,
+		Tags: utils.GetIssueTags(msg.IssueId, msg.Sender),
 	}
 }

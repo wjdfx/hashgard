@@ -33,7 +33,7 @@ func TestQueryIssue(t *testing.T) {
 	querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
 
-	res := handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
+	res := handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	var issueID string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &issueID)
 
@@ -60,7 +60,7 @@ func TestQueryIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
-		handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
+		handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	}
 
 	issues := keeper.List(ctx, params.IssueQueryParams{Limit: 10})
@@ -83,7 +83,7 @@ func TestSearchIssues(t *testing.T) {
 	cap := 10
 	for i := 0; i < cap; i++ {
 		CoinIssueInfo.SetIssueTime(time.Now())
-		handler(ctx, msgs.CreateMsgIssue(&CoinIssueInfo))
+		handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	}
 
 	//issues := keeper.SearchIssues(ctx, "tes")

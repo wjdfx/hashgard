@@ -34,16 +34,19 @@ type Issue interface {
 	GetDescription() string
 	SetDescription(string)
 
-	GetBurnOff() bool
-	SetBurnOff(bool)
+	IsBurnOwnerDisabled() bool
+	SetBurnOwnerDisabled(bool)
 
-	GetBurnFromOff() bool
-	SetBurnFromOff(bool)
+	IsBurnHolderDisabled() bool
+	SetBurnHolderDisabled(bool)
 
-	GetBurnAnyOff() bool
-	SetBurnAnyOff(bool)
+	IsBurnFromDisabled() bool
+	SetBurnFromDisabled(bool)
 
-	GetMintingFinished() bool
+	IsFreezeDisabled() bool
+	SetFreezeDisabled(bool)
+
+	IsMintingFinished() bool
 	SetMintingFinished(bool)
 
 	GetSymbol() string
@@ -57,19 +60,20 @@ type CoinIssues []CoinIssueInfo
 
 //Coin Issue Info
 type CoinIssueInfo struct {
-	IssueId         string         `json:"issue_id"`
-	Issuer          sdk.AccAddress `json:"issuer"`
-	Owner           sdk.AccAddress `json:"owner"`
-	IssueTime       time.Time      `json:"issue_time"`
-	Name            string         `json:"name"`
-	Symbol          string         `json:"symbol"`
-	TotalSupply     sdk.Int        `json:"total_supply"`
-	Decimals        uint           `json:"decimals"`
-	Description     string         `json:"description"`
-	BurnOff         bool           `json:"burning_off"`      //销毁功能
-	BurnFromOff     bool           `json:"burning_from_off"` //用户销毁
-	BurnAnyOff      bool           `json:"burning_any_off"`  //管理销毁
-	MintingFinished bool           `json:"minting_finished"`
+	IssueId            string         `json:"issue_id"`
+	Issuer             sdk.AccAddress `json:"issuer"`
+	Owner              sdk.AccAddress `json:"owner"`
+	IssueTime          time.Time      `json:"issue_time"`
+	Name               string         `json:"name"`
+	Symbol             string         `json:"symbol"`
+	TotalSupply        sdk.Int        `json:"total_supply"`
+	Decimals           uint           `json:"decimals"`
+	Description        string         `json:"description"`
+	BurnOwnerDisabled  bool           `json:"burn_owner_disabled"`
+	BurnHolderDisabled bool           `json:"burn_holder_disabled"`
+	BurnFromDisabled   bool           `json:"burn_from_disabled"`
+	FreezeDisabled     bool           `json:"freeze_disabled"`
+	MintingFinished    bool           `json:"minting_finished"`
 }
 
 // Implements Issue Interface
@@ -124,55 +128,71 @@ func (ci CoinIssueInfo) GetDescription() string {
 func (ci *CoinIssueInfo) SetDescription(description string) {
 	ci.Description = description
 }
-func (ci CoinIssueInfo) GetMintingFinished() bool {
-	return ci.MintingFinished
-}
-func (ci *CoinIssueInfo) SetMintingFinished(mintingFinished bool) {
-	ci.MintingFinished = mintingFinished
-}
-func (ci CoinIssueInfo) GetBurnOff() bool {
-	return ci.BurnOff
-}
-func (ci *CoinIssueInfo) SetBurnOff(burnOff bool) {
-	ci.BurnOff = burnOff
-}
-func (ci CoinIssueInfo) GetBurnFromOff() bool {
-	return ci.BurnFromOff
-}
-func (ci *CoinIssueInfo) SetBurnFromOff(burnFromOff bool) {
-	ci.BurnFromOff = burnFromOff
-}
-func (ci CoinIssueInfo) GetBurnAnyOff() bool {
-	return ci.BurnAnyOff
-}
-func (ci *CoinIssueInfo) SetBurnAnyOff(burnAnyOff bool) {
-	ci.BurnAnyOff = burnAnyOff
-}
+
 func (ci CoinIssueInfo) GetSymbol() string {
 	return ci.Symbol
 }
 func (ci *CoinIssueInfo) SetSymbol(symbol string) {
 	ci.Symbol = symbol
 }
+func (ci CoinIssueInfo) IsBurnOwnerDisabled() bool {
+	return ci.BurnOwnerDisabled
+}
+
+func (ci CoinIssueInfo) SetBurnOwnerDisabled(burnOwnerDisabled bool) {
+	ci.BurnOwnerDisabled = burnOwnerDisabled
+}
+
+func (ci CoinIssueInfo) IsBurnHolderDisabled() bool {
+	return ci.BurnHolderDisabled
+}
+
+func (ci CoinIssueInfo) SetBurnHolderDisabled(burnFromDisabled bool) {
+	ci.BurnHolderDisabled = burnFromDisabled
+}
+
+func (ci CoinIssueInfo) IsBurnFromDisabled() bool {
+	return ci.BurnFromDisabled
+}
+
+func (ci CoinIssueInfo) SetBurnFromDisabled(burnFromDisabled bool) {
+	ci.BurnFromDisabled = burnFromDisabled
+}
+func (ci CoinIssueInfo) IsFreezeDisabled() bool {
+	return ci.FreezeDisabled
+}
+
+func (ci CoinIssueInfo) SetFreezeDisabled(freezeDisabled bool) {
+	ci.FreezeDisabled = freezeDisabled
+}
+func (ci CoinIssueInfo) IsMintingFinished() bool {
+	return ci.MintingFinished
+}
+
+func (ci CoinIssueInfo) SetMintingFinished(mintingFinished bool) {
+	ci.MintingFinished = mintingFinished
+}
 
 //nolint
 func (ci CoinIssueInfo) String() string {
 	return fmt.Sprintf(`Issue:
-  IssueId:          %s
-  Issuer:           %s
-  Owner:            %s
-  Name:             %s
-  Symbol:    	    %s
-  TotalSupply:      %s
-  Decimals:         %d
-  IssueTime:		%s
-  Description:	    %s
-  BurnOff:  		%t 
-  BurnFromOff:  	%t 
-  BurnAnyOff:  		%t 
-  MintingFinished:  %t `,
+  IssueId:          			%s
+  Issuer:           			%s
+  Owner:           				%s
+  Name:             			%s
+  Symbol:    	    			%s
+  TotalSupply:      			%s
+  Decimals:         			%d
+  IssueTime:					%s
+  Description:	    			%s
+  BurnOwnerDisabled:  			%t 
+  BurnHolderDisabled:  			%t 
+  BurnFromDisabled:  			%t 
+  FreezeDisabled:  				%t 
+  MintingFinished:  			%t `,
 		ci.IssueId, ci.Issuer.String(), ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
-		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOff, ci.BurnFromOff, ci.BurnAnyOff, ci.MintingFinished)
+		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOwnerDisabled, ci.BurnHolderDisabled,
+		ci.BurnFromDisabled, ci.FreezeDisabled, ci.MintingFinished)
 }
 
 //nolint
