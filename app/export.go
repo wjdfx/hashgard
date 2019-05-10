@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/hashgard/hashgard/x/issue"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -54,6 +56,7 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		exchange.ExportGenesis(ctx, app.exchangeKeeper),
 		issue.ExportGenesis(ctx, app.issueKeeper),
+		box.ExportGenesis(ctx, app.boxKeeper),
 		crisis.ExportGenesis(ctx, app.crisisKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
