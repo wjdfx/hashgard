@@ -132,7 +132,7 @@ type PostOrderReq struct {
 
 type TakeOrderReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	Amount  sdk.Coin     `json:"seller"`
+	Amount  sdk.Coin     `json:"amount"`
 }
 
 type WithdrawalOrderReq struct {
