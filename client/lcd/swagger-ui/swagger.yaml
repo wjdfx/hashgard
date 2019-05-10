@@ -1828,7 +1828,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - type: string
         name: orderId
@@ -1850,7 +1850,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - type: string
         name: address
@@ -1874,7 +1874,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - type: string
         name: address
@@ -1901,7 +1901,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - description: valid value of `"proposal_type"` can be `"text"`, `"parameter_change"`, `"software_upgrade"`
         name: post_order_body
@@ -1934,7 +1934,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - type: string
         description: order id
@@ -1969,7 +1969,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS31
+      - ICS30
       parameters:
       - type: string
         description: order id
