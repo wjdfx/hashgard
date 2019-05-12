@@ -17,6 +17,8 @@ tags:
   description: Slashing module APIs
 - name: ICS24
   description: Fee distribution module APIs
+- name: ICS30
+  description: Exchange module APIs
 - name: version
   description: Query app version
 schemes:
@@ -1820,6 +1822,181 @@ paths:
             type: string
         500:
           description: Internal Server Error
+  /exchange/order/{orderId}:
+    get:
+      summary: Query a order
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - type: string
+        name: orderId
+        required: true
+        in: path
+        x-example: '1'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Order"
+        400:
+          description: Invalid orderId
+        500:
+          description: Internal Server Error
+  /exchange/orders/{address}:
+    get:
+      summary: Query the active orders with an address
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - type: string
+        name: address
+        required: true
+        in: path
+        x-example: 'gard1frd46h2yyd5p0qm8sy7aaz34z64x54dn8prw6a'
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Order"
+        400:
+          description: Invalid address
+        500:
+          description: Internal Server Error
+  /exchange/frozen/{address}:
+    get:
+      summary: Query the frozen fund with an address
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - type: string
+        name: address
+        required: true
+        in: path
+        x-example: 'gard1frd46h2yyd5p0qm8sy7aaz34z64x54dn8prw6a'
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Coin"
+        400:
+          description: Invalid address
+        500:
+          description: Internal Server Error
+  /exchange/order:
+    post:
+      summary: Create an order
+      description: Send transaction to create an order
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - description: valid value of `"proposal_type"` can be `"text"`, `"parameter_change"`, `"software_upgrade"`
+        name: post_order_body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            base_req:
+              $ref: "#/definitions/BaseReq"
+            supply:
+              $ref: "#/definitions/Coin"
+            target:
+              $ref: "#/definitions/Coin"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid order body
+        500:
+          description: Internal Server Error
+  /exchange/withdrawal/{orderId}:
+    post:
+      summary: Withdrawal an order
+      description: Send transaction to withdrawal an order
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - type: string
+        description: order id
+        name: orderId
+        required: true
+        in: path
+        x-example: '1'
+      - description: ""
+        name: post_withdrawal_body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            base_req:
+              $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid body
+        500:
+          description: Internal Server Error
+  /exchange/take/{orderId}:
+    post:
+      summary: Take an order
+      description: Send transaction to Take an order
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      tags:
+      - ICS30
+      parameters:
+      - type: string
+        description: order id
+        name: orderId
+        required: true
+        in: path
+        x-example: '1'
+      - description: ""
+        name: post_take_body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            base_req:
+              $ref: "#/definitions/BaseReq"
+            amount:
+              $ref: "#/definitions/Coin"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid body
+        500:
+          description: Internal Server Error
 definitions:
   CheckTxResult:
     type: object
@@ -2352,4 +2529,19 @@ definitions:
       jailed_until:
         type: string
       missed_blocks_counter:
+        type: string
+  Order:
+    type: object
+    properties:
+      order_id:
+        type: integer
+      seller:
+        type: string
+      supply:
+        $ref: "#/definitions/Coin"
+      target:
+        $ref: "#/definitions/Coin"
+      remain:
+        $ref: "#/definitions/Coin"
+      create_time:
         type: string
