@@ -162,6 +162,9 @@ test_unit:
 test_cover:
 	@export VERSION=$(VERSION); bash tests/test_cover.sh
 
+test_cli:
+	@go test -mod=readonly -p 4 `go list ./cli_test/...` -tags=cli_test
+
 ci-lint:
 	golangci-lint run
 	go vet -composites=false -tests=false ./...

@@ -55,24 +55,24 @@ func TestHashgardCLIKeysAddRecover(t *testing.T) {
 
 	exitSuccess, _, _ = f.KeysAddRecover("test-recover", "dentist task convince chimney quality leave banana trade firm crawl eternal easily")
 	require.True(t, exitSuccess)
-	require.Equal(t, "gard1er83tzjcfwzxzjngulml9jvq4r2cz8zv9y8tja", f.KeyAddress("test-recover").String())
+	require.Equal(t, "gard1fcra8ptmpzp3sdxtfux2ej7v2rvtr6umdprc4a", f.KeyAddress("test-recover").String())
 }
 
 func TestHashgardCLIKeysAddRecoverHDPath(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	f.KeysAddRecoverHDPath("test-recoverHD1", "mean salon switch include cram gallery infant episode symbol gown rent trade bridge purity copy garden boil wheat broken glue brisk detect drill friend", 0, 0)
-	require.Equal(t, "gard1er83tzjcfwzxzjngulml9jvq4r2cz8zv9y8tja", f.KeyAddress("test-recoverHD1").String())
+	f.KeysAddRecoverHDPath("test-recoverHD1", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 0, 0)
+	require.Equal(t, "gard1fcra8ptmpzp3sdxtfux2ej7v2rvtr6umdprc4a", f.KeyAddress("test-recoverHD1").String())
 
-	f.KeysAddRecoverHDPath("test-recoverH2", "mean salon switch include cram gallery infant episode symbol gown rent trade bridge purity copy garden boil wheat broken glue brisk detect drill friend", 1, 5)
-	require.Equal(t, "gard15ryecferjjyjesl6xccfspzna4m6fvtm5zk8kx", f.KeyAddress("test-recoverH2").String())
+	f.KeysAddRecoverHDPath("test-recoverH2", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 1, 5)
+	require.Equal(t, "gard17e3tqemgkjxqddgpvfnykah6654zxt2lk5ye2h", f.KeyAddress("test-recoverH2").String())
 
-	f.KeysAddRecoverHDPath("test-recoverH3", "mean salon switch include cram gallery infant episode symbol gown rent trade bridge purity copy garden boil wheat broken glue brisk detect drill friend", 1, 17)
-	require.Equal(t, "gard1r3syk8xh27wkmhkg7cfu4pt0wscrl6yd3ju83j", f.KeyAddress("test-recoverH3").String())
+	f.KeysAddRecoverHDPath("test-recoverH3", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 1, 17)
+	require.Equal(t, "gard19s0pqpjppjrs3ml4hh3x5u3fck26en2vzyeuxc", f.KeyAddress("test-recoverH3").String())
 
-	f.KeysAddRecoverHDPath("test-recoverH4", "mean salon switch include cram gallery infant episode symbol gown rent trade bridge purity copy garden boil wheat broken glue brisk detect drill friend", 2, 17)
-	require.Equal(t, "gard1g3f99ecvvlfl2a393g0gq0uah96wt0fs02yxdf", f.KeyAddress("test-recoverH4").String())
+	f.KeysAddRecoverHDPath("test-recoverH4", "dentist task convince chimney quality leave banana trade firm crawl eternal easily", 2, 17)
+	require.Equal(t, "gard17nyr6nmuj5f0pfy478jxzel4mhl8uw3hay67r8", f.KeyAddress("test-recoverH4").String())
 }
 
 func TestHashgardCLIMinimumFees(t *testing.T) {
@@ -460,7 +460,7 @@ func TestHashgardCLISubmitProposal(t *testing.T) {
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
 	// Ensure transaction tags can be queried
-	txs := f.QueryTxs(1, 50, "action:submit_proposal", fmt.Sprintf("proposer:%s", fooAddr))
+	txs := f.QueryTxs(1, 50, "action:submit_proposal", fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txs, 1)
 
 	// Ensure deposit was deducted
@@ -504,7 +504,7 @@ func TestHashgardCLISubmitProposal(t *testing.T) {
 	require.Equal(t, proposalTokens.Add(depositTokens), deposit.Amount.AmountOf(denom))
 
 	// Ensure tags are set on the transaction
-	txs = f.QueryTxs(1, 50, "action:deposit", fmt.Sprintf("depositor:%s", fooAddr))
+	txs = f.QueryTxs(1, 50, "action:deposit", fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txs, 1)
 
 	// Ensure account has expected amount of funds
@@ -541,7 +541,7 @@ func TestHashgardCLISubmitProposal(t *testing.T) {
 	require.Equal(t, gov.OptionYes, votes[0].Option)
 
 	// Ensure tags are applied to voting transaction properly
-	txs = f.QueryTxs(1, 50, "action:vote", fmt.Sprintf("voter:%s", fooAddr))
+	txs = f.QueryTxs(1, 50, "action:vote", fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txs, 1)
 
 	// Ensure no proposals in deposit period
