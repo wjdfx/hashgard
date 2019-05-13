@@ -26,6 +26,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
+	"github.com/hashgard/hashgard/x/exchange"
 )
 
 func init() {
@@ -337,7 +338,7 @@ func (f *Fixtures) TxMultisign(fileName, name string, signaturesFiles []string,
 }
 
 //___________________________________________________________________________________
-// hashgardcli tx staking
+// hashgardcli tx stake
 
 // TxStakingCreateValidator is hashgardcli stake create-validator
 func (f *Fixtures) TxStakingCreateValidator(from, consPubKey string, amount sdk.Coin, flags ...string) (bool, string, string) {
@@ -686,4 +687,58 @@ func unmarshalStdTx(t *testing.T, s string) (stdTx auth.StdTx) {
 	cdc := app.MakeCodec()
 	require.Nil(t, cdc.UnmarshalJSON([]byte(s), &stdTx))
 	return
+}
+
+//___________________________________________________________________________________
+// hashgardcli exchange
+
+// TxExchangeCreateOrder is hashgardcli exchange create-order
+func (f *Fixtures) TxExchangeCreateOrder(from string, supply, target sdk.Coin, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange create-order %v --from=%s --supply=%s --target=%s", f.Flags(), from, supply, target)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxExchangeWithdrawalOrder is hashgardcli exchange withdrawal-order
+func (f *Fixtures) TxExchangeWithdrawalOrder(orderId int, from string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange withdrawal-order %d --from=%s %v", orderId, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxExchangeTakeOrder is hashgardcli exchange take-order
+func (f *Fixtures) TxExchangeTakeOrder(orderId int, amount sdk.Coin, from string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange take-order %d --amount=%s --from=%s %v", orderId, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// QueryExchangeOrder is hashgardcli exchange query-order
+func (f *Fixtures) QueryExchangeOrder(orderId int, flags ...string) exchange.Order {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange query-order %d %v", orderId, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var order exchange.Order
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &order)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return order
+}
+
+// QueryExchangeOrders is hashgardcli exchange query-orders
+func (f *Fixtures) QueryExchangeOrders(addr sdk.AccAddress, flags ...string) []exchange.Order {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange query-order %s %v", addr, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var orders []exchange.Order
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &orders)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return orders
+}
+
+// QueryExchangeFrozen is hashgardcli exchange query-frozen
+func (f *Fixtures) QueryExchangeFrozen(addr sdk.AccAddress, flags ...string) sdk.Coins {
+	cmd := fmt.Sprintf("../build/hashgardcli exchange query-frozen %s %v", addr, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var coins sdk.Coins
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &coins)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return coins
 }
