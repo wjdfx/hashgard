@@ -50,7 +50,11 @@ func TestHashgardCLIKeysAddRecover(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
 
-	f.KeysAddRecover("test-recover", "mean salon switch include cram gallery infant episode symbol gown rent trade bridge purity copy garden boil wheat broken glue brisk detect drill friend")
+	exitSuccess, _, _ := f.KeysAddRecover("empty-mnemonic", "")
+	require.False(t, exitSuccess)
+
+	exitSuccess, _, _ = f.KeysAddRecover("test-recover", "dentist task convince chimney quality leave banana trade firm crawl eternal easily")
+	require.True(t, exitSuccess)
 	require.Equal(t, "gard1er83tzjcfwzxzjngulml9jvq4r2cz8zv9y8tja", f.KeyAddress("test-recover").String())
 }
 
