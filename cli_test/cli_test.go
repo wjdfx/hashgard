@@ -26,6 +26,75 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 )
 
+func TestHashgardCLIExchange(t *testing.T) {
+	t.Parallel()
+	f := InitFixtures(t)
+
+	// start hashgard server
+	proc := f.HGStart()
+	defer proc.Stop(false)
+
+	// Save key addresses for later use
+	fooAddr := f.KeyAddress(keyFoo)
+	barAddr := f.KeyAddress(keyBar)
+
+	// Send some tokens from one account to the other
+	sendTokens := sdk.TokensFromTendermintPower(100)
+	f.TxSend(keyFoo, barAddr, sdk.NewCoin(feeDenom, sendTokens), "-y")
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	fooAcc1 := f.QueryAccount(fooAddr)
+	barAcc1 := f.QueryAccount(barAddr)
+	require.Equal(t, sendTokens, barAcc1.GetCoins().AmountOf(feeDenom))
+
+	// create order
+	supply := sdk.NewCoin(denom, sdk.TokensFromTendermintPower(10))
+	target := sdk.NewCoin(feeDenom, sdk.TokensFromTendermintPower(100))
+	remains := supply
+	f.TxExchangeCreateOrder(keyFoo, supply, target, "-y")
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	// Ensure transaction tags can be queried
+	txs := f.QueryTxs(1, 50, "action:create_order", fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txs, 1)
+
+	// Ensure supply was deducted
+	fooAcc2 := f.QueryAccount(fooAddr)
+	require.Equal(t, fooAcc1.GetCoins().AmountOf(denom).Sub(supply.Amount), fooAcc2.GetCoins().AmountOf(denom))
+
+	// Ensure order is directly queryable
+	order1 := f.QueryExchangeOrder(1)
+	require.Equal(t, uint64(1), order1.OrderId)
+
+	// Ensure frozen fund is directly queryable
+	frozen1 := f.QueryExchangeFrozen(fooAddr)
+	require.Equal(t, remains.Amount, frozen1.AmountOf(denom))
+
+	// take order
+	turnoutSupply := sdk.NewCoin(denom, sdk.TokensFromTendermintPower(2))
+	turnoutTarget := sdk.NewCoin(feeDenom, sdk.TokensFromTendermintPower(20))
+	f.TxExchangeTakeOrder(1, turnoutTarget, keyBar, "-y")
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	// Ensure transaction tags can be queried
+	txs = f.QueryTxs(1, 50, "action:take_order", fmt.Sprintf("sender:%s", barAddr))
+	require.Len(t, txs, 1)
+
+	// Ensure the turnout and remains
+	fooAcc3 := f.QueryAccount(fooAddr)
+	barAcc3 := f.QueryAccount(barAddr)
+	require.Equal(t, fooAcc2.GetCoins().AmountOf(feeDenom).Add(turnoutTarget.Amount), fooAcc3.GetCoins().AmountOf(feeDenom))
+	require.Equal(t, barAcc1.GetCoins().AmountOf(denom).Add(turnoutSupply.Amount), barAcc3.GetCoins().AmountOf(denom))
+
+	// withdrawal order
+	f.TxExchangeWithdrawalOrder(1, keyFoo, "-y")
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	// Ensure transaction tags can be queried
+	txs = f.QueryTxs(1, 50, "action:withdrawal_order", fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txs, 1)
+}
+
 func TestHashgardCLIKeysAddMultisig(t *testing.T) {
 	t.Parallel()
 	f := InitFixtures(t)
