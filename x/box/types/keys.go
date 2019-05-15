@@ -42,9 +42,11 @@ const (
 
 //box status
 const (
-	BoxCreated  = "created"
-	BoxClosed   = "closed"
-	BoxFinished = "finished"
+	BoxCreated    = "created"
+	BoxDepositing = "depositing"
+	BoxActived    = "actived"
+	BoxClosed     = "closed"
+	BoxFinished   = "finished"
 )
 
 //lock box status
@@ -55,7 +57,6 @@ const (
 
 //deposit box status
 const (
-	DepositBoxDeposit  = "deposit"
 	DepositBoxInterest = "interest"
 )
 const (
@@ -73,6 +74,8 @@ const (
 	TypeMsgBoxDisableFeature = "box_disable_feature"
 )
 const (
+	KeyDelimiterString                   = ":"
+	MaxPrecision                         = uint(6)
 	CodeInvalidGenesis      sdk.CodeType = 102
 	BoxNameMaxLength                     = 32
 	BoxDescriptionMaxLength              = 1024

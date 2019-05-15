@@ -16,5 +16,6 @@ var (
 	Operation = "operation"
 	BoxID     = "box-id"
 	BoxType   = "box-type"
-	Status    = "status"
+	BoxStatus = "box-status"
+	Seq       = "seq"
 )

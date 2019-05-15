@@ -4,11 +4,15 @@ import (
 	"fmt"
 	"strconv"
 	"testing"
+	"time"
+
+	"github.com/hashgard/hashgard/x/box/utils"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 
 	"github.com/stretchr/testify/require"
 
@@ -16,9 +20,6 @@ import (
 )
 
 func TestDepositBoxEndBlocker(t *testing.T) {
-
-	str := fmt.Sprintf("%saa%s%d", types.IDPreStr, strconv.FormatUint(types.BoxMaxId, 36), 999)
-	fmt.Println(str)
 	mapp, keeper, _, _, _, _ := getMockApp(t, 10, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
@@ -28,65 +29,59 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	keeper.GetBankKeeper().SetSendEnabled(ctx, true)
 	handler := box.NewHandler(keeper)
 
-	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	boxInfo := GetDepositBoxInfo()
+	boxInfo := createDepositBox(t, ctx, keeper)
 
-	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest))
+	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	msg := msgs.NewMsgBox(boxInfo)
-
-	res := handler(ctx, msg)
-	require.True(t, res.IsOK())
-	var boxID string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID)
-	boxInfo.BoxId = boxID
-
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Denom, sdk.NewInt(500)), types.Injection)
-	res = handler(ctx, msgBoxInterest)
-	require.True(t, res.IsOK())
-
-	msgBoxInterest = msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Denom, sdk.NewInt(600)), types.Injection)
-	res = handler(ctx, msgBoxInterest)
+	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(600), TestTokenDecimals)), types.Injection)
+	res := handler(ctx, msgBoxInterest)
 	require.False(t, res.IsOK())
 
-	msgBoxInterest = msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Denom, sdk.NewInt(500)), types.Injection)
+	msgBoxInterest = msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
 	newHeader := ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.StartTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.StartTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	depositBox := keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Status, types.DepositBoxDeposit)
+	require.Equal(t, depositBox.BoxStatus, types.BoxDepositing)
 
-	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount})
+	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount.Token})
 
-	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Denom, sdk.NewInt(50000)), types.DepositTo)
+	depositTo := issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals)
+
+	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(50000), TestTokenDecimals)), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.False(t, res.IsOK())
 
-	msgBoxDeposit = msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Denom, sdk.NewInt(505)), types.DepositTo)
+	msgBoxDeposit = msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(505), TestTokenDecimals)), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.False(t, res.IsOK())
 
-	msgBoxDeposit = msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Denom, sdk.NewInt(500)), types.DepositTo)
+	msgBoxDeposit = msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		depositTo), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.True(t, res.IsOK())
 
@@ -94,42 +89,46 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	require.Equal(t, depositBox.Deposit.Share, sdk.NewInt(5))
 
 	newHeader = ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.EstablishTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.EstablishTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Status, types.DepositBoxInterest)
+	require.Equal(t, depositBox.BoxStatus, types.DepositBoxInterest)
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
-	require.Equal(t, coins.AmountOf(boxInfo.BoxId), sdk.NewInt(500))
+	require.Equal(t, coins.AmountOf(boxInfo.BoxId), depositTo.Quo(depositBox.Deposit.Price))
 
 	newHeader = ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.MaturityTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.MaturityTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Status, types.BoxFinished)
+	require.Equal(t, depositBox.BoxStatus, types.BoxFinished)
 	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
+
 	require.Equal(t, coins.AmountOf(boxInfo.BoxId), sdk.ZeroInt())
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Denom), boxInfo.TotalAmount.Amount)
-	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Denom), sdk.NewInt(50))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount)
+
+	amount := depositBox.Deposit.PerCoupon.MulInt(depositTo.Quo(depositBox.Deposit.Price))
+	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom),
+		utils.MulMaxPrecisionByDecimal(amount, depositBox.Deposit.Interest.Decimals))
 }
 
 func TestDepositBoxNotEnoughIteratorEndBlocker(t *testing.T) {
@@ -144,47 +143,41 @@ func TestDepositBoxNotEnoughIteratorEndBlocker(t *testing.T) {
 	keeper.GetBankKeeper().SetSendEnabled(ctx, true)
 	handler := box.NewHandler(keeper)
 
-	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	boxInfo := GetDepositBoxInfo()
+	boxInfo := createDepositBox(t, ctx, keeper)
 
-	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest))
+	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	msg := msgs.NewMsgBox(boxInfo)
-
-	res := handler(ctx, msg)
-	require.True(t, res.IsOK())
-	var boxID string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID)
-	boxInfo.BoxId = boxID
-
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Denom, sdk.NewInt(500)), types.Injection)
-	res = handler(ctx, msgBoxInterest)
+	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals)), types.Injection)
+	res := handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Owner)
-	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Denom), sdk.NewInt(500))
+	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom), issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals))
 
 	newHeader := ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.StartTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.StartTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	depositBox := keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Status, types.BoxClosed)
+	require.Nil(t, depositBox)
+	//require.Equal(t, depositBox.BoxStatus, types.BoxClosed)
 
 	coins = keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Owner)
-	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Denom), boxInfo.Deposit.Interest.Amount)
+	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom), boxInfo.Deposit.Interest.Token.Amount)
 }
 func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 	str := fmt.Sprintf("%saa%s%d", types.IDPreStr, strconv.FormatUint(types.BoxMaxId, 36), 999)
@@ -198,64 +191,60 @@ func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 	keeper.GetBankKeeper().SetSendEnabled(ctx, true)
 	handler := box.NewHandler(keeper)
 
-	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	boxInfo := GetDepositBoxInfo()
+	boxInfo := createDepositBox(t, ctx, keeper)
 
-	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest))
+	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	msg := msgs.NewMsgBox(boxInfo)
-
-	res := handler(ctx, msg)
-	require.True(t, res.IsOK())
-	var boxID string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID)
-	boxInfo.BoxId = boxID
-
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Denom, sdk.NewInt(1000)), types.Injection)
-	res = handler(ctx, msgBoxInterest)
+	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.Injection)
+	res := handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
 	newHeader := ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.StartTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.StartTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.NewCoins(sdk.NewCoin(boxInfo.TotalAmount.Denom, sdk.NewInt(200))))
+	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.NewCoins(sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals))))
 
-	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Denom, sdk.NewInt(100)), types.DepositTo)
+	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals)), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.True(t, res.IsOK())
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Denom), sdk.NewInt(100))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals))
 
 	newHeader = ctx.BlockHeader()
-	newHeader.Time = boxInfo.Deposit.EstablishTime
+	newHeader.Time = time.Unix(boxInfo.Deposit.EstablishTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
 
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.True(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	box.EndBlocker(ctx, keeper)
-	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time)
+	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
 	depositBox := keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Status, types.BoxClosed)
+	require.Nil(t, depositBox)
+	//require.Equal(t, depositBox.BoxStatus, types.BoxClosed)
 
 	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Denom), sdk.NewInt(200))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals))
 }

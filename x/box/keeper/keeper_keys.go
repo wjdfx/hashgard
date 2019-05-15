@@ -1,11 +1,9 @@
 package keeper
 
 import (
-	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hashgard/hashgard/x/box/utils"
 
@@ -16,7 +14,7 @@ import (
 
 // Key for getting a the next available proposalID from the store
 var (
-	KeyDelimiter      = []byte(":")
+	KeyDelimiter      = []byte(types.KeyDelimiterString)
 	PrefixActiveQueue = []byte("active")
 )
 
@@ -42,6 +40,7 @@ func KeyName(boxType string, name string) []byte {
 func KeyAddressDeposit(boxID string, accAddress sdk.AccAddress) []byte {
 	return []byte(fmt.Sprintf("deposit:%s:%s", boxID, accAddress.String()))
 }
+
 func GetAddressFromKeyAddressDeposit(keyAddressDeposit []byte) sdk.AccAddress {
 	str := fmt.Sprintf("%s", keyAddressDeposit)
 	keys := strings.Split(str, ":")
@@ -53,23 +52,22 @@ func PrefixKeyDeposit(boxID string) []byte {
 }
 
 // Returns the key for a boxID in the activeQueue
-func PrefixActiveBoxQueueTime(endTime time.Time) []byte {
-	return bytes.Join([][]byte{
-		PrefixActiveQueue,
-		sdk.FormatTimeBytes(endTime),
-	}, KeyDelimiter)
+func PrefixActiveBoxQueueTime(endTime int64) []byte {
+	return []byte(fmt.Sprintf("active:%d", endTime))
+	//return bytes.Join([][]byte{
+	//	PrefixActiveQueue,
+	//	sdk.FormatTimeBytes(endTime),
+	//}, KeyDelimiter)
 }
 
 // Returns the key for a proposalID in the activeQueue
-func KeyActiveBoxQueue(endTime time.Time, boxIdStr string) []byte {
-	//reg := regexp.MustCompile(`[a-z]`)
-	//boxIdStr = reg.ReplaceAllString(boxIdStr, ``)
-	//boxId, _ := strconv.ParseUint(boxIdStr, 10, 64)
-
-	return bytes.Join([][]byte{
-		PrefixActiveQueue,
-		sdk.FormatTimeBytes(endTime),
-		[]byte(boxIdStr),
-		//sdk.Uint64ToBigEndian(boxId),
-	}, KeyDelimiter)
+func KeyActiveBoxQueue(endTime int64, boxIdStr string) []byte {
+	return []byte(fmt.Sprintf("active:%d:%s", endTime, boxIdStr))
+	//return bytes.Join([][]byte{
+	//	PrefixActiveQueue,
+	//	sdk.FormatTimeBytes(endTime),
+	//
+	//	[]byte(boxIdStr),
+	//	//sdk.Uint64ToBigEndian(boxId),
+	//}, KeyDelimiter)
 }

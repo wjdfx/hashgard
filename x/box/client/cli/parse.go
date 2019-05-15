@@ -13,4 +13,5 @@ const (
 	flagStartTime     = "start-time"
 	flagEstablishTime = "establish-time"
 	flagMaturityTime  = "maturity-time"
+	flagMiniMultiple  = "mini-multiple"
 )

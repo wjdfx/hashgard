@@ -1,6 +1,9 @@
 package keeper
 
-import sdk "github.com/cosmos/cosmos-sdk/types"
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/hashgard/hashgard/x/issue/types"
+)
 
 // expected bank keeper
 type BankKeeper interface {
@@ -9,4 +12,9 @@ type BankKeeper interface {
 	SubtractCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) (sdk.Coins, sdk.Error)
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) sdk.Error
 	SetSendEnabled(ctx sdk.Context, enabled bool)
+}
+
+// expected issue keeper
+type IssueKeeper interface {
+	GetIssue(ctx sdk.Context, issueID string) *types.CoinIssueInfo
 }

@@ -65,10 +65,10 @@ func GetCmdQueryDepositBoxDeposit(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if boxInfo.GetBoxType() != types.Deposit {
+			if boxInfo.GetBoxType() == types.Lock {
 				return errors.Errorf(errors.ErrNotSupportOperation())
 			}
-			if boxInfo.GetDeposit().Status == types.BoxCreated {
+			if boxInfo.GetBoxStatus() == types.BoxCreated {
 				return nil
 			}
 
@@ -88,7 +88,7 @@ func GetCmdQueryDepositBoxDeposit(cdc *codec.Codec) *cobra.Command {
 				if box.Amount.IsZero() {
 					continue
 				}
-				boxs[i].Amount = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, sdk.NewCoin(boxInfo.GetTotalAmount().Denom, box.Amount)).Amount
+				boxs[i].Amount = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, box.Amount)).Amount
 			}
 			return cliCtx.PrintOutput(boxs)
 		},
@@ -164,7 +164,7 @@ func GetCmdSearchBoxs(cdc *codec.Codec) *cobra.Command {
 			var boxs types.BoxInfos
 			cdc.MustUnmarshalJSON(res, &boxs)
 			for i, box := range boxs {
-				boxs[i].TotalAmount = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount)
+				boxs[i].TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
 			}
 			return cliCtx.PrintOutput(utils.GetBoxList(cdc, cliCtx, boxs, args[0]))
 		},

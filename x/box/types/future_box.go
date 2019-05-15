@@ -2,20 +2,23 @@ package types
 
 import (
 	"fmt"
-	"time"
 )
 
 type FutureBox struct {
-	Deposit   []AddressDeposit `json:"deposit"`
-	TimeLine  []time.Time      `json:"time_line"`
-	Receivers [][]string       `json:"receivers"`
+	MiniMultiple uint             `json:"mini_multiple"`
+	Deposits     []AddressDeposit `json:"deposits"`
+	TimeLine     []int64          `json:"time"`
+	Receivers    [][]string       `json:"receivers"`
+	Distributed  []int64          `json:"distributed"`
 }
 
 //nolint
 func (bi FutureBox) String() string {
 	return fmt.Sprintf(`FutureInfo:
+  MiniMultiple:			%d
   Deposit:			%s			
-  TimeLine:			%s
+  TimeLine:			%d
+  Distributed:			%d
   Receivers:			%s`,
-		bi.Deposit, bi.TimeLine, bi.Receivers)
+		bi.MiniMultiple, bi.Deposits, bi.Distributed, bi.TimeLine, bi.Receivers)
 }

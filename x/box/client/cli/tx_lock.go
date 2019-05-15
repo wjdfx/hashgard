@@ -2,7 +2,8 @@ package cli
 
 import (
 	"strconv"
-	"time"
+
+	"github.com/hashgard/hashgard/x/box/params"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -45,22 +46,19 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			boxInfo := types.BoxInfo{}
 
-			boxInfo.Owner = account.GetAddress()
-			boxInfo.Name = args[0]
-			boxInfo.CreatedTime = time.Now()
-			boxInfo.TotalAmount = coin
-			boxInfo.BoxType = types.Lock
-			boxInfo.TradeDisabled = true
-			boxInfo.Lock = types.LockBox{EndTime: time.Unix(endTime, 0)}
+			coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
 
-			boxInfo.TotalAmount.Amount = issueutils.MulDecimals(boxInfo.TotalAmount.Amount, issueInfo.GetDecimals())
+			box := &params.BoxLockParams{}
+			box.Sender = account.GetAddress()
+			box.Name = args[0]
+			box.BoxType = types.Lock
+			box.TotalAmount = types.BoxToken{Token: coin, Decimals: issueInfo.GetDecimals()}
+			box.Lock = types.LockBox{EndTime: endTime}
 
-			msg := msgs.NewMsgBox(&boxInfo)
+			msg := msgs.NewMsgLockBox(box)
 
 			validateErr := msg.ValidateBasic()
-
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
 			}

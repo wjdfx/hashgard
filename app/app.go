@@ -198,6 +198,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(box.DefaultParamspace),
 		app.bankKeeper,
+		app.issueKeeper,
 		box.DefaultCodespace)
 
 	app.exchangeKeeper = exchange.NewKeeper(

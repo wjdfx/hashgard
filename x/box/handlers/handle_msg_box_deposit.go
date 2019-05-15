@@ -12,7 +12,7 @@ import (
 //Handle MsgBoxDeposit
 func HandleMsgBoxDeposit(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDeposit) sdk.Result {
 
-	boxInfo, err := keeper.ProcessDepositBoxDeposit(ctx, msg.BoxId, msg.Sender, msg.Deposit, msg.Operation)
+	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.BoxId, msg.Sender, msg.Deposit, msg.Operation)
 	if err != nil {
 		return err.Result()
 	}

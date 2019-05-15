@@ -15,8 +15,12 @@ import (
 func NewHandler(keeper keeper.Keeper) sdk.Handler {
 	return func(ctx sdk.Context, msg sdk.Msg) sdk.Result {
 		switch msg := msg.(type) {
-		case msgs.MsgBox:
-			return handlers.HandleMsgBox(ctx, keeper, msg)
+		case msgs.MsgLockBox:
+			return handlers.HandleMsgLockBox(ctx, keeper, msg)
+		case msgs.MsgDepositBox:
+			return handlers.HandleMsgDepositBox(ctx, keeper, msg)
+		case msgs.MsgFutureBox:
+			return handlers.HandleMsgFutureBox(ctx, keeper, msg)
 		case msgs.MsgBoxInterest:
 			return handlers.HandleMsgBoxInterest(ctx, keeper, msg)
 		case msgs.MsgBoxDeposit:

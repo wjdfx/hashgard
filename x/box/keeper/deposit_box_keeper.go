@@ -1,18 +1,30 @@
 package keeper
 
 import (
+	"github.com/hashgard/hashgard/x/box/utils"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/types"
+	issueerr "github.com/hashgard/hashgard/x/issue/errors"
 )
 
 //Process deposit box
 
 func (keeper Keeper) ProcessDepositBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	box.Deposit.Status = types.BoxCreated
+
+	coinIssueInfo := keeper.ik.GetIssue(ctx, box.Deposit.Interest.Token.Denom)
+	if coinIssueInfo == nil {
+		return issueerr.ErrUnknownIssue(box.Deposit.Interest.Token.Denom)
+	}
+	if box.Deposit.Interest.Decimals != coinIssueInfo.GetDecimals() {
+		return errors.ErrDecimalsNotValid(box.Deposit.Interest.Decimals)
+	}
+
+	box.BoxStatus = types.BoxCreated
 	box.Deposit.TotalDeposit = sdk.ZeroInt()
+	//box.Deposit.TotalInterestInjection = sdk.ZeroInt()
 	box.Deposit.Share = sdk.ZeroInt()
-	box.Deposit.Coupon = box.Deposit.Interest.Amount.Quo(box.TotalAmount.Amount.Quo(box.Deposit.Price))
 	keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.BoxId)
 	return nil
 }
@@ -32,39 +44,38 @@ func (keeper Keeper) injectionDepositBoxInterest(ctx sdk.Context, boxID string, 
 	if box == nil {
 		return nil, errors.ErrUnknownBox(boxID)
 	}
-	if types.BoxCreated != box.Deposit.Status {
-		return nil, errors.ErrNotAllowedOperation(box.Deposit.Status)
+	if types.BoxCreated != box.BoxStatus {
+		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
 	}
-	if box.Deposit.Interest.Denom != interest.Denom {
+	if box.Deposit.Interest.Token.Denom != interest.Denom {
 		return nil, errors.ErrInterestInjectionNotValid(interest)
 	}
-	if len(box.Deposit.InterestInjection) >= types.BoxMaxInjectionInterest {
+	if len(box.Deposit.InterestInjections) >= types.BoxMaxInjectionInterest {
 		return nil, errors.ErrInterestInjectionNotValid(interest)
 	}
 
 	totalInterest := sdk.ZeroInt()
-	if box.Deposit.InterestInjection == nil {
-		box.Deposit.InterestInjection = []types.AddressDeposit{{Address: sender, Amount: interest.Amount}}
+	if box.Deposit.InterestInjections == nil {
+		box.Deposit.InterestInjections = []types.AddressDeposit{{Address: sender, Amount: interest.Amount}}
 	} else {
 		exist := false
-		for i, v := range box.Deposit.InterestInjection {
+		for i, v := range box.Deposit.InterestInjections {
 			totalInterest = totalInterest.Add(v.Amount)
 			if v.Address.Equals(sender) {
-				box.Deposit.InterestInjection[i].Amount = box.Deposit.InterestInjection[i].Amount.Add(interest.Amount)
+				box.Deposit.InterestInjections[i].Amount = box.Deposit.InterestInjections[i].Amount.Add(interest.Amount)
 				exist = true
 			}
 		}
 		if !exist {
-			box.Deposit.InterestInjection = append(box.Deposit.InterestInjection, types.NewAddressDeposit(sender, interest.Amount))
+			box.Deposit.InterestInjections = append(box.Deposit.InterestInjections, types.NewAddressDeposit(sender, interest.Amount))
 		}
 	}
 	totalInterest = totalInterest.Add(interest.Amount)
-	if totalInterest.GT(box.Deposit.Interest.Amount) {
+	if totalInterest.GT(box.Deposit.Interest.Token.Amount) {
 		return nil, errors.ErrInterestInjectionNotValid(interest)
 	}
 
-	_, err := keeper.ck.SubtractCoins(ctx, sender, sdk.Coins{interest})
-	if err != nil {
+	if err := keeper.SendDepositedCoin(ctx, sender, sdk.Coins{interest}, boxID); err != nil {
 		return nil, err
 	}
 	keeper.setBox(ctx, box)
@@ -76,151 +87,185 @@ func (keeper Keeper) fetchInterestFromDepositBox(ctx sdk.Context, boxID string, 
 	if box == nil {
 		return nil, errors.ErrUnknownBox(boxID)
 	}
-	if types.BoxCreated != box.Deposit.Status {
-		return nil, errors.ErrNotAllowedOperation(box.Deposit.Status)
+	if types.BoxCreated != box.BoxStatus {
+		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
 	}
-	if box.Deposit.Interest.Denom != interest.Denom {
+	if box.Deposit.Interest.Token.Denom != interest.Denom {
 		return nil, errors.ErrInterestInjectionNotValid(interest)
 	}
-	if box.Deposit.InterestInjection == nil {
+	if box.Deposit.InterestInjections == nil {
 		return nil, errors.ErrInterestFetchNotValid(interest)
 	} else {
 		remove := -1
-		for i, v := range box.Deposit.InterestInjection {
+		for i, v := range box.Deposit.InterestInjections {
 			if v.Address.Equals(sender) {
-				if box.Deposit.InterestInjection[i].Amount.LT(interest.Amount) {
+				if box.Deposit.InterestInjections[i].Amount.LT(interest.Amount) {
 					return nil, errors.ErrNotEnoughAmount()
 				}
-				box.Deposit.InterestInjection[i].Amount = box.Deposit.InterestInjection[i].Amount.Sub(interest.Amount)
-				if box.Deposit.InterestInjection[i].Amount.IsZero() {
+				box.Deposit.InterestInjections[i].Amount = box.Deposit.InterestInjections[i].Amount.Sub(interest.Amount)
+				if box.Deposit.InterestInjections[i].Amount.IsZero() {
 					remove = i
 				}
 			}
 		}
 		if remove != -1 {
-			box.Deposit.InterestInjection = append(box.Deposit.InterestInjection[:remove], box.Deposit.InterestInjection[remove+1:]...)
+			box.Deposit.InterestInjections = append(box.Deposit.InterestInjections[:remove], box.Deposit.InterestInjections[remove+1:]...)
 		}
 	}
-	_, err := keeper.ck.AddCoins(ctx, sender, sdk.Coins{interest})
-	if err != nil {
+	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.Coins{interest}, boxID); err != nil {
 		return nil, err
 	}
-
 	keeper.setBox(ctx, box)
 	return box, nil
 }
-func (keeper Keeper) ProcessDepositBoxDeposit(ctx sdk.Context, boxID string, sender sdk.AccAddress, deposit sdk.Coin, operation string) (*types.BoxInfo, sdk.Error) {
+func (keeper Keeper) processDepositBoxDeposit(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin, operation string) sdk.Error {
 
 	switch operation {
 	case types.DepositTo:
-		return keeper.depositToDepositBox(ctx, boxID, sender, deposit)
+		return keeper.depositToDepositBox(ctx, box, sender, deposit)
 	case types.Fetch:
-		return keeper.fetchDepositFromDepositBox(ctx, boxID, sender, deposit)
+		return keeper.fetchDepositFromDepositBox(ctx, box, sender, deposit)
 
 	}
-	return nil, errors.ErrUnknownOperation()
+	return errors.ErrUnknownOperation()
 }
-func (keeper Keeper) depositToDepositBox(ctx sdk.Context, boxID string, sender sdk.AccAddress, deposit sdk.Coin) (*types.BoxInfo, sdk.Error) {
-	boxInfo := keeper.GetBox(ctx, boxID)
-	if boxInfo == nil {
-		return nil, errors.ErrUnknownBox(boxID)
+func (keeper Keeper) depositToDepositBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
+	if !deposit.Amount.Mod(box.Deposit.Price).IsZero() {
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
-	if types.DepositBoxDeposit != boxInfo.Deposit.Status {
-		return nil, errors.ErrNotAllowedOperation(boxInfo.Deposit.Status)
+	if box.TotalAmount.Token.Denom != deposit.Denom {
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
-	if !deposit.Amount.Mod(boxInfo.Deposit.Price).IsZero() {
-		return nil, errors.ErrAmountNotValid(deposit.Denom)
+	box.Deposit.TotalDeposit = box.Deposit.TotalDeposit.Add(deposit.Amount)
+	if box.Deposit.TotalDeposit.GT(box.TotalAmount.Token.Amount) {
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
-	if boxInfo.TotalAmount.Denom != deposit.Denom {
-		return nil, errors.ErrAmountNotValid(deposit.Denom)
+
+	if err := keeper.SendDepositedCoin(ctx, sender, sdk.Coins{deposit}, box.BoxId); err != nil {
+		return err
 	}
-	boxInfo.Deposit.TotalDeposit = boxInfo.Deposit.TotalDeposit.Add(deposit.Amount)
-	if boxInfo.Deposit.TotalDeposit.GT(boxInfo.TotalAmount.Amount) {
-		return nil, errors.ErrAmountNotValid(deposit.Denom)
-	}
-	_, err := keeper.ck.SubtractCoins(ctx, sender, sdk.Coins{deposit})
-	if err != nil {
-		return nil, err
-	}
-	keeper.addAddressDeposit(ctx, boxID, sender, deposit.Amount)
-	boxInfo.Deposit.Share = boxInfo.Deposit.Share.Add(deposit.Amount.Quo(boxInfo.Deposit.Price))
-	keeper.setBox(ctx, boxInfo)
-	return boxInfo, nil
+	keeper.addAddressDeposit(ctx, box.BoxId, sender, deposit.Amount)
+	box.Deposit.Share = box.Deposit.Share.Add(deposit.Amount.Quo(box.Deposit.Price))
+
+	keeper.setBox(ctx, box)
+	return nil
 }
-func (keeper Keeper) fetchDepositFromDepositBox(ctx sdk.Context, boxID string, sender sdk.AccAddress, deposit sdk.Coin) (*types.BoxInfo, sdk.Error) {
-	boxInfo := keeper.GetBox(ctx, boxID)
-	if boxInfo == nil {
-		return nil, errors.ErrUnknownBox(boxID)
+func (keeper Keeper) fetchDepositFromDepositBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
+
+	if !deposit.Amount.Mod(box.Deposit.Price).IsZero() {
+		return errors.ErrAmountNotValid(deposit.Amount.String())
 	}
-	if types.DepositBoxDeposit != boxInfo.Deposit.Status {
-		return nil, errors.ErrNotAllowedOperation(boxInfo.Deposit.Status)
-	}
-	if !deposit.Amount.Mod(boxInfo.Deposit.Price).IsZero() {
-		return nil, errors.ErrAmountNotValid(deposit.Amount.String())
-	}
-	amount := keeper.GetDepositByAddress(ctx, boxID, sender)
+	amount := keeper.GetDepositByAddress(ctx, box.BoxId, sender)
 	if amount.LT(deposit.Amount) {
-		return nil, errors.ErrAmountNotValid(deposit.Denom)
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
-	_, err := keeper.ck.AddCoins(ctx, sender, sdk.Coins{deposit})
-	if err != nil {
-		return nil, err
+	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.Coins{deposit}, box.BoxId); err != nil {
+		return err
 	}
 	amount = amount.Sub(deposit.Amount)
 	if amount.IsZero() {
-		keeper.removeAddressDeposit(ctx, boxID, sender)
+		keeper.removeAddressDeposit(ctx, box.BoxId, sender)
 	} else {
-		keeper.setAddressDeposit(ctx, boxID, sender, amount)
+		keeper.setAddressDeposit(ctx, box.BoxId, sender, amount)
 	}
 
-	boxInfo.Deposit.Share = boxInfo.Deposit.Share.Sub(deposit.Amount.Quo(boxInfo.Deposit.Price))
-	keeper.setBox(ctx, boxInfo)
-	return boxInfo, nil
+	box.Deposit.Share = box.Deposit.Share.Sub(deposit.Amount.Quo(box.Deposit.Price))
+	keeper.setBox(ctx, box)
+	return nil
 }
 func (keeper Keeper) ProcessDepositBoxByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 
 	var err sdk.Error
-	switch box.Deposit.Status {
+	switch box.BoxStatus {
 	case types.BoxCreated:
 		err = keeper.processBoxCreatedByEndBlocker(ctx, box)
-	case types.DepositBoxDeposit:
-		err = keeper.processDepositBoxDepositByEndBlocker(ctx, box)
+	case types.BoxDepositing:
+		err = keeper.processDepositBoxDepositToByEndBlocker(ctx, box)
 	case types.DepositBoxInterest:
 		err = keeper.processDepositBoxInterestByEndBlocker(ctx, box)
 	}
 	return err
 }
+func (keeper Keeper) backBoxInterestInjections(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	for _, v := range box.Deposit.InterestInjections {
+		if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, v.Amount)), box.BoxId); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+func (keeper Keeper) backBoxUnUsedInterestInjections(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	totalCoupon := box.TotalAmount.Token.Amount.Quo(box.Deposit.Price)
+	if totalCoupon.Equal(box.Deposit.Share) {
+		return nil
+	}
+
+	unused := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(totalCoupon.Sub(box.Deposit.Share)), box.Deposit.Interest.Decimals)
+	interestInjectionsLen := len(box.Deposit.InterestInjections)
+
+	if interestInjectionsLen == 0 {
+		if err := keeper.FetchDepositedCoin(ctx, box.Deposit.InterestInjections[0].Address,
+			sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, unused)), box.BoxId); err != nil {
+			return err
+		}
+		box.Deposit.InterestInjections[0].Amount = box.Deposit.InterestInjections[0].Amount.Sub(unused)
+	} else {
+		total := sdk.ZeroInt()
+		for i, v := range box.Deposit.InterestInjections {
+			var amount sdk.Int
+			if i == interestInjectionsLen-1 {
+				amount = unused.Sub(total)
+			} else {
+				amount = sdk.NewDecFromInt(v.Amount).QuoInt(box.Deposit.Interest.Token.Amount).MulInt(unused).TruncateInt()
+			}
+			if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, amount)), box.BoxId); err != nil {
+				return err
+			}
+			box.Deposit.InterestInjections[i].Amount = box.Deposit.InterestInjections[i].Amount.Sub(amount)
+			total = total.Add(amount)
+		}
+	}
+
+	box.Deposit.Interest.Token.Amount = box.Deposit.Interest.Token.Amount.Sub(unused)
+	keeper.setBox(ctx, box)
+	return nil
+}
+func (keeper Keeper) backBoxAllDeposit(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	for _, v := range box.Deposit.InterestInjections {
+		if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, v.Amount)), box.BoxId); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 func (keeper Keeper) processBoxCreatedByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	if box.Deposit.Status != types.BoxCreated {
+	if box.BoxStatus != types.BoxCreated {
 		return nil
 	}
 	totalInterest := sdk.ZeroInt()
-	if box.Deposit.InterestInjection != nil {
-		for _, v := range box.Deposit.InterestInjection {
+	if box.Deposit.InterestInjections != nil {
+		for _, v := range box.Deposit.InterestInjections {
 			totalInterest = totalInterest.Add(v.Amount)
 		}
 	}
-	if box.Deposit.Interest.Amount.Equal(totalInterest) {
-		box.Deposit.Status = types.DepositBoxDeposit
+	if box.Deposit.Interest.Token.Amount.Equal(totalInterest) {
+		box.BoxStatus = types.BoxDepositing
 		keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.BoxId)
+		keeper.setBox(ctx, box)
 	} else {
-		box.Deposit.Status = types.BoxClosed
-		for _, v := range box.Deposit.InterestInjection {
-			_, err := keeper.ck.AddCoins(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Denom, v.Amount)))
-			if err != nil {
-				return err
-			}
+		box.BoxStatus = types.BoxClosed
+		if err := keeper.backBoxInterestInjections(ctx, box); err != nil {
+			return err
 		}
-		//keeper.RemoveBox(ctx, box)
+		keeper.RemoveBox(ctx, box)
 	}
 
-	keeper.setBox(ctx, box)
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Deposit.StartTime, box.BoxId)
 
 	return nil
 }
-func (keeper Keeper) processDepositBoxDepositByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	if box.Deposit.Status != types.DepositBoxDeposit {
+func (keeper Keeper) processDepositBoxDepositToByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	if box.BoxStatus != types.BoxDepositing {
 		return nil
 	}
 	store := ctx.KVStore(keeper.storeKey)
@@ -234,35 +279,49 @@ func (keeper Keeper) processDepositBoxDepositByEndBlocker(ctx sdk.Context, box *
 		var amount sdk.Int
 		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &amount)
 		if box.Deposit.TotalDeposit.GTE(box.Deposit.BottomLine) {
-			box.Deposit.Status = types.DepositBoxInterest
-			_, err := keeper.ck.AddCoins(ctx, GetAddressFromKeyAddressDeposit(iterator.Key()), sdk.NewCoins(sdk.NewCoin(box.BoxId, amount)))
+			box.BoxStatus = types.DepositBoxInterest
+			_, err := keeper.ck.SubtractCoins(ctx, keeper.getDepositedCoinsAddress(box.BoxId), sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)))
+			if err != nil {
+				return err
+			}
+			_, err = keeper.ck.AddCoins(ctx, GetAddressFromKeyAddressDeposit(iterator.Key()), sdk.NewCoins(sdk.NewCoin(box.BoxId, amount.Quo(box.Deposit.Price))))
 			if err != nil {
 				return err
 			}
 		} else {
-			box.Deposit.Status = types.BoxClosed
-			_, err := keeper.ck.AddCoins(ctx, GetAddressFromKeyAddressDeposit(iterator.Key()), sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Denom, amount)))
-			if err != nil {
+			box.BoxStatus = types.BoxClosed
+			if err := keeper.FetchDepositedCoin(ctx, GetAddressFromKeyAddressDeposit(iterator.Key()),
+				sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.BoxId); err != nil {
 				return err
 			}
-			//keeper.RemoveBox(ctx, box)
 		}
 	}
 
-	keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.BoxId)
-	keeper.setBox(ctx, box)
+	if box.BoxStatus == types.BoxClosed {
+		if err := keeper.backBoxInterestInjections(ctx, box); err != nil {
+			return err
+		}
+		keeper.RemoveBox(ctx, box)
+	} else {
+		if err := keeper.backBoxUnUsedInterestInjections(ctx, box); err != nil {
+			return err
+		}
+		keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.BoxId)
+		keeper.setBox(ctx, box)
+	}
 
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.BoxId)
-
 	return nil
 }
 func (keeper Keeper) processDepositBoxInterestByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	if box.Deposit.Status != types.DepositBoxInterest {
+	if box.BoxStatus != types.DepositBoxInterest {
 		return nil
 	}
 	store := ctx.KVStore(keeper.storeKey)
 	iterator := sdk.KVStorePrefixIterator(store, PrefixKeyDeposit(box.BoxId))
 	defer iterator.Close()
+	totalInterest := sdk.ZeroInt()
+	var address sdk.AccAddress
 	for ; iterator.Valid(); iterator.Next() {
 		bz := iterator.Value()
 		if len(bz) == 0 {
@@ -270,23 +329,32 @@ func (keeper Keeper) processDepositBoxInterestByEndBlocker(ctx sdk.Context, box 
 		}
 		var amount sdk.Int
 		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &amount)
-		address := GetAddressFromKeyAddressDeposit(iterator.Key())
+		address = GetAddressFromKeyAddressDeposit(iterator.Key())
 
-		_, err := keeper.ck.SubtractCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.BoxId, amount)))
+		share := amount.Quo(box.Deposit.Price)
+		_, err := keeper.ck.SubtractCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.BoxId, share)))
 		if err != nil {
 			return err
 		}
-		_, err = keeper.ck.AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Denom, amount)))
+		_, err = keeper.ck.AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)))
 		if err != nil {
 			return err
 		}
-		_, err = keeper.ck.AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Denom, amount.Quo(box.Deposit.Price).Mul(box.Deposit.Coupon))))
+		interest := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(share), box.Deposit.Interest.Decimals)
+		_, err = keeper.ck.AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, interest)))
+		if err != nil {
+			return err
+		}
+		totalInterest = totalInterest.Add(interest)
+	}
+	if !totalInterest.Equal(box.Deposit.Interest.Token.Amount) {
+		_, err := keeper.ck.AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, box.Deposit.Interest.Token.Amount.Sub(totalInterest))))
 		if err != nil {
 			return err
 		}
 	}
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.BoxId)
-	box.Deposit.Status = types.BoxFinished
+	box.BoxStatus = types.BoxFinished
 	keeper.setBox(ctx, box)
 	return nil
 }

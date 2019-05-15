@@ -12,33 +12,36 @@ import (
 
 type LockBoxInfo struct {
 	BoxId         string         `json:"box_id"`
+	BoxStatus     string         `json:"box_status"`
 	Owner         sdk.AccAddress `json:"owner"`
 	Name          string         `json:"name"`
 	BoxType       string         `json:"type"`
 	CreatedTime   time.Time      `json:"created_time"`
-	TotalAmount   sdk.Coin       `json:"total_amount"`
+	TotalAmount   types.BoxToken `json:"total_amount"`
 	Description   string         `json:"description"`
 	TradeDisabled bool           `json:"trade_disabled"`
 	Lock          types.LockBox  `json:"lock"`
 }
 type DepositBoxInfo struct {
 	BoxId         string           `json:"box_id"`
+	BoxStatus     string           `json:"box_status"`
 	Owner         sdk.AccAddress   `json:"owner"`
 	Name          string           `json:"name"`
 	BoxType       string           `json:"type"`
 	CreatedTime   time.Time        `json:"created_time"`
-	TotalAmount   sdk.Coin         `json:"total_amount"`
+	TotalAmount   types.BoxToken   `json:"total_amount"`
 	Description   string           `json:"description"`
 	TradeDisabled bool             `json:"trade_disabled"`
 	Deposit       types.DepositBox `json:"deposit"`
 }
 type FutureBoxInfo struct {
 	BoxId         string          `json:"box_id"`
+	BoxStatus     string          `json:"box_status"`
 	Owner         sdk.AccAddress  `json:"owner"`
 	Name          string          `json:"name"`
 	BoxType       string          `json:"type"`
 	CreatedTime   time.Time       `json:"created_time"`
-	TotalAmount   sdk.Coin        `json:"total_amount"`
+	TotalAmount   types.BoxToken  `json:"total_amount"`
 	Description   string          `json:"description"`
 	TradeDisabled bool            `json:"trade_disabled"`
 	Future        types.FutureBox `json:"future"`
@@ -48,10 +51,11 @@ type DepositBoxInfos []DepositBoxInfo
 type FutureBoxInfos []FutureBoxInfo
 
 //nolint
-func getString(BoxId string, Owner sdk.AccAddress, Name string, BoxType string, CreatedTime time.Time,
-	TotalAmount sdk.Coin, Description string, TradeDisabled bool) string {
+func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string, BoxType string, CreatedTime time.Time,
+	TotalAmount types.BoxToken, Description string, TradeDisabled bool) string {
 	return fmt.Sprintf(`BoxInfo:
   BoxId:			%s
+  BoxStatus:			%s
   Owner:			%s
   Name:				%s
   BoxType:			%s
@@ -59,13 +63,13 @@ func getString(BoxId string, Owner sdk.AccAddress, Name string, BoxType string, 
   CreatedTime:			%s
   Description:			%s
   TradeDisabled:		%t`,
-		BoxId, Owner.String(), Name, BoxType, TotalAmount.String(),
+		BoxId, BoxStatus, Owner.String(), Name, BoxType, TotalAmount.String(),
 		CreatedTime.String(), Description, TradeDisabled)
 }
 
 //nolint
 func (bi LockBoxInfo) String() string {
-	str := getString(bi.BoxId, bi.Owner, bi.Name, bi.BoxType,
+	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
 		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
 
 	return fmt.Sprintf(`%s
@@ -74,7 +78,7 @@ func (bi LockBoxInfo) String() string {
 
 //nolint
 func (bi DepositBoxInfo) String() string {
-	str := getString(bi.BoxId, bi.Owner, bi.Name, bi.BoxType,
+	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
 		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
 
 	return fmt.Sprintf(`%s
@@ -83,7 +87,7 @@ func (bi DepositBoxInfo) String() string {
 
 //nolint
 func (bi FutureBoxInfo) String() string {
-	str := getString(bi.BoxId, bi.Owner, bi.Name, bi.BoxType,
+	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
 		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
 
 	return fmt.Sprintf(`%s
@@ -96,7 +100,7 @@ func (bi LockBoxInfos) String() string {
 		"BoxID", "Owner", "Name", "TotalAmount", "EndTime")
 	for _, box := range bi {
 		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
-			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.Lock.EndTime.String())
+			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.Token.String(), time.Unix(box.Lock.EndTime, 0).String())
 	}
 	return strings.TrimSpace(out)
 }

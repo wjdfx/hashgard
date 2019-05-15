@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -16,17 +15,20 @@ type Box interface {
 	GetBoxType() string
 	SetBoxType(string)
 
+	GetBoxStatus() string
+	SetBoxStatus(string)
+
 	GetOwner() sdk.AccAddress
 	SetOwner(sdk.AccAddress)
 
-	GetCreatedTime() time.Time
-	SetCreatedTime(time.Time)
+	GetCreatedTime() int64
+	SetCreatedTime(int64)
 
 	GetName() string
 	SetName(string)
 
-	GetTotalAmount() sdk.Coin
-	SetTotalAmount(sdk.Coin)
+	GetTotalAmount() BoxToken
+	SetTotalAmount(BoxToken)
 
 	GetDescription() string
 	SetDescription(string)
@@ -53,11 +55,12 @@ type BoxInfos []BoxInfo
 //}
 type BoxInfo struct {
 	BoxId         string         `json:"box_id"`
+	BoxStatus     string         `json:"box_status"`
 	Owner         sdk.AccAddress `json:"owner"`
 	Name          string         `json:"name"`
 	BoxType       string         `json:"type"`
-	CreatedTime   time.Time      `json:"created_time"`
-	TotalAmount   sdk.Coin       `json:"total_amount"`
+	CreatedTime   int64          `json:"created_time"`
+	TotalAmount   BoxToken       `json:"total_amount"`
 	Description   string         `json:"description"`
 	TradeDisabled bool           `json:"trade_disabled"`
 	Lock          LockBox        `json:"lock"`
@@ -80,16 +83,22 @@ func (bi BoxInfo) GetBoxType() string {
 func (bi *BoxInfo) SetBoxType(boxType string) {
 	bi.BoxType = boxType
 }
+func (bi BoxInfo) GetBoxStatus() string {
+	return bi.BoxStatus
+}
+func (bi *BoxInfo) SetBoxStatus(boxStatus string) {
+	bi.BoxStatus = boxStatus
+}
 func (bi BoxInfo) GetOwner() sdk.AccAddress {
 	return bi.Owner
 }
 func (bi *BoxInfo) SetOwner(owner sdk.AccAddress) {
 	bi.Owner = owner
 }
-func (bi BoxInfo) GetCreatedTime() time.Time {
+func (bi BoxInfo) GetCreatedTime() int64 {
 	return bi.CreatedTime
 }
-func (bi *BoxInfo) SetCreatedTime(createdTime time.Time) {
+func (bi *BoxInfo) SetCreatedTime(createdTime int64) {
 	bi.CreatedTime = createdTime
 }
 func (bi BoxInfo) GetName() string {
@@ -98,10 +107,10 @@ func (bi BoxInfo) GetName() string {
 func (bi *BoxInfo) SetName(name string) {
 	bi.Name = name
 }
-func (bi BoxInfo) GetTotalAmount() sdk.Coin {
+func (bi BoxInfo) GetTotalAmount() BoxToken {
 	return bi.TotalAmount
 }
-func (bi *BoxInfo) SetTotalAmount(totalAmount sdk.Coin) {
+func (bi *BoxInfo) SetTotalAmount(totalAmount BoxToken) {
 	bi.TotalAmount = totalAmount
 }
 func (bi BoxInfo) GetDescription() string {
@@ -159,23 +168,24 @@ func (bi AddressDeposit) String() string {
 func (bi BoxInfo) String() string {
 	return fmt.Sprintf(`Box:
   BoxId: 	         			%s
+  BoxStatus:					%s
   Owner:           				%s
   Name:             			%s
   TotalAmount:      			%s
-  CreatedTime:					%s
+  CreatedTime:					%d
   Description:	    			%s
   TradeDisabled:  				%t`,
-		bi.BoxId, bi.Owner.String(), bi.Name, bi.TotalAmount.String(),
-		bi.CreatedTime.String(), bi.Description, bi.TradeDisabled)
+		bi.BoxId, bi.BoxStatus, bi.Owner.String(), bi.Name, bi.TotalAmount.String(),
+		bi.CreatedTime, bi.Description, bi.TradeDisabled)
 }
 
 //nolint
 func (bi BoxInfos) String() string {
-	out := fmt.Sprintf("%-17s|%-44s|%-16s|%s\n",
-		"BoxID", "Owner", "Name", "BoxTime")
+	out := fmt.Sprintf("%-17s|%-10s|%-44s|%-16s|%s\n",
+		"BoxID", "Status", "Owner", "Name", "BoxTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%s\n",
-			box.GetBoxId(), box.GetOwner().String(), box.GetName(), box.GetCreatedTime().String())
+		out += fmt.Sprintf("%-17s|%-10s|%-44s|%-16s|%d\n",
+			box.GetBoxId(), box.GetBoxStatus(), box.GetOwner().String(), box.GetName(), box.GetCreatedTime())
 	}
 	return strings.TrimSpace(out)
 }

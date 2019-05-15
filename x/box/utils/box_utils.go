@@ -2,6 +2,8 @@ package utils
 
 import (
 	"fmt"
+	"math"
+	"strconv"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -24,6 +26,12 @@ func CheckBoxId(boxID string) sdk.Error {
 		return errors.ErrBoxID(boxID)
 	}
 	return nil
+}
+
+func CalcInterestRate(totalAmount sdk.Int, price sdk.Int, interest sdk.Int, decimals uint) sdk.Dec {
+	totalCoupon := totalAmount.Quo(price)
+	perCoupon := sdk.NewDecFromBigInt(interest.BigInt()).QuoTruncate(sdk.NewDecFromBigInt(totalCoupon.BigInt()))
+	return QuoMaxPrecisionByDecimal(perCoupon, decimals)
 }
 
 func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (types.Box, error) {
@@ -54,7 +62,7 @@ func GetBoxTokenDecimal(cdc *codec.Codec, cliCtx context.CLIContext, boxID strin
 		return 0, err
 	}
 
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Denom)
+	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Token.Denom)
 	if err != nil {
 		return 0, err
 	}
@@ -77,4 +85,40 @@ func GetBoxTypeByValue(value string) string {
 
 	}
 	return ""
+}
+func GetCoinDenomByFutureBoxSeq(boxID string, seq int) string {
+	return fmt.Sprintf("%s%02d", boxID, seq)
+}
+func GetSeqFromFutureBoxSeq(boxSeqStr string) int {
+	seqStr := boxSeqStr[len(boxSeqStr)-2:]
+	seq, _ := strconv.Atoi(seqStr)
+	return seq
+}
+func GetMaxPrecision(dec sdk.Dec, decimals uint) sdk.Dec {
+	precision := types.MaxPrecision
+	if decimals < types.MaxPrecision {
+		precision = decimals
+	}
+	decStr := dec.String()
+	len := strings.Index(decStr, ".") + int(precision)
+	str := decStr[0 : len+1]
+	dec, _ = sdk.NewDecFromStr(str)
+	return dec
+}
+func GetMultipleDecimals(decimals uint) sdk.Int {
+	multiple := math.Pow10(int(decimals))
+	multipleStr := strconv.FormatFloat(multiple, 'f', 0, 64)
+	multipleDecimals, _ := sdk.NewIntFromString(multipleStr)
+	return multipleDecimals
+}
+func QuoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
+	dec = dec.QuoInt(GetMultipleDecimals(decimals))
+
+	dec = GetMaxPrecision(dec, decimals)
+
+	return dec
+}
+func MulMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Int {
+	dec = GetMaxPrecision(dec, decimals)
+	return dec.MulInt(GetMultipleDecimals(decimals)).TruncateInt()
 }

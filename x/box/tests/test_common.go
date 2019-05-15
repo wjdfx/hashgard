@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box/params"
+
 	"github.com/hashgard/hashgard/x/box/types"
 
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -20,55 +22,90 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/mock"
 
 	"github.com/hashgard/hashgard/x/box"
-	"github.com/hashgard/hashgard/x/box/msgs"
-
 	"github.com/hashgard/hashgard/x/box/keeper"
+	"github.com/hashgard/hashgard/x/box/msgs"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
 var (
-	TransferAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
-	SenderAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
+	TransferAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
+	SenderAccAddr     = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
+	TestTokenDecimals = uint(18)
 
 	newBoxInfo = types.BoxInfo{
 		Owner:         SenderAccAddr,
-		CreatedTime:   time.Now(),
 		Name:          "testBox",
-		TotalAmount:   sdk.NewCoin("text", sdk.NewInt(10000)),
 		BoxType:       types.Lock,
 		Description:   "{}",
 		TradeDisabled: true,
+		TotalAmount: types.BoxToken{
+			Token: sdk.NewCoin(
+				"text",
+				issueutils.MulDecimals(sdk.NewInt(10000), TestTokenDecimals)),
+			Decimals: TestTokenDecimals},
 	}
 )
 
-func GetLockBoxInfo() *types.BoxInfo {
-	boxInfo := newBoxInfo
-	boxInfo.TotalAmount.Amount = sdk.NewInt(10000)
-	boxInfo.BoxType = types.Lock
-	boxInfo.Lock.EndTime = time.Now().Add(time.Duration(1) * time.Minute)
-	return &boxInfo
+func GetLockBoxInfo() *params.BoxLockParams {
+
+	box := &params.BoxLockParams{}
+	box.Sender = newBoxInfo.Owner
+	box.Name = newBoxInfo.Name
+	box.BoxType = types.Lock
+	box.TotalAmount = newBoxInfo.TotalAmount
+	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(1) * time.Minute).Unix()}
+
+	return box
 }
-func GetDepositBoxInfo() *types.BoxInfo {
-	boxInfo := newBoxInfo
-	boxInfo.TotalAmount.Amount = sdk.NewInt(10000)
-	boxInfo.BoxType = types.Deposit
-	boxInfo.Deposit = types.DepositBox{
-		StartTime:     time.Now().Add(time.Duration(24) * time.Hour),
-		EstablishTime: time.Now().Add(time.Duration(48) * time.Hour),
-		MaturityTime:  time.Now().Add(time.Duration(96) * time.Hour),
-		BottomLine:    sdk.NewInt(200),
-		Price:         sdk.NewInt(100),
-		Interest:      sdk.NewCoin("interest", sdk.NewInt(1000)),
-		Coupon:        sdk.ZeroInt()}
-	return &boxInfo
+func GetDepositBoxInfo() *params.BoxDepositParams {
+	box := &params.BoxDepositParams{}
+	box.Sender = newBoxInfo.Owner
+	box.Name = newBoxInfo.Name
+	box.BoxType = types.Deposit
+	box.TotalAmount = newBoxInfo.TotalAmount
+
+	box.Deposit = types.DepositBox{
+		StartTime:     time.Now().Add(time.Duration(24) * time.Hour).Unix(),
+		EstablishTime: time.Now().Add(time.Duration(48) * time.Hour).Unix(),
+		MaturityTime:  time.Now().Add(time.Duration(96) * time.Hour).Unix(),
+		BottomLine:    issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals),
+		Price:         issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals),
+		Interest: types.BoxToken{
+			Token: sdk.NewCoin(
+				"interest",
+				issueutils.MulDecimals(sdk.NewInt(33), TestTokenDecimals)),
+			Decimals: TestTokenDecimals}}
+	return box
 }
-func GetFutureBoxInfo() *types.BoxInfo {
-	boxInfo := newBoxInfo
-	boxInfo.TotalAmount.Amount = sdk.NewInt(10000)
-	boxInfo.BoxType = types.Future
-	boxInfo.Future.TimeLine = []time.Time{time.Now().Add(time.Duration(24*30*1) * time.Hour), time.Now().Add(time.Duration(24*30*2) * time.Hour)}
-	boxInfo.Future.Receivers = [][]string{{"gardvaloper1k67xljpc0lr678wyl6vld9hy3t2lc6ph2fecaf", "188", "200"},
-		{"gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n", "300", "500"}}
-	return &boxInfo
+func GetFutureBoxInfo() *params.BoxFutureParams {
+	box := &params.BoxFutureParams{}
+	box.Sender = newBoxInfo.Owner
+	box.Name = newBoxInfo.Name
+	box.BoxType = types.Future
+	box.TotalAmount = newBoxInfo.TotalAmount
+	box.TotalAmount.Token.Amount = issueutils.MulDecimals(sdk.NewInt(2000), TestTokenDecimals)
+
+	box.Future.TimeLine = []int64{
+		time.Now().Add(time.Duration(24*30*1) * time.Hour).Unix(),
+		time.Now().Add(time.Duration(24*30*2) * time.Hour).Unix(),
+		time.Now().Add(time.Duration(24*30*3) * time.Hour).Unix()}
+
+	box.Future.Receivers = [][]string{
+		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver1"))).String(),
+			issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(300), TestTokenDecimals).String()},
+
+		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver2"))).String(),
+			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(300), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String()},
+
+		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver3"))).String(),
+			issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(400), TestTokenDecimals).String(),
+			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String()}}
+	return box
 }
 
 // gov and staking endblocker
@@ -87,23 +124,27 @@ func getMockApp(t *testing.T, numGenAccs int, genState box.GenesisState, genAccs
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 	mapp = mock.NewApp()
 	msgs.RegisterCodec(mapp.Cdc)
-	keyIssue := sdk.NewKVStoreKey(types.StoreKey)
+	keyBox := sdk.NewKVStoreKey(types.StoreKey)
+	//keyIssue := sdk.NewKVStoreKey(issue.StoreKey)
 
 	keyStaking := sdk.NewKVStoreKey(staking.StoreKey)
 	tkeyStaking := sdk.NewTransientStoreKey(staking.TStoreKey)
 
 	pk := mapp.ParamsKeeper
 	ck := bank.NewBaseKeeper(mapp.AccountKeeper, mapp.ParamsKeeper.Subspace(bank.DefaultParamspace), bank.DefaultCodespace)
+	//ik := issue.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testIssue"), ck, issue.DefaultCodespace)
+
+	ik := NewIssueKeeper()
 
 	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
-	keeper = box.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testBox"), ck, types.DefaultCodespace)
+	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), ck, ik, types.DefaultCodespace)
 
 	mapp.Router().AddRoute(types.RouterKey, box.NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(types.QuerierRoute, box.NewQuerier(keeper))
 	mapp.SetEndBlocker(getEndBlocker(keeper))
 	mapp.SetInitChainer(getInitChainer(mapp, keeper, sk, genState))
 
-	require.NoError(t, mapp.CompleteSetup(keyIssue))
+	require.NoError(t, mapp.CompleteSetup(keyBox))
 
 	valTokens := sdk.TokensFromTendermintPower(42)
 	if len(genAccs) == 0 {

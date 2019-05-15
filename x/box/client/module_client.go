@@ -39,13 +39,14 @@ func (mc ModuleClient) GetBoxCmd() *cobra.Command {
 
 	txCmd := client.PostCommands(
 		boxCli.GetCmdLockBoxCreate(mc.cdc),
+		cmdDepositBox,
+		boxCli.GetCmdFutureBoxCreate(mc.cdc),
 		boxCli.GetCmdDepositBoxInterestInjection(mc.cdc),
 		boxCli.GetCmdDepositBoxInterestFetch(mc.cdc),
-		boxCli.GetCmdDepositToBoxDeposit(mc.cdc),
-		boxCli.GetCmdDepositBoxFetchDeposit(mc.cdc),
+		boxCli.GetCmdDepositToBox(mc.cdc),
+		boxCli.GetCmdFetchDepositFromBox(mc.cdc),
 		boxCli.GetCmdBoxDescription(mc.cdc),
 		boxCli.GetCmdBoxDisableFeature(mc.cdc),
-		cmdDepositBox,
 	)
 
 	for _, cmd := range txCmd {

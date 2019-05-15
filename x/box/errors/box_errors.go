@@ -13,17 +13,19 @@ const (
 	CodeBoxIDNotValid             sdk.CodeType = 2
 	CodeBoxNameNotValid           sdk.CodeType = 3
 	CodeAmountNotValid            sdk.CodeType = 4
-	CodeBoxDescriptionNotValid    sdk.CodeType = 5
-	CodeUnknownBox                sdk.CodeType = 6
-	CodeUnknownBoxType            sdk.CodeType = 7
-	CodeUnknownOperation          sdk.CodeType = 8
-	CodeInterestInjectionNotValid sdk.CodeType = 9
-	CodeInterestFetchNotValid     sdk.CodeType = 10
-	CodeNotEnoughAmount           sdk.CodeType = 11
-	CodeTimeNotValid              sdk.CodeType = 12
-	CodeNotAllowedOperation       sdk.CodeType = 13
-	CodeNotSupportOperation       sdk.CodeType = 14
-	CodeUnknownFeature            sdk.CodeType = 15
+	CodeDecimalsNotValid          sdk.CodeType = 5
+	CodeTimelineNotValid          sdk.CodeType = 6
+	CodeBoxDescriptionNotValid    sdk.CodeType = 7
+	CodeUnknownBox                sdk.CodeType = 8
+	CodeUnknownBoxType            sdk.CodeType = 9
+	CodeUnknownOperation          sdk.CodeType = 10
+	CodeInterestInjectionNotValid sdk.CodeType = 11
+	CodeInterestFetchNotValid     sdk.CodeType = 12
+	CodeNotEnoughAmount           sdk.CodeType = 13
+	CodeTimeNotValid              sdk.CodeType = 14
+	CodeNotAllowedOperation       sdk.CodeType = 15
+	CodeNotSupportOperation       sdk.CodeType = 16
+	CodeUnknownFeature            sdk.CodeType = 17
 )
 
 //convert sdk.Error to error
@@ -34,6 +36,12 @@ func Errorf(err sdk.Error) error {
 // Error constructors
 func ErrOwnerMismatch(boxID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeBoxOwnerMismatch, fmt.Sprintf("Owner mismatch with box %s", boxID))
+}
+func ErrDecimalsNotValid(decimals uint) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeDecimalsNotValid, "%d is not a valid decimals", decimals)
+}
+func ErrTimelineNotValid(time []int64) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeTimelineNotValid, "%d is not a valid time line", time)
 }
 func ErrTimeNotValid(timeKey string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeTimeNotValid, "%s is not a valid timestamp", timeKey)

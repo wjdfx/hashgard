@@ -9,7 +9,9 @@ var MsgCdc = codec.New()
 
 // Register concrete types on codec codec
 func RegisterCodec(cdc *codec.Codec) {
-	cdc.RegisterConcrete(MsgBox{}, "box/MsgBox", nil)
+	cdc.RegisterConcrete(MsgLockBox{}, "box/MsgLockBox", nil)
+	cdc.RegisterConcrete(MsgDepositBox{}, "box/MsgDepositBox", nil)
+	cdc.RegisterConcrete(MsgFutureBox{}, "box/MsgFutureBox", nil)
 	cdc.RegisterConcrete(MsgBoxInterest{}, "box/MsgBoxInterest", nil)
 	cdc.RegisterConcrete(MsgBoxDeposit{}, "box/MsgBoxDeposit", nil)
 	cdc.RegisterConcrete(MsgBoxDescription{}, "box/MsgBoxDescription", nil)

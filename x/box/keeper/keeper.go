@@ -1,7 +1,10 @@
 package keeper
 
 import (
+	"fmt"
 	"time"
+
+	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -9,6 +12,7 @@ import (
 	"github.com/hashgard/hashgard/x/box/errors"
 	boxparams "github.com/hashgard/hashgard/x/box/params"
 	"github.com/hashgard/hashgard/x/box/types"
+	issueerr "github.com/hashgard/hashgard/x/issue/errors"
 )
 
 // Parameter store key
@@ -33,6 +37,8 @@ type Keeper struct {
 	storeKey sdk.StoreKey
 	// The reference to the CoinKeeper to modify balances
 	ck BankKeeper
+	// The reference to the IssueKeeper to get issue info
+	ik IssueKeeper
 	// The codec codec for binary encoding/decoding.
 	cdc *codec.Codec
 	// Reserved codespace
@@ -49,17 +55,40 @@ func (keeper Keeper) GetBankKeeper() BankKeeper {
 	return keeper.ck
 }
 
+//Get box issueKeeper
+func (keeper Keeper) GetIssueKeeper() IssueKeeper {
+	return keeper.ik
+}
+
 //New box keeper Instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
-	paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
+	paramSpace params.Subspace, ck BankKeeper, ik IssueKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper{
 		storeKey:     key,
 		paramsKeeper: paramsKeeper,
 		paramSpace:   paramSpace.WithKeyTable(ParamKeyTable()),
 		ck:           ck,
+		ik:           ik,
 		cdc:          cdc,
 		codespace:    codespace,
 	}
+}
+
+func (keeper Keeper) getDepositedCoinsAddress(boxID string) sdk.AccAddress {
+	return sdk.AccAddress(crypto.AddressHash([]byte(fmt.Sprintf("boxDepositedCoins:%s", boxID))))
+
+}
+func (keeper Keeper) SendDepositedCoin(ctx sdk.Context, fromAddr sdk.AccAddress, amt sdk.Coins, boxID string) sdk.Error {
+	toAddr := keeper.getDepositedCoinsAddress(boxID)
+	return keeper.GetBankKeeper().SendCoins(ctx, fromAddr, toAddr, amt)
+}
+func (keeper Keeper) FetchDepositedCoin(ctx sdk.Context, toAddr sdk.AccAddress, amt sdk.Coins, boxID string) sdk.Error {
+	fromAddr := keeper.getDepositedCoinsAddress(boxID)
+	return keeper.GetBankKeeper().SendCoins(ctx, fromAddr, toAddr, amt)
+}
+func (keeper Keeper) SubDepositedCoin(ctx sdk.Context, amt sdk.Coins, boxID string) sdk.Error {
+	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, keeper.getDepositedCoinsAddress(boxID), amt)
+	return err
 }
 
 //Keys set
@@ -231,12 +260,22 @@ func (keeper Keeper) List(ctx sdk.Context, params boxparams.BoxQueryParams) []*t
 
 //Create a box
 func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+
+	coinIssueInfo := keeper.GetIssueKeeper().GetIssue(ctx, box.TotalAmount.Token.Denom)
+	if coinIssueInfo == nil {
+		return issueerr.ErrUnknownIssue(box.Deposit.Interest.Token.Denom)
+	}
+	if box.TotalAmount.Decimals != coinIssueInfo.GetDecimals() {
+		return errors.ErrDecimalsNotValid(box.TotalAmount.Decimals)
+	}
+
 	store := ctx.KVStore(keeper.storeKey)
 	id, err := keeper.getNewBoxID(store, box.BoxType)
 	if err != nil {
 		return err
 	}
 	box.BoxId = KeyBoxIdStr(box.BoxType, id)
+	box.CreatedTime = time.Now().Unix()
 
 	switch box.BoxType {
 	case types.Lock:
@@ -265,6 +304,24 @@ func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	store.Set(KeyBox(box.BoxId), bz)
 
 	return nil
+}
+
+func (keeper Keeper) ProcessDepositToBox(ctx sdk.Context, boxID string, sender sdk.AccAddress, deposit sdk.Coin, operation string) (*types.BoxInfo, sdk.Error) {
+	box := keeper.GetBox(ctx, boxID)
+	if box == nil {
+		return nil, errors.ErrUnknownBox(boxID)
+	}
+	if types.BoxDepositing != box.BoxStatus {
+		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
+	}
+	switch box.BoxType {
+	case types.Deposit:
+		return box, keeper.processDepositBoxDeposit(ctx, box, sender, deposit, operation)
+	case types.Future:
+		return box, keeper.processFutureBoxDeposit(ctx, box, sender, deposit, operation)
+
+	}
+	return nil, errors.ErrUnknownBoxType()
 }
 
 func (keeper Keeper) SetBoxDescription(ctx sdk.Context, boxID string, sender sdk.AccAddress, description []byte) (*types.BoxInfo, sdk.Error) {
@@ -336,20 +393,20 @@ func (keeper Keeper) GetBoxIdsByAddress(ctx sdk.Context, boxType string, accAddr
 // BoxQueues
 
 // Returns an iterator for all the box in the Active Queue that expire by time
-func (keeper Keeper) ActiveBoxQueueIterator(ctx sdk.Context, endTime time.Time) sdk.Iterator {
+func (keeper Keeper) ActiveBoxQueueIterator(ctx sdk.Context, endTime int64) sdk.Iterator {
 	store := ctx.KVStore(keeper.storeKey)
 	return store.Iterator(PrefixActiveQueue, sdk.PrefixEndBytes(PrefixActiveBoxQueueTime(endTime)))
 }
 
 // Inserts a boxID into the active box queue at time
-func (keeper Keeper) InsertActiveBoxQueue(ctx sdk.Context, endTime time.Time, boxIdStr string) {
+func (keeper Keeper) InsertActiveBoxQueue(ctx sdk.Context, endTime int64, boxIdStr string) {
 	store := ctx.KVStore(keeper.storeKey)
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(boxIdStr)
 	store.Set(KeyActiveBoxQueue(endTime, boxIdStr), bz)
 }
 
 // removes a boxID from the Active box Queue
-func (keeper Keeper) RemoveFromActiveBoxQueue(ctx sdk.Context, endTime time.Time, boxIdStr string) {
+func (keeper Keeper) RemoveFromActiveBoxQueue(ctx sdk.Context, endTime int64, boxIdStr string) {
 	store := ctx.KVStore(keeper.storeKey)
 	store.Delete(KeyActiveBoxQueue(endTime, boxIdStr))
 }

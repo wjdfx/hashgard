@@ -2,9 +2,8 @@ package cli
 
 import (
 	"fmt"
-	"time"
 
-	"github.com/hashgard/hashgard/x/box/client/queriers"
+	"github.com/hashgard/hashgard/x/box/params"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -19,7 +18,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// GetCmdBox implements create deposit box transaction command.
+// GetCmdDepositBoxCreate implements create deposit box transaction command.
 func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "create-deposit [name] [total-amount]",
@@ -44,46 +43,50 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			boxInfo := types.BoxInfo{}
+			coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
 
-			boxInfo.Owner = account.GetAddress()
-			boxInfo.Name = args[0]
-			boxInfo.CreatedTime = time.Now()
-			boxInfo.TotalAmount = coin
-			boxInfo.BoxType = types.Deposit
-			boxInfo.TradeDisabled = viper.GetBool(flagTradeDisabled)
-			boxInfo.Deposit = types.DepositBox{
+			box := params.BoxDepositParams{}
+
+			box.Sender = account.GetAddress()
+			box.Name = args[0]
+			box.BoxType = types.Deposit
+			box.TotalAmount = types.BoxToken{Token: coin, Decimals: issueInfo.GetDecimals()}
+			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
+			box.Deposit = types.DepositBox{
 				Share:         sdk.ZeroInt(),
 				TotalDeposit:  sdk.ZeroInt(),
-				Coupon:        sdk.ZeroInt(),
-				StartTime:     time.Unix(viper.GetInt64(flagStartTime), 0),
-				EstablishTime: time.Unix(viper.GetInt64(flagEstablishTime), 0),
-				MaturityTime:  time.Unix(viper.GetInt64(flagMaturityTime), 0)}
+				StartTime:     viper.GetInt64(flagStartTime),
+				EstablishTime: viper.GetInt64(flagEstablishTime),
+				MaturityTime:  viper.GetInt64(flagMaturityTime)}
 
 			num, ok := sdk.NewIntFromString(viper.GetString(flagBottomLine))
 			if !ok {
 				return errors.Errorf(errors.ErrAmountNotValid(flagBottomLine))
 			}
-			boxInfo.Deposit.BottomLine = num
+			box.Deposit.BottomLine = num
 			num, ok = sdk.NewIntFromString(viper.GetString(flagPrice))
 			if !ok {
 				return errors.Errorf(errors.ErrAmountNotValid(flagPrice))
 			}
-			boxInfo.Deposit.Price = num
-			boxInfo.Deposit.Interest, err = sdk.ParseCoin(viper.GetString(flagInterest))
+			box.Deposit.Price = num
+			box.Deposit.Price = issueutils.MulDecimals(box.Deposit.Price, issueInfo.GetDecimals())
+			box.Deposit.BottomLine = issueutils.MulDecimals(box.Deposit.BottomLine, issueInfo.GetDecimals())
+
+			interest, err := sdk.ParseCoin(viper.GetString(flagInterest))
 			if err != nil {
 				return err
 			}
-			boxInfo.Deposit.Price = issueutils.MulDecimals(boxInfo.GetDeposit().Price, issueInfo.GetDecimals())
-			boxInfo.Deposit.BottomLine = issueutils.MulDecimals(boxInfo.GetDeposit().BottomLine, issueInfo.GetDecimals())
-			boxInfo.TotalAmount.Amount = issueutils.MulDecimals(boxInfo.TotalAmount.Amount, issueInfo.GetDecimals())
 
-			issueInfo, err = issueutils.GetIssueByID(cdc, cliCtx, boxInfo.Deposit.Interest.Denom)
+			issueInfo, err = issueutils.GetIssueByID(cdc, cliCtx, interest.Denom)
 			if err == nil {
-				boxInfo.Deposit.Interest.Amount = issueutils.MulDecimals(boxInfo.Deposit.Interest.Amount, issueInfo.GetDecimals())
+				interest.Amount = issueutils.MulDecimals(interest.Amount, issueInfo.GetDecimals())
+				box.Deposit.Interest = types.BoxToken{Token: interest, Decimals: issueInfo.GetDecimals()}
 			}
 
-			msg := msgs.NewMsgBox(&boxInfo)
+			box.Deposit.PerCoupon = boxutils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
+				box.Deposit.Interest.Token.Amount, box.Deposit.Interest.Decimals)
+
+			msg := msgs.NewMsgDepositBox(&box)
 			validateErr := msg.ValidateBasic()
 
 			if validateErr != nil {
@@ -133,94 +136,6 @@ func GetCmdDepositBoxInterestFetch(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-// GetCmdDepositToBoxDeposit implements deposit to a deposit box transaction command.
-func GetCmdDepositToBoxDeposit(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "deposit-to [box-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Deposit to the deposit box",
-		Long:    "Deposit to the deposit box",
-		Example: "$ hashgardcli box deposit-to box174876e800 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return deposit(cdc, args, types.DepositTo)
-		},
-	}
-	return cmd
-}
-
-// GetCmdInterestFetch implements fetch interest from a box transaction command.
-func GetCmdDepositBoxFetchDeposit(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "deposit-fetch [box-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Fetch deposit from a deposit box",
-		Long:    "Fetch deposit from a deposit box",
-		Example: "$ hashgardcli box deposit-fetch box174876e800 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return deposit(cdc, args, types.Fetch)
-		},
-	}
-	return cmd
-}
-func deposit(cdc *codec.Codec, args []string, operation string) error {
-
-	boxID := args[0]
-	if err := boxutils.CheckBoxId(boxID); err != nil {
-		return errors.Errorf(err)
-	}
-	amountArg, ok := sdk.NewIntFromString(args[1])
-	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
-	}
-	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
-	if err != nil {
-		return err
-	}
-	boxInfo, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
-	if err != nil {
-		return err
-	}
-	if boxInfo.GetBoxType() != types.Deposit {
-		return errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	if boxInfo.GetDeposit().Status != types.DepositBoxDeposit {
-		return errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetDeposit().Status))
-	}
-
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetDeposit().Interest.Denom)
-	if err != nil {
-		return err
-	}
-
-	amount := issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
-
-	if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
-		return errors.ErrAmountNotValid(amount.String())
-	}
-
-	if types.Fetch == operation {
-		res, err := queriers.QueryDepositAmountFromDepositBox(boxID, account.GetAddress(), cliCtx)
-		if err == nil {
-			var depositAmount sdk.Int
-			cdc.MustUnmarshalJSON(res, &depositAmount)
-			if depositAmount.LT(amount) {
-				return errors.Errorf(errors.ErrNotEnoughAmount())
-			}
-		}
-	} else {
-		if boxInfo.GetDeposit().TotalDeposit.Add(amount).GT(boxInfo.GetTotalAmount().Amount) {
-			return errors.Errorf(errors.ErrNotEnoughAmount())
-		}
-	}
-	msg := msgs.NewMsgBoxDeposit(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetTotalAmount().Denom, amount), operation)
-
-	validateErr := msg.ValidateBasic()
-	if validateErr != nil {
-		return errors.Errorf(validateErr)
-	}
-	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-
-}
 func interest(cdc *codec.Codec, args []string, operation string) error {
 
 	boxID := args[0]
@@ -235,18 +150,18 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 	if err != nil {
 		return err
 	}
-	boxInfo, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
+	box, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
 	if err != nil {
 		return err
 	}
-	if boxInfo.GetBoxType() != types.Deposit {
+	if box.GetBoxType() != types.Deposit {
 		return errors.Errorf(errors.ErrNotSupportOperation())
 	}
-	if boxInfo.GetDeposit().Status != types.BoxCreated {
+	if box.GetBoxStatus() != types.BoxCreated {
 		return errors.Errorf(errors.ErrNotSupportOperation())
 	}
 
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetDeposit().Interest.Denom)
+	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, box.GetDeposit().Interest.Token.Denom)
 	if err != nil {
 		return err
 	}
@@ -255,9 +170,9 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 
 	if types.Fetch == operation {
 		flag := true
-		for i, v := range boxInfo.GetDeposit().InterestInjection {
+		for i, v := range box.GetDeposit().InterestInjections {
 			if v.Address.Equals(account.GetAddress()) {
-				if boxInfo.GetDeposit().InterestInjection[i].Amount.GTE(amount) {
+				if box.GetDeposit().InterestInjections[i].Amount.GTE(amount) {
 					flag = false
 					break
 				}
@@ -267,19 +182,19 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 			return errors.ErrNotEnoughAmount()
 		}
 	} else {
-		if boxInfo.GetDeposit().InterestInjection != nil {
+		if box.GetDeposit().InterestInjections != nil {
 			totalInterest := sdk.ZeroInt()
-			for _, v := range boxInfo.GetDeposit().InterestInjection {
+			for _, v := range box.GetDeposit().InterestInjections {
 				if v.Address.Equals(account.GetAddress()) {
 					totalInterest = totalInterest.Add(v.Amount)
 				}
 			}
-			if totalInterest.Add(amount).GT(boxInfo.GetDeposit().Interest.Amount) {
-				return errors.Errorf(errors.ErrInterestInjectionNotValid(sdk.NewCoin(boxInfo.GetDeposit().Interest.Denom, amountArg)))
+			if totalInterest.Add(amount).GT(box.GetDeposit().Interest.Token.Amount) {
+				return errors.Errorf(errors.ErrInterestInjectionNotValid(sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amountArg)))
 			}
 		}
 	}
-	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetDeposit().Interest.Denom, amount), operation)
+	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
 
 	validateErr := msg.ValidateBasic()
 	if validateErr != nil {
