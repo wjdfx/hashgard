@@ -27,6 +27,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/issue"
 )
 
 func init() {
@@ -741,4 +742,140 @@ func (f *Fixtures) QueryExchangeFrozen(addr sdk.AccAddress, flags ...string) sdk
 	err := cdc.UnmarshalJSON([]byte(out), &coins)
 	require.NoError(f.T, err, "out %v\n, err %v", out, err)
 	return coins
+}
+
+//___________________________________________________________________________________
+// hashgardcli issue
+
+// TxIssueCreate is hashgardcli issue create
+func (f *Fixtures) TxIssueCreate(from string, name string, symbol string, totalSupply uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue create %s %s %d --from=%s %v", name, symbol, totalSupply, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueTransferOwnership is hashgardcli issue transfer-ownership
+func (f *Fixtures) TxIssueTransferOwnership(from string, issueId string, addr sdk.AccAddress, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue transfer-ownership %s %s --from=%s %v", issueId, addr, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueDescribe is hashgardcli issue describe
+func (f *Fixtures) TxIssueDescribe(from string, issueId string, filePath string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue describe %s %s --from=%s %v", issueId, filePath, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueMint is hashgardcli issue Mint
+func (f *Fixtures) TxIssueMint(from string, issueId string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue mint %s %d --from=%s %v", issueId, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueDisable is hashgardcli issue disable
+func (f *Fixtures) TxIssueDisable(from string, issueId string, feature string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue disable %s %s --from=%s %v", issueId, feature, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueFreeze is hashgardcli issue freeze
+func (f *Fixtures) TxIssueFreeze(from string, freezeType string, issueId string, addr string, endTime string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue freeze %s %s %s %s --from=%s %v", freezeType, issueId, addr, endTime, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueUnFreeze is hashgardcli issue unfreeze
+func (f *Fixtures) TxIssueUnFreeze(from string, freezeType string, issueId string, addr string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue unfreeze %s %s %s --from=%s %v", freezeType, issueId, addr, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueBurn is hashgardcli issue burn
+func (f *Fixtures) TxIssueBurn(from string, issueId string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue burn %s %d --from=%s %v", issueId, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueBurnFrom is hashgardcli issue burn-from
+func (f *Fixtures) TxIssueBurnFrom(from string, issueId string, account string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue burn-from %s %s %d --from=%s %v", issueId, account, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueSendFrom is hashgardcli issue send-from
+func (f *Fixtures) TxIssueSendFrom(from string, issueId string, fromAddr string, toAddr string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue send-from %s %s %s %d --from=%s %v", issueId, fromAddr, toAddr, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueApprove is hashgardcli issue approve
+func (f *Fixtures) TxIssueApprove(from string, issueId string, addr string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue approve %s %s %d --from=%s %v", issueId, addr, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueIncreaseApprove is hashgardcli issue increase-approval
+func (f *Fixtures) TxIssueIncreaseApprove(from string, issueId string, addr string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue increase-approval %s %s %d --from=%s %v", issueId, addr, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxIssueDecreaseApprove is hashgardcli issue decrease-approval
+func (f *Fixtures) TxIssueDecreaseApprove(from string, issueId string, addr string, amount uint64, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli issue decrease-approval %s %s %d --from=%s %v", issueId, addr, amount, from, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// QueryIssueIssue is hashgardcli issue query-issue
+func (f *Fixtures) QueryIssueIssue(issueId string, flags ...string) issue.CoinIssueInfo {
+	cmd := fmt.Sprintf("../build/hashgardcli issue query-issue %s %v", issueId, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var coinsIssueInfo issue.CoinIssueInfo
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &coinsIssueInfo)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return coinsIssueInfo
+}
+
+// QueryIssueAllowance is hashgardcli issue query-allowance
+func (f *Fixtures) QueryIssueAllowance(issueId string, owner string, spender string, flags ...string) issue.Approval {
+	cmd := fmt.Sprintf("../build/hashgardcli issue query-allowance %s %s %s %v", issueId, owner, spender, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var approval issue.Approval
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &approval)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return approval
+}
+
+// QueryIssueFreeze is hashgardcli issue query-freeze
+func (f *Fixtures) QueryIssueFreeze(issueId string, addr string, flags ...string) issue.IssueFreeze {
+	cmd := fmt.Sprintf("../build/hashgardcli issue query-freeze %s %s %v", issueId, addr, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var freeze issue.IssueFreeze
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &freeze)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return freeze
+}
+
+// QueryIssueIssues is hashgardcli issue list-issues
+func (f *Fixtures) QueryIssueIssues(owner string, flags ...string) []issue.CoinIssueInfo {
+	cmd := fmt.Sprintf("../build/hashgardcli issue list-issues --address=%s %v", owner, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var issueList []issue.CoinIssueInfo
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &issueList)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return issueList
+}
+
+// QueryIssueSearch is hashgardcli issue search
+func (f *Fixtures) QueryIssueSearch(symbol string, flags ...string) []issue.CoinIssueInfo {
+	cmd := fmt.Sprintf("../build/hashgardcli issue search %s %v", symbol, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var issueList []issue.CoinIssueInfo
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &issueList)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return issueList
 }
