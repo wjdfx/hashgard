@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	//"encoding/hex"
 
 	"github.com/tendermint/tendermint/crypto/ed25519"
 
@@ -93,6 +94,77 @@ func TestHashgardCLIExchange(t *testing.T) {
 	// Ensure transaction tags can be queried
 	txs = f.QueryTxs(1, 50, "action:withdrawal_order", fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txs, 1)
+}
+
+func TestHashgardCLIIssue(t *testing.T) {
+	t.Parallel()
+	f := InitFixtures(t)
+
+	// start hashgard server
+	proc := f.HGStart()
+	defer proc.Stop(false)
+
+	// Save key addresses for later use
+	fooAddr := f.KeyAddress(keyFoo)
+	//barAddr := f.KeyAddress(keyBar)
+
+	// create issue
+	f.TxIssueCreate(keyFoo, "zhuma","ZHM",100, "--decimals 4 --gas 200000 -y")
+
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	// Ensure transaction tags can be queried
+	txs := f.QueryTxs(1, 50, "action:issue", fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txs, 1)
+
+	//issueBytes, _ := hex.DecodeString(txs[0].Data)
+	//issueId := string(issueBytes[2:])
+	//issueDenom := fmt.Sprintf("%s(%s)", "zhuma", issueId)
+	//
+	//
+	//// query the issue
+	//issue1 := f.QueryIssueIssue(issueId)
+	//require.Equal(t, fooAddr, issue1.Owner)
+	//
+	//// query the balance
+	//fooAcc1 := f.QueryAccount(fooAddr)
+	//require.Equal(t, sdk.NewInt(1000000), fooAcc1.GetCoins().AmountOf(issueDenom))
+	//
+	//// mint
+	//f.TxIssueMint(keyFoo, issueId, 100, "-y")
+	//tests.WaitForNextNBlocksTM(1, f.Port)
+	//
+	//// Ensure transaction tags can be queried
+	//txs = f.QueryTxs(1, 50, "action:issue_mint", fmt.Sprintf("sender:%s", fooAddr))
+	//require.Len(t, txs, 1)
+	//
+	//// Ensure balance
+	//fooAcc2 := f.QueryAccount(fooAddr)
+	//require.Equal(t, sdk.NewInt(2000000), fooAcc2.GetCoins().AmountOf(issueDenom))
+	//
+	//// approve
+	//f.TxIssueApprove(keyFoo, issueId, barAddr.String(), 10, "-y")
+	//tests.WaitForNextNBlocksTM(1, f.Port)
+	//
+	//// Ensure transaction tags can be queried
+	//txs = f.QueryTxs(1, 50, "action:issue_approve", fmt.Sprintf("sender:%s", fooAddr))
+	//require.Len(t, txs, 1)
+	//
+	//// query the allowance
+	//approval1 := f.QueryIssueAllowance(issueId, fooAddr.String(), barAddr.String())
+	//require.Equal(t, sdk.NewInt(100000), approval1.Amount)
+	//
+	//// send from
+	//f.TxIssueSendFrom(keyBar, issueId, fooAddr.String(), barAddr.String(), 10, "-y")
+	//tests.WaitForNextNBlocksTM(1, f.Port)
+	//
+	//// Ensure transaction tags can be queried
+	//txs = f.QueryTxs(1, 50, "action:issue_send_from", fmt.Sprintf("sender:%s", fooAddr))
+	//require.Len(t, txs, 1)
+	//
+	//// ensure the balance
+	//barAcc3 := f.QueryAccount(barAddr)
+	//require.Equal(t, sdk.NewInt(100000), barAcc3.GetCoins().AmountOf(issueDenom))
 }
 
 func TestHashgardCLIKeysAddMultisig(t *testing.T) {

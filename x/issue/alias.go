@@ -11,6 +11,8 @@ import (
 type (
 	Keeper        = keeper.Keeper
 	CoinIssueInfo = types.CoinIssueInfo
+	Approval	  = types.Approval
+	IssueFreeze   = types.IssueFreeze
 )
 
 var (
