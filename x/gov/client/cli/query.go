@@ -11,8 +11,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	gcutils "github.com/cosmos/cosmos-sdk/x/gov/client/utils"
+
+	"github.com/hashgard/hashgard/x/gov"
+	gcutils "github.com/hashgard/hashgard/x/gov/client/utils"
 )
 
 // GetCmdQueryProposal implements the query proposal command.

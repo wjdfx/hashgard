@@ -9,13 +9,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 
 	"strings"
 
 	"github.com/spf13/cobra"
 
-	govClientUtils "github.com/cosmos/cosmos-sdk/x/gov/client/utils"
+	"github.com/hashgard/hashgard/x/gov"
+	govClientUtils "github.com/hashgard/hashgard/x/gov/client/utils"
 )
 
 const (

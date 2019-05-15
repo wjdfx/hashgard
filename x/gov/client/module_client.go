@@ -5,8 +5,9 @@ import (
 	amino "github.com/tendermint/go-amino"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govCli "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+
+	"github.com/hashgard/hashgard/x/gov"
+	govCli "github.com/hashgard/hashgard/x/gov/client/cli"
 )
 
 // ModuleClient exports all client functionality from this module

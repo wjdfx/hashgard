@@ -6,8 +6,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/gov/tags"
+
+	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/gov/tags"
 )
 
 const (

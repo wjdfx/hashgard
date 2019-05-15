@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/gov/tags"
+
+	"github.com/hashgard/hashgard/x/gov/tags"
 )
 
 // Handle all "gov" type messages.

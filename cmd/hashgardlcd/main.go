@@ -12,7 +12,6 @@ import (
 	auth "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	bank "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
 	distribution "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
-	gov "github.com/cosmos/cosmos-sdk/x/gov/client/rest"
 	mint "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
 	slashing "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/client/rest"
@@ -30,6 +29,7 @@ import (
 	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
+	gov "github.com/hashgard/hashgard/x/gov/client/rest"
 )
 
 // rootCmd is the entry point for this binary
