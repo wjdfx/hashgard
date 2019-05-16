@@ -3,7 +3,6 @@ package types
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -19,8 +18,8 @@ type Issue interface {
 	GetOwner() sdk.AccAddress
 	SetOwner(sdk.AccAddress)
 
-	GetIssueTime() time.Time
-	SetIssueTime(time.Time)
+	GetIssueTime() int64
+	SetIssueTime(int64)
 
 	GetName() string
 	SetName(string)
@@ -63,7 +62,7 @@ type CoinIssueInfo struct {
 	IssueId            string         `json:"issue_id"`
 	Issuer             sdk.AccAddress `json:"issuer"`
 	Owner              sdk.AccAddress `json:"owner"`
-	IssueTime          time.Time      `json:"issue_time"`
+	IssueTime          int64          `json:"issue_time"`
 	Name               string         `json:"name"`
 	Symbol             string         `json:"symbol"`
 	TotalSupply        sdk.Int        `json:"total_supply"`
@@ -98,10 +97,10 @@ func (ci CoinIssueInfo) GetOwner() sdk.AccAddress {
 func (ci *CoinIssueInfo) SetOwner(owner sdk.AccAddress) {
 	ci.Owner = owner
 }
-func (ci CoinIssueInfo) GetIssueTime() time.Time {
+func (ci CoinIssueInfo) GetIssueTime() int64 {
 	return ci.IssueTime
 }
-func (ci *CoinIssueInfo) SetIssueTime(issueTime time.Time) {
+func (ci *CoinIssueInfo) SetIssueTime(issueTime int64) {
 	ci.IssueTime = issueTime
 }
 func (ci CoinIssueInfo) GetName() string {
@@ -183,7 +182,7 @@ func (ci CoinIssueInfo) String() string {
   Symbol:    	    			%s
   TotalSupply:      			%s
   Decimals:         			%d
-  IssueTime:					%s
+  IssueTime:					%d
   Description:	    			%s
   BurnOwnerDisabled:  			%t 
   BurnHolderDisabled:  			%t 
@@ -191,7 +190,7 @@ func (ci CoinIssueInfo) String() string {
   FreezeDisabled:  				%t 
   MintingFinished:  			%t `,
 		ci.IssueId, ci.Issuer.String(), ci.Owner.String(), ci.Name, ci.Symbol, ci.TotalSupply.String(),
-		ci.Decimals, ci.IssueTime.String(), ci.Description, ci.BurnOwnerDisabled, ci.BurnHolderDisabled,
+		ci.Decimals, ci.IssueTime, ci.Description, ci.BurnOwnerDisabled, ci.BurnHolderDisabled,
 		ci.BurnFromDisabled, ci.FreezeDisabled, ci.MintingFinished)
 }
 
@@ -200,8 +199,8 @@ func (coinIssues CoinIssues) String() string {
 	out := fmt.Sprintf("%-17s|%-44s|%-10s|%-6s|%-18s|%-8s|%s\n",
 		"IssueID", "Owner", "Name", "Symbol", "TotalSupply", "Decimals", "IssueTime")
 	for _, issue := range coinIssues {
-		out += fmt.Sprintf("%-17s|%-44s|%-10s|%-6s|%-18s|%-8d|%s\n",
-			issue.IssueId, issue.GetOwner().String(), issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.IssueTime.String())
+		out += fmt.Sprintf("%-17s|%-44s|%-10s|%-6s|%-18s|%-8d|%d\n",
+			issue.IssueId, issue.GetOwner().String(), issue.Name, issue.Symbol, issue.TotalSupply.String(), issue.Decimals, issue.IssueTime)
 	}
 	return strings.TrimSpace(out)
 }

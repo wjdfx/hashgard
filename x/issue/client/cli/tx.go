@@ -45,7 +45,7 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				Owner:              account.GetAddress(),
 				Name:               args[0],
 				Symbol:             strings.ToUpper(args[1]),
-				IssueTime:          time.Now(),
+				IssueTime:          time.Now().Unix(),
 				BurnOwnerDisabled:  viper.GetBool(flagBurnOwnerDisabled),
 				BurnHolderDisabled: viper.GetBool(flagBurnHolderDisabled),
 				BurnFromDisabled:   viper.GetBool(flagBurnFromDisabled),

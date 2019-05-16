@@ -16,7 +16,7 @@ type LockBoxInfo struct {
 	Owner         sdk.AccAddress `json:"owner"`
 	Name          string         `json:"name"`
 	BoxType       string         `json:"type"`
-	CreatedTime   time.Time      `json:"created_time"`
+	CreatedTime   int64          `json:"created_time"`
 	TotalAmount   types.BoxToken `json:"total_amount"`
 	Description   string         `json:"description"`
 	TradeDisabled bool           `json:"trade_disabled"`
@@ -28,7 +28,7 @@ type DepositBoxInfo struct {
 	Owner         sdk.AccAddress   `json:"owner"`
 	Name          string           `json:"name"`
 	BoxType       string           `json:"type"`
-	CreatedTime   time.Time        `json:"created_time"`
+	CreatedTime   int64            `json:"created_time"`
 	TotalAmount   types.BoxToken   `json:"total_amount"`
 	Description   string           `json:"description"`
 	TradeDisabled bool             `json:"trade_disabled"`
@@ -40,7 +40,7 @@ type FutureBoxInfo struct {
 	Owner         sdk.AccAddress  `json:"owner"`
 	Name          string          `json:"name"`
 	BoxType       string          `json:"type"`
-	CreatedTime   time.Time       `json:"created_time"`
+	CreatedTime   int64           `json:"created_time"`
 	TotalAmount   types.BoxToken  `json:"total_amount"`
 	Description   string          `json:"description"`
 	TradeDisabled bool            `json:"trade_disabled"`
@@ -51,7 +51,7 @@ type DepositBoxInfos []DepositBoxInfo
 type FutureBoxInfos []FutureBoxInfo
 
 //nolint
-func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string, BoxType string, CreatedTime time.Time,
+func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string, BoxType string, CreatedTime int64,
 	TotalAmount types.BoxToken, Description string, TradeDisabled bool) string {
 	return fmt.Sprintf(`BoxInfo:
   BoxId:			%s
@@ -60,11 +60,11 @@ func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string
   Name:				%s
   BoxType:			%s
   TotalAmount:			%s
-  CreatedTime:			%s
+  CreatedTime:			%d
   Description:			%s
   TradeDisabled:		%t`,
 		BoxId, BoxStatus, Owner.String(), Name, BoxType, TotalAmount.String(),
-		CreatedTime.String(), Description, TradeDisabled)
+		CreatedTime, Description, TradeDisabled)
 }
 
 //nolint
@@ -111,7 +111,7 @@ func (bi DepositBoxInfos) String() string {
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
 		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
-			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime.String())
+			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
 }
@@ -122,7 +122,7 @@ func (bi FutureBoxInfos) String() string {
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
 		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
-			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime.String())
+			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
 }

@@ -82,7 +82,7 @@ func TestSearchIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
-		CoinIssueInfo.SetIssueTime(time.Now())
+		CoinIssueInfo.SetIssueTime(time.Now().Unix())
 		handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
 	}
 
@@ -119,7 +119,7 @@ func TestList(t *testing.T) {
 	for i := 0; i < cap; i++ {
 
 		duration, _ := time.ParseDuration(strconv.Itoa(i) + "m")
-		CoinIssueInfo.SetIssueTime(time.Now().Add(duration))
+		CoinIssueInfo.SetIssueTime(time.Now().Add(duration).Unix())
 		CoinIssueInfo.SetIssuer(sdk.AccAddress(crypto.AddressHash([]byte(utils.GetRandomString(10)))))
 		CoinIssueInfo.SetSymbol(utils.GetRandomString(6))
 		_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
@@ -137,7 +137,7 @@ func TestList(t *testing.T) {
 		for j, issue := range issues {
 
 			if j > 0 {
-				require.True(t, issues[j].IssueTime.Before(issues[j-1].IssueTime))
+				require.True(t, issues[j].IssueTime < (issues[j-1].IssueTime))
 			}
 			//fmt.Println(issue.IssueId + "----" + issue.IssueTime.String())
 			issueId = issue.IssueId
