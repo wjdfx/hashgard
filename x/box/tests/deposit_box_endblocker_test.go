@@ -12,8 +12,6 @@ import (
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
-
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -42,7 +40,7 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	inactiveQueue.Close()
 
 	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(600), TestTokenDecimals)), types.Injection)
+		boxInfo.Deposit.Interest.Token.Amount.Add(sdk.NewInt(1))), types.Injection)
 	res := handler(ctx, msgBoxInterest)
 	require.False(t, res.IsOK())
 
@@ -68,15 +66,15 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount.Token})
 
-	depositTo := issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals)
+	depositTo := boxInfo.TotalAmount.Token.Amount.Quo(sdk.NewInt(2))
 
 	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(50000), TestTokenDecimals)), types.DepositTo)
+		boxInfo.TotalAmount.Token.Amount.Add(sdk.NewInt(1))), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.False(t, res.IsOK())
 
 	msgBoxDeposit = msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(505), TestTokenDecimals)), types.DepositTo)
+		boxInfo.Deposit.Price.Add(sdk.NewInt(1))), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.False(t, res.IsOK())
 
@@ -86,7 +84,7 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	require.True(t, res.IsOK())
 
 	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, depositBox.Deposit.Share, sdk.NewInt(5))
+	require.Equal(t, depositBox.Deposit.Share, depositTo.Quo(boxInfo.Deposit.Price))
 
 	newHeader = ctx.BlockHeader()
 	newHeader.Time = time.Unix(boxInfo.Deposit.EstablishTime, 0)
@@ -151,13 +149,17 @@ func TestDepositBoxNotEnoughIteratorEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals)), types.Injection)
+	injection := boxInfo.Deposit.Interest.Token.Amount.Quo(sdk.NewInt(2))
+
+	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner,
+		sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
+			injection), types.Injection)
 	res := handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Owner)
-	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom), issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals))
+	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom),
+		boxInfo.Deposit.Interest.Token.Amount.Sub(injection))
 
 	newHeader := ctx.BlockHeader()
 	newHeader.Time = time.Unix(boxInfo.Deposit.StartTime, 0)
@@ -199,8 +201,7 @@ func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, sdk.NewCoin(boxInfo.Deposit.Interest.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.Injection)
+	msgBoxInterest := msgs.NewMsgBoxInterest(boxInfo.BoxId, boxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
 	res := handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -218,15 +219,17 @@ func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 	inactiveQueue.Close()
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.NewCoins(sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals))))
+		boxInfo.Deposit.BottomLine)))
+
+	deposit := boxInfo.Deposit.BottomLine.Quo(sdk.NewInt(2))
 
 	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals)), types.DepositTo)
+		deposit), types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.True(t, res.IsOK())
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.Deposit.BottomLine.Sub(deposit))
 
 	newHeader = ctx.BlockHeader()
 	newHeader.Time = time.Unix(boxInfo.Deposit.EstablishTime, 0)
@@ -246,5 +249,5 @@ func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 	//require.Equal(t, depositBox.BoxStatus, types.BoxClosed)
 
 	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.Deposit.BottomLine)
 }

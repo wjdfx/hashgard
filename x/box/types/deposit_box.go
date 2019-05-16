@@ -20,7 +20,26 @@ type DepositBox struct {
 	InterestInjections []AddressDeposit `json:"interest_injections"`
 }
 
-type DepositBoxDepositToList []AddressDeposit
+type DepositBoxDepositInterest struct {
+	Address  sdk.AccAddress `json:"address"`
+	Amount   sdk.Int        `json:"amount"`
+	Interest sdk.Int        `json:"interest"`
+}
+
+func NewDepositBoxDepositInterest(address sdk.AccAddress, amount sdk.Int, interest sdk.Int) DepositBoxDepositInterest {
+	return DepositBoxDepositInterest{address, amount, interest}
+}
+
+type DepositBoxDepositInterestList []DepositBoxDepositInterest
+
+//nolint
+func (bi DepositBoxDepositInterest) String() string {
+	return fmt.Sprintf(`
+  Address:			%s
+  Amount:			%s
+  Interest:			%s`,
+		bi.Address.String(), bi.Amount.String(), bi.Interest.String())
+}
 
 //nolint
 func (bi DepositBox) String() string {
@@ -48,12 +67,12 @@ func (bi DepositBox) String() string {
 }
 
 //nolint
-func (bi DepositBoxDepositToList) String() string {
-	out := fmt.Sprintf("%-44s|%s\n",
-		"Address", "Amount")
+func (bi DepositBoxDepositInterestList) String() string {
+	out := fmt.Sprintf("%-44s|%-40s|%s\n",
+		"Address", "Amount", "Interest")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-44s|%s\n",
-			box.Address.String(), box.Amount.String())
+		out += fmt.Sprintf("%-44s|%-40s|%s\n",
+			box.Address.String(), box.Amount.String(), box.Interest.String())
 	}
 	return strings.TrimSpace(out)
 }

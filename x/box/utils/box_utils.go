@@ -30,7 +30,7 @@ func CheckBoxId(boxID string) sdk.Error {
 
 func CalcInterestRate(totalAmount sdk.Int, price sdk.Int, interest sdk.Int, decimals uint) sdk.Dec {
 	totalCoupon := totalAmount.Quo(price)
-	perCoupon := sdk.NewDecFromBigInt(interest.BigInt()).QuoTruncate(sdk.NewDecFromBigInt(totalCoupon.BigInt()))
+	perCoupon := sdk.NewDecFromBigInt(interest.BigInt()).QuoInt(totalCoupon)
 	return QuoMaxPrecisionByDecimal(perCoupon, decimals)
 }
 
@@ -55,21 +55,6 @@ func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Acco
 	}
 	return boxInfo, nil
 }
-func GetBoxTokenDecimal(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (uint, error) {
-
-	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
-	if err != nil {
-		return 0, err
-	}
-
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Token.Denom)
-	if err != nil {
-		return 0, err
-	}
-
-	return issueInfo.GetDecimals(), nil
-}
-
 func GetBoxCoinByDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) sdk.Coin {
 
 	issueInfo, _ := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
@@ -113,9 +98,7 @@ func GetMultipleDecimals(decimals uint) sdk.Int {
 }
 func QuoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
 	dec = dec.QuoInt(GetMultipleDecimals(decimals))
-
 	dec = GetMaxPrecision(dec, decimals)
-
 	return dec
 }
 func MulMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Int {

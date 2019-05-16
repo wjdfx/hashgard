@@ -54,20 +54,9 @@ func PrefixKeyDeposit(boxID string) []byte {
 // Returns the key for a boxID in the activeQueue
 func PrefixActiveBoxQueueTime(endTime int64) []byte {
 	return []byte(fmt.Sprintf("active:%d", endTime))
-	//return bytes.Join([][]byte{
-	//	PrefixActiveQueue,
-	//	sdk.FormatTimeBytes(endTime),
-	//}, KeyDelimiter)
 }
 
 // Returns the key for a proposalID in the activeQueue
 func KeyActiveBoxQueue(endTime int64, boxIdStr string) []byte {
 	return []byte(fmt.Sprintf("active:%d:%s", endTime, boxIdStr))
-	//return bytes.Join([][]byte{
-	//	PrefixActiveQueue,
-	//	sdk.FormatTimeBytes(endTime),
-	//
-	//	[]byte(boxIdStr),
-	//	//sdk.Uint64ToBigEndian(boxId),
-	//}, KeyDelimiter)
 }

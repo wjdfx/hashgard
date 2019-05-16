@@ -6,11 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-
-	"github.com/hashgard/hashgard/x/box/types"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
-
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +13,9 @@ import (
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/msgs"
+	"github.com/hashgard/hashgard/x/box/types"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -159,22 +156,21 @@ func deposit(cdc *codec.Codec, args []string, operation string) error {
 	if err != nil {
 		return err
 	}
-
 	if boxInfo.GetBoxStatus() != types.BoxDepositing {
 		return errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
 	}
-	amount, err := getAmountByDecimals(cdc, cliCtx, amountArg, boxInfo)
+	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Token.Denom)
 	if err != nil {
 		return err
 	}
+	amount := issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
 
-	if types.DepositTo == operation {
+	switch operation {
+	case types.DepositTo:
 		if err = checkAmountByDepositTo(amount, boxInfo); err != nil {
 			return err
 		}
-	}
-
-	if types.Fetch == operation {
+	case types.Fetch:
 		res, err := queriers.QueryDepositAmountFromDepositBox(boxID, account.GetAddress(), cliCtx)
 		if err == nil {
 			var depositAmount sdk.Int
@@ -183,6 +179,8 @@ func deposit(cdc *codec.Codec, args []string, operation string) error {
 				return errors.Errorf(errors.ErrNotEnoughAmount())
 			}
 		}
+	default:
+		return errors.ErrNotSupportOperation()
 	}
 	msg := msgs.NewMsgBoxDeposit(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount), operation)
 
@@ -200,13 +198,7 @@ func checkAmountByDepositTo(amount sdk.Int, boxInfo types.Box) error {
 		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
 			return errors.ErrAmountNotValid(amount.String())
 		}
-		total := sdk.ZeroInt()
-		if boxInfo.GetDeposit().InterestInjections != nil {
-			for _, v := range boxInfo.GetDeposit().InterestInjections {
-				total = total.Add(v.Amount)
-			}
-		}
-		if amount.Add(total).GT(boxInfo.GetDeposit().Interest.Token.Amount) {
+		if amount.Add(boxInfo.GetDeposit().TotalDeposit).GT(boxInfo.GetTotalAmount().Token.Amount) {
 			return errors.Errorf(errors.ErrNotEnoughAmount())
 		}
 	case types.Future:
@@ -223,25 +215,4 @@ func checkAmountByDepositTo(amount sdk.Int, boxInfo types.Box) error {
 		return errors.Errorf(errors.ErrNotSupportOperation())
 	}
 	return nil
-}
-func getAmountByDecimals(cdc *codec.Codec, cliCtx context.CLIContext, amountArg sdk.Int, boxInfo types.Box) (sdk.Int, error) {
-
-	amount := amountArg
-	switch boxInfo.GetBoxType() {
-	case types.Deposit:
-		issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetDeposit().Interest.Token.Denom)
-		if err != nil {
-			return amountArg, err
-		}
-		amount = issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
-	case types.Future:
-		issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Token.Denom)
-		if err != nil {
-			return amountArg, err
-		}
-		amount = issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
-	default:
-		return amountArg, errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	return amount, nil
 }

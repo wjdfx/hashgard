@@ -33,11 +33,9 @@ func (msg MsgLockBox) ValidateBasic() sdk.Error {
 	if types.Lock != msg.BoxType {
 		return errors.ErrUnknownBoxType()
 	}
-
 	if len(msg.Sender) == 0 {
 		return sdk.ErrInvalidAddress("Sender address cannot be empty")
 	}
-
 	if msg.TotalAmount.Token.IsZero() || msg.TotalAmount.Token.Amount.IsNegative() {
 		return errors.ErrAmountNotValid("Token amount")
 	}

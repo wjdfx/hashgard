@@ -7,8 +7,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/box/msgs"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
-
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -67,5 +65,5 @@ func TestLockBoxEndBlocker(t *testing.T) {
 	inactiveQueue.Close()
 
 	coins = keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Sender)
-	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), issueutils.MulDecimals(sdk.NewInt(10000), TestTokenDecimals))
+	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount)
 }

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box/utils"
+
 	"github.com/hashgard/hashgard/x/box/params"
 
 	"github.com/hashgard/hashgard/x/box/types"
@@ -73,8 +75,10 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 		Interest: types.BoxToken{
 			Token: sdk.NewCoin(
 				"interest",
-				issueutils.MulDecimals(sdk.NewInt(33), TestTokenDecimals)),
+				issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)),
 			Decimals: TestTokenDecimals}}
+	box.Deposit.PerCoupon = utils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
+		box.Deposit.Interest.Token.Amount, box.Deposit.Interest.Decimals)
 	return box
 }
 func GetFutureBoxInfo() *params.BoxFutureParams {

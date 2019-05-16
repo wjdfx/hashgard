@@ -8,7 +8,6 @@ import (
 //Process lock box
 
 func (keeper Keeper) ProcessLockBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-
 	if err := keeper.SendDepositedCoin(ctx, box.Owner, sdk.Coins{box.TotalAmount.Token}, box.BoxId); err != nil {
 		return err
 	}
