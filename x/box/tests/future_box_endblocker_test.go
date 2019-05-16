@@ -39,7 +39,9 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 	require.Equal(t, newBoxInfo.BoxStatus, types.BoxActived)
 
 	var address sdk.AccAddress
-	var coins sdk.Coins
+
+	coins := keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	require.True(t, coins.IsEqual(sdk.NewCoins(boxInfo.TotalAmount.Token)))
 
 	for _, v := range boxInfo.Future.Receivers {
 		for j, rec := range v {
@@ -69,12 +71,9 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
-
 	newBoxInfo = keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Equal(t, newBoxInfo.BoxStatus, types.BoxFinished)
 	require.Equal(t, newBoxInfo.Future.Distributed, newBoxInfo.Future.TimeLine)
-
-	//fmt.Println("===================")
 	for _, v := range boxInfo.Future.Receivers {
 		totalAmount := sdk.ZeroInt()
 		for j, rec := range v {
@@ -89,5 +88,7 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 		}
 		require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), totalAmount)
 	}
+	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	require.True(t, coins.IsZero())
 
 }
