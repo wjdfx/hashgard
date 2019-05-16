@@ -18,19 +18,6 @@ import (
 	govClientUtils "github.com/hashgard/hashgard/x/gov/client/utils"
 )
 
-const (
-	flagTitle        = "title"
-	flagDescription  = "description"
-	flagProposalType = "type"
-	flagDeposit      = "deposit"
-	flagVoter        = "voter"
-	flagOption       = "option"
-	flagDepositor    = "depositor"
-	flagStatus       = "status"
-	flagNumLimit     = "limit"
-	flagProposal     = "proposal"
-)
-
 type proposal struct {
 	Title       string
 	Description string
@@ -104,7 +91,12 @@ $ hashgardcli gov submit-proposal --title="Test Proposal" --description="My awes
 				return err
 			}
 
-			msg := gov.NewMsgSubmitProposal(proposal.Title, proposal.Description, proposalType, from, amount)
+			var proposalParams gov.ProposalParams
+			if proposalType == gov.ProposalTypeParameterChange {
+
+			}
+
+			msg := gov.NewMsgSubmitProposal(proposal.Title, proposal.Description, proposalType, from, amount, proposalParams)
 			err = msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -119,6 +111,7 @@ $ hashgardcli gov submit-proposal --title="Test Proposal" --description="My awes
 	cmd.Flags().String(flagProposalType, "", "proposalType of proposal, types: text/parameter_change/software_upgrade")
 	cmd.Flags().String(flagDeposit, "", "deposit of proposal")
 	cmd.Flags().String(flagProposal, "", "proposal file path (if this path is given, other proposal flags are ignored)")
+	cmd.Flags().StringSlice(flagParam, []string{}, "parameter of proposal,eg. [{key:key,value:value,op:update}]")
 
 	return cmd
 }

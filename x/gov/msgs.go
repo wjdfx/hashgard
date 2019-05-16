@@ -25,15 +25,17 @@ type MsgSubmitProposal struct {
 	ProposalType   ProposalKind   `json:"proposal_type"`   //  Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
 	Proposer       sdk.AccAddress `json:"proposer"`        //  Address of the proposer
 	InitialDeposit sdk.Coins      `json:"initial_deposit"` //  Initial deposit paid by sender. Must be strictly positive.
+	ProposalParams ProposalParams `json:"proposal_params"` //  Parameter to change via proposal
 }
 
-func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins) MsgSubmitProposal {
+func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins, proposalParams ProposalParams) MsgSubmitProposal {
 	return MsgSubmitProposal{
 		Title:          title,
 		Description:    description,
 		ProposalType:   proposalType,
 		Proposer:       proposer,
 		InitialDeposit: initialDeposit,
+		ProposalParams: proposalParams,
 	}
 }
 
@@ -67,6 +69,12 @@ func (msg MsgSubmitProposal) ValidateBasic() sdk.Error {
 	if msg.InitialDeposit.IsAnyNegative() {
 		return sdk.ErrInvalidCoins(msg.InitialDeposit.String())
 	}
+	if msg.ProposalType == ProposalTypeParameterChange {
+		if len(msg.ProposalParams) == 0 {
+			ErrEmptyParameter(DefaultCodespace, "Proposal Parameter is empty")
+		}
+	}
+
 	return nil
 }
 

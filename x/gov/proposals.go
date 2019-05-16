@@ -90,6 +90,29 @@ func (tp TextProposal) GetTitle() string           { return tp.Title }
 func (tp TextProposal) GetDescription() string     { return tp.Description }
 func (tp TextProposal) ProposalType() ProposalKind { return ProposalTypeText }
 
+
+// Parameter Change Proposals
+type ParameterChangeProposal struct {
+	TextProposal
+	ProposalParams ProposalParams `json:"proposal_params"`
+}
+
+func NewParameterChangeProposal(title, description string, proposalParams ProposalParams) ParameterChangeProposal {
+	return ParameterChangeProposal{
+		TextProposal: NewTextProposal(title, description),
+		ProposalParams: proposalParams,
+	}
+}
+
+// Implements Proposal Interface
+var _ ProposalContent = ParameterChangeProposal{}
+
+// nolint
+func (pcp ParameterChangeProposal) ProposalType() ProposalKind {
+	return ProposalTypeParameterChange
+}
+
+
 // Software Upgrade Proposals
 type SoftwareUpgradeProposal struct {
 	TextProposal
