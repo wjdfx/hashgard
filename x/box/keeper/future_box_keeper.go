@@ -101,6 +101,7 @@ func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxIn
 }
 func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	var address sdk.AccAddress
+	var total = sdk.ZeroInt()
 	for _, items := range box.Future.Receivers {
 		for j, rec := range items {
 			if j == 0 {
@@ -120,7 +121,11 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 			if err != nil {
 				return err
 			}
+			total = total.Add(amount)
 		}
+	}
+	if !total.Equal(box.TotalAmount.Token.Amount) {
+		return errors.ErrAmountNotValid("Receivers")
 	}
 	for i, item := range box.Future.TimeLine {
 		seq := i + 1

@@ -54,7 +54,7 @@ func GetLockBoxInfo() *params.BoxLockParams {
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Lock
 	box.TotalAmount = newBoxInfo.TotalAmount
-	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(1) * time.Minute).Unix()}
+	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(30) * time.Second).Unix()}
 	return box
 }
 func GetDepositBoxInfo() *params.BoxDepositParams {
@@ -64,9 +64,9 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 	box.BoxType = types.Deposit
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.Deposit = types.DepositBox{
-		StartTime:     time.Now().Add(time.Duration(24) * time.Hour).Unix(),
-		EstablishTime: time.Now().Add(time.Duration(48) * time.Hour).Unix(),
-		MaturityTime:  time.Now().Add(time.Duration(96) * time.Hour).Unix(),
+		StartTime:     time.Now().Add(time.Duration(30) * time.Second).Unix(),
+		EstablishTime: time.Now().Add(time.Duration(60) * time.Second).Unix(),
+		MaturityTime:  time.Now().Add(time.Duration(90) * time.Second).Unix(),
 		BottomLine:    issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals),
 		Price:         issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals),
 		Interest: types.BoxToken{
