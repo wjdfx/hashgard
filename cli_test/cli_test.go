@@ -13,6 +13,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+
 	//"encoding/hex"
 
 	"github.com/tendermint/tendermint/crypto/ed25519"
@@ -20,11 +21,11 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/hashgard/hashgard/app"
 	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/hashgard/hashgard/app"
 )
 
 func TestHashgardCLIExchange(t *testing.T) {
@@ -109,7 +110,7 @@ func TestHashgardCLIIssue(t *testing.T) {
 	//barAddr := f.KeyAddress(keyBar)
 
 	// create issue
-	f.TxIssueCreate(keyFoo, "zhuma","ZHM",100, "--decimals 4 --gas 200000 -y")
+	f.TxIssueCreate(keyFoo, "zhuma", "ZHM", 100, "--decimals 18 --gas 200000 -y")
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
