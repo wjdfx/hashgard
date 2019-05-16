@@ -110,7 +110,7 @@ func (bi DepositBoxInfos) String() string {
 	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%d\n",
 			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
@@ -121,7 +121,7 @@ func (bi FutureBoxInfos) String() string {
 	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%d\n",
 			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
