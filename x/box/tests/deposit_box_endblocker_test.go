@@ -48,6 +48,9 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
+	coins := keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	require.True(t, coins.IsEqual(sdk.NewCoins(boxInfo.Deposit.Interest.Token)))
+
 	newHeader := ctx.BlockHeader()
 	newHeader.Time = time.Unix(boxInfo.Deposit.StartTime, 0)
 	ctx = ctx.WithBlockHeader(newHeader)
@@ -101,7 +104,7 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 
 	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Equal(t, depositBox.BoxStatus, types.DepositBoxInterest)
-	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
+	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
 	require.Equal(t, coins.AmountOf(boxInfo.BoxId), depositTo.Quo(depositBox.Deposit.Price))
 
 	newHeader = ctx.BlockHeader()
@@ -127,6 +130,9 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	amount := depositBox.Deposit.PerCoupon.MulInt(depositTo.Quo(depositBox.Deposit.Price))
 	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom),
 		utils.MulMaxPrecisionByDecimal(amount, depositBox.Deposit.Interest.Decimals))
+
+	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	require.True(t, coins.IsZero())
 }
 
 func TestDepositBoxNotEnoughIteratorEndBlocker(t *testing.T) {

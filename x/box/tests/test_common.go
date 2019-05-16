@@ -49,14 +49,12 @@ var (
 )
 
 func GetLockBoxInfo() *params.BoxLockParams {
-
 	box := &params.BoxLockParams{}
 	box.Sender = newBoxInfo.Owner
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Lock
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(1) * time.Minute).Unix()}
-
 	return box
 }
 func GetDepositBoxInfo() *params.BoxDepositParams {
@@ -65,7 +63,6 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Deposit
 	box.TotalAmount = newBoxInfo.TotalAmount
-
 	box.Deposit = types.DepositBox{
 		StartTime:     time.Now().Add(time.Duration(24) * time.Hour).Unix(),
 		EstablishTime: time.Now().Add(time.Duration(48) * time.Hour).Unix(),
@@ -88,12 +85,10 @@ func GetFutureBoxInfo() *params.BoxFutureParams {
 	box.BoxType = types.Future
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.TotalAmount.Token.Amount = issueutils.MulDecimals(sdk.NewInt(2000), TestTokenDecimals)
-
 	box.Future.TimeLine = []int64{
 		time.Now().Add(time.Duration(24*30*1) * time.Hour).Unix(),
 		time.Now().Add(time.Duration(24*30*2) * time.Hour).Unix(),
 		time.Now().Add(time.Duration(24*30*3) * time.Hour).Unix()}
-
 	box.Future.Receivers = [][]string{
 		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver1"))).String(),
 			issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals).String(),

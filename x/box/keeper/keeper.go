@@ -90,6 +90,9 @@ func (keeper Keeper) SubDepositedCoin(ctx sdk.Context, amt sdk.Coins, boxID stri
 	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, keeper.getDepositedCoinsAddress(boxID), amt)
 	return err
 }
+func (keeper Keeper) GetDepositedCoins(ctx sdk.Context, boxID string) sdk.Coins {
+	return keeper.GetBankKeeper().GetCoins(ctx, keeper.getDepositedCoinsAddress(boxID))
+}
 
 //Keys set
 //Set box

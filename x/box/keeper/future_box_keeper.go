@@ -116,9 +116,6 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 				return errors.ErrAmountNotValid(rec)
 			}
 			boxDenom := utils.GetCoinDenomByFutureBoxSeq(box.BoxId, j)
-			if err := keeper.SubDepositedCoin(ctx, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.BoxId); err != nil {
-				return err
-			}
 			_, err := keeper.GetBankKeeper().AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(boxDenom, amount)))
 			if err != nil {
 				return err
@@ -177,8 +174,7 @@ func (keeper Keeper) processFutureBoxActiveByEndBlocker(ctx sdk.Context, box *ty
 		if err != nil {
 			return err
 		}
-		_, err = keeper.GetBankKeeper().AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)))
-		if err != nil {
+		if err := keeper.FetchDepositedCoin(ctx, address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.BoxId); err != nil {
 			return err
 		}
 	}
