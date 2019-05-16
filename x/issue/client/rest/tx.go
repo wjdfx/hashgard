@@ -79,7 +79,7 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			Symbol:             strings.ToUpper(req.Symbol),
 			TotalSupply:        req.TotalSupply,
 			Decimals:           req.Decimals,
-			IssueTime:          time.Now(),
+			IssueTime:          time.Now().Unix(),
 			Description:        req.Description,
 			BurnOwnerDisabled:  req.BurnOwnerDisabled,
 			BurnHolderDisabled: req.BurnHolderDisabled,
