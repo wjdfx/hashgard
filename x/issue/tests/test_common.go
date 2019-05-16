@@ -33,7 +33,7 @@ var (
 	CoinIssueInfo = types.CoinIssueInfo{
 		Issuer:             IssuerCoinsAccAddr,
 		Owner:              IssuerCoinsAccAddr,
-		IssueTime:          time.Now(),
+		IssueTime:          time.Now().Unix(),
 		Name:               "testCoin",
 		Symbol:             "TEST",
 		TotalSupply:        sdk.NewInt(10000),

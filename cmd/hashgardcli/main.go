@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/cosmos/cosmos-sdk/client/keys"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -87,6 +89,8 @@ func main() {
 	addGovCmd(cdc, rootCmd)
 	// Add issue subcommands
 	addIssueCmd(cdc, rootCmd)
+	// Add box subcommands
+	addBoxCmd(cdc, rootCmd)
 	// Add slashing subcommands
 	addSlashingCmd(cdc, rootCmd)
 	// Add stake subcommands
@@ -157,6 +161,12 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	moduleClient := issue.NewModuleClient(cdc)
 	rootCmd.AddCommand(moduleClient.GetIssueCmd())
+}
+
+// Add box subcommands
+func addBoxCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	moduleClient := box.NewModuleClient(cdc)
+	rootCmd.AddCommand(moduleClient.GetBoxCmd())
 }
 
 // Add gov subcommands

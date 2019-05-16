@@ -40,6 +40,9 @@ func ErrOwnerMismatch(issueID string) sdk.Error {
 func ErrCoinDecimalsMaxValueNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueCoinDecimalsNotValid, fmt.Sprintf("Decimals max value is %d", types.CoinDecimalsMaxValue))
 }
+func ErrCoinDecimalsMultipleNotValid() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeIssueCoinDecimalsNotValid, fmt.Sprintf("Decimals must be a multiple of %d", types.CoinDecimalsMultiple))
+}
 func ErrCoinTotalSupplyMaxValueNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueTotalSupplyNotValid, fmt.Sprintf("Total supply max value is %s", types.CoinMaxTotalSupply.String()))
 }

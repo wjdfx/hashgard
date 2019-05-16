@@ -57,6 +57,7 @@ const (
 )
 const (
 	CoinDecimalsMaxValue                  = uint(18)
+	CoinDecimalsMultiple                  = uint(3)
 	CodeInvalidGenesis       sdk.CodeType = 102
 	CoinNameMaxLength                     = 32
 	CoinSymbolMinLength                   = 2

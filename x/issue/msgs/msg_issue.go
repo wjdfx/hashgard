@@ -49,6 +49,9 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 	if msg.Decimals > types.CoinDecimalsMaxValue {
 		return errors.ErrCoinDecimalsMaxValueNotValid()
 	}
+	if msg.Decimals%types.CoinDecimalsMultiple != 0 {
+		return errors.ErrCoinDecimalsMultipleNotValid()
+	}
 	if len(msg.Description) > types.CoinDescriptionMaxLength {
 		return errors.ErrCoinDescriptionMaxLengthNotValid()
 	}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -45,7 +44,6 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				Owner:              account.GetAddress(),
 				Name:               args[0],
 				Symbol:             strings.ToUpper(args[1]),
-				IssueTime:          time.Now(),
 				BurnOwnerDisabled:  viper.GetBool(flagBurnOwnerDisabled),
 				BurnHolderDisabled: viper.GetBool(flagBurnHolderDisabled),
 				BurnFromDisabled:   viper.GetBool(flagBurnFromDisabled),

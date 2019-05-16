@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/hashgard/hashgard/x/issue"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -33,7 +35,7 @@ var (
 	FreeFermionsAcc                    = sdk.NewIntWithDecimal(150, 18)
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
 
-	StakeDenom                         = "agard"
+	StakeDenom = "agard"
 )
 
 // State to Unmarshal
@@ -48,7 +50,8 @@ type GenesisState struct {
 	GovData          gov.GenesisState          `json:"gov"`
 	ExchangeData     exchange.GenesisState     `json:"exchange"`
 	IssueData        issue.GenesisState        `json:"issue"`
-	CrisisData   	 crisis.GenesisState	   `json:"crisis"`
+	BoxData          box.GenesisState          `json:"box"`
+	CrisisData       crisis.GenesisState       `json:"crisis"`
 	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
@@ -63,6 +66,7 @@ func NewGenesisState(
 	slashingData slashing.GenesisState,
 	exchangeData exchange.GenesisState,
 	issueData issue.GenesisState,
+	boxData box.GenesisState,
 	crisisData crisis.GenesisState,
 ) GenesisState {
 
@@ -76,8 +80,9 @@ func NewGenesisState(
 		GovData:          govData,
 		SlashingData:     slashingData,
 		IssueData:        issueData,
+		BoxData:          boxData,
 		ExchangeData:     exchangeData,
-		CrisisData:		  crisisData,
+		CrisisData:       crisisData,
 	}
 }
 
@@ -105,7 +110,8 @@ func NewDefaultGenesisState() GenesisState {
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
 		IssueData:        issue.DefaultGenesisState(),
-		CrisisData:		  createCrisisGenesisState(),
+		BoxData:          box.DefaultGenesisState(),
+		CrisisData:       createCrisisGenesisState(),
 		GenTxs:           nil,
 	}
 }
@@ -340,6 +346,12 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 		return err
 	}
 	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
+		return err
+	}
+	if err := issue.ValidateGenesis(genesisState.IssueData); err != nil {
+		return err
+	}
+	if err := box.ValidateGenesis(genesisState.BoxData); err != nil {
 		return err
 	}
 	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
