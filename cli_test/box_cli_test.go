@@ -110,14 +110,4 @@ func TestHashgardCLILockDepositBox(t *testing.T) {
 	// Ensure transaction tags can be queried
 	txs1 := f.QueryTxs(1, 50, "action:box_interest", "operation:injection", fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txs1, 1)
-
-	//fooAcc := f.QueryAccount(fooAddr)
-	////require.Equal(t, fooAcc.GetCoins().AmountOf(issueID), IssueCoinAmount.Sub(LockAmount))
-	//require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), issueutils.MulDecimals(LockAmount, decimals))
-	//
-	//tests.WaitForNextNBlocksTM(1, f.Port)
-	//
-	//fooAcc = f.QueryAccount(fooAddr)
-	////require.Equal(t, fooAcc.GetCoins().AmountOf(issueID), IssueCoinAmount)
-	//require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), sdk.ZeroInt())
 }
