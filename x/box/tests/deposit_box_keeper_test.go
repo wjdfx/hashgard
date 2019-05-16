@@ -128,8 +128,8 @@ func TestDepositBoxFetchDeposit(t *testing.T) {
 	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, fetch), types.Fetch)
 	require.Nil(t, err)
 
-	amount := keeper.GetDepositByAddress(ctx, boxInfo.BoxId, TransferAccAddr)
-	require.Equal(t, amount, depositTo.Sub(fetch))
+	boxDeposit := keeper.GetDepositByAddress(ctx, boxInfo.BoxId, TransferAccAddr)
+	require.Equal(t, boxDeposit.Amount, depositTo.Sub(fetch))
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount.Sub(depositTo).Add(fetch))

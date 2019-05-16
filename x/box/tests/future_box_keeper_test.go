@@ -83,8 +83,8 @@ func TestFutureBoxFetchDeposit(t *testing.T) {
 	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, fetch), types.Fetch)
 	require.Nil(t, err)
 
-	amount := keeper.GetDepositByAddress(ctx, boxInfo.BoxId, TransferAccAddr)
-	require.Equal(t, amount, depositTo.Sub(fetch))
+	boxDeposit := keeper.GetDepositByAddress(ctx, boxInfo.BoxId, TransferAccAddr)
+	require.Equal(t, boxDeposit.Amount, depositTo.Sub(fetch))
 
 	newBoxInfo := keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Equal(t, newBoxInfo.Future.Deposits[0].Amount, depositTo.Sub(fetch))
