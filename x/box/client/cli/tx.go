@@ -172,9 +172,9 @@ func deposit(cdc *codec.Codec, args []string, operation string) error {
 	case types.Fetch:
 		res, err := queriers.QueryDepositAmountFromDepositBox(boxID, account.GetAddress(), cliCtx)
 		if err == nil {
-			var depositAmount sdk.Int
-			cdc.MustUnmarshalJSON(res, &depositAmount)
-			if depositAmount.LT(amount) {
+			var boxDeposit types.BoxDeposit
+			cdc.MustUnmarshalJSON(res, &boxDeposit)
+			if boxDeposit.Amount.LT(amount) {
 				return errors.Errorf(errors.ErrNotEnoughAmount())
 			}
 		}
