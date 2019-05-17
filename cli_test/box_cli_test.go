@@ -113,13 +113,14 @@ func TestHashgardCLILockDepositBox(t *testing.T) {
 	require.Len(t, txsInjection, 1)
 
 	depositTo := IssueCoinAmount.QuoRaw(int64(2))
-	f.TxSend(keyFoo, boxtests.TransferAccAddr, sdk.NewCoin(issueAID, depositTo))
-	tests.WaitForNextNBlocksTM(params.Deposit.StartTime-time.Now().Unix()/5+1, f.Port)
+	f.TxSend(keyFoo, boxtests.TransferAccAddr, sdk.NewCoin(issueAID, depositTo), DefaultFlag)
+	waitForNextNBlocks := (params.Deposit.StartTime-time.Now().Unix())/5 + 1
+	tests.WaitForNextNBlocksTM(waitForNextNBlocks, f.Port)
 
-	f.TxDepositTo(keyFoo, boxID, depositTo)
+	f.TxDepositTo(boxtests.TransferAccAddr.String(), boxID, depositTo, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	txsDeposit := f.QueryTxs(1, 50, "action:box_deposit", "operation:deposit-to", fmt.Sprintf("sender:%s", fooAddr))
+	txsDeposit := f.QueryTxs(1, 50, "action:box_deposit", "operation:deposit-to", fmt.Sprintf("sender:%s", boxtests.TransferAccAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	tests.WaitForNextNBlocksTM(3, f.Port)
