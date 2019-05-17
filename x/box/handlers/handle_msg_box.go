@@ -58,6 +58,7 @@ func createBox(ctx sdk.Context, keeper keeper.Keeper, box *types.BoxInfo) sdk.Re
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(box.BoxId),
 		Tags: sdk.NewTags(
 			tags.Category, tags.TxCategory,
+			tags.BoxID, box.BoxId,
 			tags.Sender, box.Owner.String(),
 		),
 	}
