@@ -23,6 +23,7 @@ type proposal struct {
 	Description string
 	Type        string
 	Deposit     string
+	Params		[]string
 }
 
 var proposalFlags = []string{
@@ -93,7 +94,10 @@ $ hashgardcli gov submit-proposal --title="Test Proposal" --description="My awes
 
 			var proposalParams gov.ProposalParams
 			if proposalType == gov.ProposalTypeParameterChange {
-
+				proposalParams, err = getParamFromString(proposal.Params)
+				if err != nil {
+					return err
+				}
 			}
 
 			msg := gov.NewMsgSubmitProposal(proposal.Title, proposal.Description, proposalType, from, amount, proposalParams)
@@ -111,7 +115,7 @@ $ hashgardcli gov submit-proposal --title="Test Proposal" --description="My awes
 	cmd.Flags().String(flagProposalType, "", "proposalType of proposal, types: text/parameter_change/software_upgrade")
 	cmd.Flags().String(flagDeposit, "", "deposit of proposal")
 	cmd.Flags().String(flagProposal, "", "proposal file path (if this path is given, other proposal flags are ignored)")
-	cmd.Flags().StringSlice(flagParam, []string{}, "parameter of proposal,eg. [{key:key,value:value,op:update}]")
+	cmd.Flags().StringSlice(flagParam, []string{}, "parameter of proposal,eg. [\"mint/Inflation=0.03\"]")
 
 	return cmd
 }
@@ -226,3 +230,36 @@ $ hashgardcli gov vote 1 yes --from mykey
 }
 
 // DONTCOVER
+
+func getParamFromString(paramsStr []string) (gov.ProposalParams, error) {
+	var proposalParams gov.ProposalParams
+	for _, paramstr := range paramsStr {
+		str := strings.Split(paramstr, "=")
+		if len(str) != 2 {
+			return gov.ProposalParams{}, fmt.Errorf("%s is not valid", paramstr)
+		}
+		proposalParams = append(proposalParams,
+			gov.ProposalParam{
+				Subspace: GetParamSpaceFromKey(str[0]),
+				Key: GetParamKey(str[0]),
+				Value: str[1],
+			})
+	}
+	return proposalParams, nil
+}
+
+func GetParamSpaceFromKey(keystr string) string {
+	strs := strings.Split(keystr, "/")
+	if len(strs) != 2 {
+		return ""
+	}
+	return strs[0]
+}
+
+func GetParamKey(keystr string) string {
+	strs := strings.Split(keystr, "/")
+	if len(strs) != 2 {
+		return ""
+	}
+	return strs[1]
+}

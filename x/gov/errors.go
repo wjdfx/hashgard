@@ -22,6 +22,9 @@ const (
 	CodeInvalidGenesis          sdk.CodeType = 10
 	CodeInvalidProposalStatus   sdk.CodeType = 11
 	CodeEmptyParameter			sdk.CodeType = 12
+	CodeInvalidSubspace			sdk.CodeType = 13
+	CodeInvalidParamKey			sdk.CodeType = 14
+	CodeInvalidParamValue		sdk.CodeType = 15
 )
 
 // Error constructors
@@ -70,3 +73,14 @@ func ErrEmptyParameter(codespace sdk.CodespaceType, errorMsg string) sdk.Error {
 	return sdk.NewError(codespace, CodeEmptyParameter, errorMsg)
 }
 
+func ErrInvalidSubspace(codespace sdk.CodespaceType, subspace string) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidSubspace, fmt.Sprintf("'%s' is not a valid param subspace", subspace))
+}
+
+func ErrInvalidParamKey(codespace sdk.CodespaceType, subspace string, key string) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidParamKey, fmt.Sprintf("'%s' is not a valid param key in subspace %s", key, subspace))
+}
+
+func ErrInvalidParamValue(codespace sdk.CodespaceType, subspace string, key string, val string) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidParamValue, fmt.Sprintf("'%s' doesn't match the type of %s/%s", val, subspace, key))
+}

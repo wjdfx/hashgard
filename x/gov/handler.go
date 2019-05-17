@@ -32,9 +32,26 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 		content = NewTextProposal(msg.Title, msg.Description)
 	case ProposalTypeSoftwareUpgrade:
 		content = NewSoftwareUpgradeProposal(msg.Title, msg.Description)
+	case ProposalTypeParameterChange:
+		content = NewParameterChangeProposal(msg.Title, msg.Description, msg.ProposalParams)
 	default:
 		return ErrInvalidProposalType(keeper.codespace, msg.ProposalType).Result()
 	}
+
+	if msg.ProposalType == ProposalTypeParameterChange {
+		for _, proposalParam := range msg.ProposalParams {
+			if subspace, ok := keeper.paramsKeeper.GetSubspace(proposalParam.Subspace); ok {
+				if !subspace.Has(ctx, []byte(proposalParam.Key)) {
+					return ErrInvalidParamKey(DefaultCodespace, proposalParam.Subspace, proposalParam.Key).Result()
+				} else {
+					subspace.Get()
+				}
+			} else {
+				return ErrInvalidSubspace(DefaultCodespace, proposalParam.Subspace).Result()
+			}
+		}
+	}
+
 	proposal, err := keeper.SubmitProposal(ctx, content)
 	if err != nil {
 		return err.Result()
