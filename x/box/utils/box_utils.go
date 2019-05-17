@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	"math"
 	"strconv"
 	"strings"
 
@@ -90,18 +89,13 @@ func GetMaxPrecision(dec sdk.Dec, decimals uint) sdk.Dec {
 	dec, _ = sdk.NewDecFromStr(str)
 	return dec
 }
-func GetMultipleDecimals(decimals uint) sdk.Int {
-	multiple := math.Pow10(int(decimals))
-	multipleStr := strconv.FormatFloat(multiple, 'f', 0, 64)
-	multipleDecimals, _ := sdk.NewIntFromString(multipleStr)
-	return multipleDecimals
-}
+
 func QuoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
-	dec = dec.QuoInt(GetMultipleDecimals(decimals))
+	dec = dec.QuoInt(issueutils.GetDecimalsInt(decimals))
 	dec = GetMaxPrecision(dec, decimals)
 	return dec
 }
 func MulMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Int {
 	dec = GetMaxPrecision(dec, decimals)
-	return dec.MulInt(GetMultipleDecimals(decimals)).TruncateInt()
+	return dec.MulInt(issueutils.GetDecimalsInt(decimals)).TruncateInt()
 }

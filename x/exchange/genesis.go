@@ -10,8 +10,8 @@ import (
 )
 
 type GenesisState struct {
-	StartingOrderId uint64 `json:"starting_order_id"`
-	Orders			[]Order `json:"orders"`
+	StartingOrderId uint64  `json:"starting_order_id"`
+	Orders          []Order `json:"orders"`
 }
 
 func NewGenesisState(startingOrderId uint64) GenesisState {
@@ -68,6 +68,6 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 
 	return GenesisState{
 		StartingOrderId: startingOrderId,
-		Orders: orders,
+		Orders:          orders,
 	}
 }

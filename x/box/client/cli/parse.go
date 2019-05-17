@@ -2,7 +2,6 @@ package cli
 
 const (
 	flagAddress       = "address"
-	flagName          = "name"
 	flagLimit         = "limit"
 	flagStartBoxId    = "start-box-id"
 	flagTradeDisabled = "trade-disabled"

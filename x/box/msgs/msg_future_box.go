@@ -50,8 +50,8 @@ func (msg MsgFutureBox) ValidateBasic() sdk.Error {
 	}
 	return nil
 }
-func (msg MsgFutureBox) validateBox() sdk.Error {
 
+func (msg MsgFutureBox) validateBox() sdk.Error {
 	if msg.Future.TimeLine == nil || msg.Future.Receivers == nil ||
 		len(msg.Future.TimeLine) == 0 || len(msg.Future.Receivers) == 0 {
 		return errors.ErrNotSupportOperation()

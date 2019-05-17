@@ -10,12 +10,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
+	crkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
-	crkeys "github.com/cosmos/cosmos-sdk/crypto/keys"
 
-	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/bank"
 )
 
 const (
@@ -28,10 +28,9 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "send [receiver_address]",
 		Short:   "get some test coins from faucet account, this function just be available in testnet",
-		Args:	 cobra.ExactArgs(1),
+		Args:    cobra.ExactArgs(1),
 		Example: "$ hashgardcli faucet send gard1hf4n743fujvxrwx8af7u35anjqpdd2cx8p6cdd",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 
 			receiver, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
@@ -47,7 +46,6 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 				WithCodec(cdc).
 				WithAccountDecoder(cdc)
 
-
 			acc, err := cliCtx.GetAccount(receiver)
 			if err == nil {
 				if acc.GetCoins().IsAllGTE(sdk.NewCoins(sdk.NewInt64Coin("gard", 300), sdk.NewInt64Coin("apple", 300)).Sort()) {
@@ -58,7 +56,7 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 			// create keybase
 			kb := crkeys.NewInMemory()
 
-			Info, err :=kb.CreateAccount(FaucetName, FaucetSeed, "", FaucetPswd, 0, 0)
+			Info, err := kb.CreateAccount(FaucetName, FaucetSeed, "", FaucetPswd, 0, 0)
 			if err != nil {
 				return err
 			}
@@ -116,7 +114,7 @@ func GetCmdFaucetSend(cdc *codec.Codec) *cobra.Command {
 					stdSignMsg.Fee,
 					[]auth.StdSignature{
 						{
-							PubKey: pubkey,
+							PubKey:    pubkey,
 							Signature: sigBytes,
 						},
 					},

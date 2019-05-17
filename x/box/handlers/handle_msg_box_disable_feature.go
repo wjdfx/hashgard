@@ -10,7 +10,6 @@ import (
 
 //Handle MsgBoxDisableFeature
 func HandleMsgBoxDisableFeature(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDisableFeature) sdk.Result {
-
 	boxInfo, err := keeper.DisableFeature(ctx, msg.Sender, msg.BoxId, msg.Feature)
 	if err != nil {
 		return err.Result()

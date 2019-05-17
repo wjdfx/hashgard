@@ -11,7 +11,6 @@ import (
 
 //Handle MsgBoxInterest
 func HandleMsgBoxInterest(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInterest) sdk.Result {
-
 	boxInfo, err := keeper.ProcessDepositBoxInterest(ctx, msg.BoxId, msg.Sender, msg.Interest, msg.Operation)
 	if err != nil {
 		return err.Result()
