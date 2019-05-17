@@ -31,6 +31,7 @@ func CheckBoxType(boxType string) sdk.Error {
 	}
 	return nil
 }
+
 func GetBoxTypeValue(boxType string) (string, error) {
 
 	value, ok := BoxType[boxType]

@@ -65,7 +65,6 @@ func GetCmdQueryAllowance(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			res, err := issuequeriers.QueryIssueAllowance(issueID, ownerAddress, spenderAddress, cliCtx)
 			if err != nil {
 				return err
@@ -96,7 +95,6 @@ func GetCmdQueryFreeze(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			res, err := issuequeriers.QueryIssueFreeze(issueID, accAddress, cliCtx)
 			if err != nil {
 				return err

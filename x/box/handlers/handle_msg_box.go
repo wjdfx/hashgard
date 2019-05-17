@@ -10,7 +10,6 @@ import (
 
 //Handle MsgLockBox
 func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox) sdk.Result {
-
 	box := &types.BoxInfo{
 		Owner:         msg.Sender,
 		Name:          msg.Name,

@@ -47,21 +47,17 @@ func CheckIssueId(issueID string) sdk.Error {
 	}
 	return nil
 }
-func MulDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
-
+func GetDecimalsInt(decimals uint) sdk.Int {
 	multiple := math.Pow10(int(decimals))
 	multipleStr := strconv.FormatFloat(multiple, 'f', 0, 64)
 	multipleDecimals, _ := sdk.NewIntFromString(multipleStr)
-
-	return totalSupply.Mul(multipleDecimals)
+	return multipleDecimals
+}
+func MulDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
+	return totalSupply.Mul(GetDecimalsInt(decimals))
 }
 func QuoDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {
-
-	quo := math.Pow10(int(decimals))
-	quoStr := strconv.FormatFloat(quo, 'f', 0, 64)
-	quoDecimals, _ := sdk.NewIntFromString(quoStr)
-
-	return totalSupply.Quo(quoDecimals)
+	return totalSupply.Quo(GetDecimalsInt(decimals))
 }
 func CheckAllowance(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, owner sdk.AccAddress, spender sdk.AccAddress, amount sdk.Int) error {
 

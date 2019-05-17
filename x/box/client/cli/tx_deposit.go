@@ -137,7 +137,6 @@ func GetCmdDepositBoxInterestFetch(cdc *codec.Codec) *cobra.Command {
 }
 
 func interest(cdc *codec.Codec, args []string, operation string) error {
-
 	boxID := args[0]
 	if err := boxutils.CheckBoxId(boxID); err != nil {
 		return errors.Errorf(err)
@@ -160,14 +159,11 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 	if box.GetBoxStatus() != types.BoxCreated {
 		return errors.Errorf(errors.ErrNotSupportOperation())
 	}
-
 	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, box.GetDeposit().Interest.Token.Denom)
 	if err != nil {
 		return err
 	}
-
 	amount := issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
-
 	if types.Fetch == operation {
 		flag := true
 		for i, v := range box.GetDeposit().InterestInjections {
@@ -195,7 +191,6 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 		}
 	}
 	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
-
 	validateErr := msg.ValidateBasic()
 	if validateErr != nil {
 		return errors.Errorf(validateErr)
