@@ -4,6 +4,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/hashgard/hashgard/x/box/params"
 
@@ -42,7 +43,7 @@ func CreateLockBox(t *testing.T, f *Fixtures, issueID string, sender sdk.AccAddr
 
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	txs1 := f.QueryTxs(1, 50, "action:box_create", "box-type:lock", fmt.Sprintf("sender:%s", sender))
+	txs1 := f.QueryTxs(1, 50, "action:box_create_lock", fmt.Sprintf("sender:%s", sender))
 	require.Len(t, txs1, 1)
 	bytes, _ := hex.DecodeString(txs1[0].Data)
 	boxId := string(bytes[2:])
@@ -62,7 +63,7 @@ func CreateDepositBox(t *testing.T, f *Fixtures, issueAID string, issueBID strin
 	f.TxDepositBoxCreate(params, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	txs1 := f.QueryTxs(1, 50, "action:box_create", "box-type:deposit", fmt.Sprintf("sender:%s", sender))
+	txs1 := f.QueryTxs(1, 50, "action:box_create_deposit", fmt.Sprintf("sender:%s", sender))
 	require.Len(t, txs1, 1)
 	bytes, _ := hex.DecodeString(txs1[0].Data)
 	boxId := string(bytes[2:])
@@ -102,12 +103,24 @@ func TestHashgardCLILockDepositBox(t *testing.T) {
 	//barAddr := f.KeyAddress(keyBar)
 	issueAID := AddIssue(t, f, fooAddr)
 	issueBID := AddIssue(t, f, fooAddr)
-	fmt.Println(issueAID, issueBID)
+
 	boxID, params := CreateDepositBox(t, f, issueAID, issueBID, fooAddr)
 
 	f.TxDepositBoxInterestInjection(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
-	txs1 := f.QueryTxs(1, 50, "action:box_interest", "operation:injection", fmt.Sprintf("sender:%s", fooAddr))
-	require.Len(t, txs1, 1)
+	txsInjection := f.QueryTxs(1, 50, "action:box_interest", "operation:injection", fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInjection, 1)
+
+	depositTo := IssueCoinAmount.QuoRaw(int64(2))
+	f.TxSend(keyFoo, boxtests.TransferAccAddr, sdk.NewCoin(issueAID, depositTo))
+	tests.WaitForNextNBlocksTM(params.Deposit.StartTime-time.Now().Unix()/5+1, f.Port)
+
+	f.TxDepositTo(keyFoo, boxID, depositTo)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	// Ensure transaction tags can be queried
+	txsDeposit := f.QueryTxs(1, 50, "action:box_deposit", "operation:deposit-to", fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsDeposit, 1)
+
+	tests.WaitForNextNBlocksTM(3, f.Port)
 }

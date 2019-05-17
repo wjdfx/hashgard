@@ -16,6 +16,29 @@ import (
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
+func MulDecimals(coin sdk.Coin, decimals uint) sdk.Int {
+	if coin.Denom == types.Agard {
+		return coin.Amount
+	}
+	return issueutils.MulDecimals(coin.Amount, decimals)
+}
+func ParseCoin(denom string, amount sdk.Int) sdk.Coin {
+	if denom == types.Agard {
+		denom = types.Gard
+	}
+	coin, _ := sdk.ParseCoin(fmt.Sprintf("%s%s", amount, denom))
+	return coin
+}
+func CalcInterest(perCoupon sdk.Dec, share sdk.Int, interest types.BoxToken) sdk.Int {
+	dec := perCoupon.MulInt(share)
+	decimals := interest.Decimals
+	if interest.Token.Denom == types.Agard {
+		decimals = types.GardDecimal
+	}
+	dec = GetMaxPrecision(dec, decimals)
+	return dec.MulInt(issueutils.GetDecimalsInt(decimals)).TruncateInt()
+}
+
 func IsBoxId(boxID string) bool {
 	return strings.HasPrefix(boxID, types.IDPreStr)
 }
@@ -27,10 +50,19 @@ func CheckBoxId(boxID string) sdk.Error {
 	return nil
 }
 
-func CalcInterestRate(totalAmount sdk.Int, price sdk.Int, interest sdk.Int, decimals uint) sdk.Dec {
+func CalcInterestRate(totalAmount sdk.Int, price sdk.Int, interest sdk.Coin, decimals uint) sdk.Dec {
 	totalCoupon := totalAmount.Quo(price)
-	perCoupon := sdk.NewDecFromBigInt(interest.BigInt()).QuoInt(totalCoupon)
-	return QuoMaxPrecisionByDecimal(perCoupon, decimals)
+	perCoupon := sdk.NewDecFromBigInt(interest.Amount.BigInt()).QuoInt(totalCoupon)
+	if interest.Denom == types.Agard {
+		decimals = types.GardDecimal
+	}
+	return quoMaxPrecisionByDecimal(perCoupon, decimals)
+}
+
+func quoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
+	dec = dec.QuoInt(issueutils.GetDecimalsInt(decimals))
+	dec = GetMaxPrecision(dec, decimals)
+	return dec
 }
 
 func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (types.Box, error) {
@@ -66,7 +98,6 @@ func GetBoxTypeByValue(value string) string {
 		if strings.HasPrefix(value, v) {
 			return k
 		}
-
 	}
 	return ""
 }
@@ -88,14 +119,4 @@ func GetMaxPrecision(dec sdk.Dec, decimals uint) sdk.Dec {
 	str := decStr[0 : len+1]
 	dec, _ = sdk.NewDecFromStr(str)
 	return dec
-}
-
-func QuoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
-	dec = dec.QuoInt(issueutils.GetDecimalsInt(decimals))
-	dec = GetMaxPrecision(dec, decimals)
-	return dec
-}
-func MulMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Int {
-	dec = GetMaxPrecision(dec, decimals)
-	return dec.MulInt(issueutils.GetDecimalsInt(decimals)).TruncateInt()
 }

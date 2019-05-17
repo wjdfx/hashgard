@@ -152,6 +152,17 @@ func (keeper Keeper) GetDepositByAddress(ctx sdk.Context, boxID string, accAddre
 	return &boxDeposit
 }
 
+func (keeper Keeper) GetCoinDecimal(ctx sdk.Context, coin sdk.Coin) (uint, sdk.Error) {
+	if coin.Denom == types.Agard {
+		return types.AgardDecimal, nil
+	}
+	coinIssueInfo := keeper.GetIssueKeeper().GetIssue(ctx, coin.Denom)
+	if coinIssueInfo == nil {
+		return 0, issueerr.ErrUnknownIssue(coin.Denom)
+	}
+	return coinIssueInfo.Decimals, nil
+}
+
 //Keys return
 //Return box by boxID
 func (keeper Keeper) GetBox(ctx sdk.Context, boxID string) *types.BoxInfo {
@@ -258,11 +269,11 @@ func (keeper Keeper) List(ctx sdk.Context, params boxparams.BoxQueryParams) []*t
 
 //Create a box
 func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	coinIssueInfo := keeper.GetIssueKeeper().GetIssue(ctx, box.TotalAmount.Token.Denom)
-	if coinIssueInfo == nil {
-		return issueerr.ErrUnknownIssue(box.Deposit.Interest.Token.Denom)
+	decimal, err := keeper.GetCoinDecimal(ctx, box.TotalAmount.Token)
+	if err != nil {
+		return err
 	}
-	if box.TotalAmount.Decimals != coinIssueInfo.GetDecimals() {
+	if box.TotalAmount.Decimals != decimal {
 		return errors.ErrDecimalsNotValid(box.TotalAmount.Decimals)
 	}
 	store := ctx.KVStore(keeper.storeKey)

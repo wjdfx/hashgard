@@ -26,7 +26,7 @@ func NewMsgLockBox(params *params.BoxLockParams) MsgLockBox {
 func (msg MsgLockBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgLockBox) Type() string { return types.TypeMsgBox }
+func (msg MsgLockBox) Type() string { return types.TypeMsgBoxCreateLock }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgLockBox) ValidateBasic() sdk.Error {

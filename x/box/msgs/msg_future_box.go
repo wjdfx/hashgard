@@ -26,7 +26,7 @@ func NewMsgFutureBox(params *params.BoxFutureParams) MsgFutureBox {
 func (msg MsgFutureBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgFutureBox) Type() string { return types.TypeMsgBox }
+func (msg MsgFutureBox) Type() string { return types.TypeMsgBoxCreateFuture }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgFutureBox) ValidateBasic() sdk.Error {

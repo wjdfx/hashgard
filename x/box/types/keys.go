@@ -30,6 +30,8 @@ var (
 const (
 	IDPreStr = "box"
 	Custom   = "custom"
+	Gard     = "gard"
+	Agard    = "agard"
 )
 const (
 	QueryParams        = "params"
@@ -66,7 +68,9 @@ const (
 )
 
 const (
-	TypeMsgBox               = "box_create"
+	TypeMsgBoxCreateLock     = "box_create_lock"
+	TypeMsgBoxCreateDeposit  = "box_create_deposit"
+	TypeMsgBoxCreateFuture   = "box_create_future"
 	TypeMsgBoxInterest       = "box_interest"
 	TypeMsgBoxDeposit        = "box_deposit"
 	TypeMsgBoxFuture         = "box_future"
@@ -75,6 +79,8 @@ const (
 )
 const (
 	KeyDelimiterString                   = ":"
+	AgardDecimal                         = uint(1)
+	GardDecimal                          = uint(18)
 	MaxPrecision                         = uint(6)
 	CodeInvalidGenesis      sdk.CodeType = 102
 	BoxNameMaxLength                     = 32

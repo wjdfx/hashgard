@@ -13,7 +13,6 @@ import (
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -38,19 +37,17 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+			decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, coin)
 			if err != nil {
 				return err
 			}
-
-			coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
+			coin.Amount = boxutils.MulDecimals(coin, decimal)
 
 			box := params.BoxDepositParams{}
-
 			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Deposit
-			box.TotalAmount = types.BoxToken{Token: coin, Decimals: issueInfo.GetDecimals()}
+			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
 			box.Deposit = types.DepositBox{
 				Share:         sdk.ZeroInt(),
@@ -69,22 +66,23 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return errors.Errorf(errors.ErrAmountNotValid(flagPrice))
 			}
 			box.Deposit.Price = num
-			box.Deposit.Price = issueutils.MulDecimals(box.Deposit.Price, issueInfo.GetDecimals())
-			box.Deposit.BottomLine = issueutils.MulDecimals(box.Deposit.BottomLine, issueInfo.GetDecimals())
+			box.Deposit.Price = boxutils.MulDecimals(boxutils.ParseCoin(box.TotalAmount.Token.Denom, box.Deposit.Price), decimal)
+			box.Deposit.BottomLine = boxutils.MulDecimals(boxutils.ParseCoin(box.TotalAmount.Token.Denom, box.Deposit.BottomLine), decimal)
 
 			interest, err := sdk.ParseCoin(viper.GetString(flagInterest))
 			if err != nil {
 				return err
 			}
-
-			issueInfo, err = issueutils.GetIssueByID(cdc, cliCtx, interest.Denom)
-			if err == nil {
-				interest.Amount = issueutils.MulDecimals(interest.Amount, issueInfo.GetDecimals())
-				box.Deposit.Interest = types.BoxToken{Token: interest, Decimals: issueInfo.GetDecimals()}
+			decimal, err = clientutils.GetCoinDecimal(cdc, cliCtx, interest)
+			if err != nil {
+				return err
 			}
 
+			interest.Amount = boxutils.MulDecimals(interest, decimal)
+			box.Deposit.Interest = types.BoxToken{Token: interest, Decimals: decimal}
+
 			box.Deposit.PerCoupon = boxutils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
-				box.Deposit.Interest.Token.Amount, box.Deposit.Interest.Decimals)
+				box.Deposit.Interest.Token, box.Deposit.Interest.Decimals)
 
 			msg := msgs.NewMsgDepositBox(&box)
 			validateErr := msg.ValidateBasic()
@@ -159,11 +157,11 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 	if box.GetBoxStatus() != types.BoxCreated {
 		return errors.Errorf(errors.ErrNotSupportOperation())
 	}
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, box.GetDeposit().Interest.Token.Denom)
+	decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, box.GetDeposit().Interest.Token)
 	if err != nil {
 		return err
 	}
-	amount := issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
+	amount := boxutils.MulDecimals(boxutils.ParseCoin(box.GetDeposit().Interest.Token.Denom, amountArg), decimal)
 	if types.Fetch == operation {
 		flag := true
 		for i, v := range box.GetDeposit().InterestInjections {

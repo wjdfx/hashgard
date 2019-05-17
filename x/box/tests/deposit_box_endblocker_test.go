@@ -127,9 +127,9 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 	require.Equal(t, coins.AmountOf(boxInfo.BoxId), sdk.ZeroInt())
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount)
 
-	amount := depositBox.Deposit.PerCoupon.MulInt(depositTo.Quo(depositBox.Deposit.Price))
 	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom),
-		utils.MulMaxPrecisionByDecimal(amount, depositBox.Deposit.Interest.Decimals))
+		utils.CalcInterest(depositBox.Deposit.PerCoupon, depositTo.Quo(depositBox.Deposit.Price),
+			depositBox.Deposit.Interest))
 
 	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
 	require.True(t, coins.IsZero())

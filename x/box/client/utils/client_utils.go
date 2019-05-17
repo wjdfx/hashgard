@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/hashgard/hashgard/x/box/types"
-
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
+	"github.com/hashgard/hashgard/x/box/types"
+	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 
 func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, auth.Account, error) {
@@ -22,6 +23,16 @@ func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, aut
 	account, err := cliCtx.GetAccount(from)
 
 	return txBldr, cliCtx, account, err
+}
+func GetCoinDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) (uint, error) {
+	if coin.Denom == types.Agard {
+		return types.AgardDecimal, nil
+	}
+	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+	if err != nil {
+		return 0, err
+	}
+	return issueInfo.GetDecimals(), nil
 }
 func GetBoxInfo(cdc *codec.Codec, cliCtx context.CLIContext, box types.BoxInfo) fmt.Stringer {
 	switch box.BoxType {
