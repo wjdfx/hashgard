@@ -13,7 +13,7 @@ import (
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -36,7 +36,7 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+			decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, coin)
 			if err != nil {
 				return err
 			}
@@ -49,15 +49,15 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			if err = processFutureBox(coin, futureBox, issueInfo.GetDecimals()); err != nil {
+			if err = processFutureBox(coin, futureBox, decimal); err != nil {
 				return err
 			}
-			coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
+			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := params.BoxFutureParams{}
 			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Future
-			box.TotalAmount = types.BoxToken{Token: coin, Decimals: issueInfo.GetDecimals()}
+			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
 			box.Future = futureBox
 			box.Future.MiniMultiple = uint(viper.GetInt(flagMiniMultiple))
@@ -92,8 +92,9 @@ func processFutureBox(totalAmount sdk.Coin, futureBox types.FutureBox, decimals 
 			if !ok {
 				return errors.ErrAmountNotValid(rec)
 			}
+			amount = boxutils.MulDecimals(boxutils.ParseCoin(totalAmount.Denom, amount), decimals)
 			total = total.Add(amount)
-			futureBox.Receivers[i][j] = issueutils.MulDecimals(amount, decimals).String()
+			futureBox.Receivers[i][j] = amount.String()
 		}
 	}
 	if !total.Equal(totalAmount.Amount) {

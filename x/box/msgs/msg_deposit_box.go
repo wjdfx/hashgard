@@ -28,7 +28,7 @@ func NewMsgDepositBox(params *params.BoxDepositParams) MsgDepositBox {
 func (msg MsgDepositBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgDepositBox) Type() string { return types.TypeMsgBox }
+func (msg MsgDepositBox) Type() string { return types.TypeMsgBoxCreateDeposit }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgDepositBox) ValidateBasic() sdk.Error {
@@ -72,11 +72,11 @@ func (msg MsgDepositBox) validateBox() sdk.Error {
 	if msg.Deposit.Interest.Token.Amount.LT(zero) {
 		return errors.ErrAmountNotValid("Interest")
 	}
-	if msg.Deposit.Price.LT(zero) || !msg.TotalAmount.Token.Amount.Mod(msg.Deposit.Price).IsZero() {
+	if msg.Deposit.Price.LTE(zero) || !msg.TotalAmount.Token.Amount.Mod(msg.Deposit.Price).IsZero() {
 		return errors.ErrAmountNotValid("Price")
 	}
 	if !msg.Deposit.PerCoupon.Equal(utils.CalcInterestRate(msg.TotalAmount.Token.Amount, msg.Deposit.Price,
-		msg.Deposit.Interest.Token.Amount, msg.Deposit.Interest.Decimals)) {
+		msg.Deposit.Interest.Token, msg.Deposit.Interest.Decimals)) {
 		return errors.ErrAmountNotValid("PerCoupon")
 	}
 

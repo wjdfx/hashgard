@@ -44,3 +44,12 @@ func (f *Fixtures) TxDepositBoxInterestInjection(sender string, boxID string, am
 	fmt.Println(cmd)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
+
+// TxDepositTo is hashgardcli box deposit-to
+//hashgardcli box deposit-to boxab3jlxpt2pt 1000 --from test -y
+func (f *Fixtures) TxDepositTo(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli box deposit-to %s %s "+
+		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
+	fmt.Println(cmd)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}

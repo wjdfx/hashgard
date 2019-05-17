@@ -4,8 +4,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/keeper"
 	"github.com/hashgard/hashgard/x/box/msgs"
+	"github.com/hashgard/hashgard/x/box/tags"
 	"github.com/hashgard/hashgard/x/box/types"
-	"github.com/hashgard/hashgard/x/box/utils"
 )
 
 //Handle MsgLockBox
@@ -56,6 +56,9 @@ func createBox(ctx sdk.Context, keeper keeper.Keeper, box *types.BoxInfo) sdk.Re
 	}
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(box.BoxId),
-		Tags: utils.GetBoxTags(box.BoxId, box.BoxType, box.Owner),
+		Tags: sdk.NewTags(
+			tags.Category, tags.TxCategory,
+			tags.Sender, box.Owner.String(),
+		),
 	}
 }

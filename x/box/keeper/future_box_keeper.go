@@ -8,16 +8,11 @@ import (
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/types"
 	"github.com/hashgard/hashgard/x/box/utils"
-	issueerr "github.com/hashgard/hashgard/x/issue/errors"
 )
 
 //Process Future box
 
 func (keeper Keeper) ProcessFutureBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	coinIssueInfo := keeper.GetIssueKeeper().GetIssue(ctx, box.TotalAmount.Token.Denom)
-	if coinIssueInfo == nil {
-		return issueerr.ErrUnknownIssue(box.Deposit.Interest.Token.Denom)
-	}
 	box.BoxStatus = types.BoxDepositing
 	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.getFutureBoxSeqString(box, 0))
 	return nil

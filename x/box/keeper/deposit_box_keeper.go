@@ -6,17 +6,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/types"
-	issueerr "github.com/hashgard/hashgard/x/issue/errors"
 )
 
 //Process deposit box
 
 func (keeper Keeper) ProcessDepositBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	coinIssueInfo := keeper.ik.GetIssue(ctx, box.Deposit.Interest.Token.Denom)
-	if coinIssueInfo == nil {
-		return issueerr.ErrUnknownIssue(box.Deposit.Interest.Token.Denom)
+	decimal, err := keeper.GetCoinDecimal(ctx, box.Deposit.Interest.Token)
+	if err != nil {
+		return err
 	}
-	if box.Deposit.Interest.Decimals != coinIssueInfo.GetDecimals() {
+	if box.Deposit.Interest.Decimals != decimal {
 		return errors.ErrDecimalsNotValid(box.Deposit.Interest.Decimals)
 	}
 	box.BoxStatus = types.BoxCreated
@@ -187,7 +186,8 @@ func (keeper Keeper) backBoxUnUsedInterestInjections(ctx sdk.Context, box *types
 	if totalCoupon.Equal(box.Deposit.Share) {
 		return nil
 	}
-	unused := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(totalCoupon.Sub(box.Deposit.Share)), box.Deposit.Interest.Decimals)
+	unused := utils.CalcInterest(box.Deposit.PerCoupon, totalCoupon.Sub(box.Deposit.Share), box.Deposit.Interest)
+	//unused := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(totalCoupon.Sub(box.Deposit.Share)), box.Deposit.Interest.Decimals)
 	interestInjectionsLen := len(box.Deposit.InterestInjections)
 	if interestInjectionsLen == 0 {
 		if err := keeper.FetchDepositedCoin(ctx, box.Deposit.InterestInjections[0].Address,
@@ -319,7 +319,8 @@ func (keeper Keeper) processDepositBoxInterestByEndBlocker(ctx sdk.Context, box 
 			sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, boxDeposit.Amount)), box.BoxId); err != nil {
 			return err
 		}
-		interest := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(share), box.Deposit.Interest.Decimals)
+		interest := utils.CalcInterest(box.Deposit.PerCoupon, share, box.Deposit.Interest)
+		//interest := utils.MulMaxPrecisionByDecimal(box.Deposit.PerCoupon.MulInt(share), box.Deposit.Interest.Decimals)
 		if err = keeper.FetchDepositedCoin(ctx, address,
 			sdk.NewCoins(sdk.NewCoin(box.Deposit.Interest.Token.Denom, interest)), box.BoxId); err != nil {
 			return err

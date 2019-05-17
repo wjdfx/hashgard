@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	"github.com/spf13/cobra"
 
 	"github.com/hashgard/hashgard/x/box/errors"
@@ -37,7 +37,7 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+			decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, coin)
 			if err != nil {
 				return err
 			}
@@ -46,18 +46,15 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
-			coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
-
+			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := &params.BoxLockParams{}
 			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Lock
-			box.TotalAmount = types.BoxToken{Token: coin, Decimals: issueInfo.GetDecimals()}
+			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.Lock = types.LockBox{EndTime: endTime}
 
 			msg := msgs.NewMsgLockBox(box)
-
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)

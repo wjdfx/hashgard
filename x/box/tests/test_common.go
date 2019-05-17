@@ -75,7 +75,7 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 				issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)),
 			Decimals: TestTokenDecimals}}
 	box.Deposit.PerCoupon = utils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
-		box.Deposit.Interest.Token.Amount, box.Deposit.Interest.Decimals)
+		box.Deposit.Interest.Token, box.Deposit.Interest.Decimals)
 	return box
 }
 func GetFutureBoxInfo() *params.BoxFutureParams {

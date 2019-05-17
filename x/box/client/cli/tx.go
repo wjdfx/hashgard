@@ -15,7 +15,6 @@ import (
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -159,11 +158,11 @@ func deposit(cdc *codec.Codec, args []string, operation string) error {
 	if boxInfo.GetBoxStatus() != types.BoxDepositing {
 		return errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
 	}
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, boxInfo.GetTotalAmount().Token.Denom)
+	decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, boxInfo.GetTotalAmount().Token)
 	if err != nil {
 		return err
 	}
-	amount := issueutils.MulDecimals(amountArg, issueInfo.GetDecimals())
+	amount := boxutils.MulDecimals(boxutils.ParseCoin(boxInfo.GetTotalAmount().Token.Denom, amountArg), decimal)
 
 	switch operation {
 	case types.DepositTo:
