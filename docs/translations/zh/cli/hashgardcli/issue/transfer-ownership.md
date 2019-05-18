@@ -13,32 +13,22 @@ Owner可以将代币的所有者转移到新的账户下，如要将代币也转
 ## 例子
 ### 转移Owner
 ```shell
-hashgardcli issue transfer-ownership coin174876e800 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from=foo -o=json
+ hashgardcli issue transfer-ownership coin174876e802 gard1lgs73mwr56u2f4z4yz36w8mf7ym50e7myrqn65 --from
 ```
 输入正确的密码之后，你的该代币的Onwer就完成了转移。
 ```txt
 {
- "height": "3598",
- "txhash": "FA9DB4CFD21E70E16CB75332458004E2A296012FABF0B32018FC7E2A1E02EEC0",
- "data": "ERBjb2luMTU1NTU2NzUwNjAw",
- "logs": [
-  {
-   "msg_index": "0",
-   "success": true,
-   "log": ""
-  }
- ],
- "gas_wanted": "100000000",
- "gas_used": "9086563",
- "tags": [
-  {
-   "key": "action",
-   "value": "issue_transfer_ownership"
-  },
-  {
-   "key": "issue-id",
-   "value": "coin174876e800"
-  }
- ]
+   Height: 3199
+  TxHash: 3438C2C4F054730CD02FC30C408B3DA558CE9C5CC99810F83406DB1D41708CC9
+  Data: 0F0E636F696E31373438373665383032
+  Raw Log: [{"msg_index":"0","success":true,"log":""}]
+  Logs: [{"msg_index":0,"success":true,"log":""}]
+  GasWanted: 200000
+  GasUsed: 26680
+  Tags: 
+    - action = issue_transfer_ownership
+    - category = issue
+    - issue-id = coin174876e802
+    - sender = gard1f76ncl7d9aeq2thj98pyveee8twplfqy3q4yv7
 }
 ```
