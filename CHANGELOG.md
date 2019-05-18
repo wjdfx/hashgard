@@ -1,5 +1,67 @@
 # Changelog
 
+## 0.5.0
+
+### BREAKING CHANGES
+
++ Hashgard REST API (hashgardlcd)
+    + Remove REST server's secure mode altogether
+
++ Hashgard Server (hashgard)
+    + Validate genesis before running gentx
+
++ Hashgard CLI (hashgardcli)
+    + Disable Keybase for Generate Only in CLI
+    + Get fromAddress in BaseReq
+
++ Hashgard APP
+    + Default don't check invarants blockly
+    + Add vendor dir hash to version detail
+    + Remove Shares Concept from Unbond/Redelegate
+    + Refactor the tags structure
+    + Modify the HD drive path from `44'/118'/` to `44'/322'/`
+
++ Tendermint
+    + Upgrade tendermint from `v0.31.0-dev0-fix0` to `v0.31.4`
+
++ Cosmos SDK
+    + Upgrade cosmos-sdk from `v0.33.2` to `v0.34.4`
+
+### FEATURES
+
++ Hashgard REST API (hashgardlcd)
+    + [mint] Add REST API for querying Mint/Inflation info
+    + [distribution] Add new community-pool REST API
+    + Add route for querying signing_info for all validators
+    + [exchange] Add REST API for exchange module
+
++ Hashgard CLI (hashgardcli)
+    + [mint] Add commands for querying Mint/Inflation info
+    + [distribution] Add new community-pool command
+    + Support native coin(gard) units in tx commands
+
++ Hashgard APP
+      + [crisis] Add new module to do invarants check
+      + [box] Add new module to support lock, share function
+
+### IMPROVEMENTS
+
++ Hashgard REST API (hashgardlcd)
+    + Update lcd swagger ui for /staking/validators query
+
++ Hashgard Server (hashgard)
+    + Add optional flags for gentx command
+
++ Test
+   + Add simulation test
+   + Add cli test
+
+### BUG FIXES
+
++ Hashgard REST API (hashgardlcd)
+    + fix the incorrect field when marshal take order request
+
+
 ## 0.4.0
 
 ### BREAKING CHANGES
