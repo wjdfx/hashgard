@@ -17,8 +17,9 @@ func HandleMsgWithdrawalOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.Ms
 	}
 
 	resTags := sdk.NewTags(
+		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", msg.OrderId),
-		tags.Seller, msg.Seller.String(),
+		tags.Sender, msg.Seller.String(),
 		tags.OrderStatus, "inactive",
 	)
 

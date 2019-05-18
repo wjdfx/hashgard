@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/issue/errors"
+
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -12,6 +14,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
@@ -43,18 +46,25 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			from := cliCtx.GetFromAddress()
+
 			for i, coin := range coins {
+				if boxutils.IsBoxId(coin.Denom) {
+					return errors.Errorf(sdk.ErrInternal("box not support yet"))
+				}
 				if issueutils.IsIssueId(coin.Denom) {
 					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
 					if err == nil {
 						var issueInfo types.Issue
 						cdc.MustUnmarshalJSON(res, &issueInfo)
 						coins[i].Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
+						if err = issueutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
+							return err
+						}
 					}
 				}
 			}
 
-			from := cliCtx.GetFromAddress()
 			account, err := cliCtx.GetAccount(from)
 			if err != nil {
 				return err

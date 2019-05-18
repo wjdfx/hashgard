@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/cosmos/cosmos-sdk/client/keys"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -14,10 +16,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
+	crisiscmd "github.com/cosmos/cosmos-sdk/x/crisis/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govcmd "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
+	mintcmd "github.com/cosmos/cosmos-sdk/x/mint/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -85,12 +89,18 @@ func main() {
 	addGovCmd(cdc, rootCmd)
 	// Add issue subcommands
 	addIssueCmd(cdc, rootCmd)
+	// Add box subcommands
+	addBoxCmd(cdc, rootCmd)
 	// Add slashing subcommands
 	addSlashingCmd(cdc, rootCmd)
 	// Add stake subcommands
 	addStakeCmd(cdc, rootCmd)
 	// Add faucet subcommands
 	addFaucetCmd(cdc, rootCmd)
+	// Add crisis subcommands
+	addCrisisCmd(cdc, rootCmd)
+	// Add mint subcommands
+	addMintCmd(cdc, rootCmd)
 
 	rootCmd.AddCommand(
 		client.LineBreak,
@@ -151,6 +161,12 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 func addIssueCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	moduleClient := issue.NewModuleClient(cdc)
 	rootCmd.AddCommand(moduleClient.GetIssueCmd())
+}
+
+// Add box subcommands
+func addBoxCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	moduleClient := box.NewModuleClient(cdc)
+	rootCmd.AddCommand(moduleClient.GetBoxCmd())
 }
 
 // Add gov subcommands
@@ -250,6 +266,7 @@ func addDistributionCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 			distributioncmd.GetCmdQueryValidatorCommission(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryValidatorSlashes(distribution.StoreKey, cdc),
 			distributioncmd.GetCmdQueryDelegatorRewards(distribution.StoreKey, cdc),
+			distributioncmd.GetCmdQueryCommunityPool(distribution.StoreKey, cdc),
 		)...)
 	distributionCmd.AddCommand(
 		client.PostCommands(
@@ -293,6 +310,34 @@ func addFaucetCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 			faucetcmd.GetCmdFaucetSend(cdc),
 		)...)
 	rootCmd.AddCommand(faucetCmd)
+}
+
+// Add crisis subcommands
+func addCrisisCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	crisisCmd := &cobra.Command{
+		Use:   "crisis",
+		Short: "crisis subcommands",
+	}
+	crisisCmd.AddCommand(
+		client.PostCommands(
+			crisiscmd.GetCmdInvariantBroken(cdc),
+		)...)
+	rootCmd.AddCommand(crisisCmd)
+}
+
+// Add mint subcommands
+func addMintCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
+	mintCmd := &cobra.Command{
+		Use:   "mint",
+		Short: "commands for the minting module",
+	}
+	mintCmd.AddCommand(
+		client.GetCommands(
+			mintcmd.GetCmdQueryParams(cdc),
+			mintcmd.GetCmdQueryInflation(cdc),
+			mintcmd.GetCmdQueryAnnualProvisions(cdc),
+		)...)
+	rootCmd.AddCommand(mintCmd)
 }
 
 func initConfig(cmd *cobra.Command) error {

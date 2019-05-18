@@ -6,10 +6,12 @@ import (
 
 // Exchange tags
 var (
+	TxCategory = "exchange"
+
 	Action      = sdk.TagAction
+	Category    = sdk.TagCategory
+	Sender      = sdk.TagSender
 	OrderId     = "order_id"
-	Seller      = "seller"
-	Buyer       = "buyer"
 	SupplyToken = "supply_token"
 	TargetToken = "target_token"
 	OrderStatus = "order_status"

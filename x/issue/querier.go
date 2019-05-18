@@ -14,11 +14,15 @@ func NewQuerier(keeper keeper.Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		switch path[0] {
 		case types.QueryIssue:
-			return queriers.QueryIssue(ctx, path[1], req, keeper)
+			return queriers.QueryIssue(ctx, path[1], keeper)
+		case types.QueryAllowance:
+			return queriers.QueryAllowance(ctx, path[1], path[2], path[3], keeper)
+		case types.QueryFreeze:
+			return queriers.QueryFreeze(ctx, path[1], path[2], keeper)
 		case types.QuerySearch:
-			return queriers.QuerySymbol(ctx, path[1], req, keeper)
+			return queriers.QuerySymbol(ctx, path[1], keeper)
 		case types.QueryIssues:
-			return queriers.QueryIssues(ctx, path[0], req, keeper)
+			return queriers.QueryIssues(ctx, req, keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("unknown issue query endpoint")
 		}

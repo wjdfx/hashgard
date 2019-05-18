@@ -1,7 +1,9 @@
 package keeper
 
 import (
+	"bytes"
 	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -62,7 +64,7 @@ func (keeper Keeper) CreateOrder(ctx sdk.Context, seller sdk.AccAddress,
 		CreateTime: createTime,
 	}
 
-	_, err = keeper.bankKeeper.SendCoins(ctx, seller, FrozenCoinsAccAddr, []sdk.Coin{supply})
+	err = keeper.bankKeeper.SendCoins(ctx, seller, FrozenCoinsAccAddr, []sdk.Coin{supply})
 	if err != nil {
 		return
 	}
@@ -86,7 +88,7 @@ func (keeper Keeper) WithdrawalOrder(ctx sdk.Context, orderId uint64, addr sdk.A
 	}
 
 	amt = order.Remains
-	_, err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, addr, []sdk.Coin{amt})
+	err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, addr, []sdk.Coin{amt})
 	if err != nil {
 		return
 	}
@@ -101,7 +103,12 @@ func (keeper Keeper) WithdrawalOrder(ctx sdk.Context, orderId uint64, addr sdk.A
 		}
 		index++
 	}
-	keeper.setAddressOrders(ctx, addr, orderIdArr)
+
+	if len(orderIdArr) == 0 {
+		keeper.deleteAddressOrders(ctx, addr)
+	} else {
+		keeper.setAddressOrders(ctx, addr, orderIdArr)
+	}
 
 	return amt, nil
 }
@@ -136,11 +143,11 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 	supplyTurnover = sdk.NewCoin(order.Supply.Denom, order.Supply.Amount.Quo(divisor).Mul(shares))
 	targetTurnover = sdk.NewCoin(order.Target.Denom, sharePrice.Mul(shares))
 
-	_, err = keeper.bankKeeper.SendCoins(ctx, buyer, order.Seller, []sdk.Coin{targetTurnover})
+	err = keeper.bankKeeper.SendCoins(ctx, buyer, order.Seller, []sdk.Coin{targetTurnover})
 	if err != nil {
 		return
 	}
-	_, err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, buyer, []sdk.Coin{supplyTurnover})
+	err = keeper.bankKeeper.SendCoins(ctx, FrozenCoinsAccAddr, buyer, []sdk.Coin{supplyTurnover})
 	if err != nil {
 		return
 	}
@@ -155,7 +162,11 @@ func (keeper Keeper) TakeOrder(ctx sdk.Context, orderId uint64, buyer sdk.AccAdd
 			}
 			index++
 		}
-		keeper.setAddressOrders(ctx, order.Seller, orderIdArr)
+		if len(orderIdArr) == 0 {
+			keeper.deleteAddressOrders(ctx, order.Seller)
+		} else {
+			keeper.setAddressOrders(ctx, order.Seller, orderIdArr)
+		}
 	} else {
 		remains := order.Remains.Sub(supplyTurnover)
 		newOrder := types.Order{
@@ -190,7 +201,7 @@ func (keeper Keeper) GetFrozenFundByAddr(ctx sdk.Context, addr sdk.AccAddress) (
 	for _, orderId := range orderIdArr {
 		order, ok := keeper.GetOrder(ctx, orderId)
 		if !ok {
-			return sdk.Coins{}, sdk.NewError(keeper.codespace, types.CodeOrderNotExist, fmt.Sprintf("this orderId is invalid : %d", orderId))
+			return sdk.NewCoins(), sdk.NewError(keeper.codespace, types.CodeOrderNotExist, fmt.Sprintf("this orderId is invalid : %d", orderId))
 		}
 		fund = fund.Add([]sdk.Coin{order.Remains})
 	}
@@ -214,6 +225,10 @@ func (keeper Keeper) setOrder(ctx sdk.Context, order types.Order) {
 	store := ctx.KVStore(keeper.storeKey)
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(order)
 	store.Set(KeyOrder(order.OrderId), bz)
+}
+
+func (keeper Keeper) SetOrder(ctx sdk.Context, order types.Order) {
+	keeper.setOrder(ctx, order)
 }
 
 func (keeper Keeper) deleteOrder(ctx sdk.Context, orderId uint64) {
@@ -277,4 +292,63 @@ func (keeper Keeper) setAddressOrders(ctx sdk.Context, addr sdk.AccAddress, orde
 	store := ctx.KVStore(keeper.storeKey)
 	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(orderIdArr)
 	store.Set(KeyAddressOrders(addr), bz)
+}
+
+func (keeper Keeper) SetAddressOrders(ctx sdk.Context, addr sdk.AccAddress, orderIdArr []uint64) {
+	keeper.setAddressOrders(ctx, addr, orderIdArr)
+}
+
+func (keeper Keeper) deleteAddressOrders(ctx sdk.Context, addr sdk.AccAddress) {
+	store := ctx.KVStore(keeper.storeKey)
+	store.Delete(KeyAddressOrders(addr))
+}
+
+// Get Order from store by OrderId
+// seller will filter orders by creator
+// supplyDenom will filter orders by supply token denom
+// targetDenom will filter orders by target token denom
+// numLatest will fetch a specified number of the most recent orders, or 0 for all orders
+func (keeper Keeper) GetOrdersFiltered(ctx sdk.Context,
+	seller sdk.AccAddress, supplyDenom string, targetDenom string, numLatest uint64) []types.Order {
+
+	maxOrderId, err := keeper.PeekCurrentOrderId(ctx)
+	if err != nil {
+		return nil
+	}
+
+	matchOrders := []types.Order{}
+
+	if numLatest == 0 {
+		numLatest = maxOrderId
+	}
+
+	for orderId := maxOrderId - numLatest; orderId < maxOrderId; orderId++ {
+
+		order, ok := keeper.GetOrder(ctx, orderId)
+		if !ok {
+			continue
+		}
+
+		if seller != nil && len(seller) != 0 {
+			if !bytes.Equal(order.Seller, seller) {
+				continue
+			}
+		}
+
+		if supplyDenom != "" {
+			if order.Supply.Denom != supplyDenom {
+				continue
+			}
+		}
+
+		if targetDenom != "" {
+			if order.Target.Denom != targetDenom {
+				continue
+			}
+		}
+
+		matchOrders = append(matchOrders, order)
+	}
+
+	return matchOrders
 }

@@ -15,6 +15,9 @@ export GO111MODULE = on
 BUILD_FLAGS = -ldflags "-X github.com/hashgard/hashgard/version.Version=$(VERSION) \
     -X github.com/hashgard/hashgard/version.Commit=$(COMMIT)"
 
+ifneq ($(GOSUM),)
+ldflags += -X github.com/hashgard/hashgard/version.VendorDirHash=$(shell $(GOSUM) go.sum)
+endif
 
 all: get_tools install lint test
 
@@ -158,6 +161,9 @@ test_unit:
 
 test_cover:
 	@export VERSION=$(VERSION); bash tests/test_cover.sh
+
+test_cli: build
+	@go test -mod=readonly -p 4 `go list ./cli_test/...` -tags=cli_test
 
 ci-lint:
 	golangci-lint run

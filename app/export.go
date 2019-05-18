@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/hashgard/hashgard/x/issue"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -13,6 +15,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -53,6 +56,8 @@ func (app *HashgardApp) ExportAppStateAndValidators(forZeroHeight bool, jailWhit
 		slashing.ExportGenesis(ctx, app.slashingKeeper),
 		exchange.ExportGenesis(ctx, app.exchangeKeeper),
 		issue.ExportGenesis(ctx, app.issueKeeper),
+		box.ExportGenesis(ctx, app.boxKeeper),
+		crisis.ExportGenesis(ctx, app.crisisKeeper),
 	)
 	appState, err = codec.MarshalJSONIndent(app.cdc, genState)
 	if err != nil {
@@ -88,14 +93,14 @@ func (app *HashgardApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList 
 
 	// withdraw all validator commission
 	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val sdk.Validator) (stop bool) {
-		_ = app.distributionKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
+		_, _ = app.distributionKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
 		return false
 	})
 
 	// withdraw all delegator rewards
 	dels := app.stakingKeeper.GetAllDelegations(ctx)
 	for _, delegation := range dels {
-		_ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+		_, _ = app.distributionKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
 	}
 
 	// clear validator slash events

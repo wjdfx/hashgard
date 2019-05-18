@@ -11,12 +11,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/hashgard/hashgard/x/issue"
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -29,11 +32,10 @@ import (
 
 var (
 	// bonded tokens given to genesis validators/accounts
-	FreeFermionVal                     = int64(100)
-	FreeFermionsAcc                    = sdk.NewInt(150)
+	FreeFermionsAcc                    = sdk.NewIntWithDecimal(150, 18)
 	defaultUnbondingTime time.Duration = 60 * 10 * time.Second
-	GasDenom                           = "apple"
-	StakeDenom                         = "gard"
+
+	StakeDenom = "agard"
 )
 
 // State to Unmarshal
@@ -48,6 +50,8 @@ type GenesisState struct {
 	GovData          gov.GenesisState          `json:"gov"`
 	ExchangeData     exchange.GenesisState     `json:"exchange"`
 	IssueData        issue.GenesisState        `json:"issue"`
+	BoxData          box.GenesisState          `json:"box"`
+	CrisisData       crisis.GenesisState       `json:"crisis"`
 	GenTxs           []json.RawMessage         `json:"gentxs"`
 }
 
@@ -62,6 +66,8 @@ func NewGenesisState(
 	slashingData slashing.GenesisState,
 	exchangeData exchange.GenesisState,
 	issueData issue.GenesisState,
+	boxData box.GenesisState,
+	crisisData crisis.GenesisState,
 ) GenesisState {
 
 	return GenesisState{
@@ -74,7 +80,9 @@ func NewGenesisState(
 		GovData:          govData,
 		SlashingData:     slashingData,
 		IssueData:        issueData,
+		BoxData:          boxData,
 		ExchangeData:     exchangeData,
+		CrisisData:       crisisData,
 	}
 }
 
@@ -102,6 +110,8 @@ func NewDefaultGenesisState() GenesisState {
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
 		IssueData:        issue.DefaultGenesisState(),
+		BoxData:          box.DefaultGenesisState(),
+		CrisisData:       createCrisisGenesisState(),
 		GenTxs:           nil,
 	}
 }
@@ -139,7 +149,7 @@ func createGovGenesisState() gov.GenesisState {
 	return gov.GenesisState{
 		StartingProposalID: 1,
 		DepositParams: gov.DepositParams{
-			MinDeposit:       sdk.Coins{sdk.NewCoin(StakeDenom, sdk.NewInt(10))},
+			MinDeposit:       sdk.NewCoins(sdk.NewCoin(StakeDenom, sdk.NewIntWithDecimal(10, 18))),
 			MaxDepositPeriod: time.Duration(172800) * time.Second,
 		},
 		VotingParams: gov.VotingParams{
@@ -150,6 +160,12 @@ func createGovGenesisState() gov.GenesisState {
 			Threshold: sdk.NewDecWithPrec(5, 1),
 			Veto:      sdk.NewDecWithPrec(334, 3),
 		},
+	}
+}
+
+func createCrisisGenesisState() crisis.GenesisState {
+	return crisis.GenesisState{
+		ConstantFee: sdk.NewCoin(StakeDenom, sdk.NewIntWithDecimal(1000, 18)),
 	}
 }
 
@@ -234,10 +250,9 @@ func (ga *GenesisAccount) ToAccount() auth.Account {
 
 func NewDefaultGenesisAccount(addr sdk.AccAddress) GenesisAccount {
 	accAuth := auth.NewBaseAccountWithAddress(addr)
-	coins := sdk.Coins{
-		sdk.NewCoin(GasDenom, sdk.NewInt(1000)),
+	coins := sdk.NewCoins(
 		sdk.NewCoin(StakeDenom, FreeFermionsAcc),
-	}
+	)
 
 	coins.Sort()
 
@@ -333,7 +348,16 @@ func HashgardValidateGenesisState(genesisState GenesisState) error {
 	if err := gov.ValidateGenesis(genesisState.GovData); err != nil {
 		return err
 	}
+	if err := issue.ValidateGenesis(genesisState.IssueData); err != nil {
+		return err
+	}
+	if err := box.ValidateGenesis(genesisState.BoxData); err != nil {
+		return err
+	}
 	if err := exchange.ValidateGenesis(genesisState.ExchangeData); err != nil {
+		return err
+	}
+	if err := crisis.ValidateGenesis(genesisState.CrisisData); err != nil {
 		return err
 	}
 

@@ -109,6 +109,7 @@ func run(rootDir string) {
 		appDB,
 		traceStoreWriter,
 		true,
+		uint(1),
 		baseapp.SetPruning(store.PruneEverything),
 	)
 

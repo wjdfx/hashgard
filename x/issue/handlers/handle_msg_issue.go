@@ -9,13 +9,15 @@ import (
 
 //Handle MsgIssue
 func HandleMsgIssue(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssue) sdk.Result {
+
 	coinIssueInfo := msg.CoinIssueInfo
-	_, tags, err := keeper.AddIssue(ctx, coinIssueInfo)
+	_, err := keeper.AddIssue(ctx, coinIssueInfo)
 	if err != nil {
 		return err.Result()
 	}
+
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: tags.AppendTags(utils.AppendIssueInfoTag(coinIssueInfo.IssueId)),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(coinIssueInfo.IssueId),
+		Tags: utils.GetIssueTags(coinIssueInfo.IssueId, coinIssueInfo.Issuer),
 	}
 }

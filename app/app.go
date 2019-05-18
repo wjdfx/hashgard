@@ -11,6 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
@@ -22,6 +23,7 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/issue"
 )
@@ -44,6 +46,8 @@ type HashgardApp struct {
 	*bam.BaseApp
 	cdc *codec.Codec
 
+	invCheckPeriod uint
+
 	// keys to access the multistore
 	keyMain          *sdk.KVStoreKey
 	keyAccount       *sdk.KVStoreKey
@@ -55,6 +59,7 @@ type HashgardApp struct {
 	tkeyDistribution *sdk.TransientStoreKey
 	keyGov           *sdk.KVStoreKey
 	keyIssue         *sdk.KVStoreKey
+	keyBox           *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
 	keyExchange      *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
@@ -70,12 +75,17 @@ type HashgardApp struct {
 	distributionKeeper  distribution.Keeper
 	govKeeper           gov.Keeper
 	exchangeKeeper      exchange.Keeper
+	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
+	boxKeeper           box.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
-func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
+func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
+	loadLatest bool,
+	invCheckPeriod uint,
+	baseAppOptions ...func(*bam.BaseApp)) *HashgardApp {
 
 	cdc := MakeCodec()
 
@@ -86,6 +96,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 	var app = &HashgardApp{
 		BaseApp:          bApp,
 		cdc:              cdc,
+		invCheckPeriod:   invCheckPeriod,
 		keyMain:          sdk.NewKVStoreKey(bam.MainStoreKey),
 		keyAccount:       sdk.NewKVStoreKey(auth.StoreKey),
 		keyStaking:       sdk.NewKVStoreKey(staking.StoreKey),
@@ -96,6 +107,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		keySlashing:      sdk.NewKVStoreKey(slashing.StoreKey),
 		keyGov:           sdk.NewKVStoreKey(gov.StoreKey),
 		keyIssue:         sdk.NewKVStoreKey(issue.StoreKey),
+		keyBox:           sdk.NewKVStoreKey(box.StoreKey),
 		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
 		keyExchange:      sdk.NewKVStoreKey(exchange.StoreKey),
 		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
@@ -171,6 +183,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		&stakingKeeper,
 		gov.DefaultCodespace,
 	)
+
 	app.issueKeeper = issue.NewKeeper(
 		app.cdc,
 		app.keyIssue,
@@ -178,6 +191,15 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.paramsKeeper.Subspace(issue.DefaultParamspace),
 		app.bankKeeper,
 		issue.DefaultCodespace)
+
+	app.boxKeeper = box.NewKeeper(
+		app.cdc,
+		app.keyBox,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(box.DefaultParamspace),
+		app.bankKeeper,
+		app.issueKeeper,
+		box.DefaultCodespace)
 
 	app.exchangeKeeper = exchange.NewKeeper(
 		app.cdc,
@@ -188,12 +210,24 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		exchange.DefaultCodespace,
 	)
 
+	app.crisisKeeper = crisis.NewKeeper(
+		app.paramsKeeper.Subspace(crisis.DefaultParamspace),
+		app.distributionKeeper,
+		app.bankKeeper,
+		app.feeCollectionKeeper,
+	)
+
 	// register the staking hooks
 	// NOTE: stakeKeeper above are passed by reference,
 	// so that it can be modified like below:
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
 	)
+
+	// register the crisis routes
+	bank.RegisterInvariants(&app.crisisKeeper, app.accountKeeper)
+	distribution.RegisterInvariants(&app.crisisKeeper, app.distributionKeeper, app.stakingKeeper)
+	staking.RegisterInvariants(&app.crisisKeeper, app.stakingKeeper, app.feeCollectionKeeper, app.distributionKeeper, app.accountKeeper)
 
 	// register message routes
 	app.Router().
@@ -203,7 +237,9 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(slashing.RouterKey, slashing.NewHandler(app.slashingKeeper)).
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
-		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper))
+		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper)).
+		AddRoute(box.RouterKey, box.NewHandler(app.boxKeeper)).
+		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper))
 
 	app.QueryRouter().
 		AddRoute(auth.QuerierRoute, auth.NewQuerier(app.accountKeeper)).
@@ -212,7 +248,9 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		AddRoute(gov.QuerierRoute, gov.NewQuerier(app.govKeeper)).
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
 		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc)).
-		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper))
+		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper)).
+		AddRoute(box.QuerierRoute, box.NewQuerier(app.boxKeeper)).
+		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper))
 
 	// initialize BaseApp
 	app.MountStores(
@@ -224,6 +262,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 		app.keySlashing,
 		app.keyGov,
 		app.keyIssue,
+		app.keyBox,
 		app.keyFeeCollection,
 		app.keyExchange,
 		app.keyParams,
@@ -250,8 +289,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer, loadLate
 func MakeCodec() *codec.Codec {
 	cdc := codec.New()
 
-	codec.RegisterCrypto(cdc)
-	sdk.RegisterCodec(cdc)
 	auth.RegisterCodec(cdc)
 	bank.RegisterCodec(cdc)
 	staking.RegisterCodec(cdc)
@@ -260,12 +297,15 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
+	box.RegisterCodec(cdc)
+	crisis.RegisterCodec(cdc)
+	sdk.RegisterCodec(cdc)
+	codec.RegisterCrypto(cdc)
 
 	return cdc
 }
 
-// BeginBlocker reflects logic to run before any TXs application are processed
-// by the application.
+// application updates every end block
 func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 
 	// mint new tokens for this new block
@@ -286,16 +326,19 @@ func (app *HashgardApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock
 	}
 }
 
-// EndBlocker reflects logic to run after all TXs are processed by the application.
-// Application updates every end block.
+// application updates every end block
 // nolint: unparam
 func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 
 	tags := gov.EndBlocker(ctx, app.govKeeper)
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
+	boxTags := box.EndBlocker(ctx, app.boxKeeper)
+	tags = append(tags, boxTags...)
 
-	app.assertRuntimeInvariants()
+	if app.invCheckPeriod != 0 && ctx.BlockHeight()%int64(app.invCheckPeriod) == 0 {
+		app.assertRuntimeInvariants()
+	}
 
 	return abci.ResponseEndBlock{
 		ValidatorUpdates: validatorUpdates,
@@ -317,7 +360,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	// initialize distribution (must happen before staking)
 	distribution.InitGenesis(ctx, app.distributionKeeper, genesisState.DistributionData)
 
-	// load the initial stake information
+	// load the initial staking information
 	validators, err := staking.InitGenesis(ctx, app.stakingKeeper, genesisState.StakingData)
 	if err != nil {
 		panic(err) // TODO find a way to do this w/o panics
@@ -330,7 +373,9 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	issue.InitGenesis(ctx, app.issueKeeper, genesisState.IssueData)
+	box.InitGenesis(ctx, app.boxKeeper, genesisState.BoxData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
+	crisis.InitGenesis(ctx, app.crisisKeeper, genesisState.CrisisData)
 
 	// validate genesis state
 	if err := HashgardValidateGenesisState(genesisState); err != nil {
@@ -399,7 +444,7 @@ func (app *HashgardApp) LoadHeight(height int64) error {
 	return app.LoadVersion(height, app.keyMain)
 }
 
-//______________________________________________________________________________________________
+// ______________________________________________________________________________________________
 
 var _ sdk.StakingHooks = StakingHooks{}
 

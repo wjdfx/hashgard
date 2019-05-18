@@ -132,7 +132,7 @@ type PostOrderReq struct {
 
 type TakeOrderReq struct {
 	BaseReq rest.BaseReq `json:"base_req"`
-	Amount  sdk.Coin     `json:"seller"`
+	Amount  sdk.Coin     `json:"amount"`
 }
 
 type WithdrawalOrderReq struct {
@@ -151,7 +151,7 @@ func postOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			return
 		}
 
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			return
 		}
@@ -192,7 +192,7 @@ func postTakeOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Ha
 			return
 		}
 
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			return
 		}
@@ -233,7 +233,7 @@ func postWithdrawalOrderHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) h
 			return
 		}
 
-		fromAddress, _, err := context.GetFromFields(req.BaseReq.From)
+		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			return
 		}

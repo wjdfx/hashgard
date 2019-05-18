@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	clientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -34,26 +34,25 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Total supply %s not a valid int, please input a valid total supply", args[2])
 			}
 
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
 
 			coinIssueInfo := types.CoinIssueInfo{
-				Issuer:          account.GetAddress(),
-				Owner:           account.GetAddress(),
-				Name:            args[0],
-				Symbol:          strings.ToUpper(args[1]),
-				IssueTime:       time.Now(),
-				BurnOff:         viper.GetBool(flagBurnOff),
-				BurnFromOff:     viper.GetBool(flagBurnFromOff),
-				BurnAnyOff:      viper.GetBool(flagBurnAnyOff),
-				MintingFinished: viper.GetBool(flagMintingFinished),
-				TotalSupply:     totalSupply,
-				Decimals:        uint(viper.GetInt(flagDecimals)),
+				Issuer:             account.GetAddress(),
+				Owner:              account.GetAddress(),
+				Name:               args[0],
+				Symbol:             strings.ToUpper(args[1]),
+				BurnOwnerDisabled:  viper.GetBool(flagBurnOwnerDisabled),
+				BurnHolderDisabled: viper.GetBool(flagBurnHolderDisabled),
+				BurnFromDisabled:   viper.GetBool(flagBurnFromDisabled),
+				MintingFinished:    viper.GetBool(flagMintingFinished),
+				TotalSupply:        totalSupply,
+				Decimals:           uint(viper.GetInt(flagDecimals)),
 			}
 			coinIssueInfo.SetTotalSupply(issueutils.MulDecimals(coinIssueInfo.TotalSupply, coinIssueInfo.Decimals))
-			msg := msgs.CreateMsgIssue(&coinIssueInfo)
+			msg := msgs.NewMsgIssue(&coinIssueInfo)
 
 			validateErr := msg.ValidateBasic()
 
@@ -64,11 +63,11 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Uint(flagDecimals, types.CoinDecimalsMaxValue, "Decimals of coin")
-	cmd.Flags().Bool(flagBurnOff, false, "can burning of coin")
-	cmd.Flags().Bool(flagBurnFromOff, false, "can burning of coin from account")
-	cmd.Flags().Bool(flagBurnAnyOff, false, "can burning of coin from any account by owner")
-	cmd.Flags().Bool(flagMintingFinished, false, "can minting of coin")
+	cmd.Flags().Uint(flagDecimals, types.CoinDecimalsMaxValue, "Decimals of the token")
+	cmd.Flags().Bool(flagBurnOwnerDisabled, false, "Disable token owner burn the token")
+	cmd.Flags().Bool(flagBurnHolderDisabled, false, "Disable token holder burn the token")
+	cmd.Flags().Bool(flagBurnFromDisabled, false, "Disable token owner burn the token from any holder")
+	cmd.Flags().Bool(flagMintingFinished, false, "Token owner can not minting the token")
 
 	return cmd
 }
@@ -78,15 +77,15 @@ func GetCmdIssueTransferOwnership(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "transfer-ownership [issue-id] [to_address]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Transfer-ownership a coin",
-		Long:    "Transfer-ownership a coin",
-		Example: "$ hashgardcli issue transfer-ownership coin155547350020 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
+		Short:   "Transfer ownership a token",
+		Long:    "Token owner transfer the ownership to new account",
+		Example: "$ hashgardcli issue transfer-ownership coin174876e800 gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -120,13 +119,13 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 		Args:    cobra.ExactArgs(2),
 		Short:   "Describe a token",
 		Long:    "Owner can add description of the token issued by owner, and the description need to be in json format. You can customize preferences or use recommended templates.",
-		Example: "$ hashgardcli issue describe coin155547350020 path/description.json --from foo",
+		Example: "$ hashgardcli issue describe coin174876e800 path/description.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -164,10 +163,10 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "mint [issue-id] [amount]",
 		Args:  cobra.ExactArgs(2),
-		Short: "Mint a coin",
-		Long:  "Mint a coin to a address",
-		Example: "$ hashgardcli issue mint coin155547350020 88888 --from foo\n" +
-			"$ hashgardcli issue mint coin155547350020 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
+		Short: "Mint a token",
+		Long:  "Token owner mint the token to a address",
+		Example: "$ hashgardcli issue mint coin174876e800 88888 --from foo\n" +
+			"$ hashgardcli issue mint coin174876e800 88888 --to=gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -178,7 +177,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
 			}
 
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
@@ -196,9 +195,13 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
+			if issueInfo.IsMintingFinished() {
+				return errors.Errorf(errors.ErrCanNotMint(issueID))
+			}
+
 			amount = issueutils.MulDecimals(amount, issueInfo.GetDecimals())
 
-			msg := msgs.MsgIssueMint{IssueId: issueID, Operator: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
+			msg := msgs.MsgIssueMint{IssueId: issueID, Sender: account.GetAddress(), Amount: amount, Decimals: issueInfo.GetDecimals(), To: to}
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)
@@ -210,201 +213,53 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 	return cmd
 }
 
-// GetCmdIssueBurn implements burn a coinIssue transaction command.
-func GetCmdIssueBurn(cdc *codec.Codec) *cobra.Command {
+// GetCmdIssueDisableFeature implements disable feature a coinIssue transaction command.
+func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "burn [issue-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Token owner burn a token",
-		Long:    "Token owner could burn the token issued by the owner under the condition that the burning function were enabled.",
-		Example: "$ hashgardcli issue burn coin155547350020 88888 --from foo",
+		Use:   "disable [issue-id] [feature]",
+		Args:  cobra.ExactArgs(2),
+		Short: "Disable feature from a token",
+		Long: fmt.Sprintf("Token Owner disabled the features:\n"+
+			"%s:Token owner can burn the token\n"+
+			"%s:Token holder can burn the token\n"+
+			"%s:Token owner can burn the token from any holder\n"+
+			"%s:Token owner can freeze in and out the token from any address\n"+
+			"%s:Token owner can mint the token", types.BurnOwner, types.BurnHolder, types.BurnFrom, types.Freeze, types.Minting),
+		Example: fmt.Sprintf("$ hashgardcli issue disable coin174876e800 %s --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo\n"+
+			"$ hashgardcli issue disable coin174876e800 %s  --from foo",
+			types.BurnOwner, types.BurnHolder, types.BurnFrom, types.Freeze, types.Minting),
+
 		RunE: func(cmd *cobra.Command, args []string) error {
+			feature := args[1]
+
+			_, ok := types.Features[feature]
+			if !ok {
+				return errors.Errorf(errors.ErrUnknownFeatures())
+			}
+
 			issueID := args[0]
 			if err := issueutils.CheckIssueId(issueID); err != nil {
 				return errors.Errorf(err)
 			}
-			amount, ok := sdk.NewIntFromString(args[1])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
+			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
 			}
-			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, nil, issueID, amount, types.BurnOwner)
+			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
 
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurn{IssueId: issueID, Operator: account.GetAddress(), Amount: amount}}, false)
+			msg := msgs.NewMsgIssueDisableFeature(issueID, account.GetAddress(), feature)
+			validateErr := msg.ValidateBasic()
+			if validateErr != nil {
+				return errors.Errorf(validateErr)
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
 	return cmd
-}
-
-// GetCmdIssueBurnFrom implements burn a coinIssue transaction command.
-func GetCmdIssueBurnFrom(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-from [issue-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Burn a token from my account",
-		Long:    "Token holder could burn one's own token under the condition of token onnwer did not disable this function. ",
-		Example: "$ hashgardcli issue burn-from gardh1c7d59vebq 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			amount, ok := sdk.NewIntFromString(args[1])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, account.GetAddress(), issueID, amount, types.BurnFrom)
-			if err != nil {
-				return err
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurnFrom{IssueId: issueID, Operator: account.GetAddress(), From: account.GetAddress(), Amount: amount}}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueBurnAny implements burn a coinIssue transaction command.
-func GetCmdIssueBurnAny(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-any [issue-id] [address] [amount]",
-		Args:    cobra.ExactArgs(3),
-		Short:   "Token owner burn a token from any address",
-		Long:    "Token owner has the right to burn token owned by any holder before disable the Token Burn function.",
-		Example: "$ hashgardcli issue burn-any gardh1c7d59vebq gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			accAddress, err := sdk.AccAddressFromBech32(args[1])
-			if err != nil {
-				return err
-			}
-
-			amount, ok := sdk.NewIntFromString(args[2])
-			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
-			}
-
-			txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			amount, err = issueutils.BurnCheck(cdc, cliCtx, account, accAddress, issueID, amount, types.BurnAny)
-			if err != nil {
-				return err
-			}
-
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr,
-				[]sdk.Msg{msgs.MsgIssueBurnAny{IssueId: issueID, Operator: account.GetAddress(), From: accAddress, Amount: amount}}, false)
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueBurnOff implements burnOff a coinIssue transaction command.
-func GetCmdIssueBurnOff(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-off [issue-id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Burn-off a token",
-		Long:    "Token owner disable the burning token by owner function.",
-		Example: "$ hashgardcli issue burn-off gardh1c7d59vebq --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnOff{})
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueBurnFromOff implements burnFromOff a coinIssue transaction command.
-func GetCmdIssueBurnFromOff(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-from-off [issue-id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Burn-from-off a token",
-		Long:    "Token owner disable the permission for token holder to burn the token.",
-		Example: "$ hashgardcli issue burn-from-off gardh1c7d59vebq --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnFromOff{})
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueBurnAnyOff implements burnAnyOff a coinIssue transaction command.
-func GetCmdIssueBurnAnyOff(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "burn-any-off [issue-id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Burn-any-off a token",
-		Long:    "Owner disabled the Burn Token function",
-		Example: "$ hashgardcli issue burn-any-off gardh1c7d59vebq --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueBurnAnyOff{})
-		},
-	}
-	return cmd
-}
-
-// GetCmdIssueFinishMinting implements finishMinting a coinIssue transaction command.
-func GetCmdIssueFinishMinting(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "finish-minting [issue-id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Finish-minting a coin",
-		Long:    "Finish-minting a coin",
-		Example: "$ hashgardcli issue finish-minting gardh1c7d59vebq --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return getIssueFlagCmd(cdc, cmd, args, msgs.MsgIssueFinishMinting{})
-		},
-	}
-	return cmd
-}
-
-func getIssueFlagCmd(cdc *codec.Codec, cmd *cobra.Command, args []string, msg msgs.MsgFlag) error {
-	issueID := args[0]
-	if err := issueutils.CheckIssueId(issueID); err != nil {
-		return errors.Errorf(err)
-	}
-	txBldr, cliCtx, account, err := issueutils.GetCliContext(cdc)
-	if err != nil {
-		return err
-	}
-	_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
-	if err != nil {
-		return err
-	}
-
-	switch msg.(type) {
-	case msgs.MsgIssueBurnOff:
-		msg = msgs.NewMsgIssueBurnOff(issueID, account.GetAddress())
-	case msgs.MsgIssueBurnFromOff:
-		msg = msgs.NewMsgIssueBurnFromOff(issueID, account.GetAddress())
-	case msgs.MsgIssueBurnAnyOff:
-		msg = msgs.NewMsgIssueBurnAnyOff(issueID, account.GetAddress())
-	case msgs.MsgIssueFinishMinting:
-		msg = msgs.NewMsgIssueFinishMinting(issueID, account.GetAddress())
-	default:
-		return nil
-	}
-
-	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 }

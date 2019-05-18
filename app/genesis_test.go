@@ -34,7 +34,7 @@ func makeGenesisState(t *testing.T, genTxs []auth.StdTx) GenesisState {
 		msg := msgs[0].(staking.MsgCreateValidator)
 
 		acc := auth.NewBaseAccountWithAddress(sdk.AccAddress(msg.ValidatorAddress))
-		acc.Coins = sdk.Coins{sdk.NewInt64Coin(StakeDenom, 150)}
+		acc.Coins = sdk.NewCoins(sdk.NewInt64Coin(StakeDenom, 150))
 		genAccs[i] = NewGenesisAccount(&acc)
 		stakeData.Pool.NotBondedTokens = stakeData.Pool.NotBondedTokens.Add(sdk.NewInt(150)) // increase the supply
 	}
@@ -48,7 +48,7 @@ func TestToAccount(t *testing.T) {
 	priv := ed25519.GenPrivKey()
 	addr := sdk.AccAddress(priv.PubKey().Address())
 	authAcc := auth.NewBaseAccountWithAddress(addr)
-	require.Nil(t, authAcc.SetCoins(sdk.Coins{sdk.NewInt64Coin(StakeDenom, 150)}))
+	require.Nil(t, authAcc.SetCoins(sdk.NewCoins(sdk.NewInt64Coin(StakeDenom, 150))))
 	genAcc := NewGenesisAccount(&authAcc)
 	acc := genAcc.ToAccount()
 	require.IsType(t, &auth.BaseAccount{}, acc)
@@ -143,8 +143,7 @@ func TestHashgardGenesisValidation(t *testing.T) {
 func TestNewDefaultGenesisAccount(t *testing.T) {
 	addr := secp256k1.GenPrivKeySecp256k1([]byte("")).PubKey().Address()
 	acc := NewDefaultGenesisAccount(sdk.AccAddress(addr))
-	require.Equal(t, sdk.NewInt(1000), acc.Coins.AmountOf(GasDenom))
-	require.Equal(t, sdk.NewInt(150), acc.Coins.AmountOf(StakeDenom))
+	require.Equal(t, sdk.NewIntWithDecimal(150, 18), acc.Coins.AmountOf(StakeDenom))
 }
 
 func TestGenesisStateSanitize(t *testing.T) {
@@ -153,19 +152,19 @@ func TestGenesisStateSanitize(t *testing.T) {
 
 	addr1 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc1 := auth.NewBaseAccountWithAddress(addr1)
-	require.Nil(t, authAcc1.SetCoins(sdk.Coins{
+	_ = authAcc1.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("bcoin", 150),
 		sdk.NewInt64Coin("acoin", 150),
-	}))
-	require.Nil(t, authAcc1.SetAccountNumber(1))
+	})
+	_ = authAcc1.SetAccountNumber(1)
 	genAcc1 := NewGenesisAccount(&authAcc1)
 
 	addr2 := sdk.AccAddress(ed25519.GenPrivKey().PubKey().Address())
 	authAcc2 := auth.NewBaseAccountWithAddress(addr2)
-	require.Nil(t, authAcc2.SetCoins(sdk.Coins{
+	_ = authAcc2.SetCoins(sdk.Coins{
 		sdk.NewInt64Coin("acoin", 150),
 		sdk.NewInt64Coin("bcoin", 150),
-	}))
+	})
 	genAcc2 := NewGenesisAccount(&authAcc2)
 
 	genesisState.Accounts = []GenesisAccount{genAcc1, genAcc2}

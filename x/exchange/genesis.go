@@ -10,7 +10,8 @@ import (
 )
 
 type GenesisState struct {
-	StartingOrderId uint64 `json:"starting_order_id"`
+	StartingOrderId uint64  `json:"starting_order_id"`
+	Orders          []Order `json:"orders"`
 }
 
 func NewGenesisState(startingOrderId uint64) GenesisState {
@@ -48,11 +49,25 @@ func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 		// TODO: Handle this with #870
 		panic(err)
 	}
+
+	for _, order := range data.Orders {
+		keeper.SetOrder(ctx, order)
+		orderIdArr := keeper.GetAddressOrders(ctx, order.Seller)
+		orderIdArr = append(orderIdArr, order.OrderId)
+		keeper.SetAddressOrders(ctx, order.Seller, orderIdArr)
+	}
+
 }
 
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 	startingOrderId, _ := keeper.PeekCurrentOrderId(ctx)
+
+	var orders []Order
+
+	orders = keeper.GetOrdersFiltered(ctx, nil, "", "", 0)
+
 	return GenesisState{
 		StartingOrderId: startingOrderId,
+		Orders:          orders,
 	}
 }

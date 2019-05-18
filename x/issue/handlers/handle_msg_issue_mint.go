@@ -10,12 +10,13 @@ import (
 //Handle MsgIssueMint
 func HandleMsgIssueMint(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueMint) sdk.Result {
 
-	_, tags, err := keeper.Mint(ctx, msg.IssueId, msg.Amount, msg.Operator, msg.To)
+	_, err := keeper.Mint(ctx, msg.IssueId, msg.Amount, msg.Sender, msg.To)
 	if err != nil {
 		return err.Result()
 	}
+
 	return sdk.Result{
 		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.IssueId),
-		Tags: tags.AppendTags(utils.AppendIssueInfoTag(msg.IssueId)),
+		Tags: utils.GetIssueTags(msg.IssueId, msg.Sender),
 	}
 }
