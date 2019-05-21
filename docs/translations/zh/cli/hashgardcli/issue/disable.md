@@ -7,7 +7,7 @@
 ## 使用方式
 
 ```
-hashgardcli issue disable [issue-id][flags]c--from
+hashgardcli issue disable [issue-id][flags] --from
 ```
 
 ## Flags
@@ -17,7 +17,7 @@ hashgardcli issue disable [issue-id][flags]c--from
 | --burn-owner  | bool | 否       | false  | 关闭代币所有者销毁自己持有的代币功能    |
 | --burn-holder | bool | 否       | false  | 关闭普通账号销毁该自己持有的代币功能    |
 | --burn-from   | bool | 否       | false  | 关闭Owner销毁非管理员账户持有的代币功能 |
-| --minting     | bool | 否       | false  | 是否不再增发功能                        |
+| --minting     | bool | 否       | false  | 关闭增发功能                        |
 | --freeze      | bool | 否       | false  | 关闭冻结用户转入转出功能                |
 
 ## Global Flags

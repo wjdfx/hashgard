@@ -5,7 +5,7 @@
 
 ## 使用方式
 ```shell
- hashgardcli box create-future [name] [total-amount][mini-multiple] [distribute-file]  --from 
+hashgardcli box create-future [name] [total-amount][mini-multiple] [distribute-file]  --from 
 ```
 
 
@@ -16,7 +16,7 @@
 | ------------- | ------ | -------- | ------ | ---------------------- |
 | name          | string | 是       |        | 支付盒子的名称         |
 | total-amount  | string | 是       |        | 支付的种类和数量       |
-| Mini-multiple | Int    | 否       | 1      | 待收款凭证交易最小单位 |
+| Mini-multiple | int    | 是       | 1      | 待收款凭证交易最小单位 |
 
 
 
@@ -44,7 +44,7 @@
 ## 例子
 ### 创建远期支付盒子
 ```shell
-hashgardcli box create-future pay 1800coin174876e800  2 /Users/ming/Desktop/future.json --from 
+hashgardcli box create-future pay 1800gard  2 ./future.json --from 
 ```
 输入正确的密码后，远期支付盒子创建完成。
 ```txt
@@ -132,7 +132,7 @@ FutureInfo:
 | --------------------------- | ---------------------- |
 | [deposit-to](deposit-to.md) | 对存款盒子进行分红存入 |
 | [query-box](query-box.md)   | 对指定盒子进行信息查询 |
-| [list-box](盒子列表查询)    | 罗列指定类型盒子列表   |
+| [list-box](list-box.md)    | 罗列指定类型盒子列表   |
 | [search](search.md)         | 对盒子进行搜索         |
 
 

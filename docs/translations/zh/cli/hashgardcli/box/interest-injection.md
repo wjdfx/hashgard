@@ -17,7 +17,7 @@ hashgardcli box interest-injection [box-id] [amount]  --from
 | 名称   | 类型   | 是否必须 | 默认值 | 描述                   |
 | ------ | ------ | -------- | ------ | ---------------------- |
 | box-id | string | 是       |        | 存款盒子的id           |
-| amount | Int    | 是       |        | 注入存款盒子的利息数量 |
+| amount | int    | 是       |        | 注入存款盒子的利息数量 |
 
 
 
