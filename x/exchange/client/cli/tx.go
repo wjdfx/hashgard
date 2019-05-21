@@ -18,8 +18,8 @@ import (
 
 func GetCmdCreateOrder(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-order",
-		Short:   "create a new order",
+		Use:   "create-order",
+		Short: "create a new order",
 		Example: `
 $ hashgardcli exchange create-order --supply=100gard --target=800apple --from mykey
 

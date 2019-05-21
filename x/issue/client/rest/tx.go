@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 
@@ -79,7 +78,6 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			Symbol:             strings.ToUpper(req.Symbol),
 			TotalSupply:        req.TotalSupply,
 			Decimals:           req.Decimals,
-			IssueTime:          time.Now(),
 			Description:        req.Description,
 			BurnOwnerDisabled:  req.BurnOwnerDisabled,
 			BurnHolderDisabled: req.BurnHolderDisabled,

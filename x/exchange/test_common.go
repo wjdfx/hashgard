@@ -20,12 +20,11 @@ import (
 )
 
 var (
-	Addrs = createTestAddrs(10)
-	PKs   = createTestPubKeys(10)
+	Addrs       = createTestAddrs(10)
+	PKs         = createTestPubKeys(10)
 	emptyAddr   sdk.AccAddress
 	emptyPubkey crypto.PubKey
 )
-
 
 // initialize the mock application for this module
 func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []auth.Account) (
@@ -43,7 +42,6 @@ func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []a
 	ck := bank.NewBaseKeeper(mapp.AccountKeeper, mapp.ParamsKeeper.Subspace(bank.DefaultParamspace), bank.DefaultCodespace)
 	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	keeper = NewKeeper(mapp.Cdc, keyExchange, pk, pk.Subspace("testexchange"), ck, DefaultCodespace)
-
 
 	mapp.Router().AddRoute(RouterKey, NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(QuerierRoute, NewQuerier(keeper, mapp.Cdc))

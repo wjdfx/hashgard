@@ -22,6 +22,7 @@ import (
 	dbm "github.com/tendermint/tendermint/libs/db"
 	"github.com/tendermint/tendermint/libs/log"
 
+	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/gov"
@@ -58,6 +59,7 @@ type HashgardApp struct {
 	tkeyDistribution *sdk.TransientStoreKey
 	keyGov           *sdk.KVStoreKey
 	keyIssue         *sdk.KVStoreKey
+	keyBox           *sdk.KVStoreKey
 	keyFeeCollection *sdk.KVStoreKey
 	keyExchange      *sdk.KVStoreKey
 	keyParams        *sdk.KVStoreKey
@@ -76,6 +78,7 @@ type HashgardApp struct {
 	crisisKeeper        crisis.Keeper
 	paramsKeeper        params.Keeper
 	issueKeeper         issue.Keeper
+	boxKeeper           box.Keeper
 }
 
 // NewHashgardApp returns a reference to an initialized HashgardApp.
@@ -104,6 +107,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		keySlashing:      sdk.NewKVStoreKey(slashing.StoreKey),
 		keyGov:           sdk.NewKVStoreKey(gov.StoreKey),
 		keyIssue:         sdk.NewKVStoreKey(issue.StoreKey),
+		keyBox:           sdk.NewKVStoreKey(box.StoreKey),
 		keyFeeCollection: sdk.NewKVStoreKey(auth.FeeStoreKey),
 		keyExchange:      sdk.NewKVStoreKey(exchange.StoreKey),
 		keyParams:        sdk.NewKVStoreKey(params.StoreKey),
@@ -188,6 +192,15 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.bankKeeper,
 		issue.DefaultCodespace)
 
+	app.boxKeeper = box.NewKeeper(
+		app.cdc,
+		app.keyBox,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(box.DefaultParamspace),
+		app.bankKeeper,
+		app.issueKeeper,
+		box.DefaultCodespace)
+
 	app.exchangeKeeper = exchange.NewKeeper(
 		app.cdc,
 		app.keyExchange,
@@ -225,6 +238,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		AddRoute(gov.RouterKey, gov.NewHandler(app.govKeeper)).
 		AddRoute(exchange.RouterKey, exchange.NewHandler(app.exchangeKeeper)).
 		AddRoute(issue.RouterKey, issue.NewHandler(app.issueKeeper)).
+		AddRoute(box.RouterKey, box.NewHandler(app.boxKeeper)).
 		AddRoute(crisis.RouterKey, crisis.NewHandler(app.crisisKeeper))
 
 	app.QueryRouter().
@@ -235,6 +249,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		AddRoute(distribution.QuerierRoute, distribution.NewQuerier(app.distributionKeeper)).
 		AddRoute(exchange.QuerierRoute, exchange.NewQuerier(app.exchangeKeeper, app.cdc)).
 		AddRoute(issue.QuerierRoute, issue.NewQuerier(app.issueKeeper)).
+		AddRoute(box.QuerierRoute, box.NewQuerier(app.boxKeeper)).
 		AddRoute(mint.QuerierRoute, mint.NewQuerier(app.mintKeeper))
 
 	// initialize BaseApp
@@ -247,6 +262,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keySlashing,
 		app.keyGov,
 		app.keyIssue,
+		app.keyBox,
 		app.keyFeeCollection,
 		app.keyExchange,
 		app.keyParams,
@@ -281,6 +297,7 @@ func MakeCodec() *codec.Codec {
 	gov.RegisterCodec(cdc)
 	exchange.RegisterCodec(cdc)
 	issue.RegisterCodec(cdc)
+	box.RegisterCodec(cdc)
 	crisis.RegisterCodec(cdc)
 	sdk.RegisterCodec(cdc)
 	codec.RegisterCrypto(cdc)
@@ -316,6 +333,8 @@ func (app *HashgardApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) ab
 	tags := gov.EndBlocker(ctx, app.govKeeper)
 	validatorUpdates, endBlockerTags := staking.EndBlocker(ctx, app.stakingKeeper)
 	tags = append(tags, endBlockerTags...)
+	boxTags := box.EndBlocker(ctx, app.boxKeeper)
+	tags = append(tags, boxTags...)
 
 	if app.invCheckPeriod != 0 && ctx.BlockHeight()%int64(app.invCheckPeriod) == 0 {
 		app.assertRuntimeInvariants()
@@ -354,6 +373,7 @@ func (app *HashgardApp) initFromGenesisState(ctx sdk.Context, genesisState Genes
 	gov.InitGenesis(ctx, app.govKeeper, genesisState.GovData)
 	mint.InitGenesis(ctx, app.mintKeeper, genesisState.MintData)
 	issue.InitGenesis(ctx, app.issueKeeper, genesisState.IssueData)
+	box.InitGenesis(ctx, app.boxKeeper, genesisState.BoxData)
 	exchange.InitGenesis(ctx, app.exchangeKeeper, genesisState.ExchangeData)
 	crisis.InitGenesis(ctx, app.crisisKeeper, genesisState.CrisisData)
 
