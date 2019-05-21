@@ -17,7 +17,7 @@ hashgardcli box deposit-to [box-id] [amount]  --from
 | 名称   | 类型   | 是否必须 | 默认值 | 描述         |
 | ------ | ------ | -------- | ------ | ------------ |
 | box-id | string | 是       |        | 存款盒子的id |
-| amount | Int    | 是       |        | 存款的数量   |
+| amount | int   | 是       |        | 存款的数量   |
 
 
 

@@ -69,7 +69,7 @@ hashgardcli bank account gard1f76ncl7d9aeq2thj98pyveee8twplfqy3q4yv7
 | 命令                      | 描述                   |
 | ------------------------- | ---------------------- |
 | [query-box](query-box.md) | 对指定盒子进行信息查询 |
-| [list-box](盒子列表查询)  | 罗列指定类型盒子列表   |
+| [list-box](list-box.md)  | 罗列指定类型盒子列表   |
 | [search](search.md)       | 对盒子进行搜索         |
 
 

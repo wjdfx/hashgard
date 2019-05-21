@@ -34,5 +34,4 @@ hashgardcli box --help
 | [describe](describe.md)                     | 对于盒子的描述与介绍。                 |
 | [list-box](list-box.md)                     | 查询不同类型盒子列表                   |
 | [query-box](query-box.md)                   | 指定查询盒子信息内容                   |
-| [search](search.md)                         | 对盒子名称进行搜索                     |
 

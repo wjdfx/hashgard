@@ -14,10 +14,10 @@
 
 ### 命令解释
 
-| 名称         | 类型   | 是否必须 | 默认值 | 描述                   |
-| ------------ | ------ | -------- | ------ | ---------------------- |
-| name         | string | 是       |        | 存款盒子的名称         |
-| total-amount | string | 是       |        | 接受存款的最大值和种类 |
+| 名称         | 类型   | 是否必须 | 默认值 | 描述                 |
+| ------------ | ------ | -------- | ------ | -------------------- |
+| name         | string | 是       |        | 存款盒子的名称       |
+| total-amount | string | 是       |        | 接受存款的总量和种类 |
 
 
 
@@ -25,8 +25,8 @@
 
 | 名称             | 类型   | 是否必须 | 默认值 | 描述                           |
 | ---------------- | ------ | -------- | ------ | ------------------------------ |
-| --bottom-line    | string | 否       | ""     | 达成存款计息的存款数量         |
-| --price          | int    | 否       | ""     | 存款最小倍数且能被存款总量整除 |
+| --bottom-line    | int    | 是       | ""     | 达成存款计息的存款数量         |
+| --price          | int    | 是       | ""     | 存款最小倍数且能被存款总量整除 |
 | --start-time     | int    | 是       | ""     | 吸纳存款开始时间               |
 | --establish-time | int    | 是       | ""     | 吸纳存款结束时间               |
 | --maturity-time  | int    | 是       | ""     | 存款交割时间                   |
@@ -73,8 +73,7 @@ hashgardcli box create-deposit mingone 10000coin174876e800  --bottom-line=0 --pr
 | [deposit-to](deposit-to.md)                 | 用户对存款盒子进行存款       |
 | [deposit-fetch](deposit-fetch.md)           | 用户在存款吸纳期进行取回存款 |
 | [query-box](query-box.md)                   | 对指定盒子进行信息查询       |
-| [list-box](盒子列表查询)                    | 罗列指定类型盒子列表         |
-| [search](search.md)                         | 对盒子进行搜索               |
+| [list-box](list-box.md)                    | 罗列指定类型盒子列表         |
 
 
 

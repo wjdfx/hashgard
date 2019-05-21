@@ -13,8 +13,8 @@ hashgardcli box list-box [flag]
 | 名称    | 类型     |
 | ------- | -------- |
 | lock    | 锁仓盒子 |
-| deposit | string   |
-| future  | string   |
+| deposit | 存款盒子 |
+| future  | 远期支付盒子   |
 
 
 

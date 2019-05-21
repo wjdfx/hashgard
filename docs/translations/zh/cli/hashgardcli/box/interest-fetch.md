@@ -19,7 +19,7 @@ hashgardcli box interest-fetch [box-id] [amount]  --from
 | 名称   | 类型   | 是否必须 | 默认值 | 描述         |
 | ------ | ------ | -------- | ------ | ------------ |
 | box-id | string | 是       |        | 存款盒子的id |
-| amount | Int    | 是       |        | 存款的数量   |
+| amount | int    | 是       |        | 存款的数量   |
 
 
 
@@ -29,7 +29,6 @@ hashgardcli box interest-fetch [box-id] [amount]  --from
 
 ## 例子
 
-### 进行存款取回
 
 ```
 hashgardcli box interest-fetch boxab3jlxpt2pt 200 --from 
