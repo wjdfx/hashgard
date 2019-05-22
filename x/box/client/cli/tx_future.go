@@ -49,10 +49,10 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			if err = processFutureBox(coin, futureBox, decimal); err != nil {
 				return err
 			}
-			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := params.BoxFutureParams{}
 			box.Sender = account.GetAddress()
 			box.Name = args[0]
