@@ -14,7 +14,7 @@
 
 ### 步骤 2：创建钱包
 
-如果尚未创建钱包，请参照 [钱包创建文档](../ docs/translations/zh/cli/hashgardcli/keys/add.md
+如果尚未创建钱包，请参照 [钱包创建文档](../docs/translations/zh/cli/hashgardcli/keys/add.md
 ) 创建钱包。
 
 ### 步骤 3：设置默认参数
