@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/tendermint/tendermint/crypto"
 
@@ -282,7 +281,7 @@ func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 		return err
 	}
 	box.BoxId = KeyBoxIdStr(box.BoxType, id)
-	box.CreatedTime = time.Now().Unix()
+	box.CreatedTime = ctx.BlockHeader().Time.Unix()
 
 	switch box.BoxType {
 	case types.Lock:

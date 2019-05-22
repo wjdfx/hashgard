@@ -25,12 +25,12 @@ hashgardcli gov --help
 | ------------------------------------- | --------------------------------------------------------------- |
 | [proposal](proposal.md)   | 查询单个提案的详细信息                                             |
 | [proposals](proposals.md) | 通过可选过滤器查询提案                                             |
-| [query-vote](query-vote.md)           | 查询投票信息                                                      |
-| [votes](votes.md)         | 查询提案的投票情况                                                 |
+| [query-vote](query-vote.md)           | 查询指定投票者信息                                                   |
+| [query-votes](query-votes.md) | 查询指定提案的投票情况                                               |
 | [query-deposit](query-deposit.md)     | 查询保证金详情                                                    |
 | [deposits](deposits.md)   | 查询提案的保证金                                                  |
 | [tally](tally.md)         | 查询提案投票的统计                                                 |
-| [param](param.md)       | 查询参数提案的配置                                                 |                                            |
+| [param](param.md)       | 查询参数提案的配置                                                 |
 | [submit-proposal](submit-proposal.md) | 创建新密钥，或者通过助记词导入恢复                                   |
 | [deposit](deposit.md)                 | 充值保证金代币以激活提案                                            |
 | [vote](vote.md)                       | 为有效的提案投票，选项：Yes/No/NoWithVeto/Abstain                   |
