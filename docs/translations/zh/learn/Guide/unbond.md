@@ -12,4 +12,4 @@ hashgardcli stake unbond --validator=${validator_address} --shares-fraction=0.1 
 hashgardcli stake validator ${validator_address}  --trust-node
 ```
 
-​	
+​

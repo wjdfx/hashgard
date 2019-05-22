@@ -15,7 +15,7 @@
 hashgardcli slashing unjail [flags]
 ```
 
-## flags
+## Flags
 
 **全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
 

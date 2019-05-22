@@ -16,7 +16,7 @@ hashgard validate-genesis [file] [flags]
 | ---------- | ------ | ------------------------------- | ---------------- | -------- |
 | [file]     | string | ~/.hashgard/config/genesis.json | genesis 文件位置 | 否       |
 
-## flags
+## Flags
 
 | 命令，缩写 | 类型   | 默认值      | 描述                             | 是否必须 |
 | ---------- | ------ | ----------- | -------------------------------- | -------- |
@@ -29,3 +29,4 @@ hashgard validate-genesis [file] [flags]
 ```bash
 hashgard validate-genesis
 ```
+

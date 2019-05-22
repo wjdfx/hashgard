@@ -1,37 +1,36 @@
 # hashgardcli stake create-validator
 
-## 介绍
+## Description
 
-发送交易申请成为验证人，并在在此验证人上委托一定数额的 token
+create new validator initialized with a self-delegation to it
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake create-validator [flags]
 ```
 
-## flags
+## Flags
 
-| 名称                         | 类型   | 是否必填 | 默认值 | 功能描述                                                |
-| ---------------------------- | ------ | -------- | ------ | ------------------------------------------------------- |
-| --address-delegator          | string | false    | ""     | 委托人地址                                              |
-| --amount                     | string | true     | ""     | 委托 token 的数量                                       |
-| --commission-max-change-rate | float  | false    | 0.0    | 佣金比率每天变化的最大数量                              |
-| --commission-max-rate        | float  | false    | 0.0    | 最大佣金比例                                            |
-| --commission-rate            | float  | false    | 0.0    | 初始佣金比例                                            |
-| --details                    | string | false    | ""     | 验证人节点的详细信息                                    |
-| --genesis-format             | bool   | false    | false  | 是否已 genesis transaction 的方式倒出                   |
-| --identity                   | string | false    | ""     | 身份信息的签名                                          |
-| --ip                         | string | false    | ""     | 验证人节点的 IP, 与`--generate-only`flag 同时使用时生效 |
-| --min-self-delegation        | string | true     | ""     | 验证人节点要求的自委托最小股权数量                      |
-| --moniker                    | string | true     | ""     | 验证人节点名称                                          |
-| --node-id                    | string | false    | ""     | 节点 ID                                                 |
-| --pubkey                     | string | true     | ""     | Amino 编码的验证人公钥                                  |
-| --website                    | string | false    | ""     | 验证人节点的网址                                        |
+| Name                         | type  | Required| Default| Description                                   |
+| ---------------------------- | ------ | -------- | ------ | --------------------------- |
+| --address-delegator          | string | false    | ""     | delegator address                          |
+| --amount                     | string | true     | ""     | Amount of coins to bond                    |
+| --commission-max-change-rate | float  | false    | 0.0    | The maximum commission change rate percentage (per day)|
+| --commission-max-rate        | float  | false    | 0.0    | The maximum commission rate percentage        |
+| --commission-rate            | float  | false    | 0.0    | The initial commission rate percentage     |
+| --details                    | string | false    | ""     | TExport the transaction in gen-tx format; it implies --generate-only |
+| --identity                   | string | false    | ""     | Optional identity signature (ex. UPort or Keybase)|
+| --ip                         | string | false    | ""     | The node's public IP. It takes effect only when used in combination with --generate-only|
+| --min-self-delegation        | string | true     | ""     | The minimum self delegation required on the validator|
+| --moniker                    | string | true     | ""     | The validator's name              |
+| --node-id                    | string | false    | ""     | The node's ID                      |
+| --pubkey                     | string | true     | ""     | The Bech32 encoded PubKey of the validator   |
+| --website                    | string | false    | ""     | The validator's (optional) website   |
 
-**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
 ```shell
 hashgardcli stake create-validator \
@@ -49,7 +48,7 @@ hashgardcli stake create-validator \
 --indent
 ```
 
-成功后返回结果如下：
+The result is as follows：
 
 ```json
 {

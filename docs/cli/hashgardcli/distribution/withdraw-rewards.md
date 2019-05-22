@@ -1,10 +1,10 @@
 # hashgardcli distribution withdraw-rewards
 
-## 介绍
+## Description 
 
-从给定的委托地址中取回收益，同时可选择取回验证人佣金收益。
+witdraw rewards from a given delegation address, and optionally withdraw validator commission if the delegation address given is a validator operator
 
-## 用法
+## Usage
 
 ```
 hashgardcli distribution withdraw-rewards [validator-addr] [flags]
@@ -12,21 +12,21 @@ hashgardcli distribution withdraw-rewards [validator-addr] [flags]
 
 ## Flags
 
-| 名称                | 类型   | 是否必填 | 默认值  | 功能描述        |
-| --------------------- | -----  | -------- | -------- | ------------------------------------------------------------------- |
-| --commission | bool | 否 | false  | 取回验证人佣金收益 |
+| Name               | type  | Required| Default | description        |
+| --------------------- | -----  | -------- | -------- | --- |
+| --commission | bool | No| false  | also withdraw validator's commission |
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
-## 示例
+## Example
 
-1. 取回委托产生的收益
+1. Retrieve the proceeds from the delegator
     ```
     hashgardcli distribution withdraw-rewards gard34mhjjyyc7mehvaay0f3d4hj8qx3ee3w3eq5nq --from mykey --chain-id=hashgard
     ```
-2. 取回委托产生的收益以及验证人的佣金收益:
+2. If the delegator is a owner of a validator, withdraw all delegation rewards and validator commission rewards:
     ```
     hashgardcli distribution withdraw-rewards --commission=true from mykey  --chain-id=sif-1000
     ```

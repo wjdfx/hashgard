@@ -1,10 +1,10 @@
 # hashgardcli keys add
 
-## 描述
+## Description
 
-创建一个新密钥，或通过助记词导入已有密钥
+Derive a new private key and encrypt to disk.
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli keys add <name> [flags]
@@ -12,35 +12,36 @@ hashgardcli keys add <name> [flags]
 
 ## Flags
 
-| 名称, 速记       | 类型   | 是否必须 | 默认值 | 描述                                                              |
+| Name, shorthand      | type  | Required  | Default| Description                                                         |
 | --------------- | --------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------- |
-| --account       | int | 否 | 0 | [uint32] HD推导的账号                                              |
-| --index         | int | 否 | 0 | [uint32] HD推导的索引号                                            |
-| --interactive | string | 否 | "" | 以交互方式提示用户输入BIP39密码和助记符 |
-| --multisig | strings | 否 | "" | 构造并存储multisig公钥（当使用了 --pubkey） |
-| --multisig-threshold | int | 否 | 1 | N个中的K个需要签名。与--multisig一起使用 |
-| --no-backup     | bool | 否 | false | 不输出助记词（如果其他人正在看着操作终端）                              |
-| --nosort | bool | 否 | false | 传递给--multisig的密钥按照它们提供的顺序获取 |
-| --pubkey | string | 否 | "" | 解析bech32格式的公钥并将其保存到磁盘 |
-| --recover       | string | 否 | "" | 提供助记词以恢复现有密钥而不是新建                                     |
+| --account       | int | No| 0 | Account number for HD derivation                      |
+| --index         | int | No| 0 | Add indent to JSON response          |
+| --interactive | string | No| "" | Interactively prompt user for BIP39 passphrase and mnemonic|
+| --multisig | strings | No| "" |  Construct and store a multisig public key (implies --pubkey)|
+| --multisig-threshold | int | No| 1 |K out of N required signatures. For use in conjunction with --multisig|
+| --no-backup     | bool | No| false |Don't print out seed phrase (if others are watching the terminal) |
+| --nosort | bool | No| false |Keys passed to --multisig are taken in the order they're supplied |
+| --pubkey | string | No| "" | Parse a public key in bech32 format and save it to disk|
+| --recover       | string | No| "" |  Provide seed phrase to recover existing key instead of creating            |
 
-## 例子
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 创建密钥
+## Example
+
+### Create a new key
 
 ```shell
 hashgardcli keys add MyKey
 ```
 
-执行命令后，系统会要求你输入密钥密码，注意：密码必须至少为8个字符。
+You'll be asked to enter a password for your key, note: password must be at least 8 characters.
 
 ```txt
 Enter a passphrase for your key:
 Repeat the passphrase:
 ```
 
-之后，你已经完成了创建新密钥的工作，但请记住备份你的助记词短语，如果你不慎忘记密码或丢失了密钥，这是唯一能恢复帐户的方法。
-
+After that, you're done with creating a new key, but remember to backup your seed phrase, it is the only way to recover your account if you ever forget your password or lose your key.
 ```txt
 NAME:	TYPE:	ADDRESS:						PUBKEY:
 MyKey	local	gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet	gardpub1addwnpepqvu549hgyhnxlveqmtdn2xywygxpgzcsqefxur47zkz4e0e9x67hvjr6r6p
@@ -50,17 +51,18 @@ It is the only way to recover your account if you ever forget your password.
 oval green shrug term already arena pilot spirit jump gain useful symbol hover grid item concert kiss zero bleak farm capable peanut snack basket
 ```
 
-上面24个单词只是助记词的示例，**不要**在生产环境中使用。
+The 24 words above is a seed phrase just for example, DO NOT use it in production.
 
-### 通过助记词恢复密钥
 
-如果你忘记了密码或丢失了密钥，或者你想在其他地方使用密钥，则可以通过助记词短语来恢复。
+### Recover an existing key
+
+If you forget your password or lose your key, or you wanna use your key in another place, you can recover your key by your seed phrase.
 
 ```txt
 hashgardcli keys add MyKey --recover
 ```
 
-系统会要求你输入并确认密钥的新密码，然后输入助记词。这样就能恢复你的密钥。
+You'll be asked to enter a new password for your key, and enter the seed phrase. Then you get your key back.
 
 ```txt
 Enter a passphrase for your key:

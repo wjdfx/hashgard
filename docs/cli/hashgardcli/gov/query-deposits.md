@@ -1,28 +1,27 @@
 # hashgardcli gov query-deposits
 
-## 描述
+## Description
 
-查询指定提案的保证金详细情况
+Query details for all deposits on a proposal. You can find the proposal-id by running hashgardcli gov query-proposals
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli gov query-deposits [proposal-id] [flags]
 ```
 ## Global Flags
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 参考：[hashgardcli](../README.md)
+## Example
 
-## 例子
-
-### 查询所有保证金
+###  Query deposits
 
 ```shell
 hashgardcli gov query-deposits 1 --trust-node -o=json --indent
 
 ```
 
-你可以查询到指定提案的所有保证金代币，包括每个存款人的充值详情。
+You could query all the deposited tokens on a specific proposal, includes deposit details for each depositor.
 
 ```txt
 [

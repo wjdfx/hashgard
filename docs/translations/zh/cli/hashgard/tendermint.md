@@ -18,7 +18,7 @@ hashgard tendermint [subcommand] [flags]
 | --show-validator | 查询 tendermint 节点的验证人 pubkey  |
 | --show-address   | 查询 tendermint 节点的验证人共识地址 |
 
-## flags
+## Flags
 
 | 命令，缩写 | 类型   | 默认值      | 描述                     | 是否必须 |
 | ---------- | ------ | ----------- | ------------------------ | -------- |

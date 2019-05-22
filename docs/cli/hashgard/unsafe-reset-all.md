@@ -1,22 +1,25 @@
 # hashgard unsafe-reset-all
 
-## 描述
+## Description
 
-重置区块链数据库，删除地址簿文件，并将 priv_validator.json 重置为 genesis 状态
+Resets the blockchain database, removes address book files, and resets priv_validator.json to the genesis state
 
-## 使用方式
+## Usage
 
 ```
 hashgard unsafe-reset-all [flags]
 ```
 
-## flags
+## Flags
 
-| 命令，缩写 | 默认值      | 描述                      | 是否必须 |
+| Name, shorthand|Default     | description               | Required  |
 | ---------- | ----------- | ------------------------- | -------- |
-| -h, --help |             | unsafe-reset-all 模块帮助 | 否       |
-| --home     | ~/.hashgard | 配置和数据的目录          | 否       |
+| -h, --help |             | help for unsafe-reset-all| No  |
+| --home     | ~/.hashgard | directory for config and data  | No    |
 
-## 例子
+## Example
 
-`hashgard unsafe-reset-all`
+``` shell
+hashgard unsafe-reset-all
+```
+

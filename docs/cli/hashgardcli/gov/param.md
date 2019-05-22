@@ -1,28 +1,28 @@
 # hashgardcli gov param
 
-## 描述
+## Description
 
-查询治理过程的参数（投票）
+Query the all the parameters for the governance process
 
-## 使用方式
+## Usage
 
 ```
  hashgardcli gov param [param-type] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
 
-## 例子
+## Example
 
-### 通过voting查
+### Check by voting
 
 ```shell
 hashgardcli gov param voting --trust-node -o=json --indent
 ```
 
-会得到类似如下结果。
+The result is as follows：
 
 ```txt
 {
@@ -30,13 +30,13 @@ hashgardcli gov param voting --trust-node -o=json --indent
 }
 ```
 
-### 通过deposit查
+### Check by deposit
 
 ```shell
 hashgardcli gov param deposit --trust-node -o=json --indent
 ```
 
-会得到类似如下结果。
+The result is as follows：
 
 ```txt
 {
@@ -51,12 +51,12 @@ hashgardcli gov param deposit --trust-node -o=json --indent
 ```
 
 
-### 通过tallying查
+### Check by tallying
 ```
 hashgardcli gov param tallying --trust-node -o=json --indent
 ```
 
-会得到如以下类似信息：
+The result is as follows：
 ```
 {
   "quorum": "0.3340000000",

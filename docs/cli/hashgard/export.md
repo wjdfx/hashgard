@@ -1,24 +1,24 @@
 # hashgard export
 
-## 描述
+## Description
 
-将状态导出为 json 文件
+hashgard can export blockchain state at any height and output json format string.
 
-## 使用方式
+## Usage
 
-```
+```shell
 hashgard export [flags]
 ```
 
-## flags
+## Flags
 
-| 命令，缩写        | 类型   | 默认值 | 描述                                        | 是否必须 |
+| Name，shorthand      | type  | Default| description                                 | Required  |
 | ----------------- | ------ | ------ | ------------------------------------------- | -------- |
-| -h, --help        |        |        | testnet 模块帮助                            | 否       |
-| --for-zero-height |        |        | 导出的状态将用于一个新网络 (执行预处理)     | 否       |
-| --height          | int    | -1     | 从指定块高度导出状态                        | 否       |
-| --jail-whitelist  | string |        | List of validators to not jail state export | 否       |
+| -h, --help        |        |        | help for export                          | No   |
+| --for-zero-height |        |        | Export state to start at height zero   | No   |
+| --height          | int    | -1     | Export state from a particular height   | No  |
+| --jail-whitelist  | string |        | List of validators to not jail state export| No  |
 
-## 例子
+## Example
 
 `hashgard export`

@@ -1,29 +1,31 @@
 # hashgard testnet
 
-## 描述
+## Description
 
-在单机上生成多节点的 Hashgard 公链网络配置文件
+Note, strict routability for addresses is turned off in the config file.
 
-## 使用方式
+## Usage
 
 ```
 hashgard testnet [flags]
 ```
 
-## flags
+## Flags
 
-| 命令，缩写            | 类型   | 默认值       | 描述                                                 | 是否必须 |
+| Name，shorthand          | type  | Default      | Description                                            | Required  |
 | --------------------- | ------ | ------------ | ---------------------------------------------------- | -------- |
-| -h, --help            |        |              | testnet 模块帮助                                     | 否       |
-| --chain-id            | string |              | genesis file chain-id，如果留空则将被随机创建        | `是`     |
-| --minimum-gas-prices  | string | 0.000006gard | 交易中要求的 gas price 最小值                        | `是`     |
-| --node-cli-home       | string | hashgardcli  | 节点的 cli 配置的主目录                              | 否       |
-| --node-daemon-home    | string | hashgard     | 节点守护程序配置的主目录                             | 否       |
-| --node-dir-prefix     | string | node         | 使用（ node0，node1，...）为每个节点目录添加前缀名称 | 否       |
-| --output-dir          | string | ./mytestnet  | 用于存储 testnet 初始化数据的目录                    | 否       |
-| --starting-ip-address | string | 192.168.0.1  | 起始 IP 地址                                         | 否       |
-| --v                   | int    | 4            | 初始化 testnet 的验证器数量                          | 否       |
+| -h, --help            |        |              | help for testnet                                    | No  |
+| --chain-id            | string |              | genesis file chain-id, if left blank will be randomly created| `Yes`     |
+| --minimum-gas-prices  | string | 0.000006gard |  Minimum gas prices to accept for transactions; All fees in a tx must meet this minimum                      | `Yes`     |
+| --node-cli-home       | string | hashgardcli  | Home directory of the node's cli configuration            | No  |
+| --node-daemon-home    | string | hashgard     | Home directory of the node's daemon configuration| No  |
+| --node-dir-prefix     | string | node         | Prefix the directory name for each node with (node results in node0, node1, ...) | No  |
+| --output-dir          | string | ./mytestnet  | Directory to store initialization data for the testnet| No  |
+| --starting-ip-address | string | 192.168.0.1  | Starting IP address                                     | No  |
+| --v                   | int    | 4            |  Number of validators to initialize the testnet with| No  |
 
-## 例子
+## Example
 
-`hashgard testnet--chain-id=${chain-id}`
+```shell
+hashgard testnet--chain-id=${chain-id}
+```

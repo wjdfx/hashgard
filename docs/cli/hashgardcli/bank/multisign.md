@@ -10,28 +10,30 @@ Multisig transactions require signatures of multiple private keys. Thus, generat
 hashgardcli bank multisign [file] [name] [[signature]...] [flags]
 ```
 
+
+
 ## Flags
 
-| name              | Type   | Required | Default | Description                                                  |
-| ----------------- | ------ | -------- | ------- | ------------------------------------------------------------ |
+| Name   | Type   | Required | Default | Description                                                  |
+| ----------------- | ------ | -------- | ------- | --------------- |
 | --offline         | bool   | false    | false   | Off-chain mode, do not query the full node                   |
 | --output-document | string | false    | false   | The document will be written to the given file instead of STDOUT |
 | --signature-only  | bool   | false    | false   | Print only the generated signature and then exit             |
 
-## Global Flags
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### [hashgardcli](../README.md)
+
 
 ## Example
 
 given a multisig key comprising the keys a1, a2, and a3, each of which is held by a distinct party, the user holding a1 would require to import both a2 and a3 in order to generate the multisig account public key:
 
 ```bash
-hashgardcli keys add a1 
+hashgardcli keys add a1
 
-hashgardcli keys add a2 
+hashgardcli keys add a2
 
-hashgardcli keys add a3 
+hashgardcli keys add a3
 
 hashgardcli keys add a123 \
     --multisig=a1,a2,a3 \
@@ -54,7 +56,7 @@ The first step to create a multisig transaction is to initiate it on behalf of t
 ```bash
 hashgardcli bank send gard19thul47y2afwr67l4hlv9hu5593uw0rqhashgjdm7jj 10gard \
     --from a123 \
-    --generate-only >unsignedTx.json 
+    --generate-only >unsignedTx.json
 ```
 
 The file unsignedTx.json contains the unsigned transaction encoded in JSON. a1 can now sign the transaction with its own private key:
@@ -63,7 +65,7 @@ The file unsignedTx.json contains the unsigned transaction encoded in JSON. a1 c
 hashgardcli bank sign unsignedTx.json \
     --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n \
     --from=a1 \
-    --output-document=a1sign.json 
+    --output-document=a1sign.json
 ```
 
 Once the signature is generated, a1 transmits both unsignedTx.json and a1sign.json to a2 or a3, which in turn will generate their respective signature:
@@ -72,7 +74,7 @@ Once the signature is generated, a1 transmits both unsignedTx.json and a1sign.js
 hashgardcli bank sign unsignedTx.json \
     --multisig=gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n \
     --from=a2 \
-    --output-document=a2sign.json 
+    --output-document=a2sign.json
 ```
 
 a123 is a 2-of-3 multisig key, therefore one additional signature is sufficient. Any the key holders can now generate the multisig transaction by combining the required signature files:

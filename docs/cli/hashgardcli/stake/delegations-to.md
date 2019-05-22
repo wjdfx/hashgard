@@ -1,28 +1,27 @@
 # hashgardcli stake delegations-to
 
-## 描述
+## Description
 
-查询对一个验证人进行的所有委托
+Query delegations on an individual validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake delegations-to [validator-addr] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
 
-查询验证人的所有委托
+## Example
 
 ```
 hashgardcli stake delegations-to gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 [

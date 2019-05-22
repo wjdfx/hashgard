@@ -1,28 +1,30 @@
 # hashgardcli keys list
 
-## 描述
+## Description
 
-返回此密钥管理器存储的所有公钥的列表以及他们的相关名称和地址。
+Return a list of all public keys stored by this key manager along with their associated name and address.
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli keys list [flags]
 ```
 
-## 例子
+## Flags
 
-### 列出所有的密钥
+**Global flags, query command flags** [hashgardcli](../README.md)
+
+## Example
+
 
 ```shell
 hashgardcli keys list
 ```
 
-执行命令后，你会得到所有存于本地客户端存储的密钥，包括它们的地址和公钥信息。
+You'll get all the local public keys with 'address' and 'pubkey' element.
 
 ```txt
 NAME:	TYPE:	ADDRESS:						            PUBKEY:
 abc  	local	gardva2eu9qhwn5fx58kvl87x05ee4qrgh44yd8teh	gardpub1addwnpepqvu549hgyhnxlveqmtdn2xywygxpgzcsqefxur47zkz4e0e9x67hvjr6r6p
 ```
 
-需要注意的是，如果本地有多个.hashgardcli存储，需要通过--home 参数来定位查询源。

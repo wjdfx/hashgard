@@ -15,8 +15,7 @@ hashgardcli gov submit-proposal \
 提交区块链治理提议以及发起提议所涉及的初始保证金，其中提议的类型包括Text/ParameterChange/SoftwareUpgrade这三种类型。
 
 
-若提案没有到达投票期，您还需要通过[抵押存款](抵押存款.md)来激活提案
+若提案没有到达投票期，您还需要通过[抵押存款](Deposit.md)来激活提案
 
 
-提案到达投票期之后，您可以进行[提案投票](提案投票.md)
-
+提案到达投票期之后，您可以进行[提案投票](Vote.md)

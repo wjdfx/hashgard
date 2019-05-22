@@ -1,35 +1,39 @@
 # hashgardcli keys show
 
-## 描述
+## Description
 
-查询本地密钥的详细信息
+Return public details of one local key.
 
-## 使用方式
+#
+
+## Usage
 
 ```
 hashgardcli keys show [name] [flags]
 ```
 
-## 标志
+## Flags
 
-| 速记,名称      | 类型      | 是否必须     | 默认值             | 描述                                                           |
+| Name, shorthand | type      | Required    |Default       | Description                                                  |
 | -------------------- | ----------------- | -------------------------------------------------------------- | -------- | -------- |
-| -a, --address | string | 否 | "" | 仅输出地址                                                      |
-| --bech               | string         | 否              | acc               | [string] 密钥的Bech32前缀编码 (acc|
-| --multisig-threshold | int              | 否                | 1                 | [uint] K out of N required signatures                          |
-| --pubkey             | bool | 否 | false  | 仅输出公钥                                                      |
+| -a, --address | string | No| "" | output the address only                    |
+| --bech               | string         | No           | acc               | The Bech32 prefix encoding for a key (acc/val/cons)|
+| --multisig-threshold | int              | NO        | 1                 | [uint] K out of N required signatures                          |
+| --pubkey             | bool | No | false  | 仅输出公钥                                                      |
 
-## 例子
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 查询指定密钥
+## # Examples
+
+### Show a given key
 
 ```shell
 hashgardcli keys show MyKey
 ```
 
-执行命令后，你会得到本地客户端存储的指定密钥详情。
+You'll get the local public keys with 'address' and 'pubkey' element of a given key.
 
 ```txt
-NAME:	TYPE:	ADDRESS:						            PUBKEY:
-MyKey	local	gardkkm4w5pvmcw0e3vjcxqtfxwqpm3k0zakl7lxn5	gardaddwnpepq0gsl90v9dgac3r9hzgz53ul5ml5ynq89ax9x8qs5jgv5z5vyssskww57lw
+NAME:   TYPE:   ADDRESS:                                    PUBKEY:
+MyKey   local   gardkkm4w5pvmcw0e3vjcxqtfxwqpm3k0zakl7lxn5  gardaddwnpepq0gsl90v9dgac3r9hzgz53ul5ml5ynq89ax9x8qs5jgv5z5vyssskww57lw
 ```

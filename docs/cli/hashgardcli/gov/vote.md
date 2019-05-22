@@ -1,22 +1,23 @@
 # hashgardcli gov vote
 
-## 描述
+## Description
 
-给VotingPeriod状态的提案投票, 可选项包括: Yes/No/NoWithVeto/Abstain
+Vote for an active proposal, options: Yes/No/NoWithVeto/Abstain
 
-## 使用方式
+
+## Usage
 
 ```
 hashgardcli gov vote [proposal-id] [option] [flags]
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
-## 例子
+## Example
 
-### 给提案投票
+### Vote for proposal
 
 ```shell
 hashgardcli gov vote 1 yes --chain-id=hashgard --from=hashgard
@@ -30,9 +31,7 @@ Committed at block 15135 (tx hash: F210C95024B4366513A411E2E1AA59C25B93CAB637B10
 
 ```
 
-如何查询投票详情？
-
-请点击下述链接：
+How to query vote
 
 [query-vote](query-vote.md)
 

@@ -1,28 +1,27 @@
 # hashgardcli stake params
 
-## 描述
+## Description
 
-查询最新的权益参数信息
+Query values set as staking parameters:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake params [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询最新的权益参数信息
 
 ```
 hashgardcli stake params --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 Params:

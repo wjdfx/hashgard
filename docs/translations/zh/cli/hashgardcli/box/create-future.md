@@ -14,7 +14,7 @@ hashgardcli box create-future [name] [total-amount][mini-multiple] [distribute-f
 
 | 名称          | 类型   | 是否必须 | 默认值 | 描述                   |
 | ------------- | ------ | -------- | ------ | ---------------------- |
-| name          | string | 是       |        | 支付盒子的名称         |
+| name          | string | 是       |        | 盒子的名称         |
 | total-amount  | string | 是       |        | 支付的种类和数量       |
 | Mini-multiple | int    | 是       | 1      | 待收款凭证交易最小单位 |
 
@@ -32,9 +32,6 @@ hashgardcli box create-future [name] [total-amount][mini-multiple] [distribute-f
     ]
 }
 ```
-
-
-
 
 
 ## Global Flags
@@ -133,7 +130,6 @@ FutureInfo:
 | [deposit-to](deposit-to.md) | 对存款盒子进行分红存入 |
 | [query-box](query-box.md)   | 对指定盒子进行信息查询 |
 | [list-box](list-box.md)    | 罗列指定类型盒子列表   |
-| [search](search.md)         | 对盒子进行搜索         |
 
 
 

@@ -2,7 +2,7 @@
 
 该文档目的是介绍如何运行一个 Hashgard 节点并加入当前的测试网。
 
-> 当前为 sif-4000 测试网络，请务必指定 chain-id = sif-4000
+> 当前为 sif-5000 测试网络，请务必指定 chain-id = sif-5000
 
 > \${}代表变量，需要你手动替换成你自己设定的值
 
@@ -10,11 +10,11 @@
 
 ### 步骤 1：在您的服务器上安装 Hashgard
 
-请参照 [hashgard 安装文档](../installation.md) 安装 Hashgard。
+请参照 [hashgard 安装文档](https://github.com/hashgard/hashgard/blob/develop/docs/translations/zh/learn/installation.md) 安装 Hashgard。
 
 ### 步骤 2：创建钱包
 
-如果尚未创建钱包，请参照 [钱包创建文档](../cli/hashgardcli/keys/add.md) 创建钱包。
+如果尚未创建钱包，请参照 [钱包创建文档](https://github.com/hashgard/hashgard/blob/develop/docs/translations/zh/cli/hashgardcli/keys/add.md) 创建钱包。
 
 ### 步骤 3：设置默认参数
 
@@ -51,8 +51,8 @@ hashgard init --chain-id=sif-4000 --moniker=${your_node_name}
 cd ~/.hashgard/config/
 rm genesis.json
 rm config.toml
-wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-4000/config/config.toml
-wget https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-4000/config/genesis.json
+curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5000/config/config.toml
+curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5000/config/genesis.json
 ```
 
 #### 4.3: 修改配置文件
@@ -122,9 +122,9 @@ hashgardcli status
 
 当您看到 `catching_up` 是 `false`，表示节点的区块数据与 testnet 已经同步完成，否则表示它仍在同步。
 
-您现在已经成功运行了一个 Hashgard 完整节点并接入了 sif-4000 测试网。
+您现在已经成功运行了一个 Hashgard 完整节点并接入了测试网。
 
-您已经完成了测试网第一个激励任务，接下来您可以根据 [激励任务说明](<https://github.com/hashgard/testnets/tree/master/sif_CN/sif-4000>) 参与后续步骤完成其它激励任务。
+您已经完成了测试网第一个激励任务，接下来您可以根据 [激励任务说明](<https://github.com/hashgard/testnets/tree/master/sif_CN/>) 参与后续步骤完成其它激励任务。
 
 ## 后续步骤
 

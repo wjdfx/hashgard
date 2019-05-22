@@ -1,37 +1,42 @@
 # hashgardcli keys update
 
-## 描述
+## Description
 
-更改用于保护私钥的密码
+Change the password used to protect private key
 
-## 使用方式
+## Usage
 
-```
+```shell
 hashgardcli keys update <name> [flags]
 ```
 
-## 例子
 
-### 修改密码
+
+## Flags
+
+**Global flags, query command flags** [hashgardcli](../README.md)
+
+## Example
+
+### Change the password of a given key
 
 ```shell
 hashgardcli keys update MyKey
 ```
-
-执行命令后，系统会要求你输入指定密钥的当前密码。
+You'll be asked to enter the current password for your key.
 
 ```txt
 Enter the current passphrase:
 ```
 
-然后系统会要求你输入新密码并重复输入确认密码。
+Then you'll be asked to enter a new password and repeat it.
 
 ```txt
 Enter the new passphrase:
 Repeat the new passphrase:
 ```
 
-如果你输入新密码符合要求，则会执行更新操作。
+It will be done if you enter a new password that meets the criteria.
 
 ```txt
 Password successfully updated!

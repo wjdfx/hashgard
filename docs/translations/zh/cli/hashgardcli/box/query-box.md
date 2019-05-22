@@ -12,7 +12,7 @@ hashgardcli box query-box [box-id]
 
 | 名称   | 类型   | 是否必须 | 默认值 | 描述         |
 | ------ | ------ | -------- | ------ | ------------ |
-| box-id | string | 是       |        | 存款盒子的id |
+| box-id | string | 是       |        | 盒子的id |
 
 
 

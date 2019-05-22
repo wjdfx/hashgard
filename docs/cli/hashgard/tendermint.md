@@ -1,32 +1,32 @@
 # hashgard tendermint
 
-## 描述
+## Description
 
-查询 tendermint 节点状态的子命令
+Tendermint subcommands
 
-## 使用方式
+## Usage
 
-```
+```shell
 hashgard tendermint [subcommand] [flags]
 ```
 
-## 子命令
+## Subcommands
 
-| 命令             | 描述                                 |
+| Commands           | Description                            |
 | ---------------- | ------------------------------------ |
-| --show-node-id   | 查询节点 ID                          |
-| --show-validator | 查询 tendermint 节点的验证人 pubkey  |
-| --show-address   | 查询 tendermint 节点的验证人共识地址 |
+| --show-node-id   | Show this node's ID                   |
+| --show-validator | Show this node's tendermint validator info |
+| --show-address   | Shows this node's tendermint validator consensus address |
 
-## flags
+## Flags
 
-| 命令，缩写 | 类型   | 默认值      | 描述                     | 是否必须 |
+| Name, shorthand|type  | Default     | description              | Required  |
 | ---------- | ------ | ----------- | ------------------------ | -------- |
-| -h, --help |        |             | testnet 模块帮助         | 否       |
-| --home     | string | ~/.hashgard | 配置和数据的目录         | 否       |
-| --trace    | bool   |             | 在出错时打印完整的调用栈 | 否       |
+| -h, --help |        |             | help for tendermint       | No  |
+| --home     | string | ~/.hashgard | directory for config and data         | No  |
+| --trace    | bool   |             | print out full stack trace on errors | No  |
 
-## 例子
+## Example
 
 ```shell
 hashgard tendermint show-node-id

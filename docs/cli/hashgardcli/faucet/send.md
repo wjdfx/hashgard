@@ -1,26 +1,26 @@
 # hashgardcli faucet send
 
-## 描述
+## Description
 
-该功能仅在测试网中开放，用于领取测试网代币
+get some test coins from faucet account, this function just be available in testnet
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli faucet send [address] [flags]
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
 ```shell
  hashgardcli faucet send gard18vdg4r46qtfkwyghsg67dpn9p7vassw30z0f46 --chain-id=hashgard -o=json --indent
 ```
 
-执行成功后，你将会从水龙头地址获得50gard,50apple的转账。
+After successful execution, you will get 50gard, 50apple.
 
 ```txt
 {

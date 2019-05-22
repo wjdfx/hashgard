@@ -1,28 +1,27 @@
 # hashgardcli distribution params
 
-## 描述
+## Description
 
-查询分配参数信息
+Query distribution params
 
-## 用法
+## Usage
 
 ```
 hashgardcli distribution params [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询参数信息
 
 ```
 hashgardcli distribution params --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```
 Distribution Params:

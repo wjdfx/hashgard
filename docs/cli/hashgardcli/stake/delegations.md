@@ -1,28 +1,27 @@
 # hashgardcli stake delegations
 
-## 描述
+## Description
 
-查询某个委托人发起的所有委托记录
+Query all delegations delegated from one delegator
 
-## 用法
+
+## Usage
 
 ```
 hashgardcli stake delegations [delegator-address] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
-
-查询某个委托人发起的所有委托记录
+## Example
 
 ```
 hashgardcli stake delegations gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```json
 [
