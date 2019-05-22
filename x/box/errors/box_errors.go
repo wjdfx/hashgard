@@ -26,6 +26,7 @@ const (
 	CodeNotAllowedOperation       sdk.CodeType = 15
 	CodeNotSupportOperation       sdk.CodeType = 16
 	CodeUnknownFeature            sdk.CodeType = 17
+	CodeNotTransfer               sdk.CodeType = 18
 )
 
 //convert sdk.Error to error
@@ -90,4 +91,7 @@ func ErrNotAllowedOperation(status string) sdk.Error {
 }
 func ErrUnknownFeatures() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownFeature, fmt.Sprintf("Unknown feature"))
+}
+func ErrCanNotTransfer(boxID string) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransfer, fmt.Sprintf("The box %s Can not transfer", boxID))
 }

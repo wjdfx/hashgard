@@ -11,13 +11,13 @@ import (
 //Handle MsgLockBox
 func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox) sdk.Result {
 	box := &types.BoxInfo{
-		Owner:         msg.Sender,
-		Name:          msg.Name,
-		BoxType:       msg.BoxType,
-		TotalAmount:   msg.TotalAmount,
-		Description:   msg.Description,
-		TradeDisabled: true,
-		Lock:          msg.Lock,
+		Owner:            msg.Sender,
+		Name:             msg.Name,
+		BoxType:          msg.BoxType,
+		TotalAmount:      msg.TotalAmount,
+		Description:      msg.Description,
+		TransferDisabled: true,
+		Lock:             msg.Lock,
 	}
 	return createBox(ctx, keeper, box)
 }
@@ -25,13 +25,13 @@ func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox
 //Handle MsgDepositBox
 func HandleMsgDepositBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgDepositBox) sdk.Result {
 	box := &types.BoxInfo{
-		Owner:         msg.Sender,
-		Name:          msg.Name,
-		BoxType:       msg.BoxType,
-		TotalAmount:   msg.TotalAmount,
-		Description:   msg.Description,
-		TradeDisabled: msg.TradeDisabled,
-		Deposit:       msg.Deposit,
+		Owner:            msg.Sender,
+		Name:             msg.Name,
+		BoxType:          msg.BoxType,
+		TotalAmount:      msg.TotalAmount,
+		Description:      msg.Description,
+		TransferDisabled: msg.TransferDisabled,
+		Deposit:          msg.Deposit,
 	}
 	return createBox(ctx, keeper, box)
 }
@@ -39,13 +39,13 @@ func HandleMsgDepositBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgDepo
 //Handle MsgFutureBox
 func HandleMsgFutureBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgFutureBox) sdk.Result {
 	box := &types.BoxInfo{
-		Owner:         msg.Sender,
-		Name:          msg.Name,
-		BoxType:       msg.BoxType,
-		TotalAmount:   msg.TotalAmount,
-		Description:   msg.Description,
-		TradeDisabled: msg.TradeDisabled,
-		Future:        msg.Future,
+		Owner:            msg.Sender,
+		Name:             msg.Name,
+		BoxType:          msg.BoxType,
+		TotalAmount:      msg.TotalAmount,
+		Description:      msg.Description,
+		TransferDisabled: msg.TransferDisabled,
+		Future:           msg.Future,
 	}
 	return createBox(ctx, keeper, box)
 }

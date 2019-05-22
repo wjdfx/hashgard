@@ -34,19 +34,17 @@ func GetCoinDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) 
 	}
 	return issueInfo.GetDecimals(), nil
 }
-func GetBoxInfo(cdc *codec.Codec, cliCtx context.CLIContext, box types.BoxInfo) fmt.Stringer {
+func GetBoxInfo(box types.BoxInfo) fmt.Stringer {
 	switch box.BoxType {
 	case types.Lock:
 		var clientBox LockBoxInfo
 		StructCopy(&clientBox, &box)
-		//clientBox.TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
 		return clientBox
 	case types.Deposit:
-		return processDepositBoxInfo(cdc, cliCtx, box)
+		return processDepositBoxInfo(box)
 	case types.Future:
 		var clientBox FutureBoxInfo
 		StructCopy(&clientBox, &box)
-		//clientBox.TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
 		return clientBox
 	default:
 		return box
@@ -54,29 +52,9 @@ func GetBoxInfo(cdc *codec.Codec, cliCtx context.CLIContext, box types.BoxInfo) 
 
 }
 
-func processDepositBoxInfo(cdc *codec.Codec, cliCtx context.CLIContext, box types.BoxInfo) DepositBoxInfo {
+func processDepositBoxInfo(box types.BoxInfo) DepositBoxInfo {
 	var clientBox DepositBoxInfo
 	StructCopy(&clientBox, &box)
-
-	//clientBox.Deposit.Price = boxutils.GetBoxCoinByDecimal(cdc, cliCtx,
-	//	sdk.NewCoin(clientBox.Deposit.Interest.Token.Denom, clientBox.Deposit.Price)).Amount
-	//
-	//clientBox.Deposit.BottomLine = boxutils.GetBoxCoinByDecimal(cdc, cliCtx,
-	//	sdk.NewCoin(clientBox.Deposit.Interest.Token.Denom, clientBox.Deposit.BottomLine)).Amount
-	//
-	//clientBox.Deposit.TotalDeposit = boxutils.GetBoxCoinByDecimal(cdc, cliCtx,
-	//	sdk.NewCoin(clientBox.TotalAmount.Token.Denom, clientBox.Deposit.TotalDeposit)).Amount
-	//
-	//if clientBox.Deposit.InterestInjections != nil {
-	//	for i, v := range clientBox.Deposit.InterestInjections {
-	//		clientBox.Deposit.InterestInjections[i].Amount = boxutils.GetBoxCoinByDecimal(cdc, cliCtx,
-	//			sdk.NewCoin(clientBox.Deposit.Interest.Token.Denom, v.Amount)).Amount
-	//	}
-	//}
-	//
-	//clientBox.TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
-	//clientBox.Deposit.Interest.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, clientBox.Deposit.Interest.Token)
-
 	return clientBox
 }
 func GetBoxList(cdc *codec.Codec, cliCtx context.CLIContext, boxs types.BoxInfos, boxType string) fmt.Stringer {
@@ -86,7 +64,6 @@ func GetBoxList(cdc *codec.Codec, cliCtx context.CLIContext, boxs types.BoxInfos
 		for _, box := range boxs {
 			var clientBox LockBoxInfo
 			StructCopy(&clientBox, &box)
-			//boxs[i].TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
 			boxInfos = append(boxInfos, clientBox)
 		}
 
@@ -94,7 +71,7 @@ func GetBoxList(cdc *codec.Codec, cliCtx context.CLIContext, boxs types.BoxInfos
 	case types.Deposit:
 		var boxInfos = make(DepositBoxInfos, 0, len(boxs))
 		for _, box := range boxs {
-			boxInfos = append(boxInfos, processDepositBoxInfo(cdc, cliCtx, box))
+			boxInfos = append(boxInfos, processDepositBoxInfo(box))
 		}
 
 		return boxInfos

@@ -32,6 +32,7 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
@@ -44,23 +45,23 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			futureBox := types.FutureBox{}
 			err = json.Unmarshal(contents, &futureBox)
 			if err != nil {
 				return err
 			}
+			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			if err = processFutureBox(coin, futureBox, decimal); err != nil {
 				return err
 			}
-			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := params.BoxFutureParams{}
 			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Future
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
-			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
+			box.TransferDisabled = viper.GetBool(flagTransferDisabled)
 			box.Future = futureBox
-			box.Future.MiniMultiple = uint(viper.GetInt(flagMiniMultiple))
 			msg := msgs.NewMsgFutureBox(&box)
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
@@ -69,8 +70,7 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
-	cmd.Flags().Bool(flagTradeDisabled, true, "Disable the box trade")
-	cmd.Flags().Uint(flagMiniMultiple, 1, "Trade mini multiple")
+	cmd.Flags().Bool(flagTransferDisabled, true, "Disable transfer the box")
 	return cmd
 }
 

@@ -14,6 +14,7 @@ var (
 	Feature   = "feature"
 	Owner     = "owner"
 	Operation = "operation"
+	Interest  = "interest"
 	BoxID     = "box-id"
 	BoxType   = "box-type"
 	BoxStatus = "box-status"

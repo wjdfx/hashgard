@@ -1,11 +1,18 @@
 package clitest
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
 
+	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/app"
+	"github.com/hashgard/hashgard/x/box/client/utils"
 	"github.com/hashgard/hashgard/x/box/params"
+	"github.com/stretchr/testify/require"
 )
 
 //___________________________________________________________________________________
@@ -16,7 +23,6 @@ import (
 func (f *Fixtures) TxLockBoxCreate(params *params.BoxLockParams, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box create-lock %s %s %d --from=%s %v", params.Name, params.TotalAmount.Token.String(),
 		params.Lock.EndTime, params.Sender.String(), f.Flags())
-	fmt.Println(cmd)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
@@ -32,7 +38,17 @@ func (f *Fixtures) TxDepositBoxCreate(params *params.BoxDepositParams, flags ...
 		"--from=%s %v", params.Name, params.TotalAmount.Token.String(),
 		params.Deposit.BottomLine.String(), params.Deposit.Price.String(), params.Deposit.StartTime,
 		params.Deposit.EstablishTime, params.Deposit.MaturityTime, params.Deposit.Interest.Token.String(), params.Sender.String(), f.Flags())
-	fmt.Println(cmd)
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxFutureBoxCreate is hashgardcli box create-future
+//hashgardcli box create-future joe 1800coin174876e800 1 /home/f.json -y --from joehe
+func (f *Fixtures) TxFutureBoxCreate(params *params.BoxFutureParams, flags ...string) (bool, string, string) {
+	json, _ := json.Marshal(params.Future)
+	fileName := path.Join(f.GDHome, "future_data.json")
+	ioutil.WriteFile(fileName, json, os.ModeDir)
+	cmd := fmt.Sprintf("../build/hashgardcli box create-future %s %s 1 %s "+
+		"--from=%s %v", params.Name, params.TotalAmount.Token.String(), fileName, params.Sender.String(), f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
@@ -41,7 +57,6 @@ func (f *Fixtures) TxDepositBoxCreate(params *params.BoxDepositParams, flags ...
 func (f *Fixtures) TxDepositBoxInterestInjection(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box interest-injection %s %s "+
 		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
-	fmt.Println(cmd)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
@@ -50,6 +65,25 @@ func (f *Fixtures) TxDepositBoxInterestInjection(sender string, boxID string, am
 func (f *Fixtures) TxDepositTo(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box deposit-to %s %s "+
 		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
-	fmt.Println(cmd)
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxWithdraw is hashgardcli box withdraw
+//hashgardcli box withdraw boxab3jlxpt2pt --from test -y
+func (f *Fixtures) TxWithdraw(sender string, boxID string, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli box withdraw %s "+
+		"--from=%s %v", boxID, sender, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// QueryBox is hashgardcli box query-box
+//hashgardcli box query-box boxab3jlxpt2ps
+func (f *Fixtures) QueryFutureBox(boxID string, flags ...string) utils.FutureBoxInfo {
+	cmd := fmt.Sprintf("../build/hashgardcli box query-box %s %v", boxID, f.Flags())
+	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
+	var boxInfo utils.FutureBoxInfo
+	cdc := app.MakeCodec()
+	err := cdc.UnmarshalJSON([]byte(out), &boxInfo)
+	require.NoError(f.T, err, "out %v\n, err %v", out, err)
+	return boxInfo
 }

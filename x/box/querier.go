@@ -17,12 +17,8 @@ func NewQuerier(keeper keeper.Keeper) sdk.Querier {
 			return queriers.QueryBox(ctx, path[1], keeper)
 		case types.QuerySearch:
 			return queriers.QueryName(ctx, path[1], path[2], keeper)
-		case types.QueryDepositAmount:
-			return queriers.QueryDepositAmountFromDepositBox(ctx, path[1], path[2], keeper)
 		case types.QueryList:
 			return queriers.QueryList(ctx, req, keeper)
-		case types.QueryDepositList:
-			return queriers.QueryDepositList(ctx, req, keeper)
 		default:
 			return nil, sdk.ErrUnknownRequest("unknown box query endpoint")
 		}

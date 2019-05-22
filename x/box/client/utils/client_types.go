@@ -11,40 +11,40 @@ import (
 )
 
 type LockBoxInfo struct {
-	BoxId         string         `json:"box_id"`
-	BoxStatus     string         `json:"box_status"`
-	Owner         sdk.AccAddress `json:"owner"`
-	Name          string         `json:"name"`
-	BoxType       string         `json:"type"`
-	CreatedTime   int64          `json:"created_time"`
-	TotalAmount   types.BoxToken `json:"total_amount"`
-	Description   string         `json:"description"`
-	TradeDisabled bool           `json:"trade_disabled"`
-	Lock          types.LockBox  `json:"lock"`
+	BoxId            string         `json:"box_id"`
+	BoxStatus        string         `json:"box_status"`
+	Owner            sdk.AccAddress `json:"owner"`
+	Name             string         `json:"name"`
+	BoxType          string         `json:"type"`
+	CreatedTime      int64          `json:"created_time"`
+	TotalAmount      types.BoxToken `json:"total_amount"`
+	Description      string         `json:"description"`
+	TransferDisabled bool           `json:"transfer_disabled"`
+	Lock             types.LockBox  `json:"lock"`
 }
 type DepositBoxInfo struct {
-	BoxId         string           `json:"box_id"`
-	BoxStatus     string           `json:"box_status"`
-	Owner         sdk.AccAddress   `json:"owner"`
-	Name          string           `json:"name"`
-	BoxType       string           `json:"type"`
-	CreatedTime   int64            `json:"created_time"`
-	TotalAmount   types.BoxToken   `json:"total_amount"`
-	Description   string           `json:"description"`
-	TradeDisabled bool             `json:"trade_disabled"`
-	Deposit       types.DepositBox `json:"deposit"`
+	BoxId            string           `json:"box_id"`
+	BoxStatus        string           `json:"box_status"`
+	Owner            sdk.AccAddress   `json:"owner"`
+	Name             string           `json:"name"`
+	BoxType          string           `json:"type"`
+	CreatedTime      int64            `json:"created_time"`
+	TotalAmount      types.BoxToken   `json:"total_amount"`
+	Description      string           `json:"description"`
+	TransferDisabled bool             `json:"transfer_disabled"`
+	Deposit          types.DepositBox `json:"deposit"`
 }
 type FutureBoxInfo struct {
-	BoxId         string          `json:"box_id"`
-	BoxStatus     string          `json:"box_status"`
-	Owner         sdk.AccAddress  `json:"owner"`
-	Name          string          `json:"name"`
-	BoxType       string          `json:"type"`
-	CreatedTime   int64           `json:"created_time"`
-	TotalAmount   types.BoxToken  `json:"total_amount"`
-	Description   string          `json:"description"`
-	TradeDisabled bool            `json:"trade_disabled"`
-	Future        types.FutureBox `json:"future"`
+	BoxId            string          `json:"box_id"`
+	BoxStatus        string          `json:"box_status"`
+	Owner            sdk.AccAddress  `json:"owner"`
+	Name             string          `json:"name"`
+	BoxType          string          `json:"type"`
+	CreatedTime      int64           `json:"created_time"`
+	TotalAmount      types.BoxToken  `json:"total_amount"`
+	Description      string          `json:"description"`
+	TransferDisabled bool            `json:"transfer_disabled"`
+	Future           types.FutureBox `json:"future"`
 }
 type LockBoxInfos []LockBoxInfo
 type DepositBoxInfos []DepositBoxInfo
@@ -52,7 +52,7 @@ type FutureBoxInfos []FutureBoxInfo
 
 //nolint
 func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string, BoxType string, CreatedTime int64,
-	TotalAmount types.BoxToken, Description string, TradeDisabled bool) string {
+	TotalAmount types.BoxToken, Description string, TransferDisabled bool) string {
 	return fmt.Sprintf(`BoxInfo:
   BoxId:			%s
   BoxStatus:			%s
@@ -62,15 +62,15 @@ func getString(BoxId string, BoxStatus string, Owner sdk.AccAddress, Name string
   TotalAmount:			%s
   CreatedTime:			%d
   Description:			%s
-  TradeDisabled:		%t`,
+  TransferDisabled:		%t`,
 		BoxId, BoxStatus, Owner.String(), Name, BoxType, TotalAmount.String(),
-		CreatedTime, Description, TradeDisabled)
+		CreatedTime, Description, TransferDisabled)
 }
 
 //nolint
 func (bi LockBoxInfo) String() string {
 	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
-		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
+		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TransferDisabled)
 
 	return fmt.Sprintf(`%s
 %s`, str, bi.Lock.String())
@@ -79,7 +79,7 @@ func (bi LockBoxInfo) String() string {
 //nolint
 func (bi DepositBoxInfo) String() string {
 	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
-		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
+		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TransferDisabled)
 
 	return fmt.Sprintf(`%s
 %s`, str, bi.Deposit.String())
@@ -88,7 +88,7 @@ func (bi DepositBoxInfo) String() string {
 //nolint
 func (bi FutureBoxInfo) String() string {
 	str := getString(bi.BoxId, bi.BoxStatus, bi.Owner, bi.Name, bi.BoxType,
-		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TradeDisabled)
+		bi.CreatedTime, bi.TotalAmount, bi.Description, bi.TransferDisabled)
 
 	return fmt.Sprintf(`%s
 %s`, str, bi.Future.String())

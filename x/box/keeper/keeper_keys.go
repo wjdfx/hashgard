@@ -37,19 +37,20 @@ func KeyAddress(boxType string, accAddress sdk.AccAddress) []byte {
 func KeyName(boxType string, name string) []byte {
 	return []byte(fmt.Sprintf("name:%s:%s", boxType, strings.ToLower(name)))
 }
-func KeyAddressDeposit(boxID string, accAddress sdk.AccAddress) []byte {
-	return []byte(fmt.Sprintf("deposit:%s:%s", boxID, accAddress.String()))
-}
 
-func GetAddressFromKeyAddressDeposit(keyAddressDeposit []byte) sdk.AccAddress {
-	str := fmt.Sprintf("%s", keyAddressDeposit)
-	keys := strings.Split(str, ":")
-	address, _ := sdk.AccAddressFromBech32(keys[2])
-	return address
-}
-func PrefixKeyDeposit(boxID string) []byte {
-	return []byte(fmt.Sprintf("deposit:%s", boxID))
-}
+//func KeyAddressDeposit(boxID string, accAddress sdk.AccAddress) []byte {
+//	return []byte(fmt.Sprintf("deposit:%s:%s", boxID, accAddress.String()))
+//}
+//
+//func GetAddressFromKeyAddressDeposit(keyAddressDeposit []byte) sdk.AccAddress {
+//	str := fmt.Sprintf("%s", keyAddressDeposit)
+//	keys := strings.Split(str, ":")
+//	address, _ := sdk.AccAddressFromBech32(keys[2])
+//	return address
+//}
+//func PrefixKeyDeposit(boxID string) []byte {
+//	return []byte(fmt.Sprintf("deposit:%s", boxID))
+//}
 
 // Returns the key for a boxID in the activeQueue
 func PrefixActiveBoxQueueTime(endTime int64) []byte {

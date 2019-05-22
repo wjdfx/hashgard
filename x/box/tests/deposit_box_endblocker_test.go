@@ -122,17 +122,26 @@ func TestDepositBoxEndBlocker(t *testing.T) {
 
 	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Equal(t, depositBox.BoxStatus, types.BoxFinished)
+
 	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
+	totalInterest := sdk.ZeroInt()
+	for _, coin := range coins {
+		if utils.IsBoxId(coin.Denom) {
+			interest, _, err := keeper.ProcessBoxWithdraw(ctx, coin.Denom, TransferAccAddr)
+			require.Nil(t, err)
+			totalInterest = totalInterest.Add(interest)
+		}
+	}
+	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
+	require.Equal(t, totalInterest, depositBox.Deposit.WithdrawalInterest)
 
-	require.Equal(t, coins.AmountOf(boxInfo.BoxId), sdk.ZeroInt())
+	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
+	for _, coin := range coins {
+		require.False(t, utils.IsBoxId(coin.Denom))
+	}
+
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount)
-
-	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom),
-		utils.CalcInterest(depositBox.Deposit.PerCoupon, depositTo.Quo(depositBox.Deposit.Price),
-			depositBox.Deposit.Interest))
-
-	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
-	require.True(t, coins.IsZero())
+	require.Equal(t, coins.AmountOf(boxInfo.Deposit.Interest.Token.Denom), totalInterest)
 }
 
 func TestDepositBoxNotEnoughIteratorEndBlocker(t *testing.T) {
@@ -251,9 +260,18 @@ func TestDepositBoxNotEnoughDepositEndBlocker(t *testing.T) {
 	inactiveQueue.Close()
 
 	depositBox := keeper.GetBox(ctx, boxInfo.BoxId)
+	require.NotNil(t, depositBox)
+	require.Equal(t, depositBox.BoxStatus, types.BoxClosed)
+
+	msgBoxFetch := msgs.NewMsgBoxDeposit(boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		deposit), types.Fetch)
+	res = handler(ctx, msgBoxFetch)
+	require.True(t, res.IsOK())
+
+	depositBox = keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Nil(t, depositBox)
-	//require.Equal(t, depositBox.BoxStatus, types.BoxClosed)
 
 	coins = keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
+
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.Deposit.BottomLine)
 }

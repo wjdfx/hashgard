@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box/utils"
+
 	"github.com/tendermint/tendermint/crypto"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -115,43 +117,12 @@ func (keeper Keeper) setName(ctx sdk.Context, boxType string, name string, boxID
 	store.Set(KeyName(boxType, name), bz)
 }
 
-func (keeper Keeper) setAddressDeposit(ctx sdk.Context, boxID string, accAddress sdk.AccAddress, boxDeposit *types.BoxDeposit) {
-	store := ctx.KVStore(keeper.storeKey)
-	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(boxDeposit)
-	store.Set(KeyAddressDeposit(boxID, accAddress), bz)
-}
-
-//Add address deposit
-func (keeper Keeper) addAddressDeposit(ctx sdk.Context, boxID string, accAddress sdk.AccAddress, boxDeposit *types.BoxDeposit) {
-	boxDeposit.Amount = boxDeposit.Amount.Add(keeper.GetDepositByAddress(ctx, boxID, accAddress).Amount)
-	keeper.setAddressDeposit(ctx, boxID, accAddress, boxDeposit)
-}
-
 //Keys remove
 //Remove box
 func (keeper Keeper) RemoveBox(ctx sdk.Context, box *types.BoxInfo) {
 	store := ctx.KVStore(keeper.storeKey)
 	store.Delete(KeyBox(box.BoxId))
 }
-
-//Remove address deposit
-func (keeper Keeper) removeAddressDeposit(ctx sdk.Context, boxID string, accAddress sdk.AccAddress) {
-	store := ctx.KVStore(keeper.storeKey)
-	store.Delete(KeyAddressDeposit(boxID, accAddress))
-}
-
-//Return deposit amount by accAddress
-func (keeper Keeper) GetDepositByAddress(ctx sdk.Context, boxID string, accAddress sdk.AccAddress) *types.BoxDeposit {
-	store := ctx.KVStore(keeper.storeKey)
-	bz := store.Get(KeyAddressDeposit(boxID, accAddress))
-	if bz == nil {
-		return types.NewZeroBoxDeposit()
-	}
-	var boxDeposit types.BoxDeposit
-	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &boxDeposit)
-	return &boxDeposit
-}
-
 func (keeper Keeper) GetCoinDecimal(ctx sdk.Context, coin sdk.Coin) (uint, sdk.Error) {
 	if coin.Denom == types.Agard {
 		return types.AgardDecimal, nil
@@ -166,6 +137,7 @@ func (keeper Keeper) GetCoinDecimal(ctx sdk.Context, coin sdk.Coin) (uint, sdk.E
 //Keys return
 //Return box by boxID
 func (keeper Keeper) GetBox(ctx sdk.Context, boxID string) *types.BoxInfo {
+	boxID = utils.GetBoxIdFromBoxSeqID(boxID)
 	store := ctx.KVStore(keeper.storeKey)
 	bz := store.Get(KeyBox(boxID))
 	if len(bz) == 0 {
@@ -202,14 +174,34 @@ func (keeper Keeper) GetBoxByAddress(ctx sdk.Context, boxType string, accAddress
 	}
 	return boxs
 }
-
-func (keeper Keeper) CheckDepositByAddress(ctx sdk.Context, boxID string, accAddress sdk.AccAddress) bool {
-	store := ctx.KVStore(keeper.storeKey)
-	bz := store.Get(KeyAddressDeposit(boxID, accAddress))
-	if bz == nil {
-		return false
+func (keeper Keeper) CanTransfer(ctx sdk.Context, boxID string, amount sdk.Int) sdk.Error {
+	if !utils.IsBoxId(boxID) {
+		return nil
 	}
-	return true
+	box := keeper.GetBox(ctx, boxID)
+	if box == nil {
+		return nil
+	}
+	if box.IsTransferDisabled() {
+		return errors.ErrCanNotTransfer(boxID)
+	}
+
+	utils.QuoDecimals()
+	return nil
+	//switch box.BoxType {
+	//case types.Lock:
+	//	return errors.ErrCanNotTransfer(boxID)
+	//case types.Future:
+	//	box.TotalAmount.Decimals
+	//	return errors.ErrCanNotTransfer(boxID)
+	//case types.Deposit:
+	//	if amount.ModRaw(int64(1)) != 0 {
+	//		return errors.ErrCanNotTransfer(boxID)
+	//	}
+	//	return nil
+	//default:
+	//	return errors.ErrCanNotTransfer(boxID)
+	//}
 }
 
 //Queries
@@ -314,7 +306,7 @@ func (keeper Keeper) ProcessDepositToBox(ctx sdk.Context, boxID string, sender s
 	if box == nil {
 		return nil, errors.ErrUnknownBox(boxID)
 	}
-	if types.BoxDepositing != box.BoxStatus {
+	if types.BoxDepositing != box.BoxStatus && types.BoxClosed != box.BoxStatus {
 		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
 	}
 	switch box.BoxType {
@@ -324,6 +316,20 @@ func (keeper Keeper) ProcessDepositToBox(ctx sdk.Context, boxID string, sender s
 		return box, keeper.processFutureBoxDeposit(ctx, box, sender, deposit, operation)
 	}
 	return nil, errors.ErrUnknownBoxType()
+}
+func (keeper Keeper) ProcessBoxWithdraw(ctx sdk.Context, boxID string, sender sdk.AccAddress) (sdk.Int, *types.BoxInfo, sdk.Error) {
+	if keeper.GetBankKeeper().GetCoins(ctx, sender).AmountOf(boxID).IsZero() {
+		return sdk.ZeroInt(), nil, errors.ErrNotEnoughAmount()
+	}
+	boxType := utils.GetBoxTypeByValue(boxID)
+	switch boxType {
+	case types.Deposit:
+		return keeper.processDepositBoxWithdraw(ctx, boxID, sender)
+	case types.Future:
+		boxInfo, err := keeper.processFutureBoxWithdraw(ctx, boxID, sender)
+		return sdk.ZeroInt(), boxInfo, err
+	}
+	return sdk.ZeroInt(), nil, errors.ErrUnknownBoxType()
 }
 
 func (keeper Keeper) SetBoxDescription(ctx sdk.Context, boxID string, sender sdk.AccAddress, description []byte) (*types.BoxInfo, sdk.Error) {
@@ -351,10 +357,10 @@ func (keeper Keeper) disableTrade(ctx sdk.Context, sender sdk.AccAddress, boxInf
 	if boxInfo.GetBoxType() == types.Lock {
 		return errors.ErrNotSupportOperation()
 	}
-	if !boxInfo.IsTradeDisabled() {
+	if !boxInfo.IsTransferDisabled() {
 		return nil
 	}
-	boxInfo.TradeDisabled = false
+	boxInfo.TransferDisabled = false
 	keeper.setBox(ctx, boxInfo)
 	return nil
 }

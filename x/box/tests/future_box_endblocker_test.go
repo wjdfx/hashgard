@@ -48,7 +48,6 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 			if j == 0 {
 				address, _ = sdk.AccAddressFromBech32(rec)
 				coins = keeper.GetBankKeeper().GetCoins(ctx, address)
-				//fmt.Println(address.String() + ":" + coins.String())
 				continue
 			}
 			amount, _ := sdk.NewIntFromString(rec)
@@ -56,39 +55,35 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 			require.Equal(t, coins.AmountOf(boxDenom), amount)
 		}
 	}
-	for _, v := range boxInfo.Future.TimeLine {
-		newHeader := ctx.BlockHeader()
-		newHeader.Time = time.Unix(v, 0)
-		ctx = ctx.WithBlockHeader(newHeader)
 
-		inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
-		require.True(t, inactiveQueue.Valid())
-		inactiveQueue.Close()
+	newHeader := ctx.BlockHeader()
+	newHeader.Time = time.Unix(boxInfo.Future.TimeLine[len(boxInfo.Future.TimeLine)-1], 0)
+	ctx = ctx.WithBlockHeader(newHeader)
 
-		box.EndBlocker(ctx, keeper)
-	}
-
+	box.EndBlocker(ctx, keeper)
 	inactiveQueue := keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
+
 	newBoxInfo = keeper.GetBox(ctx, boxInfo.BoxId)
 	require.Equal(t, newBoxInfo.BoxStatus, types.BoxFinished)
-	require.Equal(t, newBoxInfo.Future.Distributed, newBoxInfo.Future.TimeLine)
+
 	for _, v := range boxInfo.Future.Receivers {
+		address, _ = sdk.AccAddressFromBech32(v[0])
+		coins = keeper.GetBankKeeper().GetCoins(ctx, address)
 		totalAmount := sdk.ZeroInt()
-		for j, rec := range v {
-			if j == 0 {
-				address, _ = sdk.AccAddressFromBech32(rec)
-				coins = keeper.GetBankKeeper().GetCoins(ctx, address)
-				//fmt.Println(coins)
-				continue
+		for i, coin := range coins {
+			sleep := boxInfo.Future.TimeLine[i] - time.Now().Unix()
+			if sleep > 0 {
+				time.Sleep(time.Duration(sleep) * time.Second)
 			}
-			amount, _ := sdk.NewIntFromString(rec)
-			totalAmount = totalAmount.Add(amount)
+			_, _, err := keeper.ProcessBoxWithdraw(ctx, coin.Denom, address)
+			require.Nil(t, err)
+			totalAmount = totalAmount.Add(coin.Amount)
 		}
-		require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), totalAmount)
+		coins1 := keeper.GetBankKeeper().GetCoins(ctx, address)
+		require.Equal(t, coins1.AmountOf(boxInfo.TotalAmount.Token.Denom), totalAmount)
 	}
 	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
 	require.True(t, coins.IsZero())
-
 }

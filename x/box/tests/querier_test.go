@@ -80,13 +80,4 @@ func TestQueryDepositListFromDepositBox(t *testing.T) {
 		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.DepositTo)
 	require.Nil(t, err)
 
-	list := keeper.QueryDepositListFromDepositBox(ctx, boxInfo.BoxId, nil)
-	require.NotEmpty(t, list)
-	require.Equal(t, list[0].Amount, issueutils.MulDecimals(sdk.NewInt(6000), TestTokenDecimals))
-	require.Equal(t, list[1].Amount, issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals))
-
-	list = keeper.QueryDepositListFromDepositBox(ctx, boxInfo.BoxId, boxInfo.Owner)
-	require.NotEmpty(t, list)
-	require.Equal(t, list[0].Amount, issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals))
-
 }

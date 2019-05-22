@@ -22,6 +22,12 @@ func MulDecimals(coin sdk.Coin, decimals uint) sdk.Int {
 	}
 	return issueutils.MulDecimals(coin.Amount, decimals)
 }
+func QuoDecimals(coin sdk.Coin, decimals uint) sdk.Int {
+	if coin.Denom == types.Agard {
+		return coin.Amount
+	}
+	return issueutils.QuoDecimals(coin.Amount, decimals)
+}
 func ParseCoin(denom string, amount sdk.Int) sdk.Coin {
 	if denom == types.Agard {
 		denom = types.Gard
@@ -86,12 +92,13 @@ func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Acco
 	}
 	return boxInfo, nil
 }
-func GetBoxCoinByDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) sdk.Coin {
 
-	issueInfo, _ := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
-
-	return sdk.Coin{fmt.Sprintf("%s(%s)", issueInfo.GetName(), coin.Denom), issueutils.QuoDecimals(coin.Amount, issueInfo.GetDecimals())}
-}
+//func GetBoxCoinByDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) sdk.Coin {
+//
+//	issueInfo, _ := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+//
+//	return sdk.Coin{fmt.Sprintf("%s(%s)", issueInfo.GetName(), coin.Denom), issueutils.QuoDecimals(coin.Amount, issueInfo.GetDecimals())}
+//}
 func GetBoxTypeByValue(value string) string {
 	value = strings.ReplaceAll(value, types.IDPreStr, "")
 	for k, v := range types.BoxType {
@@ -103,6 +110,12 @@ func GetBoxTypeByValue(value string) string {
 }
 func GetCoinDenomByFutureBoxSeq(boxID string, seq int) string {
 	return fmt.Sprintf("%s%02d", boxID, seq)
+}
+func GetBoxIdFromBoxSeqID(boxIDSeq string) string {
+	if len(boxIDSeq) > types.BoxIdLength {
+		return boxIDSeq[:types.BoxIdLength]
+	}
+	return boxIDSeq
 }
 func GetSeqFromFutureBoxSeq(boxSeqStr string) int {
 	seqStr := boxSeqStr[len(boxSeqStr)-2:]

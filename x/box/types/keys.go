@@ -21,6 +21,7 @@ const (
 )
 
 var (
+	BoxIdLength                    = 14
 	BoxMaxId                uint64 = 99999999999999
 	BoxMinId                uint64 = 10000000000000
 	BoxMaxInstalment               = 99
@@ -34,12 +35,10 @@ const (
 	Agard    = "agard"
 )
 const (
-	QueryParams        = "params"
-	QueryList          = "list"
-	QueryBox           = "query"
-	QueryDepositList   = "deposit"
-	QueryDepositAmount = "deposit-amount"
-	QuerySearch        = "search"
+	QueryParams = "params"
+	QueryList   = "list"
+	QueryBox    = "query"
+	QuerySearch = "search"
 )
 
 //box status
@@ -47,6 +46,7 @@ const (
 	BoxCreated    = "created"
 	BoxDepositing = "depositing"
 	BoxActived    = "actived"
+	BoxUndue      = "undue"
 	BoxClosed     = "closed"
 	BoxFinished   = "finished"
 )
@@ -68,12 +68,15 @@ const (
 )
 
 const (
-	TypeMsgBoxCreateLock     = "box_create_lock"
-	TypeMsgBoxCreateDeposit  = "box_create_deposit"
-	TypeMsgBoxCreateFuture   = "box_create_future"
-	TypeMsgBoxInterest       = "box_interest"
-	TypeMsgBoxDeposit        = "box_deposit"
-	TypeMsgBoxFuture         = "box_future"
+	TypeMsgBoxCreateLock    = "box_create_lock"
+	TypeMsgBoxCreateDeposit = "box_create_deposit"
+	TypeMsgBoxCreateFuture  = "box_create_future"
+
+	TypeMsgBoxWithdraw = "box_withdraw"
+
+	TypeMsgBoxInterest = "box_interest"
+	TypeMsgBoxDeposit  = "box_deposit"
+
 	TypeMsgBoxDescription    = "box_description"
 	TypeMsgBoxDisableFeature = "box_disable_feature"
 )

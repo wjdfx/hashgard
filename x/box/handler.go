@@ -25,6 +25,8 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgBoxInterest(ctx, keeper, msg)
 		case msgs.MsgBoxDeposit:
 			return handlers.HandleMsgBoxDeposit(ctx, keeper, msg)
+		case msgs.MsgBoxWithdraw:
+			return handlers.HandleMsgBoxWithdraw(ctx, keeper, msg)
 		case msgs.MsgBoxDescription:
 			return handlers.HandleMsgBoxDescription(ctx, keeper, msg)
 		case msgs.MsgBoxDisableFeature:

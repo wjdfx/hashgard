@@ -30,6 +30,7 @@ import (
 )
 
 var (
+	Receiver          = "Receiver"
 	TransferAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
 	SenderAccAddr     = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
 	TestTokenDecimals = uint(18)
@@ -54,7 +55,7 @@ func GetLockBoxInfo() *params.BoxLockParams {
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Lock
 	box.TotalAmount = newBoxInfo.TotalAmount
-	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(30) * time.Second).Unix()}
+	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(5) * time.Second).Unix()}
 	return box
 }
 func GetDepositBoxInfo() *params.BoxDepositParams {
@@ -64,9 +65,9 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 	box.BoxType = types.Deposit
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.Deposit = types.DepositBox{
-		StartTime:     time.Now().Add(time.Duration(30) * time.Second).Unix(),
-		EstablishTime: time.Now().Add(time.Duration(60) * time.Second).Unix(),
-		MaturityTime:  time.Now().Add(time.Duration(90) * time.Second).Unix(),
+		StartTime:     time.Now().Add(time.Duration(10) * time.Second).Unix(),
+		EstablishTime: time.Now().Add(time.Duration(20) * time.Second).Unix(),
+		MaturityTime:  time.Now().Add(time.Duration(30) * time.Second).Unix(),
 		BottomLine:    issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals),
 		Price:         issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals),
 		Interest: types.BoxToken{
@@ -86,21 +87,21 @@ func GetFutureBoxInfo() *params.BoxFutureParams {
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.TotalAmount.Token.Amount = issueutils.MulDecimals(sdk.NewInt(2000), TestTokenDecimals)
 	box.Future.TimeLine = []int64{
-		time.Now().Add(time.Duration(24*30*1) * time.Hour).Unix(),
-		time.Now().Add(time.Duration(24*30*2) * time.Hour).Unix(),
-		time.Now().Add(time.Duration(24*30*3) * time.Hour).Unix()}
+		time.Now().Add(time.Duration(20) * time.Second).Unix(),
+		time.Now().Add(time.Duration(21) * time.Second).Unix(),
+		time.Now().Add(time.Duration(22) * time.Second).Unix()}
 	box.Future.Receivers = [][]string{
-		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver1"))).String(),
+		{sdk.AccAddress(crypto.AddressHash([]byte(Receiver + "1"))).String(),
 			issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(300), TestTokenDecimals).String()},
 
-		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver2"))).String(),
+		{sdk.AccAddress(crypto.AddressHash([]byte(Receiver + "2"))).String(),
 			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(300), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String()},
 
-		{sdk.AccAddress(crypto.AddressHash([]byte("Receiver3"))).String(),
+		{sdk.AccAddress(crypto.AddressHash([]byte(Receiver + "3"))).String(),
 			issueutils.MulDecimals(sdk.NewInt(100), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(400), TestTokenDecimals).String(),
 			issueutils.MulDecimals(sdk.NewInt(200), TestTokenDecimals).String()}}

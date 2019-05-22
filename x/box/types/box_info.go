@@ -33,8 +33,8 @@ type Box interface {
 	GetDescription() string
 	SetDescription(string)
 
-	IsTradeDisabled() bool
-	SetTradeDisabled(bool)
+	IsTransferDisabled() bool
+	SetTransferDisabled(bool)
 
 	GetLock() LockBox
 	SetLock(LockBox)
@@ -54,18 +54,18 @@ type BoxInfos []BoxInfo
 //type BaseBoxInfo struct {
 //}
 type BoxInfo struct {
-	BoxId         string         `json:"box_id"`
-	BoxStatus     string         `json:"box_status"`
-	Owner         sdk.AccAddress `json:"owner"`
-	Name          string         `json:"name"`
-	BoxType       string         `json:"type"`
-	CreatedTime   int64          `json:"created_time"`
-	TotalAmount   BoxToken       `json:"total_amount"`
-	Description   string         `json:"description"`
-	TradeDisabled bool           `json:"trade_disabled"`
-	Lock          LockBox        `json:"lock"`
-	Deposit       DepositBox     `json:"deposit"`
-	Future        FutureBox      `json:"future"`
+	BoxId            string         `json:"box_id"`
+	BoxStatus        string         `json:"box_status"`
+	Owner            sdk.AccAddress `json:"owner"`
+	Name             string         `json:"name"`
+	BoxType          string         `json:"type"`
+	CreatedTime      int64          `json:"created_time"`
+	TotalAmount      BoxToken       `json:"total_amount"`
+	Description      string         `json:"description"`
+	TransferDisabled bool           `json:"transfer_disabled"`
+	Lock             LockBox        `json:"lock"`
+	Deposit          DepositBox     `json:"deposit"`
+	Future           FutureBox      `json:"future"`
 }
 
 // Implements Box Interface
@@ -120,12 +120,12 @@ func (bi *BoxInfo) SetDescription(description string) {
 	bi.Description = description
 }
 
-func (bi BoxInfo) IsTradeDisabled() bool {
-	return bi.TradeDisabled
+func (bi BoxInfo) IsTransferDisabled() bool {
+	return bi.TransferDisabled
 }
 
-func (bi *BoxInfo) SetTradeDisabled(tradeDisabled bool) {
-	bi.TradeDisabled = tradeDisabled
+func (bi *BoxInfo) SetTransferDisabled(transferDisabled bool) {
+	bi.TransferDisabled = transferDisabled
 }
 
 func (bi BoxInfo) GetLock() LockBox {
@@ -174,9 +174,9 @@ func (bi BoxInfo) String() string {
   TotalAmount:      			%s
   CreatedTime:					%d
   Description:	    			%s
-  TradeDisabled:  				%t`,
+  TransferDisabled:			%t`,
 		bi.BoxId, bi.BoxStatus, bi.Owner.String(), bi.Name, bi.TotalAmount.String(),
-		bi.CreatedTime, bi.Description, bi.TradeDisabled)
+		bi.CreatedTime, bi.Description, bi.TransferDisabled)
 }
 
 //nolint

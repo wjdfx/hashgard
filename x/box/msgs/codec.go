@@ -14,6 +14,7 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgFutureBox{}, "box/MsgFutureBox", nil)
 	cdc.RegisterConcrete(MsgBoxInterest{}, "box/MsgBoxInterest", nil)
 	cdc.RegisterConcrete(MsgBoxDeposit{}, "box/MsgBoxDeposit", nil)
+	cdc.RegisterConcrete(MsgBoxWithdraw{}, "box/MsgBoxWithdraw", nil)
 	cdc.RegisterConcrete(MsgBoxDescription{}, "box/MsgBoxDescription", nil)
 	cdc.RegisterConcrete(MsgBoxDisableFeature{}, "box/MsgBoxDisableFeature", nil)
 

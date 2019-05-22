@@ -30,7 +30,6 @@ func (mc ModuleClient) GetBoxCmd() *cobra.Command {
 			boxCli.GetCmdQueryBoxs(mc.cdc),
 			boxCli.GetCmdQueryBox(mc.cdc),
 			boxCli.GetCmdSearchBoxs(mc.cdc),
-			boxCli.GetCmdQueryDepositBoxDeposit(mc.cdc),
 		)...)
 	boxCmd.AddCommand(client.LineBreak)
 
@@ -45,6 +44,7 @@ func (mc ModuleClient) GetBoxCmd() *cobra.Command {
 		boxCli.GetCmdDepositBoxInterestFetch(mc.cdc),
 		boxCli.GetCmdDepositToBox(mc.cdc),
 		boxCli.GetCmdFetchDepositFromBox(mc.cdc),
+		boxCli.GetCmdBoxWithdraw(mc.cdc),
 		boxCli.GetCmdBoxDescription(mc.cdc),
 		boxCli.GetCmdBoxDisableFeature(mc.cdc),
 	)

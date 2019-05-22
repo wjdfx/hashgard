@@ -17,6 +17,8 @@ type DepositBox struct {
 	PerCoupon          sdk.Dec          `json:"per_coupon"`
 	Share              sdk.Int          `json:"share"`
 	TotalDeposit       sdk.Int          `json:"total_deposit"`
+	WithdrawalShare    sdk.Int          `json:"withdrawal_share"`
+	WithdrawalInterest sdk.Int          `json:"withdrawal_interest"`
 	InterestInjections []AddressDeposit `json:"interest_injections"`
 }
 
@@ -24,10 +26,6 @@ type DepositBoxDepositInterest struct {
 	Address  sdk.AccAddress `json:"address"`
 	Amount   sdk.Int        `json:"amount"`
 	Interest sdk.Int        `json:"interest"`
-}
-
-func NewDepositBoxDepositInterest(address sdk.AccAddress, amount sdk.Int, interest sdk.Int) DepositBoxDepositInterest {
-	return DepositBoxDepositInterest{address, amount, interest}
 }
 
 type DepositBoxDepositInterestList []DepositBoxDepositInterest
@@ -53,6 +51,8 @@ func (bi DepositBox) String() string {
   PerCoupon:			%s
   Share:			%s
   TotalDeposit:			%s
+  WithdrawalShare:			%s,
+  WithdrawalInterest:			%s,
   InterestInjection:			%s`,
 		bi.StartTime,
 		bi.EstablishTime,
@@ -63,6 +63,8 @@ func (bi DepositBox) String() string {
 		bi.PerCoupon.String(),
 		bi.Share.String(),
 		bi.TotalDeposit.String(),
+		bi.WithdrawalShare.String(),
+		bi.WithdrawalInterest.String(),
 		bi.InterestInjections)
 }
 

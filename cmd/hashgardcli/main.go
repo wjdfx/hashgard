@@ -5,6 +5,8 @@ import (
 	"os"
 	"path"
 
+	"github.com/cosmos/cosmos-sdk/x/auth"
+
 	"github.com/hashgard/hashgard/x/box"
 
 	"github.com/cosmos/cosmos-sdk/client/keys"
@@ -143,8 +145,8 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		Short: "Bank subcommands",
 	}
 	bankCmd.AddCommand(
-		//authcmd.GetAccountCmd(auth.StoreKey, cdc),
-		issue.GetAccountCmd(cdc),
+		authcmd.GetAccountCmd(auth.StoreKey, cdc),
+		//issue.GetAccountCmd(cdc),
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(

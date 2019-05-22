@@ -3,7 +3,7 @@ package cli
 import (
 	"fmt"
 
-	"github.com/hashgard/hashgard/x/box/params"
+	"github.com/cosmos/cosmos-sdk/x/auth"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -14,127 +14,39 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-// GetCmdDepositBoxCreate implements create deposit box transaction command.
-func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
+// GetCmdDepositToBox implements deposit to a box transaction command.
+func GetCmdDepositToBox(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-deposit [name] [total-amount]",
+		Use:     "deposit-to [box-id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Create a new deposit box",
-		Long:    "Create a new deposit box",
-		Example: "$ hashgardcli box create-deposit foocoin 100000000coin174876e800 --from foo",
+		Short:   "Deposit to the box",
+		Long:    "Deposit to the box",
+		Example: "$ hashgardcli box deposit-to box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// parse coins trying to be sent
-			coin, err := sdk.ParseCoin(args[1])
-			if err != nil {
-				return err
-			}
-
-			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
-			if err != nil {
-				return err
-			}
-
-			decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, coin)
-			if err != nil {
-				return err
-			}
-			coin.Amount = boxutils.MulDecimals(coin, decimal)
-
-			box := params.BoxDepositParams{}
-			box.Sender = account.GetAddress()
-			box.Name = args[0]
-			box.BoxType = types.Deposit
-			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
-			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
-			box.Deposit = types.DepositBox{
-				Share:         sdk.ZeroInt(),
-				TotalDeposit:  sdk.ZeroInt(),
-				StartTime:     viper.GetInt64(flagStartTime),
-				EstablishTime: viper.GetInt64(flagEstablishTime),
-				MaturityTime:  viper.GetInt64(flagMaturityTime)}
-
-			num, ok := sdk.NewIntFromString(viper.GetString(flagBottomLine))
-			if !ok {
-				return errors.Errorf(errors.ErrAmountNotValid(flagBottomLine))
-			}
-			box.Deposit.BottomLine = num
-			num, ok = sdk.NewIntFromString(viper.GetString(flagPrice))
-			if !ok {
-				return errors.Errorf(errors.ErrAmountNotValid(flagPrice))
-			}
-			box.Deposit.Price = num
-			box.Deposit.Price = boxutils.MulDecimals(boxutils.ParseCoin(box.TotalAmount.Token.Denom, box.Deposit.Price), decimal)
-			box.Deposit.BottomLine = boxutils.MulDecimals(boxutils.ParseCoin(box.TotalAmount.Token.Denom, box.Deposit.BottomLine), decimal)
-
-			interest, err := sdk.ParseCoin(viper.GetString(flagInterest))
-			if err != nil {
-				return err
-			}
-			decimal, err = clientutils.GetCoinDecimal(cdc, cliCtx, interest)
-			if err != nil {
-				return err
-			}
-
-			interest.Amount = boxutils.MulDecimals(interest, decimal)
-			box.Deposit.Interest = types.BoxToken{Token: interest, Decimals: decimal}
-
-			box.Deposit.PerCoupon = boxutils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
-				box.Deposit.Interest.Token, box.Deposit.Interest.Decimals)
-
-			msg := msgs.NewMsgDepositBox(&box)
-			validateErr := msg.ValidateBasic()
-
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
-			}
-			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
-		},
-	}
-	cmd.Flags().Bool(flagTradeDisabled, true, "Disable the box trade")
-	cmd.Flags().String(flagBottomLine, "", "Box bottom line")
-	cmd.Flags().String(flagPrice, "", "Box unit price")
-	cmd.Flags().String(flagInterest, "", "Box interest")
-	cmd.Flags().Int64(flagStartTime, 0, "Box start time")
-	cmd.Flags().Int64(flagEstablishTime, 0, "Box establish time")
-	cmd.Flags().Int64(flagMaturityTime, 0, "Box maturity time")
-
-	return cmd
-}
-
-// GetCmdDepositBoxInterestInjection implements interest injection a deposit box transaction command.
-func GetCmdDepositBoxInterestInjection(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "interest-injection [box-id] [amount]",
-		Args:    cobra.ExactArgs(2),
-		Short:   "Injection interest to the deposit box",
-		Long:    "Injection interest to the deposit box",
-		Example: "$ hashgardcli box interest-injection box174876e800 88888 --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args, types.Injection)
+			return deposit(cdc, args, types.DepositTo)
 		},
 	}
 	return cmd
 }
 
-// GetCmdDepositBoxInterestFetch implements fetch interest from a deposit box transaction command.
-func GetCmdDepositBoxInterestFetch(cdc *codec.Codec) *cobra.Command {
+// GetCmdFetchDepositFromBox implements fetch deposit from a box transaction command.
+func GetCmdFetchDepositFromBox(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "interest-fetch [box-id] [amount]",
+		Use:     "deposit-fetch [box-id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Fetch interest from a deposit box",
-		Long:    "Fetch interest from a deposit box",
-		Example: "$ hashgardcli box interest-fetch box174876e800 88888 --from foo",
+		Short:   "Fetch deposit from a deposit box",
+		Long:    "Fetch deposit from a deposit box",
+		Example: "$ hashgardcli box deposit-fetch box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args, types.Fetch)
+			return deposit(cdc, args, types.Fetch)
 		},
 	}
 	return cmd
 }
+func deposit(cdc *codec.Codec, args []string, operation string) error {
 
-func interest(cdc *codec.Codec, args []string, operation string) error {
 	boxID := args[0]
 	if err := boxutils.CheckBoxId(boxID); err != nil {
 		return errors.Errorf(err)
@@ -147,60 +59,86 @@ func interest(cdc *codec.Codec, args []string, operation string) error {
 	if err != nil {
 		return err
 	}
-	box, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
+	boxInfo, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
 	if err != nil {
 		return err
 	}
-	if box.GetBoxType() != types.Deposit {
-		return errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	if box.GetBoxStatus() != types.BoxCreated {
-		return errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, box.GetDeposit().Interest.Token)
+
+	decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, boxInfo.GetTotalAmount().Token)
 	if err != nil {
 		return err
 	}
-	amount := boxutils.MulDecimals(boxutils.ParseCoin(box.GetDeposit().Interest.Token.Denom, amountArg), decimal)
-	if types.Fetch == operation {
-		flag := true
-		for i, v := range box.GetDeposit().InterestInjections {
-			if v.Address.Equals(account.GetAddress()) {
-				if box.GetDeposit().InterestInjections[i].Amount.GTE(amount) {
-					flag = false
-					break
-				}
-			}
+	amount := boxutils.MulDecimals(boxutils.ParseCoin(boxInfo.GetTotalAmount().Token.Denom, amountArg), decimal)
+
+	switch operation {
+	case types.DepositTo:
+		if err = checkAmountByDepositTo(amount, boxInfo); err != nil {
+			return err
 		}
-		if flag {
-			return errors.ErrNotEnoughAmount()
+	case types.Fetch:
+		if err = checkAmountByFetch(amount, boxInfo, account); err != nil {
+			return err
 		}
-	} else {
-		if box.GetDeposit().InterestInjections != nil {
-			totalInterest := sdk.ZeroInt()
-			for _, v := range box.GetDeposit().InterestInjections {
-				if v.Address.Equals(account.GetAddress()) {
-					totalInterest = totalInterest.Add(v.Amount)
-				}
-			}
-			if totalInterest.Add(amount).GT(box.GetDeposit().Interest.Token.Amount) {
-				return errors.Errorf(errors.ErrInterestInjectionNotValid(sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amountArg)))
-			}
-		}
+	default:
+		return errors.ErrNotSupportOperation()
 	}
-	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
+	msg := msgs.NewMsgBoxDeposit(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount), operation)
+
 	validateErr := msg.ValidateBasic()
 	if validateErr != nil {
 		return errors.Errorf(validateErr)
 	}
 	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
+
 }
 
-func MarkCmdDepositBoxCreateFlagRequired(cmd *cobra.Command) {
-	cmd.MarkFlagRequired(flagBottomLine)
-	cmd.MarkFlagRequired(flagPrice)
-	cmd.MarkFlagRequired(flagInterest)
-	cmd.MarkFlagRequired(flagStartTime)
-	cmd.MarkFlagRequired(flagEstablishTime)
-	cmd.MarkFlagRequired(flagMaturityTime)
+func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account) error {
+	switch boxInfo.GetBoxType() {
+	case types.Deposit:
+		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
+			return errors.ErrAmountNotValid(amount.String())
+		}
+		if account.GetCoins().AmountOf(boxInfo.GetBoxId()).LT(amount.Quo(boxInfo.GetDeposit().Price)) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	case types.Future:
+		if boxInfo.GetFuture().Deposits == nil {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+		for _, v := range boxInfo.GetFuture().Deposits {
+			if v.Address.Equals(account.GetAddress()) {
+				if v.Amount.GTE(amount) {
+					return nil
+				}
+			}
+		}
+		return errors.Errorf(errors.ErrNotEnoughAmount())
+	default:
+		return errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	return nil
+}
+func checkAmountByDepositTo(amount sdk.Int, boxInfo types.Box) error {
+	switch boxInfo.GetBoxType() {
+	case types.Deposit:
+		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
+			return errors.ErrAmountNotValid(amount.String())
+		}
+		if amount.Add(boxInfo.GetDeposit().TotalDeposit).GT(boxInfo.GetTotalAmount().Token.Amount) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	case types.Future:
+		total := sdk.ZeroInt()
+		if boxInfo.GetFuture().Deposits != nil {
+			for _, v := range boxInfo.GetFuture().Deposits {
+				total = total.Add(v.Amount)
+			}
+		}
+		if amount.Add(total).GT(boxInfo.GetTotalAmount().Token.Amount) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	default:
+		return errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	return nil
 }
