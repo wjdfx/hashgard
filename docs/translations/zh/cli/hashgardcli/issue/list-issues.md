@@ -1,13 +1,13 @@
-# hashgardcli issue list
+# hashgardcli issue list-issues
 
 ## 描述
 
-查询指定issue-id值的发行的币的信息。
+查询用户在临界上发行的代币列表
 
 ## 使用方式
 
 ```
-hashgardcli issue list [flags]
+hashgardcli issue list-issues [flags]
 ```
 
 ## Flags
@@ -27,7 +27,7 @@ hashgardcli issue list [flags]
 ### 返回列表
 
 ```shell
-hashgardcli issue list -o=json
+hashgardcli issue list-issues 
 ```
 ```txt
 [
@@ -65,7 +65,7 @@ hashgardcli issue list -o=json
 ```
 
 ```shell
-hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
+hashgardcli issue list-issues --limit 1 --start-issue-id coin174876e801 
 ```
 ```txt
 [
@@ -88,7 +88,7 @@ hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
 ```
 
 ```shell
-hashgardcli issue list --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx -o=json
+hashgardcli issue list-issues --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx 
 ```
 ```txt
 [

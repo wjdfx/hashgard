@@ -8,6 +8,8 @@
 6. [status command](./hashgardcli/status.md)
 7. [tendermint command](./hashgardcli/tendermint/)
 8. [slashing command](./hashgardcli/slashing/)
+9. [issue command](./hashgardcli/issue/)
+10. [box command](./hashgardcli/box/)
 
 
 
