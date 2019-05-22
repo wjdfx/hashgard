@@ -20,7 +20,6 @@ var (
 	NewKeeper       = keeper.NewKeeper
 	NewModuleClient = client.NewModuleClient
 	GetAccountCmd   = cli.GetAccountCmd
-	SendTxCmd       = cli.SendTxCmd
 	RegisterCodec   = msgs.RegisterCodec
 )
 

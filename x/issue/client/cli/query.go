@@ -37,7 +37,6 @@ func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {
 			}
 			var issueInfo types.Issue
 			cdc.MustUnmarshalJSON(res, &issueInfo)
-			issueInfo.SetTotalSupply(issueutils.QuoDecimals(issueInfo.GetTotalSupply(), issueInfo.GetDecimals()))
 			return cliCtx.PrintOutput(issueInfo)
 		},
 	}
@@ -138,9 +137,6 @@ func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 				fmt.Println("No records")
 				return nil
 			}
-			for i, token := range tokenIssues {
-				tokenIssues[i].TotalSupply = issueutils.QuoDecimals(token.TotalSupply, token.Decimals)
-			}
 			return cliCtx.PrintOutput(tokenIssues)
 		},
 	}
@@ -149,7 +145,31 @@ func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 	cmd.Flags().String(flagSymbol, "", "Symbol of issue token")
 	cmd.Flags().String(flagStartIssueId, "", "Start issueId of issues")
 	cmd.Flags().Int32(flagLimit, 30, "Query number of issue results per page returned")
+	return cmd
+}
 
+// GetCmdQueryFreezes implements the query freezes command.
+func GetCmdQueryFreezes(cdc *codec.Codec) *cobra.Command {
+	cmd := &cobra.Command{
+		Use:     "list-freeze",
+		Short:   "Query freeze list",
+		Long:    "Query all or one of the account freeze list",
+		Example: "$ hashgardcli issue list-freeze",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			issueID := args[0]
+			if err := issueutils.CheckIssueId(issueID); err != nil {
+				return errors.Errorf(err)
+			}
+			res, err := issuequeriers.QueryIssueFreezes(issueID, cliCtx)
+			if err != nil {
+				return err
+			}
+			var issueFreeze types.IssueAddressFreezeList
+			cdc.MustUnmarshalJSON(res, &issueFreeze)
+			return cliCtx.PrintOutput(issueFreeze)
+		},
+	}
 	return cmd
 }
 
@@ -163,7 +183,6 @@ func GetCmdSearchIssues(cdc *codec.Codec) *cobra.Command {
 		Example: "$ hashgardcli issue search fo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
 			// Query the issue
 			res, err := issuequeriers.QueryIssueBySymbol(strings.ToUpper(args[0]), cliCtx)
 			if err != nil {
@@ -171,9 +190,6 @@ func GetCmdSearchIssues(cdc *codec.Codec) *cobra.Command {
 			}
 			var tokenIssues types.CoinIssues
 			cdc.MustUnmarshalJSON(res, &tokenIssues)
-			for i, token := range tokenIssues {
-				tokenIssues[i].TotalSupply = issueutils.QuoDecimals(token.TotalSupply, token.Decimals)
-			}
 			return cliCtx.PrintOutput(tokenIssues)
 		},
 	}

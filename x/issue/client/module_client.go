@@ -28,6 +28,7 @@ func (mc ModuleClient) GetIssueCmd() *cobra.Command {
 	issueCmd.AddCommand(
 		client.GetCommands(
 			issueCli.GetCmdQueryIssues(mc.cdc),
+			issueCli.GetCmdQueryFreezes(mc.cdc),
 			issueCli.GetCmdQueryIssue(mc.cdc),
 			issueCli.GetCmdQueryAllowance(mc.cdc),
 			issueCli.GetCmdQueryFreeze(mc.cdc),

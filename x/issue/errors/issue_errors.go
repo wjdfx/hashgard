@@ -53,7 +53,7 @@ func ErrFreezeEndTimestampNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeFreezeEndTimeNotValid, "end-time is not a valid timestamp")
 }
 func ErrCoinNamelNotValid() sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeIssueNameNotValid, fmt.Sprintf("Name max length is %d", types.CoinNameMaxLength))
+	return sdk.NewError(types.DefaultCodespace, CodeIssueNameNotValid, fmt.Sprintf("The length of the name is between %d and %d", types.CoinNameMinLength, types.CoinNameMaxLength))
 }
 func ErrCoinDescriptionNotValid() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssueDescriptionNotValid, "Description is not valid json")

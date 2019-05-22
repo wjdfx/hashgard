@@ -22,25 +22,20 @@ func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc).WithAccountDecoder(cdc)
-
 			addr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return err
 			}
-
 			if err = cliCtx.EnsureAccountExistsFromAddr(addr); err != nil {
 				return err
 			}
-
 			acc, err := cliCtx.GetAccount(addr)
 			if err != nil {
 				return err
 			}
-
 			if acc.GetCoins().Empty() {
 				return cliCtx.PrintOutput(acc)
 			}
-
 			for i, coin := range acc.GetCoins() {
 				if issueutils.IsIssueId(coin.Denom) {
 					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
@@ -52,7 +47,6 @@ func GetAccountCmd(cdc *codec.Codec) *cobra.Command {
 					}
 				}
 			}
-
 			return cliCtx.PrintOutput(acc)
 		},
 	}
