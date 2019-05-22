@@ -174,16 +174,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		slashing.DefaultCodespace,
 	)
 
-	app.govKeeper = gov.NewKeeper(
-		app.cdc,
-		app.keyGov,
-		app.paramsKeeper,
-		app.paramsKeeper.Subspace(gov.DefaultParamspace),
-		app.bankKeeper,
-		&stakingKeeper,
-		gov.DefaultCodespace,
-	)
-
 	app.issueKeeper = issue.NewKeeper(
 		app.cdc,
 		app.keyIssue,
@@ -215,6 +205,21 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.distributionKeeper,
 		app.bankKeeper,
 		app.feeCollectionKeeper,
+	)
+
+	app.govKeeper = gov.NewKeeper(
+		app.cdc,
+		app.keyGov,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(gov.DefaultParamspace),
+		app.bankKeeper,
+		&stakingKeeper,
+		gov.DefaultCodespace,
+		app.accountKeeper,
+		app.distributionKeeper,
+		app.mintKeeper,
+		app.slashingKeeper,
+		&stakingKeeper,
 	)
 
 	// register the staking hooks

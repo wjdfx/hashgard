@@ -112,6 +112,7 @@ func simulationCreateMsgSubmitProposal(r *rand.Rand, sender simulation.Account) 
 		gov.ProposalTypeText,
 		sender.Address,
 		deposit,
+		[]gov.ProposalParam{},
 	)
 	if msg.ValidateBasic() != nil {
 		err = fmt.Errorf("expected msg to pass ValidateBasic: %s", msg.GetSignBytes())

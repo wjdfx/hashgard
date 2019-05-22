@@ -58,6 +58,13 @@ type Keeper struct {
 	// The reference to the CoinKeeper to modify balances
 	ck BankKeeper
 
+	// The reference to these Keepers to modify parameters
+	authKeeper AuthKeeper
+	distributionKeeper DistributionKeeper
+	mintKeeper MintKeeper
+	slashingKeeper SlashingKeeper
+	stakingKeeper StakingKeeper
+
 	// The ValidatorSet to get information about validators
 	vs sdk.ValidatorSet
 
@@ -80,7 +87,9 @@ type Keeper struct {
 // - users voting on proposals, with weight proportional to stake in the system
 // - and tallying the result of the vote.
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
-	paramSpace params.Subspace, ck BankKeeper, ds sdk.DelegationSet, codespace sdk.CodespaceType) Keeper {
+	paramSpace params.Subspace, ck BankKeeper, ds sdk.DelegationSet, codespace sdk.CodespaceType,
+	authKeeper AuthKeeper, distributionKeeper DistributionKeeper, mintKeeper MintKeeper,
+	slashingKeeper SlashingKeeper, stakingKeeper StakingKeeper) Keeper {
 
 	return Keeper{
 		storeKey:     key,
@@ -91,6 +100,11 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 		vs:           ds.GetValidatorSet(),
 		cdc:          cdc,
 		codespace:    codespace,
+		authKeeper:		authKeeper,
+		distributionKeeper: distributionKeeper,
+		mintKeeper:		mintKeeper,
+		slashingKeeper:	slashingKeeper,
+		stakingKeeper:	stakingKeeper,
 	}
 }
 
@@ -493,3 +507,399 @@ func (keeper Keeper) RemoveFromInactiveProposalQueue(ctx sdk.Context, endTime ti
 	store := ctx.KVStore(keeper.storeKey)
 	store.Delete(KeyInactiveProposalQueueProposal(endTime, proposalID))
 }
+
+
+func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Error {
+	switch proposal.ProposalType() {
+	case ProposalTypeParameterChange :
+		proposalParams := proposal.ProposalContent.(*ParameterChangeProposal).ProposalParams
+		for _, proposalParam := range proposalParams {
+			err := keeper.SetProposalParam(ctx, proposalParam)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (keeper Keeper) ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
+	// check key
+	switch proposalParam.Key {
+	case "auth/max_memo_characters", "auth/tx_sig_limit", "auth/tx_size_cost_per_byte",
+		"mint/blocks_per_year":
+		var val uint64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "bank/send_enabled", "distribution/withdraw_addr_enabled":
+		var val bool
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "distribution/community_tax", "distribution/base_proposer_reward", "distribution/bonus_proposer_reward",
+		"gov/quorum", "gov/threshold", "gov/veto",
+		"mint/inflation_rate_change", "mint/inflation_max", "mint/inflation_min", "mint/goal_bonded",
+		"slashing/min_signed_per_window", "slashing/slash_fraction_double_sign", "slashing/slash_fraction_downtime":
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "gov/min_deposit":
+		var val sdk.Coins
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "gov/max_deposit_period", "gov/voting_period", "slashing/downtime_jail_duration",
+		"slashing/max_evidence_age", "staking/unbonding_time":
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "mint/mint_denom":
+		var val string
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "slashing/signed_blocks_window":
+		var val int64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case "staking/max_validators", "staking/max_entries":
+		var val uint16
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	default:
+		return ErrInvalidParamKey(DefaultCodespace, proposalParam.Key)
+	}
+
+	return nil
+}
+
+func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalParam) sdk.Error {
+	switch proposalParam.Key {
+	case "auth/max_memo_characters":
+		var val uint64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.authKeeper.GetParams(ctx)
+		tParams.MaxMemoCharacters = val
+		keeper.authKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "auth/tx_sig_limit":
+		var val uint64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.authKeeper.GetParams(ctx)
+		tParams.TxSigLimit = val
+		keeper.authKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "tx_size_cost_per_byte":
+		var val uint64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.authKeeper.GetParams(ctx)
+		tParams.TxSizeCostPerByte = val
+		keeper.authKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "bank/send_enabled" :
+		var val bool
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		keeper.ck.SetSendEnabled(ctx, val)
+		return nil
+
+	case "distribution/community_tax" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		keeper.distributionKeeper.SetCommunityTax(ctx, val)
+		return nil
+
+	case "distribution/base_proposer_reward" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		keeper.distributionKeeper.SetBaseProposerReward(ctx, val)
+		return nil
+
+	case "distribution/bonus_proposer_reward" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		keeper.distributionKeeper.SetBonusProposerReward(ctx, val)
+		return nil
+
+	case "distribution/withdraw_addr_enabled" :
+		var val bool
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		keeper.distributionKeeper.SetWithdrawAddrEnabled(ctx, val)
+		return nil
+
+	case "gov/min_deposit" :
+		var val sdk.Coins
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetDepositParams(ctx)
+		tParams.MinDeposit = val
+		keeper.setDepositParams(ctx, tParams)
+		return nil
+
+	case "gov/max_deposit_period" :
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetDepositParams(ctx)
+		tParams.MaxDepositPeriod = val
+		keeper.setDepositParams(ctx, tParams)
+		return nil
+
+	case "gov/voting_period" :
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetVotingParams(ctx)
+		tParams.VotingPeriod = val
+		keeper.setVotingParams(ctx, tParams)
+		return nil
+
+	case "gov/quorum" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetTallyParams(ctx)
+		tParams.Quorum = val
+		keeper.setTallyParams(ctx, tParams)
+		return nil
+
+	case "gov/threshold" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetTallyParams(ctx)
+		tParams.Threshold = val
+		keeper.setTallyParams(ctx, tParams)
+		return nil
+
+	case "gov/veto" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.GetTallyParams(ctx)
+		tParams.Veto = val
+		keeper.setTallyParams(ctx, tParams)
+		return nil
+
+	case "mint/mint_denom" :
+		var val string
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.MintDenom = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "mint/inflation_rate_change" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.InflationRateChange = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "mint/inflation_max" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.InflationMax = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "mint/inflation_min" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.InflationMin = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "mint/goal_bonded" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.GoalBonded = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "mint/blocks_per_year" :
+		var val uint64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.mintKeeper.GetParams(ctx)
+		tParams.BlocksPerYear = val
+		keeper.mintKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/max_evidence_age" :
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.MaxEvidenceAge = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/signed_blocks_window" :
+		var val int64
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.SignedBlocksWindow = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/min_signed_per_window" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.MinSignedPerWindow = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/downtime_jail_duration" :
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.DowntimeJailDuration = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/slash_fraction_double_sign" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.SlashFractionDoubleSign = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "slashing/slash_fraction_downtime" :
+		var val sdk.Dec
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.slashingKeeper.GetParams(ctx)
+		tParams.SlashFractionDowntime = val
+		keeper.slashingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "staking/unbonding_time" :
+		var val time.Duration
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.stakingKeeper.GetParams(ctx)
+		tParams.UnbondingTime = val
+		keeper.stakingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "staking/max_validators" :
+		var val uint16
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.stakingKeeper.GetParams(ctx)
+		tParams.MaxValidators = val
+		keeper.stakingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	case "staking/max_entries" :
+		var val uint16
+		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+		tParams := keeper.stakingKeeper.GetParams(ctx)
+		tParams.MaxEntries = val
+		keeper.stakingKeeper.SetParams(ctx, tParams)
+		return nil
+
+	default:
+		return ErrInvalidParamKey(DefaultCodespace, proposalParam.Key)
+	}
+}
+

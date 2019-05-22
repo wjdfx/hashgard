@@ -39,15 +39,11 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 	}
 
 	if msg.ProposalType == ProposalTypeParameterChange {
+		// check parameter
 		for _, proposalParam := range msg.ProposalParams {
-			if subspace, ok := keeper.paramsKeeper.GetSubspace(proposalParam.Subspace); ok {
-				if !subspace.Has(ctx, []byte(proposalParam.Key)) {
-					return ErrInvalidParamKey(DefaultCodespace, proposalParam.Subspace, proposalParam.Key).Result()
-				} else {
-					subspace.Get()
-				}
-			} else {
-				return ErrInvalidSubspace(DefaultCodespace, proposalParam.Subspace).Result()
+			err := keeper.ValidateProposalParam(proposalParam)
+			if err != nil {
+				return err.Result()
 			}
 		}
 	}
@@ -68,6 +64,7 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 		tags.ProposalID, proposalIDStr,
 		tags.Category, tags.TxCategory,
 		tags.Sender, msg.Proposer.String(),
+		tags.ProposalType, msg.ProposalType.String(),
 	)
 
 	if votingStarted {

@@ -23,7 +23,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
-	"github.com/cosmos/cosmos-sdk/x/gov"
+	"github.com/hashgard/hashgard/x/gov"
 	"github.com/hashgard/hashgard/app"
 )
 

@@ -231,35 +231,18 @@ $ hashgardcli gov vote 1 yes --from mykey
 
 // DONTCOVER
 
-func getParamFromString(paramsStr []string) (gov.ProposalParams, error) {
+func getParamFromString(paramStrArr []string) (gov.ProposalParams, error) {
 	var proposalParams gov.ProposalParams
-	for _, paramstr := range paramsStr {
-		str := strings.Split(paramstr, "=")
+	for _, paramStr := range paramStrArr {
+		str := strings.Split(paramStr, "=")
 		if len(str) != 2 {
-			return gov.ProposalParams{}, fmt.Errorf("%s is not valid", paramstr)
+			return gov.ProposalParams{}, fmt.Errorf("%s is not valid", paramStr)
 		}
 		proposalParams = append(proposalParams,
 			gov.ProposalParam{
-				Subspace: GetParamSpaceFromKey(str[0]),
-				Key: GetParamKey(str[0]),
+				Key: str[0],
 				Value: str[1],
 			})
 	}
 	return proposalParams, nil
-}
-
-func GetParamSpaceFromKey(keystr string) string {
-	strs := strings.Split(keystr, "/")
-	if len(strs) != 2 {
-		return ""
-	}
-	return strs[0]
-}
-
-func GetParamKey(keystr string) string {
-	strs := strings.Split(keystr, "/")
-	if len(strs) != 2 {
-		return ""
-	}
-	return strs[1]
 }
