@@ -163,9 +163,6 @@ func GetCmdSearchBoxs(cdc *codec.Codec) *cobra.Command {
 			}
 			var boxs types.BoxInfos
 			cdc.MustUnmarshalJSON(res, &boxs)
-			for i, box := range boxs {
-				boxs[i].TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
-			}
 			return cliCtx.PrintOutput(utils.GetBoxList(cdc, cliCtx, boxs, args[0]))
 		},
 	}
