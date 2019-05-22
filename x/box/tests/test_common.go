@@ -36,11 +36,11 @@ var (
 	TestTokenDecimals = uint(18)
 
 	newBoxInfo = types.BoxInfo{
-		Owner:         SenderAccAddr,
-		Name:          "testBox",
-		BoxType:       types.Lock,
-		Description:   "{}",
-		TradeDisabled: true,
+		Owner:            SenderAccAddr,
+		Name:             "testBox",
+		BoxType:          types.Lock,
+		Description:      "{}",
+		TransferDisabled: true,
 		TotalAmount: types.BoxToken{
 			Token: sdk.NewCoin(
 				"text",

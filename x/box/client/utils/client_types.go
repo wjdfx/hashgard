@@ -96,10 +96,10 @@ func (bi FutureBoxInfo) String() string {
 
 //nolint
 func (bi LockBoxInfos) String() string {
-	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%s\n",
 		"BoxID", "Owner", "Name", "TotalAmount", "EndTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%s\n",
 			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.Token.String(), time.Unix(box.Lock.EndTime, 0).String())
 	}
 	return strings.TrimSpace(out)
@@ -107,22 +107,22 @@ func (bi LockBoxInfos) String() string {
 
 //nolint
 func (bi DepositBoxInfos) String() string {
-	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%s\n",
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%d\n",
-			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
+		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%d\n",
+			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.Token.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
 }
 
 //nolint
 func (bi FutureBoxInfos) String() string {
-	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%s\n",
+	out := fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%s\n",
 		"BoxID", "Owner", "Name", "TotalAmount", "CreatedTime")
 	for _, box := range bi {
-		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-36s|%d\n",
-			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.String(), box.CreatedTime)
+		out += fmt.Sprintf("%-17s|%-44s|%-16s|%-40s|%d\n",
+			box.BoxId, box.Owner.String(), box.Name, box.TotalAmount.Token.String(), box.CreatedTime)
 	}
 	return strings.TrimSpace(out)
 }

@@ -3,8 +3,6 @@ package cli
 import (
 	"fmt"
 
-	"github.com/hashgard/hashgard/x/issue/errors"
-
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -49,8 +47,8 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 			from := cliCtx.GetFromAddress()
 
 			for i, coin := range coins {
-				if boxutils.IsBoxId(coin.Denom) {
-					return errors.Errorf(sdk.ErrInternal("box not support yet"))
+				if err = boxutils.CanTransfer(cdc, cliCtx, coin.Denom); err != nil {
+					return err
 				}
 				if issueutils.IsIssueId(coin.Denom) {
 					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)

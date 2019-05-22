@@ -49,15 +49,13 @@ func GetBoxInfo(box types.BoxInfo) fmt.Stringer {
 	default:
 		return box
 	}
-
 }
-
 func processDepositBoxInfo(box types.BoxInfo) DepositBoxInfo {
 	var clientBox DepositBoxInfo
 	StructCopy(&clientBox, &box)
 	return clientBox
 }
-func GetBoxList(cdc *codec.Codec, cliCtx context.CLIContext, boxs types.BoxInfos, boxType string) fmt.Stringer {
+func GetBoxList(boxs types.BoxInfos, boxType string) fmt.Stringer {
 	switch boxType {
 	case types.Lock:
 		var boxInfos = make(LockBoxInfos, 0, len(boxs))

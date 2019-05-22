@@ -21,11 +21,11 @@ import (
 // GetCmdFutureBoxCreate implements create Future box transaction command.
 func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-future [name] [total-amount] [mini-multiple] [distribute-file]",
-		Args:    cobra.ExactArgs(4),
+		Use:     "create-future [name] [total-amount] [distribute-file]",
+		Args:    cobra.ExactArgs(3),
 		Short:   "Create a new future box",
 		Long:    "Create a new future box",
-		Example: "$ hashgardcli box create-future foocoin 100000000coin174876e800 1 path/distribute.json --from foo",
+		Example: "$ hashgardcli box create-future foocoin 100000000coin174876e800 path/distribute.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// parse coins trying to be sent
 			coin, err := sdk.ParseCoin(args[1])
@@ -41,7 +41,7 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			contents, err := ioutil.ReadFile(args[3])
+			contents, err := ioutil.ReadFile(args[2])
 			if err != nil {
 				return err
 			}

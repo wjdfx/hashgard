@@ -93,5 +93,5 @@ func ErrUnknownFeatures() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeUnknownFeature, fmt.Sprintf("Unknown feature"))
 }
 func ErrCanNotTransfer(boxID string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeNotTransfer, fmt.Sprintf("The box %s Can not transfer", boxID))
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransfer, fmt.Sprintf("The box %s Can not be transfer", boxID))
 }

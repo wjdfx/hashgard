@@ -150,7 +150,7 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
-		issue.SendTxCmd(cdc),
+		box.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),
 		tx.GetBroadcastCommand(cdc),

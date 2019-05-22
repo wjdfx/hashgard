@@ -42,12 +42,12 @@ func (f *Fixtures) TxDepositBoxCreate(params *params.BoxDepositParams, flags ...
 }
 
 // TxFutureBoxCreate is hashgardcli box create-future
-//hashgardcli box create-future joe 1800coin174876e800 1 /home/f.json -y --from joehe
+//hashgardcli box create-future joe 1800coin174876e800 /home/f.json -y --from joehe
 func (f *Fixtures) TxFutureBoxCreate(params *params.BoxFutureParams, flags ...string) (bool, string, string) {
 	json, _ := json.Marshal(params.Future)
 	fileName := path.Join(f.GDHome, "future_data.json")
 	ioutil.WriteFile(fileName, json, os.ModeDir)
-	cmd := fmt.Sprintf("../build/hashgardcli box create-future %s %s 1 %s "+
+	cmd := fmt.Sprintf("../build/hashgardcli box create-future %s %s %s "+
 		"--from=%s %v", params.Name, params.TotalAmount.Token.String(), fileName, params.Sender.String(), f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }

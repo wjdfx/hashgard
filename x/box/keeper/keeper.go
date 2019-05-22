@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashgard/hashgard/x/box/utils"
 
@@ -174,7 +173,7 @@ func (keeper Keeper) GetBoxByAddress(ctx sdk.Context, boxType string, accAddress
 	}
 	return boxs
 }
-func (keeper Keeper) CanTransfer(ctx sdk.Context, boxID string, amount sdk.Int) sdk.Error {
+func (keeper Keeper) CanTransfer(ctx sdk.Context, boxID string) sdk.Error {
 	if !utils.IsBoxId(boxID) {
 		return nil
 	}
@@ -185,23 +184,7 @@ func (keeper Keeper) CanTransfer(ctx sdk.Context, boxID string, amount sdk.Int) 
 	if box.IsTransferDisabled() {
 		return errors.ErrCanNotTransfer(boxID)
 	}
-
-	utils.QuoDecimals()
 	return nil
-	//switch box.BoxType {
-	//case types.Lock:
-	//	return errors.ErrCanNotTransfer(boxID)
-	//case types.Future:
-	//	box.TotalAmount.Decimals
-	//	return errors.ErrCanNotTransfer(boxID)
-	//case types.Deposit:
-	//	if amount.ModRaw(int64(1)) != 0 {
-	//		return errors.ErrCanNotTransfer(boxID)
-	//	}
-	//	return nil
-	//default:
-	//	return errors.ErrCanNotTransfer(boxID)
-	//}
 }
 
 //Queries
@@ -274,7 +257,7 @@ func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 		return err
 	}
 	box.BoxId = KeyBoxIdStr(box.BoxType, id)
-	box.CreatedTime = time.Now().Unix()
+	box.CreatedTime = ctx.BlockHeader().Time.Unix()
 
 	switch box.BoxType {
 	case types.Lock:

@@ -81,7 +81,19 @@ func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (type
 	cdc.MustUnmarshalJSON(res, &boxInfo)
 	return boxInfo, nil
 }
-
+func CanTransfer(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) error {
+	if !IsBoxId(boxID) {
+		return nil
+	}
+	box, err := GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return err
+	}
+	if box.IsTransferDisabled() {
+		return errors.Errorf(errors.ErrCanNotTransfer(boxID))
+	}
+	return nil
+}
 func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, boxID string) (types.Box, error) {
 	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
 	if err != nil {
