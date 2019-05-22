@@ -41,4 +41,3 @@
 [coinmex](https://www.coinmex.com/spot/gard_eth)
 
 [dcoin](https://www.dcoin.com/currencyTrading/GARD_ETH)
-

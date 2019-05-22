@@ -1,31 +1,31 @@
 # hashgardcli stake unbond
 
-## 介绍
+## Description 
 
-从一个验证人解绑委托
+Unbond an amount of bonded shares from a validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake unbond [validator-addr] [amount] [flags]
 ```
 
-## 参数（子命令）
+## Available Commands（Subcommands）
 
-| 名称           | 类型   | 是否必填 | 默认值 | 功能描述            |
+|     Name      | type  | Required| Default| description         |
 | -------------- | ------ | -------- | ------ | ------------------- |
-| validator-addr | string | `是`     |        | 验证人地址          |
-| amount         | int    | `是`     |        | 要解绑的 stake 数量 |
+| validator-addr | string | `true`     |        | Bech address of the validator |
+| amount         | int    | `true`     |        | Amount of source-shares to either unbond or redelegate as a positive integer or decimal|
 
-## flags
+## Flags
 
-| 名称   | 类型   | 是否必填 | 默认值 | 功能描述             |
+| Name   | type  | Required| Default| description          |
 | ------ | ------ | -------- | ------ | -------------------- |
-| --from | string | `是`     | ""     | 委托人的账户名或地址 |
+| --from | string | `true`     | ""     | Delegators account name or address|
 
-**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
 ```shell
 hashgardcli stake unbond \

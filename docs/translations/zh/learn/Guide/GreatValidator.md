@@ -4,11 +4,11 @@
 
 ### 创建验证人
 
-在此之前，请确保您已经创建了一个本地钱包，[创建钱包参考文档](https://github.com/hashgard/hashgard/blob/master/docs/zh/hashgardcli/keys/add.md)。
+在此之前，请确保您已经创建了一个本地钱包，[创建钱包参考文档](https://github.com/hashgard/hashgard/blob/develop/docs/translations/zh/cli/hashgardcli/keys/add.md)。
 
 您也可以前往水龙头地址创建并领取，再在本机执行恢复命令。
-- [水龙头帮助文档](https://github.com/hashgard/hashgard/tree/master/docs/zh/hashgardcli/faucet)
-- [通过助记词恢复帮助文档](https://github.com/hashgard/hashgard/blob/master/docs/zh/hashgardcli/keys/add.md#%E9%80%9A%E8%BF%87%E5%8A%A9%E8%AE%B0%E8%AF%8D%E6%81%A2%E5%A4%8D%E5%AF%86%E9%92%A5)
+- [水龙头帮助文档](https://github.com/hashgard/hashgard/blob/develop/docs/translations/zh/cli/hashgardcli/faucet/send.md)
+- [通过助记词恢复帮助文档](https://github.com/hashgard/hashgard/blob/develop/docs/translations/zh/cli/hashgardcli/keys/add.md)
 
 您可以通过运行以下命令找到验证器 pubkey：
 ```bash
@@ -38,4 +38,3 @@ hashgardcli stake create-validator \
 ```bash
 hashgardcli stake validator ${validator-address} --trust-node
 ```
-

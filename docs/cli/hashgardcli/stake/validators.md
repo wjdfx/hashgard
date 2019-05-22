@@ -1,28 +1,27 @@
 # hashgardcli stake validators
 
-## 描述
+## Description
 
-查询所有验证人
+Query details about all validators on a network:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake validators [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询验证人
 
 ```
 hashgardcli stake validators --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 Validator

@@ -9,7 +9,7 @@
 
 接下来您可以选择一个验证器地址并进行委托：
 ```bash
-hashgardcli stake delegate --validator=${validator_address} --amount=${amount}  --chain-id=${chain-id} --from=${wallet_name} 
+hashgardcli stake delegate --validator=${validator_address} --amount=${amount}  --chain-id=${chain-id} --from=${wallet_name}
 ```
 
 进行委托之后，您可以通过查看该验证器的信息来确定您是否委托成功

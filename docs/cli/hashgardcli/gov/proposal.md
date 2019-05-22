@@ -1,27 +1,27 @@
 # hashgardcli gov proposal
 
-## 描述
+## Description
 
-查询单个提案的详情
+Query details for a proposal. You can find the proposal-id by running hashgardcli gov query-proposals:
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli gov proposal [proposal-id] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
-## 例子
+## Example
 
-### 查询指定的提案
+### Query specified proposal
 
 ```shell
 hashgardcli gov proposal 1 --trust-node -o=json --indent
 ```
 
-查询指定提案的详情，可以得到结果如下：
+The result is as follows：
 
 ```txt
 {

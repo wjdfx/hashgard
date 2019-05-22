@@ -18,4 +18,3 @@
 ```bash
 hashgardcli gov deposits ${proposal-id} --trust-node
 ```
-

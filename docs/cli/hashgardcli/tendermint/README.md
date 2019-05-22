@@ -1,20 +1,20 @@
 # hashgardcli tendermint
 
-## 描述
+## Description
 
-tendermint 的状态查询的子命令
+Tendermint state querying subcommands
 
-## 用法
+## Usage
 
 ```
 hashgardcli tendermint [command]
 ```
 
-## 相关命令
+## Available Commands
 
-| 命令                                         | 描述                         |
+| Name            | Description                    |
 | -------------------------------------------- | ---------------------------- |
-| [block](block.md)                            | 获取指定高度的块的验证数据   |
-| [tendermint-validator-set](validator-set.md) | 获取指定高度的所有验证人集合 |
-| [txs](txs.md)                                | 查询与指定标签匹配的所有交易 |
-| [tx](tx.md)                                  | 使用 txhash 查询交易         |
+| [block](block.md)                            | Get verified data for a the block at given height|
+| [tendermint-validator-set](validator-set.md) | Get the full tendermint validator set at given height|
+| [txs](txs.md)                                | Search for paginated transactions that match a set of tags|
+| [tx](tx.md)                                  | Find a transaction by hash in a committed block.|

@@ -1,27 +1,27 @@
 # hashgardcli bank send
 
-## 描述
+## Description
 
-发送通证到指定地址 
+Create and sign a send tx
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli bank send [to_address] [amount] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 发送通证到指定地址 
+### Create and sign a send tx
 
 ```
 hashgardcli bank send gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl 10gard --from=hashgard --chain-id=hashgard --indent -o json
 ```
 
-命令执行完成后，返回执行的细节信息
+After that, you can get remote node status as follows:
 
 ```
 {

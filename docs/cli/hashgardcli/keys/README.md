@@ -1,41 +1,41 @@
 # hashgardcli keys
 
-## 描述
+## Description
 
-Keys模块用于管理本地密钥库。
+Keys allows you to manage your local keystore for tendermint.
 
-## 使用方式
+## Usage
 
 ```shell
 hashgardcli keys [command]
 ```
 
-## 相关命令
+## Available Commands
 
-| 命令                    | 描述                                                                                          |
+| Commands                | Description                                                                                     |
 | ----------------------- | -------------------------------------------------------------------------------------------- |
-| [mnemonic](mnemonic.md) | 通过读取系统熵来创建bip39助记词，也可以称为种子短语。                                               |
-| [add](add.md)           | 创建新密钥，或从助记词导入已有密钥                                                                |
-| [list](list.md)         | 列出所有密钥                                                                                   |
-| [show](show.md)         | 显示指定名称的关键信息                                                                           |
-| [delete](delete.md)     | 删除指定的密钥                                                                                  |
-| [update](update.md)     | 更改用于保护私钥的密码                                                                           |
+| [mnemonic](mnemonic.md) | Compute the bip39 mnemonic for some input entropy                   |
+| [add](add.md)           | Add an encrypted private key (either newly generated or recovered), encrypt it, and save to disk    |
+| [list](list.md)         | List all keys                                           |
+| [show](show.md)         | Show key info for the given name                          |
+| [delete](delete.md)     | Delete the given key                                         |
+| [update](update.md)     | Change the password used to protect private key                                            |
 
-## 标志
+## Flags
 
-| 名称, 速记       | 默认值   | 描述          | 是否必须  |
+| Name, shorthand      | Default  | Description     | Required |
 | --------------- | ------- | ------------- | -------- |
 | --help, -h      |         | help for keys |          |
 
-## 全局标志
+## Global Flags
 
-| 名称, 速记       | 默认值          | 描述                                   | 是否必须  |
+| Name, shorthand      | Default         | Description                              | Required |
 | --------------- | -------------- | -------------------------------------- | -------- |
-| --encoding, -e  | hex            | [string] Binary encoding (hex|b64|btc) |          |
+| --encoding, -e  | hex            | [string] Binary encoding (hex/b64）|
 | --home          | $HOME/.hashgard | [string] directory for config and data |          |
-| --output, -o    | text           | [string] Output format (text|json)     |          |
+| --output, -o    | text           | [string] Output format (text/json) |     |
 | --trace         |                | print out full stack trace on errors   |          |
 
-## 补充说明
+## Extended description
 
-这些密钥可以是go-crypto支持的任何格式，并且可以由轻客户端，完整节点或需要使用私钥签名的任何其他应用程序使用。
+These keys may be in any format supported by go-crypto and can be used by light-clients, full nodes, or any other application that needs to sign with a private key.

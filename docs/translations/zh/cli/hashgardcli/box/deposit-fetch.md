@@ -16,7 +16,7 @@ hashgardcli box deposit-fetch [box-id] [amount]  --from
 
 | 名称   | 类型   | 是否必须 | 默认值 | 描述           |
 | ------ | ------ | -------- | ------ | -------------- |
-| box-id | string | 是       |        | 存款盒子的ID   |
+| box-id | string | 是       |        | 盒子的ID   |
 | amount | int    | 是       |        | 取回存款的数量 |
 
 
