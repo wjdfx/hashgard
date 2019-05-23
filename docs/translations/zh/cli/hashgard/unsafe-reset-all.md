@@ -10,7 +10,7 @@
 hashgard unsafe-reset-all [flags]
 ```
 
-## flags
+## Flags
 
 | 命令，缩写 | 默认值      | 描述                      | 是否必须 |
 | ---------- | ----------- | ------------------------- | -------- |
@@ -19,4 +19,6 @@ hashgard unsafe-reset-all [flags]
 
 ## 例子
 
-`hashgard unsafe-reset-all`
+``` shell
+hashgard unsafe-reset-all
+```

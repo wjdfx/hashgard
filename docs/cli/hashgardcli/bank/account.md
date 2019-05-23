@@ -1,28 +1,29 @@
 # hashgardcli bank account
 
-## 描述
+## Description
 
-查询账户信息
+This command is used for querying balance information of certain address.
 
-## 使用方式
+
+## Usage
 
 ```
 hashgardcli bank account [address] [flags] 
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 查询账户信息 
+### Query your account in trust-mode
 
 ```
- hashgardcli bank account gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx -o json --trust-node --indent
+hashgardcli bank account gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx -o json --trust-node --indent
 ```
 
-执行完命令后，获得账户的详细信息如下：
+After that, you will get the detail info for the account.
 
 ```
 {
@@ -44,12 +45,12 @@ hashgardcli bank account [address] [flags]
  }
 }
 ```
-如果你查询一个错误的地址，将会返回如下信息:
+If you query an wrong account, you will get the follow information.
 ```
 hashgardcli bank account gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429zz
 ERROR: decoding bech32 failed: checksum failed. Expected d429yx, got d429zz.
 ```
-如果查询一个空地址，将会返回如下信息:
+If you query an account with no transactions on the chain, you will get the follow error.
 ```
 hashgardcli bank account gardkenrwk5k4ng70e5s9zfsttxpnlesx5ps0gfdv7
 ERROR: No account with address gardkenrwk5k4ng70e5s9zfsttxpnlesx5ps0gfdv7 was found in the state.

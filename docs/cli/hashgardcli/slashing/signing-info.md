@@ -1,22 +1,21 @@
 # hashgardcli slashing signing-info
 
-## 描述
+## Description
 
-使用验证人的共识公钥查询验证人的签名信息
+Use a validators' consensus public key to find the signing-info for that validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli slashing signing-info [validator-conspub] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询验证人的签名信息
 
 ```
 hashgardcli slashing signing-info \
@@ -24,7 +23,7 @@ gardvalconspub1zcjduepqgsmuj0qallsw79hjj9qztcke6hj3ujdcpjv249uny9fvzp4eulms0tqvg
 --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 Start Height:          0

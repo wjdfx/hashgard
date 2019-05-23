@@ -52,6 +52,7 @@
 6. [status command](./status.md)
 7. [tendermint command](./tendermint/README.md)
 8. [slashing command](./slashing/README.md)
+9. 
 
 ## hashgardcli config 命令
 

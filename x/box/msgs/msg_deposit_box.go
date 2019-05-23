@@ -2,7 +2,6 @@ package msgs
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashgard/hashgard/x/box/utils"
 
@@ -55,17 +54,8 @@ func (msg MsgDepositBox) ValidateBasic() sdk.Error {
 }
 func (msg MsgDepositBox) validateBox() sdk.Error {
 
-	now := time.Now().Unix()
 	zero := sdk.ZeroInt()
-	if msg.Deposit.StartTime < now {
-		return errors.ErrTimeNotValid("StartTime")
-	}
-	if msg.Deposit.EstablishTime < msg.Deposit.StartTime {
-		return errors.ErrTimeNotValid("EstablishTime")
-	}
-	if msg.Deposit.MaturityTime < msg.Deposit.EstablishTime {
-		return errors.ErrTimeNotValid("MaturityTime")
-	}
+
 	if msg.Deposit.BottomLine.LT(zero) || msg.Deposit.BottomLine.GT(msg.TotalAmount.Token.Amount) {
 		return errors.ErrAmountNotValid("BottomLine")
 	}

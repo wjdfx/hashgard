@@ -1,26 +1,26 @@
 # hashgard init
 
-## 描述
+## Description
 
-生成验证人和全节点所需要的配置文件和数据文件。
+Initialize validators's and node's configuration files.
 
-## 使用方式
+## Usage
 
 ```bash
 hashgard init [flags]
 ```
 
-## flags
+## Flags
 
-| 命令，缩写  | 类型   | 默认值      | 描述                                                                                | 是否必须 |
-| ----------- | ------ | ----------- | ----------------------------------------------------------------------------------- | -------- |
-| -h, --help  |        |             | init 模块帮助                                                                       | 否       |
-| --chain-id  | string |             | 公链 ID，如果留空则将被随机创建                                                     | 否       |
-| --moniker   | string |             | 设置节点名称，将在浏览器的[验证人节点](https://www.gardplorer.io/validator)页面显示 | `是`     |
-| --overwrite | bool   |             | 覆盖 genesis.json 文件                                                              | 否       |
-| --home      | string | ~/.hashgard | 配置和数据存放目录                                                                  | 否       |
-| --trace     | bool   |             | 在出错时打印完整的调用栈                                                            | 否       |
+| Name，shorthand| type  | Default     | description                                                  | Required  |
+| ----------- | ------ | ----------- | ------------------------------------------------------------ | -------- |
+| -h, --help  |        |             | help for init                                           | No  |
+| --chain-id  | string |             | genesis file chain-id, if left blank will be randomly created    | N0  |
+| --moniker   | string |             | set the validator's moniker | Yes     |
+| --overwrite | bool   |             | overwrite the genesis.json file                                      | No   |
+| --home      | string | ~/.hashgard | directory for config and data                                          | No   |
+| --trace     | bool   |             |  print out full stack trace on errors                                   | No  |
 
-## 例子
+## Example
 
 `hashgard init --chain-id=testnet-1000 --moniker=hashgard`

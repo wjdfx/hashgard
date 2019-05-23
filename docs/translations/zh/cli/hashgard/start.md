@@ -10,7 +10,7 @@
 hashgard start [flags]
 ```
 
-## flags
+## Flags
 
 | 命令，缩写                      | 默认值                | 描述                                                  | 是否必须 |
 | ------------------------------- | --------------------- | ----------------------------------------------------- | -------- |
@@ -40,4 +40,6 @@ hashgard start [flags]
 
 ## 例子
 
-`hashgard start --home=/root/.hashgard`
+```shell
+hashgard start --home=/root/.hashgard
+```

@@ -1,30 +1,30 @@
 # hashgard validate-genesis
 
-## 描述
+## Description
 
-验证 genesis 文件内容的有效性
+validates the genesis file at the default location or at the location passed as an arg
 
-## 使用方式
+## Usage
 
 ```
 hashgard validate-genesis [file] [flags]
 ```
 
-## 参数
+## Available Commands
 
-| 命令，缩写 | 类型   | 默认值                          | 描述             | 是否必须 |
+| Name, shorthand|type  | Default                         | Description        | Required  |
 | ---------- | ------ | ------------------------------- | ---------------- | -------- |
-| [file]     | string | ~/.hashgard/config/genesis.json | genesis 文件位置 | 否       |
+| [file]     | string | ~/.hashgard/config/genesis.json | genesis 文件位置 | No  |
 
-## flags
+## Flags
 
-| 命令，缩写 | 类型   | 默认值      | 描述                             | 是否必须 |
+| Name, shorthand|type  | Default     | Description                        | Required  |
 | ---------- | ------ | ----------- | -------------------------------- | -------- |
-| -h, --help |        |             | add-genesis-account 模块帮助文档 | 否       |
-| --home     | string | ~/.hashgard | 配置和数据的目录                 | 否       |
-| --trace    | bool   |             | 在出错时打印完整的调用栈         | 否       |
+| -h, --help |        |             | help for validate-genesis | No  |
+| --home     | string | ~/.hashgard | directory for config and data                | No  |
+| --trace    | bool   |             | print out full stack trace on errors         | No  |
 
-## 例子
+## Example
 
 ```bash
 hashgard validate-genesis

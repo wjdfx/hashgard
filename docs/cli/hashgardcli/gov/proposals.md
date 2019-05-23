@@ -1,36 +1,36 @@
 # hashgardcli gov proposals
 
-## 描述
+## Description
 
-通过可选项过滤查询满足条件的提案
+Query for a all proposals. You can filter the returns with the following flags
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli gov proposals [flags]
 ```
 ## Flags
 
-| 名称       | 类型                  | 是否必须                  | 默认值                      | 描述                                                                                                                                                 |
-| --------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --depositor     | string | 否 | "" | （可选）按存款人过滤                                                                                    |
-| --limit         | string | 否 | "" | （可选）限制最新[数量]提案。 默认为所有提案                                                                   |
-| --status        | string | 否 | "" | （可选）按提案状态过滤提案                                                                                                        |
-| --voter         | string | 否 | "" | （可选）按投票人过滤                                                                                            |
+| Name     | type         | Required      | Default   | Description  |
+| --------------- | -------------------------- | -- | -------- | ------ |
+| --depositor     | string | No| "" | filter by proposals deposited on by depositor                                       |
+| --limit         | string | No| "" | limit to latest[number] proposals. Defaults to all proposals       |
+| --status        | string | No| "" | filter proposals by proposal status               |
+| --voter         | string | No| "" | filter by proposals voted on by voted                                                       |
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
- 
-## 例子
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 查询提案
+## Example
+
+### Query proposals
 
 ```shell
 hashgardcli gov proposals --trust-node
 ```
 
-默认查询所有的提案。
+You could query all the proposals by default.
 
 ```txt
 ID - (Status) [Type] Title
@@ -40,13 +40,13 @@ ID - (Status) [Type] Title
 4 - (VotingPeriod) [Text] Test Proposal
 ```
 
-当然这里可以查询指定条件的提案，例如：
+Also you can query proposal by filters, such as:
 
 ```shell
 gov proposals --chain-id=hashgard --depositor=gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd
 ```
 
-可以得到存款人是gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd地址的提案。
+Finally, here shows the proposal who's depositor address is  gard4q5rf9sl2dqd2uxrxykafxq3nu3lj2fp9l7pgd
 ```txt
   2 - new proposal
 ```

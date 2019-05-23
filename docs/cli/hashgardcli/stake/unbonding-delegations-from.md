@@ -1,22 +1,21 @@
 # hashgardcli stake unbonding-delegations-from
 
-## 描述
+## Description
 
-基于验证人地址的所有 unbonding-delegation 记录查询
+Query unbonding delegations for an individual delegator on an individual validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake unbonding-delegations-from [validator-address] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-基于验证人地址的所有 unbonding-delegation 记录查询
 
 ```
 hashgardcli stake unbonding-delegations-from gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --chain-id=hashgard

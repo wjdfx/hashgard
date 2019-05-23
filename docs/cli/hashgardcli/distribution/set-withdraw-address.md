@@ -1,25 +1,25 @@
 # hashgardcli distribution set-withdraw-addr
 
-## 介绍
+## Description 
 
-设置取回收益时的收款地址
+Set the withdraw address for rewards associated with a delegator address:
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli distribution set-withdraw-addr [withdraw-address] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
 ```
-## 示例
+## Example
 ```
 hashgardcli distribution set-withdraw-addr gard1c9vrvvz08hd4entr0y5kfrt43v6malv60qtjfl --from joehe1 --chain-id=hashgard --output=json --indent
 ```
 
-执行结果示例：
+The result is as follows：
 
 ```
 {

@@ -1,33 +1,31 @@
-# hashgardcli issue list
+# hashgardcli issue list-issues
 
-## 描述
+## Description
 
-查询指定issue-id值的发行的币的信息。
+查询用户在临界上发行的代币列表
 
-## 使用方式
+## Usage
 
 ```
-hashgardcli issue list [flags]
+hashgardcli issue list-issues [flags]
 ```
 
 ## Flags
 
-| 名称             | 类型   | 是否必须 | 默认值 | 描述                  |
+| 名称             | type  | Required  | Default| Description             |
 | ---------------- | ------ | -------- | ------ | --------------------- |
-| --address        | string | 否       | ""     | （可选）Owner账号地址 |
-| --limit          | int    | 否       | 30     | （可选）每次返回条数  |
-| --start-issue-id | string | 否       | ""     | （可选）起始issue-id  |
+| --address        | string | false    | ""     | （可选）Owner账号地址 |
+| --limit          | int    | false    | 30     | （可选）每次返回条数  |
+| --start-issue-id | string | false    | ""     | （可选）起始issue-id  |
 
-## Global Flags
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 参考：[hashgardcli](../README.md)
-
-## 例子
+## Example
 
 ### 返回列表
 
 ```shell
-hashgardcli issue list -o=json
+hashgardcli issue list-issues 
 ```
 ```txt
 [
@@ -65,7 +63,7 @@ hashgardcli issue list -o=json
 ```
 
 ```shell
-hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
+hashgardcli issue list-issues --limit 1 --start-issue-id coin174876e801 
 ```
 ```txt
 [
@@ -88,7 +86,7 @@ hashgardcli issue list --limit 1 --start-issue-id coin174876e801 -o=json
 ```
 
 ```shell
-hashgardcli issue list --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx -o=json
+hashgardcli issue list-issues --address=gard1sepa9tuxt238xj3jmvf98k6uk5z7wuwmm4f4mx 
 ```
 ```txt
 [

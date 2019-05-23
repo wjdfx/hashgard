@@ -1,10 +1,10 @@
 # hashgardcli exchange create-order
 
-## 描述
+## Description
 
-创建订单, 指定提供的币种和数量，以及目标币种及数量。创建成功后，订单处于有效状态，提供的币会处于冻结状态。任何人都能同该订单进行交易。
+Create Order  指定提供的币种和数量，以及目标币种及数量。创建成功后，订单处于有效状态，提供的币会处于冻结状态。任何人都能同该订单进行交易。
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli exchange take-order [order_id] [flags]
@@ -12,10 +12,10 @@ hashgardcli exchange take-order [order_id] [flags]
 
 ## Flags
 
-| 名称       | 类型                  | 是否必须                  | 默认值                      | 描述                                                                                                                                                 |
-| --------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --amount     | string | 是 | "" | 买方用于交易的币种及数量                                                                                    |                                                       |
-
+| Name      | type                 | Required                  | Default                     | Description           |
+| --------------- | -------------------------- | ------------- | ---------------- | ------------------------------ |
+| --amount     | string | Yes| "" | coin tpye and quantity the buyer uses for the transaction|                |
+**Global flags, query command flags** [hashgardcli](../README.md)
 ## 计算
 
 A(supply) 为supply的数量，A(target) 为target的数量， A(remains) 是remains的数量（订单创建时，A(supply) = A(target) ）
@@ -45,13 +45,13 @@ Sum(supply) = Shares(actual) * Price(supply), 这部分的金额会从订单的 
 5. 如果最后 A(remains) 没有剩余，这该挂单被吃光，删除该挂单。
 
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 进行交易
+### Trading
 
 已知order_id为3的订单的 supply 是 100gard， target 是 800apple，remains 是 100gard。
 使用18apple与之交易， 实际扣除 16 apple， 会获得 2 gard。

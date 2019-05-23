@@ -1,29 +1,28 @@
 # hashgardcli distribution rewards
 
-## 描述
+## Description
 
-查询委托人获得的所有奖励，可选择限制来自单个验证者的奖励
+Query all rewards earned by a delegator, optionally restrict to rewards from a single validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli distribution rewards [delegator-addr] [<validator-addr>] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询参数信息
 
 ```
 hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms -o=json --trust-node
 hashgardcli distribution rewards gard1hr7vm7t7paeyg33ggd6efek2w58mu2hutvjrms gardvaloper1hr7vm7t7paeyg33ggd6efek2w58mu2huewltta -o=json --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+Example response:
 
 ```
 [

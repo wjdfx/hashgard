@@ -2,7 +2,6 @@ package msgs
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashgard/hashgard/x/box/params"
 
@@ -60,17 +59,6 @@ func (msg MsgFutureBox) validateBox() sdk.Error {
 		return errors.ErrNotEnoughAmount()
 	}
 
-	for i, v := range msg.Future.TimeLine {
-		if i == 0 {
-			if v < time.Now().Unix() {
-				return errors.ErrTimelineNotValid(msg.Future.TimeLine)
-			}
-			continue
-		}
-		if v <= msg.Future.TimeLine[i-1] {
-			return errors.ErrTimelineNotValid(msg.Future.TimeLine)
-		}
-	}
 	return nil
 }
 

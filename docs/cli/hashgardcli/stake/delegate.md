@@ -1,20 +1,20 @@
 # hashgardcli stake delegate
 
-## 介绍
+## Description
 
-发送委托交易
+Delegate an amount of liquid coins to a validator from your wallet:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake delegate [validator-addr] [amount] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
 ```shell
 hashgardcli stake delegate \
@@ -27,7 +27,7 @@ gardvaloper1rkqp5w062sdqu68qsufn3safwz0e5m9frmy4dm \
 --indent
 ```
 
-然后你将会得到如下消息：
+The result is as follows：
 
 ```json
 {

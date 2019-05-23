@@ -18,10 +18,10 @@ Hashgard网络就立足于金融领域，解决金融痛点，从根本上帮助
 
 - 降低金融企业开发和使用成本，推动区金融企业之间商业应用进程。
 
-  
+
 
 ## 白皮书1.0
 
 Hashgard白皮书是一个权威的报告，告诉我们Hashgard的产生，目标及未来发展方向是什么，以及我们怎样治理和实现整个网络。
 
-[查看白皮书了解更多](https://github.com/hashgard/whitepaper/blob/master/%E7%99%BD%E7%9A%AE%E4%B9%A6.md)
+[查看白皮书了解更多](https://github.com/hashgard/whitepaper/blob/master/whitepaper.md)

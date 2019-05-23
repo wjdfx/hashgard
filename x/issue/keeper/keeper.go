@@ -1,6 +1,8 @@
 package keeper
 
 import (
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -510,13 +512,13 @@ func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.A
 	}
 
 	freeze := keeper.GetFreeze(ctx, from, issueID)
-	if checkErr := utils.CheckFreezeByOut(issueID, freeze, from); checkErr != nil {
-		return checkErr
+	if freeze.OutEndTime > 0 && freeze.OutEndTime > ctx.BlockHeader().Time.Unix() {
+		return errors.ErrCanNotTransferOut(issueID, from.String())
 	}
 
 	freeze = keeper.GetFreeze(ctx, to, issueID)
-	if checkErr := utils.CheckFreezeByIn(issueID, freeze, to); checkErr != nil {
-		return checkErr
+	if freeze.InEndTime > 0 && freeze.InEndTime > time.Now().Unix() {
+		return errors.ErrCanNotTransferIn(issueID, to.String())
 	}
 
 	err := keeper.SendCoins(ctx, from, to, sdk.Coins{sdk.NewCoin(issueID, amount)})

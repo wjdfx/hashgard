@@ -16,12 +16,12 @@
 
 | 名称         | 类型   | 是否必须 | 默认值 | 描述                 |
 | ------------ | ------ | -------- | ------ | -------------------- |
-| name         | string | 是       |        | 存款盒子的名称       |
+| name         | string | 是       |        | 盒子的名称      |
 | total-amount | string | 是       |        | 接受存款的总量和种类 |
 
 
 
-### flags
+### Flags
 
 | 名称             | 类型   | 是否必须 | 默认值 | 描述                           |
 | ---------------- | ------ | -------- | ------ | ------------------------------ |
@@ -73,7 +73,7 @@ hashgardcli box create-deposit mingone 10000coin174876e800  --bottom-line=0 --pr
 | [deposit-to](deposit-to.md)                 | 用户对存款盒子进行存款       |
 | [deposit-fetch](deposit-fetch.md)           | 用户在存款吸纳期进行取回存款 |
 | [query-box](query-box.md)                   | 对指定盒子进行信息查询       |
-| [list-box](list-box.md)                    | 罗列指定类型盒子列表         |
+| [list-box](list-box.md)                     | 罗列指定类型盒子列表         |
 
 
 

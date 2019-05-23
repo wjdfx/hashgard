@@ -1,29 +1,31 @@
-# hashgardcli distribution 
+# hashgardcli distribution
 
-## 介绍
+## Description
 
-这里主要介绍distribution模块提供的命令行接口
+This document describes how to use the the command line interfaces of distribution module.
 
-## 用法
+
+## Usage
 
 ```
 hashgardcli distribution [subcommand]
 ```
 
-打印子命令和参数
+Print all supported subcommands and flags:
 
 ```
 hashgardcli distribution --help
 ```
 
-## 子命令
+## Available Subcommands
 
-| 名称                            | 功能                                                   |
+| name                          | Description                                                 |
 | --------------------------------| --------------------------------------------------------------|
-| [params](params.md)  | 查询分配参数信息 |
-| [outstanding-rewards](outstanding-rewards.md)  | 查询优先（未提取）奖励 |
-| [commission](commission.md)  | 查询验证人和委托人的佣金奖励 |
-| [slashes](slashes.md)  | 查询给定块范围的验证人的所有处罚 |
-| [rewards](rewards.md)  | 查询委托人获得的所有奖励 |
-| [set-withdraw-addr](set-withdraw-address.md)  | 设置收益取回地址 |
-| [withdraw-rewards](withdraw-rewards.md) | 发起取回收益的交易 |
+| [params](params.md)  |Query distribution params |
+| [validator-outstanding-rewards](validator-outstanding-rewards.md)  |Query distribution outstanding (un-withdrawn) rewards for a validator and all their delegations|
+| [commission](commission.md)  |Query distribution validator commission|
+| [slashes](slashes.md)  |Query distribution validator slashes|
+| [rewards](rewards.md)  |Query all distribution delegator rewards or rewards from a particular validator|
+| [set-withdraw-addr](set-withdraw-address.md)  |change the default withdraw address for rewards associated with an address|
+| [withdraw-rewards](withdraw-rewards.md) |witdraw rewards from a given delegation address, and optionally withdraw validator commission if the delegation address given is a validator operator|
+| [withdraw-all-rewards](withdraw-rewards.md) | withdraw all delegations rewards for a delegator|

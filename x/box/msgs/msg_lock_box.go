@@ -2,7 +2,6 @@ package msgs
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hashgard/hashgard/x/box/params"
 
@@ -45,16 +44,7 @@ func (msg MsgLockBox) ValidateBasic() sdk.Error {
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-	if err := msg.validateBox(); err != nil {
-		return err
-	}
-	return nil
-}
-func (msg MsgLockBox) validateBox() sdk.Error {
 
-	if msg.Lock.EndTime < time.Now().Unix() {
-		return errors.ErrTimeNotValid("EndTime")
-	}
 	return nil
 }
 
