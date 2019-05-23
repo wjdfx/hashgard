@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashgard/hashgard/x/box/errors"
 
-	"github.com/hashgard/hashgard/x/issue/types"
+	"github.com/hashgard/hashgard/x/box/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -14,8 +14,9 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	boxclientutils "github.com/hashgard/hashgard/x/box/client/utils"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
-	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
+	issueclientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 )
@@ -49,20 +50,18 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 			from := cliCtx.GetFromAddress()
 
 			for i, coin := range coins {
-				if err = boxutils.CanTransfer(cdc, cliCtx, coin.Denom); err != nil {
+				if err = processBoxSend(cdc, cliCtx, &coin); err != nil {
 					return err
 				}
-
 				if err = processIssueSend(cdc, cliCtx, &coin, from, to); err != nil {
 					return err
 				}
+				coins[i] = coin
 			}
-
 			account, err := cliCtx.GetAccount(from)
 			if err != nil {
 				return err
 			}
-
 			// ensure account has enough coins
 			if !account.GetCoins().IsAllGTE(coins) {
 				return fmt.Errorf("address %s doesn't have enough coins to pay for this transaction", from)
@@ -76,16 +75,19 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 	return client.PostCommands(cmd)[0]
 }
 
-func processBoxSend(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) error {
-	if !boxutils.IsBoxId(boxID) {
+func processBoxSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coin) error {
+	if !boxutils.IsBoxId(coin.Denom) {
 		return nil
 	}
-	box, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
+	boxInfo, err := boxclientutils.GetBoxByID(cdc, cliCtx, coin.Denom)
 	if err != nil {
-		return err
+		return nil
 	}
-	if box.IsTransferDisabled() {
-		return errors.Errorf(errors.ErrCanNotTransfer(boxID))
+	if boxInfo.IsTransferDisabled() {
+		return errors.Errorf(errors.ErrCanNotTransfer(coin.Denom))
+	}
+	if boxInfo.GetBoxType() == types.Future {
+		coin.Amount = issueutils.MulDecimals(coin.Amount, boxInfo.GetTotalAmount().Decimals)
 	}
 	return nil
 }
@@ -93,16 +95,13 @@ func processIssueSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coi
 	if !issueutils.IsIssueId(coin.Denom) {
 		return nil
 	}
-
-	res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
-	if err == nil {
-
+	issueInfo, err := issueclientutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+	if err != nil {
+		return nil
 	}
-	issueutils.GetIssueByID()
-	var issueInfo types.Issue
-	cdc.MustUnmarshalJSON(res, &issueInfo)
 	coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
-	if err = issueutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
+	if err = issueclientutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
 		return err
 	}
+	return nil
 }

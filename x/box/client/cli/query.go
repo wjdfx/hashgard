@@ -37,7 +37,6 @@ func GetCmdQueryBox(cdc *codec.Codec) *cobra.Command {
 			}
 			var box types.BoxInfo
 			cdc.MustUnmarshalJSON(res, &box)
-
 			return cliCtx.PrintOutput(utils.GetBoxInfo(box))
 		},
 	}
@@ -72,7 +71,6 @@ func GetCmdQueryBoxs(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-
 			var boxs types.BoxInfos
 			cdc.MustUnmarshalJSON(res, &boxs)
 			return cliCtx.PrintOutput(utils.GetBoxList(boxs, boxQueryParams.BoxType))
@@ -109,9 +107,6 @@ func GetCmdSearchBoxs(cdc *codec.Codec) *cobra.Command {
 			}
 			var boxs types.BoxInfos
 			cdc.MustUnmarshalJSON(res, &boxs)
-			//for i, box := range boxs {
-			//	boxs[i].TotalAmount.Token = boxutils.GetBoxCoinByDecimal(cdc, cliCtx, box.TotalAmount.Token)
-			//}
 			return cliCtx.PrintOutput(utils.GetBoxList(boxs, args[0]))
 		},
 	}

@@ -40,7 +40,6 @@ func (msg MsgBoxInterest) ValidateBasic() sdk.Error {
 	if msg.Interest.IsZero() || msg.Interest.IsNegative() {
 		return errors.ErrAmountNotValid(msg.Interest.Denom)
 	}
-
 	return nil
 }
 

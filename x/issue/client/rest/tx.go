@@ -16,6 +16,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 
+	clientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -131,7 +132,7 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		issueInfo, err := issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		issueInfo, err := clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -149,17 +150,6 @@ func postMintHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 
 func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		var req PostIssueBaseReq
-		if !rest.ReadRESTReq(w, r, cdc, &req) {
-			return
-		}
-
-		req.BaseReq = req.BaseReq.Sanitize()
-		if !req.BaseReq.ValidateBasic(w) {
-			return
-		}
-
 		vars := mux.Vars(r)
 		issueID := vars[IssueID]
 		if err := issueutils.CheckIssueId(issueID); err != nil {
@@ -167,37 +157,39 @@ func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) ht
 			return
 		}
 		feature := vars[Feature]
-
 		_, ok := types.Features[feature]
 		if !ok {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownFeatures().Error())
 			return
 		}
-
+		var req PostIssueBaseReq
+		if !rest.ReadRESTReq(w, r, cdc, &req) {
+			return
+		}
+		req.BaseReq = req.BaseReq.Sanitize()
+		if !req.BaseReq.ValidateBasic(w) {
+			return
+		}
 		fromAddress, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
 			return
 		}
-
 		account, err := cliCtx.GetAccount(fromAddress)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
-		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
 		msg := msgs.NewMsgIssueDisableFeature(issueID, fromAddress, feature)
 
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 
@@ -214,7 +206,6 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
 		}
-
 		req.BaseReq = req.BaseReq.Sanitize()
 		if !req.BaseReq.ValidateBasic(w) {
 			return
@@ -227,7 +218,6 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrCoinDescriptionNotValid().Error())
 			return
 		}
-
 		msg := msgs.NewMsgIssueDescription(issueID, fromAddress, []byte(req.Description))
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -238,12 +228,11 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
@@ -284,7 +273,7 @@ func postTransferOwnershipHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext)
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+		_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

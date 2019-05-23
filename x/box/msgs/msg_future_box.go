@@ -46,13 +46,13 @@ func (msg MsgFutureBox) ValidateBasic() sdk.Error {
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-	if err := msg.validateBox(); err != nil {
-		return err
-	}
 	return nil
 }
 
-func (msg MsgFutureBox) validateBox() sdk.Error {
+func (msg MsgFutureBox) ValidateService() sdk.Error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	if msg.Future.TimeLine == nil || msg.Future.Receivers == nil ||
 		len(msg.Future.TimeLine) == 0 || len(msg.Future.Receivers) == 0 {
 		return errors.ErrNotSupportOperation()
@@ -60,10 +60,9 @@ func (msg MsgFutureBox) validateBox() sdk.Error {
 	if len(msg.Future.TimeLine) > types.BoxMaxInstalment {
 		return errors.ErrNotEnoughAmount()
 	}
-
 	for i, v := range msg.Future.TimeLine {
 		if i == 0 {
-			if v < time.Now().Unix() {
+			if v <= time.Now().Unix() {
 				return errors.ErrTimelineNotValid(msg.Future.TimeLine)
 			}
 			continue

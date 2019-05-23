@@ -45,9 +45,12 @@ func GetCmdBoxDescription(cdc *codec.Codec) *cobra.Command {
 			}
 			contents = buffer.Bytes()
 
-			_, err = boxutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
+			_, err = clientutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
 			if err != nil {
 				return err
+			}
+			if len(contents) <= 0 || !json.Valid(contents) {
+				return errors.ErrBoxDescriptionNotValid()
 			}
 			msg := msgs.NewMsgBoxDescription(boxID, account.GetAddress(), contents)
 
@@ -70,8 +73,8 @@ func GetCmdBoxDisableFeature(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		Short: "Disable feature from a box",
 		Long: fmt.Sprintf("Box Owner disabled the features:\n"+
-			"%s:Box holder can trade the box", types.Trade),
-		Example: fmt.Sprintf("$ hashgardcli box disable boxab3jlxpt2ps %s --from foo", types.Trade),
+			"%s:Box holder can trade the box", types.Transfer),
+		Example: fmt.Sprintf("$ hashgardcli box disable boxab3jlxpt2ps %s --from foo", types.Transfer),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			feature := args[1]
 
@@ -88,11 +91,11 @@ func GetCmdBoxDisableFeature(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			boxInfo, err := boxutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
+			boxInfo, err := clientutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
 			if err != nil {
 				return err
 			}
-			if feature == types.Trade && boxInfo.GetBoxType() == types.Lock {
+			if feature == types.Transfer && boxInfo.GetBoxType() == types.Lock {
 				return errors.Errorf(errors.ErrNotSupportOperation())
 			}
 

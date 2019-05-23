@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/hashgard/hashgard/x/box/params"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
@@ -82,10 +80,8 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 				box.Deposit.Interest.Token, box.Deposit.Interest.Decimals)
 
 			msg := msgs.NewMsgDepositBox(account.GetAddress(), &box)
-			validateErr := msg.ValidateBasic()
-
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
+			if err := msg.ValidateService(); err != nil {
+				return errors.Errorf(err)
 			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
@@ -110,7 +106,7 @@ func GetCmdDepositBoxInterestInjection(cdc *codec.Codec) *cobra.Command {
 		Long:    "Injection interest to the deposit box",
 		Example: "$ hashgardcli box interest-injection box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args, types.Injection)
+			return interest(cdc, args[0], args[1], types.Injection)
 		},
 	}
 	return cmd
@@ -125,71 +121,23 @@ func GetCmdDepositBoxInterestFetch(cdc *codec.Codec) *cobra.Command {
 		Long:    "Fetch interest from a deposit box",
 		Example: "$ hashgardcli box interest-fetch box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args, types.Fetch)
+			return interest(cdc, args[0], args[1], types.Fetch)
 		},
 	}
 	return cmd
 }
 
-func interest(cdc *codec.Codec, args []string, operation string) error {
-	boxID := args[0]
-	if err := boxutils.CheckBoxId(boxID); err != nil {
-		return errors.Errorf(err)
-	}
-	amountArg, ok := sdk.NewIntFromString(args[1])
-	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
-	}
+func interest(cdc *codec.Codec, boxID string, amountStr string, operation string) error {
+
 	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 	if err != nil {
 		return err
 	}
-	box, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
+	msg, err := clientutils.GetInterestMsg(cdc, cliCtx, account, boxID, amountStr, operation, true)
 	if err != nil {
 		return err
 	}
-	if box.GetBoxType() != types.Deposit {
-		return errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	if box.GetBoxStatus() != types.BoxCreated {
-		return errors.Errorf(errors.ErrNotSupportOperation())
-	}
-	decimal, err := clientutils.GetCoinDecimal(cdc, cliCtx, box.GetDeposit().Interest.Token)
-	if err != nil {
-		return err
-	}
-	amount := boxutils.MulDecimals(boxutils.ParseCoin(box.GetDeposit().Interest.Token.Denom, amountArg), decimal)
-	if types.Fetch == operation {
-		flag := true
-		for i, v := range box.GetDeposit().InterestInjections {
-			if v.Address.Equals(account.GetAddress()) {
-				if box.GetDeposit().InterestInjections[i].Amount.GTE(amount) {
-					flag = false
-					break
-				}
-			}
-		}
-		if flag {
-			return errors.ErrNotEnoughAmount()
-		}
-	} else {
-		if box.GetDeposit().InterestInjections != nil {
-			totalInterest := sdk.ZeroInt()
-			for _, v := range box.GetDeposit().InterestInjections {
-				if v.Address.Equals(account.GetAddress()) {
-					totalInterest = totalInterest.Add(v.Amount)
-				}
-			}
-			if totalInterest.Add(amount).GT(box.GetDeposit().Interest.Token.Amount) {
-				return errors.Errorf(errors.ErrInterestInjectionNotValid(sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amountArg)))
-			}
-		}
-	}
-	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
-	validateErr := msg.ValidateBasic()
-	if validateErr != nil {
-		return errors.Errorf(validateErr)
-	}
+
 	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 }
 

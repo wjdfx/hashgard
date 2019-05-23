@@ -7,13 +7,14 @@ import (
 )
 
 const (
-	IssueID    = "issue-id"
+	BoxID      = "box-id"
 	Feature    = "feature"
 	AccAddress = "accAddress"
 	From       = "from"
 	FreezeType = "freeze-type"
 	EndTime    = "end-time"
-	Symbol     = "symbol"
+	Name       = "name"
+	BoxType    = "box-type"
 	Amount     = "amount"
 	To         = "to"
 )

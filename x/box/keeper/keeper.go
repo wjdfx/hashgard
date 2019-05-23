@@ -332,13 +332,13 @@ func (keeper Keeper) DisableFeature(ctx sdk.Context, sender sdk.AccAddress, boxI
 		return nil, err
 	}
 	switch feature {
-	case types.Trade:
-		return boxInfo, keeper.disableTrade(ctx, sender, boxInfo)
+	case types.Transfer:
+		return boxInfo, keeper.disableTransfer(ctx, sender, boxInfo)
 	default:
 		return nil, errors.ErrUnknownFeatures()
 	}
 }
-func (keeper Keeper) disableTrade(ctx sdk.Context, sender sdk.AccAddress, boxInfo *types.BoxInfo) sdk.Error {
+func (keeper Keeper) disableTransfer(ctx sdk.Context, sender sdk.AccAddress, boxInfo *types.BoxInfo) sdk.Error {
 	if boxInfo.GetBoxType() == types.Lock {
 		return errors.ErrNotSupportOperation()
 	}

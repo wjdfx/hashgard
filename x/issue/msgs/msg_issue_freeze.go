@@ -72,10 +72,15 @@ func (msg MsgIssueFreeze) ValidateBasic() sdk.Error {
 	if !ok {
 		return errors.ErrUnknownFreezeType()
 	}
-	if time.Unix(msg.EndTime, 0).Before(time.Now()) {
+	return nil
+}
+func (msg MsgIssueFreeze) ValidateService() sdk.Error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+	if msg.EndTime <= time.Now().Unix() {
 		return errors.ErrFreezeEndTimestampNotValid()
 	}
-
 	return nil
 }
 

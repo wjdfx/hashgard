@@ -37,7 +37,6 @@ func (msg MsgBoxDescription) ValidateBasic() sdk.Error {
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-
 	return nil
 }
 

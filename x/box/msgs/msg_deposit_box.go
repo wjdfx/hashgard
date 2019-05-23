@@ -39,7 +39,6 @@ func (msg MsgDepositBox) ValidateBasic() sdk.Error {
 	if len(msg.Sender) == 0 {
 		return sdk.ErrInvalidAddress("Sender address cannot be empty")
 	}
-
 	if msg.TotalAmount.Token.IsZero() || msg.TotalAmount.Token.Amount.IsNegative() {
 		return errors.ErrAmountNotValid("Token amount")
 	}
@@ -49,22 +48,20 @@ func (msg MsgDepositBox) ValidateBasic() sdk.Error {
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-	if err := msg.validateBox(); err != nil {
-		return err
-	}
 	return nil
 }
-func (msg MsgDepositBox) validateBox() sdk.Error {
-
-	now := time.Now().Unix()
+func (msg MsgDepositBox) ValidateService() sdk.Error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
 	zero := sdk.ZeroInt()
-	if msg.Deposit.StartTime < now {
+	if msg.Deposit.StartTime <= time.Now().Unix() {
 		return errors.ErrTimeNotValid("StartTime")
 	}
-	if msg.Deposit.EstablishTime < msg.Deposit.StartTime {
+	if msg.Deposit.EstablishTime <= msg.Deposit.StartTime {
 		return errors.ErrTimeNotValid("EstablishTime")
 	}
-	if msg.Deposit.MaturityTime < msg.Deposit.EstablishTime {
+	if msg.Deposit.MaturityTime <= msg.Deposit.EstablishTime {
 		return errors.ErrTimeNotValid("MaturityTime")
 	}
 	if msg.Deposit.BottomLine.LT(zero) || msg.Deposit.BottomLine.GT(msg.TotalAmount.Token.Amount) {
@@ -80,7 +77,6 @@ func (msg MsgDepositBox) validateBox() sdk.Error {
 		msg.Deposit.Interest.Token, msg.Deposit.Interest.Decimals)) {
 		return errors.ErrAmountNotValid("PerCoupon")
 	}
-
 	return nil
 }
 

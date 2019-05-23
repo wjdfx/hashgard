@@ -1,7 +1,7 @@
 package types
 
 const (
-	Trade = "trade"
+	Transfer = "transfer"
 )
 
-var Features = map[string]int{Trade: 1}
+var Features = map[string]int{Transfer: 1}

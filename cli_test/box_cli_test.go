@@ -1,3 +1,5 @@
+// +build cli_test
+
 package clitest
 
 import (
@@ -148,9 +150,18 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 
 	f.TxDepositBoxInterestInjection(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	// Ensure transaction tags can be queried
 	txsInjection := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterest, "operation:"+types.Injection, fmt.Sprintf("sender:%s", fooAddr))
 	require.Len(t, txsInjection, 1)
+
+	f.TxDepositBoxInterestFetch(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsInjection = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterest, "operation:"+types.Fetch, fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInjection, 1)
+
+	f.TxDepositBoxInterestInjection(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsInjection = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterest, "operation:"+types.Injection, fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInjection, 2)
 
 	depositTo := BoxAmount.QuoRaw(int64(2))
 	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueAID, depositTo), DefaultFlag)
@@ -185,15 +196,31 @@ func TestHashgardCLIFutureBox(t *testing.T) {
 	defer proc.Stop(false)
 	// Save key addresses for later use
 	fooAddr := f.KeyAddress(keyFoo)
-	//barAddr := f.KeyAddress(keyBar)
+	barAddr := f.KeyAddress(keyBar)
 	issueID := AddIssue(t, f, fooAddr)
 	boxID, params := CreateFutureBox(t, f, issueID, fooAddr)
 
 	depositTo := params.TotalAmount.Token.Amount
-	f.TxDepositTo(keyFoo, boxID, depositTo, DefaultFlag)
 
+	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit := f.QueryTxs(1, 50, "action:"+types.Deposit, "operation:"+types.DepositTo, fmt.Sprintf("sender:%s", fooAddr.String()))
+
+	f.TxDepositTo(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDeposit, "operation:"+types.DepositTo, fmt.Sprintf("sender:%s", barAddr.String()))
+	require.Len(t, txsDeposit, 1)
+
+	f.TxDepositFetch(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDeposit, "operation:"+types.Fetch, fmt.Sprintf("sender:%s", barAddr.String()))
+	require.Len(t, txsDeposit, 1)
+
+	f.TxSend(keyBar, fooAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+
+	f.TxDepositTo(keyFoo, boxID, depositTo, DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDeposit, "operation:"+types.DepositTo, fmt.Sprintf("sender:%s", fooAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Future.TimeLine[len(params.Future.TimeLine)-1]), f.Port)

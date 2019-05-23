@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/errors"
@@ -29,8 +28,11 @@ func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo
 	}
 }
 func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
-	if box.Future.TimeLine[0] < time.Now().Unix() {
+	if box.Future.TimeLine[0] < ctx.BlockHeader().Time.Unix() {
 		return errors.ErrNotSupportOperation()
+	}
+	if box.TotalAmount.Token.Denom != deposit.Denom {
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
 	totalDeposit := sdk.ZeroInt()
 	if box.Future.Deposits == nil {
@@ -68,6 +70,9 @@ func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sen
 func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
 	if box.BoxStatus == types.BoxActived {
 		return errors.ErrNotAllowedOperation(box.BoxStatus)
+	}
+	if box.TotalAmount.Token.Denom != deposit.Denom {
+		return errors.ErrAmountNotValid(deposit.Denom)
 	}
 	if box.Future.Deposits == nil {
 		return errors.ErrNotEnoughAmount()
@@ -168,7 +173,7 @@ func (keeper Keeper) processFutureBoxWithdraw(ctx sdk.Context, boxIDSeq string, 
 		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
 	}
 	seq := utils.GetSeqFromFutureBoxSeq(boxIDSeq)
-	if box.Future.TimeLine[seq-1] > time.Now().Unix() {
+	if box.Future.TimeLine[seq-1] > ctx.BlockHeader().Time.Unix() {
 		return nil, errors.ErrNotAllowedOperation(types.BoxUndue)
 	}
 	amount := keeper.GetBankKeeper().GetCoins(ctx, sender).AmountOf(boxIDSeq)

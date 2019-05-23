@@ -21,6 +21,7 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
+	box "github.com/hashgard/hashgard/x/box/client/rest"
 	issue "github.com/hashgard/hashgard/x/issue/client/rest"
 
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution"
@@ -81,6 +82,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	box.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	mint.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 

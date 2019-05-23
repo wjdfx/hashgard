@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
@@ -10,8 +11,12 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	authtxb "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
+	boxqueriers "github.com/hashgard/hashgard/x/box/client/queriers"
+	"github.com/hashgard/hashgard/x/box/errors"
+	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
+	issueclientutils "github.com/hashgard/hashgard/x/issue/client/utils"
 )
 
 func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, auth.Account, error) {
@@ -24,11 +29,34 @@ func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, aut
 
 	return txBldr, cliCtx, account, err
 }
+
+func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (types.Box, error) {
+	var boxInfo types.Box
+	// Query the box
+	res, err := boxqueriers.QueryBoxByID(boxID, cliCtx)
+	if err != nil {
+		return nil, err
+	}
+	cdc.MustUnmarshalJSON(res, &boxInfo)
+	return boxInfo, nil
+}
+
+func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, boxID string) (types.Box, error) {
+	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return nil, err
+	}
+	if !sender.GetAddress().Equals(boxInfo.GetOwner()) {
+		return nil, errors.Errorf(errors.ErrOwnerMismatch(boxID))
+	}
+	return boxInfo, nil
+}
+
 func GetCoinDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) (uint, error) {
 	if coin.Denom == types.Agard {
 		return types.AgardDecimals, nil
 	}
-	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
+	issueInfo, err := issueclientutils.GetIssueByID(cdc, cliCtx, coin.Denom)
 	if err != nil {
 		return 0, err
 	}
@@ -137,4 +165,185 @@ func StructCopy(destPtr interface{}, srcPtr interface{}) {
 		}
 	}
 	return
+}
+func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
+	boxID string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
+
+	if err := boxutils.CheckBoxId(boxID); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	amount, ok := sdk.NewIntFromString(amountStr)
+	if !ok {
+		return nil, errors.Errorf(errors.ErrAmountNotValid(amountStr))
+	}
+
+	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return nil, err
+	}
+	if cli {
+		decimal, err := GetCoinDecimal(cdc, cliCtx, boxInfo.GetTotalAmount().Token)
+		if err != nil {
+			return nil, err
+		}
+		amount = boxutils.MulDecimals(boxutils.ParseCoin(boxInfo.GetTotalAmount().Token.Denom, amount), decimal)
+	}
+	switch operation {
+	case types.DepositTo:
+		if err = checkAmountByDepositTo(amount, boxInfo); err != nil {
+			return nil, err
+		}
+	case types.Fetch:
+		if err = checkAmountByFetch(amount, boxInfo, account); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.ErrNotSupportOperation()
+	}
+
+	msg := msgs.NewMsgBoxDeposit(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount), operation)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	return msg, nil
+}
+func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
+	boxID string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
+
+	if err := boxutils.CheckBoxId(boxID); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	amount, ok := sdk.NewIntFromString(amountStr)
+	if !ok {
+		return nil, errors.Errorf(errors.ErrAmountNotValid(amountStr))
+	}
+	box, err := GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return nil, err
+	}
+	if box.GetBoxType() != types.Deposit {
+		return nil, errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	if box.GetBoxStatus() != types.BoxCreated {
+		return nil, errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	if cli {
+		decimal, err := GetCoinDecimal(cdc, cliCtx, box.GetDeposit().Interest.Token)
+		if err != nil {
+			return nil, err
+		}
+		amount = boxutils.MulDecimals(boxutils.ParseCoin(box.GetDeposit().Interest.Token.Denom, amount), decimal)
+	}
+	if types.Fetch == operation {
+		flag := true
+		for i, v := range box.GetDeposit().InterestInjections {
+			if v.Address.Equals(account.GetAddress()) {
+				if box.GetDeposit().InterestInjections[i].Amount.GTE(amount) {
+					flag = false
+					break
+				}
+			}
+		}
+		if flag {
+			return nil, errors.ErrNotEnoughAmount()
+		}
+	} else {
+		if box.GetDeposit().InterestInjections != nil {
+			totalInterest := sdk.ZeroInt()
+			for _, v := range box.GetDeposit().InterestInjections {
+				if v.Address.Equals(account.GetAddress()) {
+					totalInterest = totalInterest.Add(v.Amount)
+				}
+			}
+			if totalInterest.Add(amount).GT(box.GetDeposit().Interest.Token.Amount) {
+				return nil, errors.Errorf(errors.ErrInterestInjectionNotValid(
+					sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount)))
+			}
+		}
+	}
+	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	return msg, nil
+}
+func GetWithdrawMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account, boxID string) (sdk.Msg, error) {
+	if account.GetCoins().AmountOf(boxID).IsZero() {
+		return nil, errors.Errorf(errors.ErrNotEnoughAmount())
+	}
+	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return nil, err
+	}
+	switch boxInfo.GetBoxType() {
+	case types.Deposit:
+		if types.BoxFinished != boxInfo.GetBoxStatus() {
+			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
+		}
+	case types.Future:
+		if types.BoxCreated == boxInfo.GetBoxStatus() {
+			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
+		}
+		seq := boxutils.GetSeqFromFutureBoxSeq(boxID)
+		if boxInfo.GetFuture().TimeLine[seq-1] > time.Now().Unix() {
+			return nil, errors.Errorf(errors.ErrNotAllowedOperation(types.BoxUndue))
+		}
+	default:
+		return nil, errors.Errorf(errors.ErrUnknownBox(boxID))
+	}
+	msg := msgs.NewMsgBoxWithdraw(boxID, account.GetAddress())
+	if err := msg.ValidateBasic(); err != nil {
+		return nil, errors.Errorf(err)
+	}
+	return msg, nil
+}
+func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account) error {
+	switch boxInfo.GetBoxType() {
+	case types.Deposit:
+		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
+			return errors.ErrAmountNotValid(amount.String())
+		}
+		if account.GetCoins().AmountOf(boxInfo.GetBoxId()).LT(amount.Quo(boxInfo.GetDeposit().Price)) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	case types.Future:
+		if boxInfo.GetFuture().Deposits == nil {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+		for _, v := range boxInfo.GetFuture().Deposits {
+			if v.Address.Equals(account.GetAddress()) {
+				if v.Amount.GTE(amount) {
+					return nil
+				}
+			}
+		}
+		return errors.Errorf(errors.ErrNotEnoughAmount())
+	default:
+		return errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	return nil
+}
+func checkAmountByDepositTo(amount sdk.Int, boxInfo types.Box) error {
+	switch boxInfo.GetBoxType() {
+	case types.Deposit:
+		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
+			return errors.ErrAmountNotValid(amount.String())
+		}
+		if amount.Add(boxInfo.GetDeposit().TotalDeposit).GT(boxInfo.GetTotalAmount().Token.Amount) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	case types.Future:
+		total := sdk.ZeroInt()
+		if boxInfo.GetFuture().Deposits != nil {
+			for _, v := range boxInfo.GetFuture().Deposits {
+				total = total.Add(v.Amount)
+			}
+		}
+		if amount.Add(total).GT(boxInfo.GetTotalAmount().Token.Amount) {
+			return errors.Errorf(errors.ErrNotEnoughAmount())
+		}
+	default:
+		return errors.Errorf(errors.ErrNotSupportOperation())
+	}
+	return nil
 }

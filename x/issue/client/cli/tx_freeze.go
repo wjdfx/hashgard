@@ -29,7 +29,6 @@ func GetCmdIssueFreeze(cdc *codec.Codec) *cobra.Command {
 			"$ hashgardcli issue freeze out coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 1577845800 --from foo\n" +
 			"$ hashgardcli issue freeze in-out coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n 1577845800 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			return issueFreeze(cdc, args, true)
 		},
 	}
@@ -50,7 +49,6 @@ func GetCmdIssueUnFreeze(cdc *codec.Codec) *cobra.Command {
 			"$ hashgardcli issue unfreeze out coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n --from foo\n" +
 			"$ hashgardcli issue unfreeze in-out coin174876e800 gard15l5yzrq3ff8fl358ng430cc32lzkvxc30n405n --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			return issueFreeze(cdc, args, false)
 		},
 	}
@@ -58,7 +56,6 @@ func GetCmdIssueUnFreeze(cdc *codec.Codec) *cobra.Command {
 }
 
 func issueFreeze(cdc *codec.Codec, args []string, freeze bool) error {
-
 	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 	if err != nil {
 		return err
@@ -71,6 +68,5 @@ func issueFreeze(cdc *codec.Codec, args []string, freeze bool) error {
 	if err != nil {
 		return err
 	}
-
 	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 }

@@ -46,7 +46,9 @@ func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxDepositPa
 func (f *Fixtures) TxFutureBoxCreate(sender string, params *params.BoxFutureParams, flags ...string) (bool, string, string) {
 	json, _ := json.Marshal(params.Future)
 	fileName := path.Join(f.GDHome, "future_data.json")
-	ioutil.WriteFile(fileName, json, os.ModeDir)
+	if err := ioutil.WriteFile(fileName, json, os.ModeDir); err != nil {
+		panic(err)
+	}
 	cmd := fmt.Sprintf("../build/hashgardcli box create-future %s %s %s "+
 		"--from=%s %v", params.Name, params.TotalAmount.Token.String(), fileName, sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
@@ -60,10 +62,26 @@ func (f *Fixtures) TxDepositBoxInterestInjection(sender string, boxID string, am
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
+// TxDepositBoxCreate is hashgardcli box interest-fetch
+//hashgardcli box interest-fetch boxab3jlxpt2pt 200 --from joehe -y
+func (f *Fixtures) TxDepositBoxInterestFetch(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli box interest-fetch %s %s "+
+		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
 // TxDepositTo is hashgardcli box deposit-to
 //hashgardcli box deposit-to boxab3jlxpt2pt 1000 --from test -y
 func (f *Fixtures) TxDepositTo(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box deposit-to %s %s "+
+		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
+	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
+}
+
+// TxDepositTo is hashgardcli box deposit-fetch
+//hashgardcli box deposit-fetch boxab3jlxpt2pt 1000 --from test -y
+func (f *Fixtures) TxDepositFetch(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli box deposit-fetch %s %s "+
 		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }

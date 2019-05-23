@@ -54,9 +54,8 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 			box.Lock = types.LockBox{EndTime: endTime}
 
 			msg := msgs.NewMsgLockBox(account.GetAddress(), box)
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
+			if err := msg.ValidateService(); err != nil {
+				return errors.Errorf(err)
 			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},

@@ -62,9 +62,8 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			box.TransferDisabled = viper.GetBool(flagTransferDisabled)
 			box.Future = futureBox
 			msg := msgs.NewMsgFutureBox(account.GetAddress(), &box)
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
+			if err := msg.ValidateService(); err != nil {
+				return errors.Errorf(err)
 			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},

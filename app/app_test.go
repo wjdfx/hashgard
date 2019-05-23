@@ -4,6 +4,10 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hashgard/hashgard/x/issue"
+
+	"github.com/hashgard/hashgard/x/box"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
@@ -38,7 +42,9 @@ func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
 		SlashingData:     slashing.DefaultGenesisState(),
 		GovData:          gov.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
-		CrisisData:		  crisis.DefaultGenesisState(),
+		BoxData:          box.DefaultGenesisState(),
+		IssueData:        issue.DefaultGenesisState(),
+		CrisisData:       crisis.DefaultGenesisState(),
 	}
 
 	stateBytes, err := codec.MarshalJSONIndent(happ.cdc, genesisState)

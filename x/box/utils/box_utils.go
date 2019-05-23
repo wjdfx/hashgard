@@ -5,11 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/auth"
-	boxqueriers "github.com/hashgard/hashgard/x/box/client/queriers"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/types"
 
@@ -21,12 +17,6 @@ func MulDecimals(coin sdk.Coin, decimals uint) sdk.Int {
 		return coin.Amount
 	}
 	return issueutils.MulDecimals(coin.Amount, decimals)
-}
-func QuoDecimals(coin sdk.Coin, decimals uint) sdk.Int {
-	if coin.Denom == types.Agard {
-		return coin.Amount
-	}
-	return issueutils.QuoDecimals(coin.Amount, decimals)
 }
 func ParseCoin(denom string, amount sdk.Int) sdk.Coin {
 	if denom == types.Agard {
@@ -71,34 +61,6 @@ func quoMaxPrecisionByDecimal(dec sdk.Dec, decimals uint) sdk.Dec {
 	return dec
 }
 
-func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (types.Box, error) {
-	var boxInfo types.Box
-	// Query the box
-	res, err := boxqueriers.QueryBoxByID(boxID, cliCtx)
-	if err != nil {
-		return nil, err
-	}
-	cdc.MustUnmarshalJSON(res, &boxInfo)
-	return boxInfo, nil
-}
-
-func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, boxID string) (types.Box, error) {
-	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
-	if err != nil {
-		return nil, err
-	}
-	if !sender.GetAddress().Equals(boxInfo.GetOwner()) {
-		return nil, errors.Errorf(errors.ErrOwnerMismatch(boxID))
-	}
-	return boxInfo, nil
-}
-
-//func GetBoxCoinByDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) sdk.Coin {
-//
-//	issueInfo, _ := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
-//
-//	return sdk.Coin{fmt.Sprintf("%s(%s)", issueInfo.GetName(), coin.Denom), issueutils.QuoDecimals(coin.Amount, issueInfo.GetDecimals())}
-//}
 func GetBoxTypeByValue(value string) string {
 	value = strings.ReplaceAll(value, types.IDPreStr, "")
 	for k, v := range types.BoxType {

@@ -149,6 +149,9 @@ func (keeper Keeper) fetchDepositFromDepositBox(ctx sdk.Context, box *types.BoxI
 	if !deposit.Amount.Mod(box.Deposit.Price).IsZero() {
 		return errors.ErrAmountNotValid(deposit.Amount.String())
 	}
+	if box.TotalAmount.Token.Denom != deposit.Denom {
+		return errors.ErrAmountNotValid(deposit.Denom)
+	}
 	share := deposit.Amount.Quo(box.Deposit.Price)
 	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, sender, sdk.NewCoins(sdk.NewCoin(box.BoxId, share)))
 	if err != nil {

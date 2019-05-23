@@ -10,28 +10,28 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
-	"github.com/hashgard/hashgard/x/issue/params"
-	"github.com/hashgard/hashgard/x/issue/types"
+	"github.com/hashgard/hashgard/x/box/params"
+	"github.com/hashgard/hashgard/x/box/types"
 
-	"github.com/hashgard/hashgard/x/issue/client/queriers"
-	issueutils "github.com/hashgard/hashgard/x/issue/utils"
+	"github.com/hashgard/hashgard/x/box/client/queriers"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
 )
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QueryIssue, IssueID), queryIssueHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QuerySearch, Symbol), queryIssueSearchHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/%s", types.QuerierRoute, types.QueryIssues), queryIssuesHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/{%s}", types.QuerierRoute, BoxID), queryBoxHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", types.QuerierRoute, types.QuerySearch, BoxType, Name), queryBoxSearchHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/{%s}/%s", types.QuerierRoute, BoxType, types.QueryList), queryBoxsHandlerFn(cdc, cliCtx)).Methods("GET")
 }
-func queryIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func queryBoxHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		issueID := vars[IssueID]
-		if err := issueutils.CheckIssueId(issueID); err != nil {
+		boxID := vars[BoxID]
+		if err := boxutils.CheckBoxId(boxID); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		res, err := queriers.QueryIssueByID(issueID, cliCtx)
+		res, err := queriers.QueryBoxByID(boxID, cliCtx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -39,12 +39,10 @@ func queryIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handl
 		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
-func queryIssueSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func queryBoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		symbol := vars[Symbol]
-
-		res, err := queriers.QueryIssueBySymbol(symbol, cliCtx)
+		res, err := queriers.QueryBoxByName(vars[BoxType], vars[Name], cliCtx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -52,18 +50,19 @@ func queryIssueSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http
 		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
-func queryIssuesHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func queryBoxsHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
+		vars := mux.Vars(r)
 		address, err := sdk.AccAddressFromBech32(r.URL.Query().Get(restAddress))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		issueQueryParams := params.IssueQueryParams{
-			StartIssueId: r.URL.Query().Get(restStartIssueId),
-			Owner:        address,
-			Limit:        30,
+		boxQueryParams := params.BoxQueryParams{
+			StartBoxId: r.URL.Query().Get(restStartBoxId),
+			BoxType:    vars[BoxType],
+			Owner:      address,
+			Limit:      30,
 		}
 		strNumLimit := r.URL.Query().Get(restLimit)
 		if len(strNumLimit) > 0 {
@@ -72,10 +71,10 @@ func queryIssuesHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Hand
 				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
 			}
-			issueQueryParams.Limit = limit
+			boxQueryParams.Limit = limit
 		}
 
-		res, err := queriers.QueryIssuesList(issueQueryParams, cdc, cliCtx)
+		res, err := queriers.QueryBoxsList(boxQueryParams, cdc, cliCtx)
 
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())

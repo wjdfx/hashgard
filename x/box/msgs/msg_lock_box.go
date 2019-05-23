@@ -46,14 +46,13 @@ func (msg MsgLockBox) ValidateBasic() sdk.Error {
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-	if err := msg.validateBox(); err != nil {
-		return err
-	}
 	return nil
 }
-func (msg MsgLockBox) validateBox() sdk.Error {
-
-	if msg.Lock.EndTime < time.Now().Unix() {
+func (msg MsgLockBox) ValidateService() sdk.Error {
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+	if msg.Lock.EndTime <= time.Now().Unix() {
 		return errors.ErrTimeNotValid("EndTime")
 	}
 	return nil
