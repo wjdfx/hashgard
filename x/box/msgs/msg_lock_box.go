@@ -15,11 +15,12 @@ import (
 // MsgLockBox to allow a registered boxr
 // to box new coins.
 type MsgLockBox struct {
-	*params.BoxLockParams
+	Sender                sdk.AccAddress `json:"sender"`
+	*params.BoxLockParams `json:"params"`
 }
 
-func NewMsgLockBox(params *params.BoxLockParams) MsgLockBox {
-	return MsgLockBox{params}
+func NewMsgLockBox(sender sdk.AccAddress, params *params.BoxLockParams) MsgLockBox {
+	return MsgLockBox{sender, params}
 }
 
 // Route Implements Msg.

@@ -26,7 +26,7 @@ func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, aut
 }
 func GetCoinDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) (uint, error) {
 	if coin.Denom == types.Agard {
-		return types.AgardDecimal, nil
+		return types.AgardDecimals, nil
 	}
 	issueInfo, err := issueutils.GetIssueByID(cdc, cliCtx, coin.Denom)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 //Process deposit box
 
 func (keeper Keeper) ProcessDepositBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	decimal, err := keeper.GetCoinDecimal(ctx, box.Deposit.Interest.Token)
+	decimal, err := keeper.GetCoinDecimals(ctx, box.Deposit.Interest.Token)
 	if err != nil {
 		return err
 	}

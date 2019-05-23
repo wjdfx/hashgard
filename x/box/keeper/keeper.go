@@ -120,11 +120,13 @@ func (keeper Keeper) setName(ctx sdk.Context, boxType string, name string, boxID
 //Remove box
 func (keeper Keeper) RemoveBox(ctx sdk.Context, box *types.BoxInfo) {
 	store := ctx.KVStore(keeper.storeKey)
+	store.Delete(KeyName(box.BoxType, box.Name))
+	store.Delete(KeyAddress(box.BoxType, box.Owner))
 	store.Delete(KeyBox(box.BoxId))
 }
-func (keeper Keeper) GetCoinDecimal(ctx sdk.Context, coin sdk.Coin) (uint, sdk.Error) {
+func (keeper Keeper) GetCoinDecimals(ctx sdk.Context, coin sdk.Coin) (uint, sdk.Error) {
 	if coin.Denom == types.Agard {
-		return types.AgardDecimal, nil
+		return types.AgardDecimals, nil
 	}
 	coinIssueInfo := keeper.GetIssueKeeper().GetIssue(ctx, coin.Denom)
 	if coinIssueInfo == nil {
@@ -244,7 +246,7 @@ func (keeper Keeper) List(ctx sdk.Context, params boxparams.BoxQueryParams) []*t
 
 //Create a box
 func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	decimal, err := keeper.GetCoinDecimal(ctx, box.TotalAmount.Token)
+	decimal, err := keeper.GetCoinDecimals(ctx, box.TotalAmount.Token)
 	if err != nil {
 		return err
 	}

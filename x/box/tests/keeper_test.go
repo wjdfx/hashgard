@@ -19,16 +19,16 @@ func TestGetLockBoxByAddress(t *testing.T) {
 	handler := box.NewHandler(keeper)
 
 	boxInfo := GetLockBoxInfo()
-	boxInfo.Sender, _ = sdk.AccAddressFromBech32("TestGetBoxByAddress")
+	sender, _ := sdk.AccAddressFromBech32("TestGetBoxByAddress")
 	cap := 10
 	for i := 0; i < cap; i++ {
-		keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Sender, sdk.NewCoins(boxInfo.TotalAmount.Token))
+		keeper.GetBankKeeper().AddCoins(ctx, sender, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-		msg := msgs.NewMsgLockBox(boxInfo)
+		msg := msgs.NewMsgLockBox(sender, boxInfo)
 		res := handler(ctx, msg)
 		require.True(t, res.IsOK())
 	}
-	issues := keeper.GetBoxByAddress(ctx, boxInfo.BoxType, boxInfo.Sender)
+	issues := keeper.GetBoxByAddress(ctx, boxInfo.BoxType, sender)
 
 	require.Len(t, issues, cap)
 }

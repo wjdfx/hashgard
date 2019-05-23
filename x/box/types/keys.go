@@ -82,8 +82,8 @@ const (
 )
 const (
 	KeyDelimiterString                   = ":"
-	AgardDecimal                         = uint(1)
-	GardDecimal                          = uint(18)
+	AgardDecimals                        = uint(1)
+	GardDecimals                         = uint(18)
 	MaxPrecision                         = uint(6)
 	CodeInvalidGenesis      sdk.CodeType = 102
 	BoxNameMaxLength                     = 32

@@ -51,7 +51,7 @@ var (
 
 func GetLockBoxInfo() *params.BoxLockParams {
 	box := &params.BoxLockParams{}
-	box.Sender = newBoxInfo.Owner
+
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Lock
 	box.TotalAmount = newBoxInfo.TotalAmount
@@ -60,7 +60,7 @@ func GetLockBoxInfo() *params.BoxLockParams {
 }
 func GetDepositBoxInfo() *params.BoxDepositParams {
 	box := &params.BoxDepositParams{}
-	box.Sender = newBoxInfo.Owner
+
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Deposit
 	box.TotalAmount = newBoxInfo.TotalAmount
@@ -81,7 +81,6 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 }
 func GetFutureBoxInfo() *params.BoxFutureParams {
 	box := &params.BoxFutureParams{}
-	box.Sender = newBoxInfo.Owner
 	box.Name = newBoxInfo.Name
 	box.BoxType = types.Future
 	box.TotalAmount = newBoxInfo.TotalAmount

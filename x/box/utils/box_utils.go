@@ -39,7 +39,7 @@ func CalcInterest(perCoupon sdk.Dec, share sdk.Int, interest types.BoxToken) sdk
 	dec := perCoupon.MulInt(share)
 	decimals := interest.Decimals
 	if interest.Token.Denom == types.Agard {
-		decimals = types.GardDecimal
+		decimals = types.GardDecimals
 	}
 	dec = GetMaxPrecision(dec, decimals)
 	return dec.MulInt(issueutils.GetDecimalsInt(decimals)).TruncateInt()
@@ -60,7 +60,7 @@ func CalcInterestRate(totalAmount sdk.Int, price sdk.Int, interest sdk.Coin, dec
 	totalCoupon := totalAmount.Quo(price)
 	perCoupon := sdk.NewDecFromBigInt(interest.Amount.BigInt()).QuoInt(totalCoupon)
 	if interest.Denom == types.Agard {
-		decimals = types.GardDecimal
+		decimals = types.GardDecimals
 	}
 	return quoMaxPrecisionByDecimal(perCoupon, decimals)
 }
@@ -81,19 +81,7 @@ func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (type
 	cdc.MustUnmarshalJSON(res, &boxInfo)
 	return boxInfo, nil
 }
-func CanTransfer(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) error {
-	if !IsBoxId(boxID) {
-		return nil
-	}
-	box, err := GetBoxByID(cdc, cliCtx, boxID)
-	if err != nil {
-		return err
-	}
-	if box.IsTransferDisabled() {
-		return errors.Errorf(errors.ErrCanNotTransfer(boxID))
-	}
-	return nil
-}
+
 func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, boxID string) (types.Box, error) {
 	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
 	if err != nil {

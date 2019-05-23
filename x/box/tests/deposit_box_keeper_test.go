@@ -18,7 +18,7 @@ func createDepositBox(t *testing.T, ctx sdk.Context, keeper box.Keeper) *types.B
 	boxInfo := GetDepositBoxInfo()
 
 	handler := box.NewHandler(keeper)
-	msg := msgs.NewMsgDepositBox(boxInfo)
+	msg := msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 

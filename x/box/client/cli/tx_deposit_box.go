@@ -44,7 +44,6 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 			coin.Amount = boxutils.MulDecimals(coin, decimal)
 
 			box := params.BoxDepositParams{}
-			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Deposit
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
@@ -82,7 +81,7 @@ func GetCmdDepositBoxCreate(cdc *codec.Codec) *cobra.Command {
 			box.Deposit.PerCoupon = boxutils.CalcInterestRate(box.TotalAmount.Token.Amount, box.Deposit.Price,
 				box.Deposit.Interest.Token, box.Deposit.Interest.Decimals)
 
-			msg := msgs.NewMsgDepositBox(&box)
+			msg := msgs.NewMsgDepositBox(account.GetAddress(), &box)
 			validateErr := msg.ValidateBasic()
 
 			if validateErr != nil {

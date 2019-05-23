@@ -18,7 +18,7 @@ func createFutureBox(t *testing.T, ctx sdk.Context, keeper box.Keeper) *types.Bo
 	boxInfo := GetFutureBoxInfo()
 
 	handler := box.NewHandler(keeper)
-	msg := msgs.NewMsgFutureBox(boxInfo)
+	msg := msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 

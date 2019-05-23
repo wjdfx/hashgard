@@ -28,9 +28,9 @@ func TestLockBoxEndBlocker(t *testing.T) {
 
 	boxParams := GetLockBoxInfo()
 
-	keeper.GetBankKeeper().AddCoins(ctx, boxParams.Sender, sdk.NewCoins(boxParams.TotalAmount.Token))
+	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxParams.TotalAmount.Token))
 
-	msg := msgs.NewMsgLockBox(boxParams)
+	msg := msgs.NewMsgLockBox(newBoxInfo.Owner, boxParams)
 
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())

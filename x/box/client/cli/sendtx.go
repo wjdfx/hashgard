@@ -3,6 +3,8 @@ package cli
 import (
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/box/errors"
+
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -50,16 +52,9 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 				if err = boxutils.CanTransfer(cdc, cliCtx, coin.Denom); err != nil {
 					return err
 				}
-				if issueutils.IsIssueId(coin.Denom) {
-					res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
-					if err == nil {
-						var issueInfo types.Issue
-						cdc.MustUnmarshalJSON(res, &issueInfo)
-						coins[i].Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
-						if err = issueutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
-							return err
-						}
-					}
+
+				if err = processIssueSend(cdc, cliCtx, &coin, from, to); err != nil {
+					return err
 				}
 			}
 
@@ -79,4 +74,35 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 		},
 	}
 	return client.PostCommands(cmd)[0]
+}
+
+func processBoxSend(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) error {
+	if !boxutils.IsBoxId(boxID) {
+		return nil
+	}
+	box, err := boxutils.GetBoxByID(cdc, cliCtx, boxID)
+	if err != nil {
+		return err
+	}
+	if box.IsTransferDisabled() {
+		return errors.Errorf(errors.ErrCanNotTransfer(boxID))
+	}
+	return nil
+}
+func processIssueSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coin, from sdk.AccAddress, to sdk.AccAddress) error {
+	if !issueutils.IsIssueId(coin.Denom) {
+		return nil
+	}
+
+	res, err := issuequeriers.QueryIssueByID(coin.Denom, cliCtx)
+	if err == nil {
+
+	}
+	issueutils.GetIssueByID()
+	var issueInfo types.Issue
+	cdc.MustUnmarshalJSON(res, &issueInfo)
+	coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
+	if err = issueutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {
+		return err
+	}
 }

@@ -15,11 +15,12 @@ import (
 // MsgFutureBox to allow a registered boxr
 // to box new coins.
 type MsgFutureBox struct {
-	*params.BoxFutureParams
+	Sender                  sdk.AccAddress `json:"sender"`
+	*params.BoxFutureParams `json:"params"`
 }
 
-func NewMsgFutureBox(params *params.BoxFutureParams) MsgFutureBox {
-	return MsgFutureBox{params}
+func NewMsgFutureBox(sender sdk.AccAddress, params *params.BoxFutureParams) MsgFutureBox {
+	return MsgFutureBox{sender, params}
 }
 
 // Route Implements Msg.

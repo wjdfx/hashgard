@@ -48,13 +48,12 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 			}
 			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := &params.BoxLockParams{}
-			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Lock
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.Lock = types.LockBox{EndTime: endTime}
 
-			msg := msgs.NewMsgLockBox(box)
+			msg := msgs.NewMsgLockBox(account.GetAddress(), box)
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)

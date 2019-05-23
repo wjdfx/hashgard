@@ -56,13 +56,12 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			box := params.BoxFutureParams{}
-			box.Sender = account.GetAddress()
 			box.Name = args[0]
 			box.BoxType = types.Future
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.TransferDisabled = viper.GetBool(flagTransferDisabled)
 			box.Future = futureBox
-			msg := msgs.NewMsgFutureBox(&box)
+			msg := msgs.NewMsgFutureBox(account.GetAddress(), &box)
 			validateErr := msg.ValidateBasic()
 			if validateErr != nil {
 				return errors.Errorf(validateErr)

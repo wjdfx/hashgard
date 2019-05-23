@@ -20,16 +20,16 @@ import (
 
 // TxLockBoxCreate is hashgardcli box create-lock
 //hashgardcli box create-lock foocoin 100coin174876e800 1557983880 --from joehe -y
-func (f *Fixtures) TxLockBoxCreate(params *params.BoxLockParams, flags ...string) (bool, string, string) {
+func (f *Fixtures) TxLockBoxCreate(sender string, params *params.BoxLockParams, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box create-lock %s %s %d --from=%s %v", params.Name, params.TotalAmount.Token.String(),
-		params.Lock.EndTime, params.Sender.String(), f.Flags())
+		params.Lock.EndTime, sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
 // TxDepositBoxCreate is hashgardcli box create-deposit
 //hashgardcli box create-deposit foocoin 10000coin174876e800 --from joehe
 // --bottom-line=1000 --price=100 --start-time=1557982140 --establish-time=1557982141  --maturity-time=1557982142 --interest=200coin174876e801 -y
-func (f *Fixtures) TxDepositBoxCreate(params *params.BoxDepositParams, flags ...string) (bool, string, string) {
+func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxDepositParams, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli box create-deposit %s %s "+
 		"--bottom-line=%s "+
 		"--price=%s --start-time=%d --establish-time=%d "+
@@ -37,18 +37,18 @@ func (f *Fixtures) TxDepositBoxCreate(params *params.BoxDepositParams, flags ...
 		"--interest=%s "+
 		"--from=%s %v", params.Name, params.TotalAmount.Token.String(),
 		params.Deposit.BottomLine.String(), params.Deposit.Price.String(), params.Deposit.StartTime,
-		params.Deposit.EstablishTime, params.Deposit.MaturityTime, params.Deposit.Interest.Token.String(), params.Sender.String(), f.Flags())
+		params.Deposit.EstablishTime, params.Deposit.MaturityTime, params.Deposit.Interest.Token.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
 // TxFutureBoxCreate is hashgardcli box create-future
 //hashgardcli box create-future joe 1800coin174876e800 /home/f.json -y --from joehe
-func (f *Fixtures) TxFutureBoxCreate(params *params.BoxFutureParams, flags ...string) (bool, string, string) {
+func (f *Fixtures) TxFutureBoxCreate(sender string, params *params.BoxFutureParams, flags ...string) (bool, string, string) {
 	json, _ := json.Marshal(params.Future)
 	fileName := path.Join(f.GDHome, "future_data.json")
 	ioutil.WriteFile(fileName, json, os.ModeDir)
 	cmd := fmt.Sprintf("../build/hashgardcli box create-future %s %s %s "+
-		"--from=%s %v", params.Name, params.TotalAmount.Token.String(), fileName, params.Sender.String(), f.Flags())
+		"--from=%s %v", params.Name, params.TotalAmount.Token.String(), fileName, sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 

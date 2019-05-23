@@ -17,11 +17,12 @@ import (
 // MsgDepositBox to allow a registered boxr
 // to box new coins.
 type MsgDepositBox struct {
-	*params.BoxDepositParams
+	Sender                   sdk.AccAddress `json:"sender"`
+	*params.BoxDepositParams `json:"params"`
 }
 
-func NewMsgDepositBox(params *params.BoxDepositParams) MsgDepositBox {
-	return MsgDepositBox{params}
+func NewMsgDepositBox(sender sdk.AccAddress, params *params.BoxDepositParams) MsgDepositBox {
+	return MsgDepositBox{sender, params}
 }
 
 // Route Implements Msg.
