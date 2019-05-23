@@ -2,7 +2,6 @@ package keeper
 
 import (
 	"fmt"
-	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/errors"
@@ -13,6 +12,17 @@ import (
 //Process Future box
 
 func (keeper Keeper) ProcessFutureBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	for i, v := range box.Future.TimeLine {
+		if i == 0 {
+			if v < ctx.BlockHeader().Time.Unix() {
+				return errors.ErrTimelineNotValid(box.Future.TimeLine)
+			}
+			continue
+		}
+		if v <= box.Future.TimeLine[i-1] {
+			return errors.ErrTimelineNotValid(box.Future.TimeLine)
+		}
+	}
 	box.BoxStatus = types.BoxDepositing
 	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.getFutureBoxSeqString(box, 0))
 	return nil
@@ -28,7 +38,7 @@ func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo
 	}
 }
 func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
-	if box.Future.TimeLine[0] < time.Now().Unix() {
+	if box.Future.TimeLine[0] < ctx.BlockHeader().Time.Unix() {
 		return errors.ErrNotSupportOperation()
 	}
 	totalDeposit := sdk.ZeroInt()

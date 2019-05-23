@@ -11,6 +11,17 @@ import (
 //Process deposit box
 
 func (keeper Keeper) ProcessDepositBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+
+	if box.Deposit.StartTime < ctx.BlockHeader().Time.Unix() {
+		return errors.ErrTimeNotValid("StartTime")
+	}
+	if box.Deposit.EstablishTime < box.Deposit.StartTime {
+		return errors.ErrTimeNotValid("EstablishTime")
+	}
+	if box.Deposit.MaturityTime < box.Deposit.EstablishTime {
+		return errors.ErrTimeNotValid("MaturityTime")
+	}
+
 	decimal, err := keeper.GetCoinDecimal(ctx, box.Deposit.Interest.Token)
 	if err != nil {
 		return err
