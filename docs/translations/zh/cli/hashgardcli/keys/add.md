@@ -67,4 +67,3 @@ Enter a passphrase for your key:
 Repeat the passphrase:
 Enter your recovery seed phrase:
 ```
-

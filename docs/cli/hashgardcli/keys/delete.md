@@ -1,10 +1,10 @@
 # hashgardcli keys delete
 
-## 描述
+## Description
 
-删除指定的密钥
+Delete a key from the store.
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli keys delete <name> [flags]
@@ -12,26 +12,28 @@ hashgardcli keys delete <name> [flags]
 
 ## Flags
 
-| 速记,名称   | 类型 | 是否必须 | 默认值     | 描述                                                         |
+| Name, shorthand | type| Required  | Default    | Description                                                    |
 | --------------- | --------- | ------------------------------------------------------------ | --------------- | --------------- |
-| -f, --force | bool | 否 | false | 无条件删除密钥而不要求密码                                     |
-| -y, --yes | bool | 否 | false | 跳过确认提示 |
+| -f, --force | bool | No| false | Remove the key unconditionally without asking for the passphrase     |
+| -y, --yes | bool | No| false | Skip confirmation prompt when deleting offline or ledger key references|
 
-## 例子
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 删除指定的密钥
+## Example
+
+### Delete a given key
 
 ```shell
 hashgardcli keys delete MyKey
 ```
+You'll receive a danger warning and be asked to enter a password for your key.
 
-执行命令后，你会收到一个危险警告，并且要求你输入密码用于执行删除指令。
 
 ```txt
 DANGER - enter password to permanently delete key:
 ```
 
-输入正确的密码之后，你就完成了删除操作。
+After you enter the correct password, you're done with deleting your key.
 
 ```txt
 Password deleted forever (uh oh!)

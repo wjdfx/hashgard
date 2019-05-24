@@ -1,20 +1,20 @@
 # hashgardcli gov query-votes
 
-## 描述
+## Description
 
-查询指定提案的投票情况
+Query vote details for a single proposal by its identifier
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli gov query-votes [proposal-id] [flags]
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
 ### Query votes
 
@@ -22,7 +22,7 @@ hashgardcli gov query-votes [proposal-id] [flags]
 hashgardcli gov query-votes 1 --trust-node -o=json --indent
 ```
 
-通过指定的提案查询该提案所有投票者的投票详情。
+You could query the voting of all the voters by specifying the proposal id.
 
 ```txt
 [

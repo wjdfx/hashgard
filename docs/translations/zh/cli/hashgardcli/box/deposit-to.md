@@ -16,7 +16,7 @@ hashgardcli box deposit-to [box-id] [amount]  --from
 
 | 名称   | 类型   | 是否必须 | 默认值 | 描述         |
 | ------ | ------ | -------- | ------ | ------------ |
-| box-id | string | 是       |        | 存款盒子的id |
+| box-id | string | 是       |        | 盒子的id |
 | amount | int   | 是       |        | 存款的数量   |
 
 
@@ -31,9 +31,6 @@ hashgardcli box deposit-to [box-id] [amount]  --from
 ```
 hashgardcli box deposit-to boxab3jlxpt2pw 300 --from
 ```
-
-仅限注入地址取回注入的利息。
-
 
 
 得到的结果是

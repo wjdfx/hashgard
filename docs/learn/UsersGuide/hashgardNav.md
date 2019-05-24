@@ -4,19 +4,19 @@
 
 ### 官方
 
-[官网](https://www.hashgard.io/#/)
+[Website](https://www.hashgard.io/#/)
 
 [企业服务官网](https://www.hashgard.com/)
 
-[区块浏览器](https://www.gardplorer.io)
+[gardplorer](https://www.gardplorer.io)
 
 [GitHub](https://github.com/hashgard/)
 
-[白皮书](https://github.com/hashgard/whitepaper/blob/master/%E7%99%BD%E7%9A%AE%E4%B9%A6.md)
+[whitepaper](https://github.com/hashgard/whitepaper/blob/master/%E7%99%BD%E7%9A%AE%E4%B9%A6.md)
 
 
 
-### 社区
+### Community
 
 [telegram](https://t.me/hashgard)
 
@@ -30,7 +30,7 @@
 
 微信公众号：临界Hashgard
 
-### 交易市场
+### market
 
 [Gete.io](https://www.gate.io/trade/GARD_USDT)
 
@@ -41,4 +41,3 @@
 [coinmex](https://www.coinmex.com/spot/gard_eth)
 
 [dcoin](https://www.dcoin.com/currencyTrading/GARD_ETH)
-

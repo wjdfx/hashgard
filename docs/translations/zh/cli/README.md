@@ -1,21 +1,20 @@
 # hashgardcli
 
-1. [bank command](./hashgardcli/bank/)
-2. [distribution command](./hashgardcli/distribution/)
-3. [gov command](./hashgardcli/gov/)
-4. [keys command](./hashgardcli/keys/)
-5. [stake command](./hashgardcli/stake/)
+1. [bank command](./hashgardcli/bank/README.md)
+2. [distribution command](./hashgardcli/distribution/README.md)
+3. [gov command](./hashgardcli/gov/README.md)
+4. [keys command](./hashgardcli/keys/README.md)
+5. [stake command](./hashgardcli/stake/README.md)
 6. [status command](./hashgardcli/status.md)
-7. [tendermint command](./hashgardcli/tendermint/)
-8. [slashing command](./hashgardcli/slashing/)
-9. [issue command](./hashgardcli/issue/)
-10. [box command](./hashgardcli/box/)
+7. [tendermint command](./hashgardcli/tendermint/README.md)
+8. [slashing command](./hashgardcli/slashing/README.md)
+9. [issue command](./hashgardcli/issue/README.md)
+10. [box command](./hashgardcli/box/README.md)
+11. [faucet command](./hashgardcli/faucet/send.md)
 
 
 
 # hashgard
-
-
 
 1. [init command](./hashgard/init.md)
 2. [add-genesis-account command](./hashgard/add-genesis-account.md)
@@ -30,7 +29,9 @@
 
 # hashgardlcd
 
-1.[hashgardlcd](./hashgardlcd/)
+1.[hashgardlcd](./hashgardlcd/README.md)
 
 
 
+# CLI client tooL
+1. [Unix timestamp](Unix-timestamp.md)

@@ -1,28 +1,28 @@
 # hashgardcli exchange query-frozen
 
-## 描述
+## Description
 
-查看指定地址的冻结资金
+View frozen token at a specified address
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli exchange query-frozen [address] [flags]
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 查询地址的冻结资金
+### Query address freeze
 
 ```shell
 hashgardcli exchange query-frozen gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa --chain-id hashgard -o=json --indent
 ```
 
-下面是地址gard1p48xfe62mwewxzuqpwkcdjyge42fck6xzc7xpa的冻结资金
+The result is as follows：
 
 ```txt
 [

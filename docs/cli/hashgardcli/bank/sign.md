@@ -1,10 +1,10 @@
 # hashgardcli bank sign
 
-## 描述
+## Description
 
-签名生成的离线传输文件。该文件由 --generate-only 标志生成。
+Sign transactions created with the --generate-only flag
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli bank sign [file] [flags]
@@ -12,25 +12,24 @@ hashgardcli bank sign [file] [flags]
 
 ## Flags
 
-| 命令       | 类型    | 是否必须 | 默认值                | 描述                                                         |
+| Name   | type   | Required  | Default        | Description                  |
 | ---------------- | ------- | -------- | --------------------- | ------------------------------------------------------------ |
-| --append | bool | 否 | true | 将签名附加到现有签名。如果禁用，旧签名将被覆盖。如果--multisig打开则忽略（默认为true） |
-| --multisig | string | 否 | | 代表交易签署的multisig帐户的地址 |
-| --from | string | 否 | | 与之签名的私钥的名称 |
-| --offline | bool | 否 | false | 链下模式，不查询全节点 |
-| --output-document | string |  |  | 该文档将写入给定文件而不是STDOUT |
-| --signature-only | bool | 否 | | 仅打印生成的签名，然后退出 |
-| --validate-signatures | bool | 否 | false | 打印必须签署交易的地址，已签名的地址，并确保签名的顺序正确 |
+| --append | bool | No| true | Append the signature to the existing ones. If disabled, old signatures would be overwritten. Ignored if --multisig is on |
+| --multisig | string | No| |  Address of the multisig account on behalf of which the transaction shall be signed |
+| --from | string | No| |  Name or address of private key with which to sign|
+| --offline | bool | No| false |  Offline mode; Do not query a full node|
+| --output-document | string |  |  | The document will be written to the given file instead of STDOUT |
+| --signature-only | bool | No| | Print only the generated signature, then exit|
+| --validate-signatures | bool | No| false |  Print the addresses that must sign the transaction, those who have already signed it, and make sure that signatures are in the correct order|
 
-## Global Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 对一个离线发送文件签名
+### Sign a send file
 
-首先你必须使用 **hashgardcli bank send**  命令和标志 **--generate-only** 来生成一个发送记录，如下：
+First you must **hashgardcli bank send** command with flag **--generate-only** to generate a send recorder. Just like this.
 
 ```  
 hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=test --chain-id=hashgard --generate-only
@@ -38,13 +37,13 @@ hashgardcli bank send gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx 10gard --from=t
 {"type":"auth/StdTx","value":{"msg":[{"type":"cosmos-sdk/Send","value":{"inputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}],"outputs":[{"address":"gard9aamjx3xszzxgqhrh0yqd4hkurkea7f6d429yx","coins":[{"denom":"gard","amount":"10000000000000000000"}]}]}}],"fee":{"amount":[{"denom":"gard","amount":"4000000000000000"}],"gas":"200000"},"signatures":null,"memo":""}}
 ```
 
-保存输出到文件中，如：/root/node0/test_send_10hashgard.txt
+And then save the output in /root/node0/test_send_10hashgard.txt
 
-接着来签名这个离线文件。
+Then you can sign the offline file.
 
 ```
 hashgardcli bank sign /root/node0/test_send_10hashgard.txt --from=test  --offline=false --print-response --append=true
 ```
 
-随后得到签名详细信息，在输出中你会看到签名信息:
+After that, you will get the detail info for the sign. Like the follow output you will see the signature:
 **ci+5QuYUVcsARBQWyPGDgmTKYu/SRj6TpCGvrC7AE3REMVdqFGFK3hzlgIphzOocGmOIa/wicXGlMK2G89tPJg==**

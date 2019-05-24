@@ -9,7 +9,7 @@
 hashgardcli distribution community-pool [flags]
 ```
 
-## flags
+## Flags
 
 **全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 

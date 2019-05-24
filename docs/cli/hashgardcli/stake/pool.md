@@ -1,28 +1,27 @@
 # hashgardcli stake pool
 
-## 描述
+## Description
 
-查询最新的权益池
+Query values for amounts stored in the staking pool:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake pool [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询最新的权益池
 
 ```
 hashgardcli stake pool --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 Pool

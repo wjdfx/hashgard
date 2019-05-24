@@ -1,10 +1,10 @@
-# hashgard 用户文档
+# hashgard command
 
-## 基本功能介绍
+## Description
 
-hashgard 服务启动端
+Hashgard Daemon (server)
 
-## 命令列表
+## Command list
 
 1. [hashgad init ](./init.md)
 2. [hashgad add-genesis-account ](./add-genesis-account.md)

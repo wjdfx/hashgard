@@ -103,14 +103,14 @@ func IssueOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Ac
 	return issueInfo, nil
 }
 
-func CheckFreezeByOut(issueID string, freeze types.IssueFreeze, from sdk.AccAddress) sdk.Error {
+func checkFreezeByOut(issueID string, freeze types.IssueFreeze, from sdk.AccAddress) sdk.Error {
 
 	if freeze.OutEndTime > 0 && time.Unix(freeze.OutEndTime, 0).After(time.Now()) {
 		return errors.ErrCanNotTransferOut(issueID, from.String())
 	}
 	return nil
 }
-func CheckFreezeByIn(issueID string, freeze types.IssueFreeze, to sdk.AccAddress) sdk.Error {
+func checkFreezeByIn(issueID string, freeze types.IssueFreeze, to sdk.AccAddress) sdk.Error {
 
 	if freeze.InEndTime > 0 && time.Unix(freeze.InEndTime, 0).After(time.Now()) {
 		return errors.ErrCanNotTransferIn(issueID, to.String())
@@ -127,7 +127,7 @@ func CheckFreeze(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, fr
 	var freeze types.IssueFreeze
 	cdc.MustUnmarshalJSON(res, &freeze)
 
-	if checkErr := CheckFreezeByOut(issueID, freeze, from); checkErr != nil {
+	if checkErr := checkFreezeByOut(issueID, freeze, from); checkErr != nil {
 		return errors.Errorf(checkErr)
 	}
 
@@ -138,7 +138,7 @@ func CheckFreeze(cdc *codec.Codec, cliCtx context.CLIContext, issueID string, fr
 
 	cdc.MustUnmarshalJSON(res, &freeze)
 
-	if checkErr := CheckFreezeByIn(issueID, freeze, to); checkErr != nil {
+	if checkErr := checkFreezeByIn(issueID, freeze, to); checkErr != nil {
 		return errors.Errorf(checkErr)
 	}
 

@@ -10,7 +10,7 @@
 hashgardcli distribution slashes [validator] [start-height] [end-height] [flags]
 ```
 
-## flags
+## Flags
 
 **全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
 

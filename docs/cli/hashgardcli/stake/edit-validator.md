@@ -1,28 +1,28 @@
 # hashgardcli stake edit-validator
 
-## 介绍
+## Description 
 
-编辑已有验证人账户，包括佣金比率，验证人节点名称以及其他描述信息等
+edit an existing validator account
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake edit-validator [flags]
 ```
 
-## flags
+## Flags
 
-| 名称              | 类型   | 是否必填 | 默认值            | 功能描述             |
+| Name             | type  | Required| Default           | Description           |
 | ----------------- | ------ | -------- | ----------------- | -------------------- |
-| --commission-rate | float  | false    | 0.0               | 佣金比率             |
-| --details         | string | false    | "[do-not-modify]" | 验证人节点的详细信息 |
-| --identity        | string | false    | "[do-not-modify]" | 身份签名             |
-| --moniker         | string | false    | "[do-not-modify]" | 验证人名称           |
-| --website         | string | false    | "[do-not-modify]" | 网址                 |
+| --commission-rate | float  | false    | 0.0               | The new commission rate percentage|
+| --details         | string | false    | "[do-not-modify]" | The validator's (optional) details |
+| --identity        | string | false    | "[do-not-modify]" | The (optional) identity signature |
+| --moniker         | string | false    | "[do-not-modify]" | The validator's name |
+| --website         | string | false    | "[do-not-modify]" | The validator's (optional) website|
 
-**全局 flags、发送交易命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
 ```shell
 hashgardcli stake edit-validator \

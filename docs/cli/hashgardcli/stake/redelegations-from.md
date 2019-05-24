@@ -1,28 +1,27 @@
 # hashgardcli stake redelegations-from
 
-## 描述
+## Description
 
-基于某一验证人，查询所有重新委托
+Query a redelegation record  for an individual delegator between a source and destination validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake redelegations-from [validator-address] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-基于某一验证人的所有重新委托查询
 
 ```
 hashgardcli stake redelegations-from gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```json
 [

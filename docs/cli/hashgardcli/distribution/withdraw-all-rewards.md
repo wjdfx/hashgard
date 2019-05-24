@@ -1,21 +1,20 @@
 # hashgardcli distribution withdraw-all-rewards
 
-## 介绍
+## Description 
 
-取回所有收益
+Withdraw all rewards for a single delegator
 
-## 用法
+## Usage
 
 ```
 hashgardcli distribution withdraw-all-rewards [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
  
-## 示例
+## Example
 
-取回所有委托产生的收益
 ```
 hashgardcli distribution withdraw-all-rewards --from mykey --chain-id=hashgard
 ```

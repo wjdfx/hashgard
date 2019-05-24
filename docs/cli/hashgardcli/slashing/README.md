@@ -1,19 +1,19 @@
 # hashgardcli slashing
 
-## 描述
+## Description
 
-slashing 子命令
+Slashing subcommands
 
-## 用法
+## Usage
 
 ```
  hashgardcli slashing [subcommand]
 ```
 
-## 子命令
+## Subcommands
 
-| 子命令                          | 功能                       |
+| Subcommands               | Description                    |
 | ------------------------------- | -------------------------- |
-| [signing-info](signing-info.md) | 查询验证人签名信息         |
-| [params](params.md)             | 查询当前的处罚参数         |
-| [unjail](unjail.md)             | 恢复状态为 jailed 的验证人 |
+| [signing-info](signing-info.md) | Query a validator's signing information|
+| [params](params.md)             | Query the current slashing parameters|
+| [unjail](unjail.md)             | unjail validator previously jailed for downtime|

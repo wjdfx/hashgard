@@ -17,7 +17,7 @@ hashgardcli stake unbond [validator-addr] [amount] [flags]
 | validator-addr | string | `是`     |        | 验证人地址          |
 | amount         | int    | `是`     |        | 要解绑的 stake 数量 |
 
-## flags
+## Flags
 
 | 名称   | 类型   | 是否必填 | 默认值 | 功能描述             |
 | ------ | ------ | -------- | ------ | -------------------- |

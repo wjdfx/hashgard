@@ -1,6 +1,6 @@
-# hashgard 用户文档
+# hashgard 命令文档
 
-## 基本功能介绍
+## 介绍
 
 hashgard 服务启动端
 

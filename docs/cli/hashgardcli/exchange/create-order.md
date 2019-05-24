@@ -1,10 +1,10 @@
 # hashgardcli exchange create-order
 
-## 描述
+## Description
 
-创建订单, 指定提供的币种和数量，以及目标币种及数量。创建成功后，订单处于有效状态，提供的币会处于冻结状态。任何人都能同该订单进行交易。
+create a new order
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli exchange create-order [flags]
@@ -12,25 +12,25 @@ hashgardcli exchange create-order [flags]
 
 ## Flags
 
-| 名称       | 类型                  | 是否必须                  | 默认值                      | 描述                                                                                                                                                 |
-| --------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --supply     | string | 是 | "" | 订单用于交易的币种及数量                                                                                    |
-| --target        | string | 是 | "" | 订单的目标币种及数量                                                                 |
+| Name     | type                 | Required                 | Default        | Description   |
+| -------- | --------- | ------------- | ---------------------- | -------- |
+| --supply     | string | Yes | "" | The coin type and amount of the order   |
+| --target        | string | Yes | "" | The coin type and amount of the target        |
 
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 创建订单
+### Create order
 
 ```shell
 hashgardcli exchange create-order --supply 100gard --target 800apple --from mykey --chain-id hashgard --indent -o=json
 ```
 
-输入正确的密码后，创建了一笔100gard交换800apple的订单。
+Created a 100gard exchange 800apple order
 
 ```txt
 {
@@ -70,9 +70,9 @@ hashgardcli exchange create-order --supply 100gard --target 800apple --from myke
 }
 ```
 
-如何查询订单，查看某地址的所有订单，查看某地址冻结的资金及撤销订单？
+How to check orders, view all orders at an address, view funds frozen at an address, and cancel orders?
 
-请点击下述链接：
+Please click on the link below:
 
 [query-order](query-order.md)
 [query-orders](query-orders.md)

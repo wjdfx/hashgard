@@ -10,7 +10,7 @@
 
 | 名称         | 类型   | 是否必须 | 默认值 | 描述                 |
 | ------------ | ------ | -------- | ------ | -------------------- |
-| name         | string | 是       |        | 支付盒子的名称       |
+| name         | string | 是       |        | 盒子的名称       |
 | total-amount | string | 是       |        | 锁定通证的种类和数量 |
 | end-time     | int    | 是       |        | 锁定到期的时间       |
 
@@ -70,7 +70,6 @@ hashgardcli bank account gard1f76ncl7d9aeq2thj98pyveee8twplfqy3q4yv7
 | ------------------------- | ---------------------- |
 | [query-box](query-box.md) | 对指定盒子进行信息查询 |
 | [list-box](list-box.md)  | 罗列指定类型盒子列表   |
-| [search](search.md)       | 对盒子进行搜索         |
 
 
 

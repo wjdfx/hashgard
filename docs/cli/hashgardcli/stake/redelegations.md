@@ -1,28 +1,27 @@
 # hashgardcli stake redelegations
 
-## 描述
+## Description
 
-基于委托人地址, 查询所有重新委托记录
+Query all redelegation records for an individual delegator
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake redelegations [delegator-address] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-基于委托者地址的所有重新委托记录查询
 
 ```
 hashgardcli stake redelegations gard1m3m4l6g5774qe5jj8cwlyasue22yh32jf4wwet --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```json
 [
