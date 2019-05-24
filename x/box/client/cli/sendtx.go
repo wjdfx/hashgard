@@ -81,7 +81,7 @@ func processBoxSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coin)
 	}
 	boxInfo, err := boxclientutils.GetBoxByID(cdc, cliCtx, coin.Denom)
 	if err != nil {
-		return nil
+		return err
 	}
 	if boxInfo.IsTransferDisabled() {
 		return errors.Errorf(errors.ErrCanNotTransfer(coin.Denom))
@@ -97,7 +97,7 @@ func processIssueSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coi
 	}
 	issueInfo, err := issueclientutils.GetIssueByID(cdc, cliCtx, coin.Denom)
 	if err != nil {
-		return nil
+		return err
 	}
 	coin.Amount = issueutils.MulDecimals(coin.Amount, issueInfo.GetDecimals())
 	if err = issueclientutils.CheckFreeze(cdc, cliCtx, issueInfo.GetIssueId(), from, to); err != nil {

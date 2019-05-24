@@ -11,7 +11,7 @@ import (
 func HandleMsgIssue(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssue) sdk.Result {
 
 	coinIssueInfo := msg.CoinIssueInfo
-	_, err := keeper.AddIssue(ctx, coinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, coinIssueInfo)
 	if err != nil {
 		return err.Result()
 	}

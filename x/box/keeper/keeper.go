@@ -116,6 +116,20 @@ func (keeper Keeper) setName(ctx sdk.Context, boxType string, name string, boxID
 	store.Set(KeyName(boxType, name), bz)
 }
 
+//Keys Add
+//Add box
+func (keeper Keeper) AddBox(ctx sdk.Context, box *types.BoxInfo) {
+	boxIDs := keeper.GetBoxIdsByAddress(ctx, box.BoxType, box.Owner)
+	boxIDs = append(boxIDs, box.BoxId)
+	keeper.setAddress(ctx, box.BoxType, box.Owner, boxIDs)
+
+	boxIDs = keeper.GetBoxIdsByName(ctx, box.BoxType, box.Name)
+	boxIDs = append(boxIDs, box.BoxId)
+	keeper.setName(ctx, box.BoxType, box.Name, boxIDs)
+
+	keeper.setBox(ctx, box)
+}
+
 //Keys remove
 //Remove box
 func (keeper Keeper) RemoveBox(ctx sdk.Context, box *types.BoxInfo) {
@@ -217,16 +231,7 @@ func (keeper Keeper) List(ctx sdk.Context, params boxparams.BoxQueryParams) []*t
 	if params.Owner != nil && !params.Owner.Empty() {
 		return keeper.GetBoxByAddress(ctx, params.BoxType, params.Owner)
 	}
-	store := ctx.KVStore(keeper.storeKey)
-	startBoxId := params.StartBoxId
-	endBoxId := startBoxId
-	if len(startBoxId) == 0 {
-		endBoxId = KeyBoxIdStr(params.BoxType, types.BoxMaxId)
-		startBoxId = KeyBoxIdStr(params.BoxType, types.BoxMinId-1)
-	} else {
-		startBoxId = KeyBoxIdStr(params.BoxType, types.BoxMinId-1)
-	}
-	iterator := store.ReverseIterator(KeyBox(startBoxId), KeyBox(endBoxId))
+	iterator := keeper.Iterator(ctx, params.BoxType, params.StartBoxId)
 	defer iterator.Close()
 	list := make([]*types.BoxInfo, 0, params.Limit)
 	for ; iterator.Valid(); iterator.Next() {
@@ -242,6 +247,33 @@ func (keeper Keeper) List(ctx sdk.Context, params boxparams.BoxQueryParams) []*t
 		}
 	}
 	return list
+}
+func (keeper Keeper) ListAll(ctx sdk.Context, boxType string) []types.BoxInfo {
+	iterator := keeper.Iterator(ctx, boxType, "")
+	defer iterator.Close()
+	list := make([]types.BoxInfo, 0)
+	for ; iterator.Valid(); iterator.Next() {
+		bz := iterator.Value()
+		if len(bz) == 0 {
+			continue
+		}
+		var info types.BoxInfo
+		keeper.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &info)
+		list = append(list, info)
+	}
+	return list
+}
+func (keeper Keeper) Iterator(ctx sdk.Context, boxType string, startBoxId string) sdk.Iterator {
+	store := ctx.KVStore(keeper.storeKey)
+	endBoxId := startBoxId
+	if len(startBoxId) == 0 {
+		endBoxId = KeyBoxIdStr(boxType, types.BoxMaxId)
+		startBoxId = KeyBoxIdStr(boxType, types.BoxMinId-1)
+	} else {
+		startBoxId = KeyBoxIdStr(boxType, types.BoxMinId-1)
+	}
+	iterator := store.ReverseIterator(KeyBox(startBoxId), KeyBox(endBoxId))
+	return iterator
 }
 
 //Create a box
@@ -274,15 +306,7 @@ func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	if err != nil {
 		return err
 	}
-	boxIDs := keeper.GetBoxIdsByAddress(ctx, box.BoxType, box.Owner)
-	boxIDs = append(boxIDs, box.BoxId)
-	keeper.setAddress(ctx, box.BoxType, box.Owner, boxIDs)
-
-	boxIDs = keeper.GetBoxIdsByName(ctx, box.BoxType, box.Name)
-	boxIDs = append(boxIDs, box.BoxId)
-	keeper.setName(ctx, box.BoxType, box.Name, boxIDs)
-	bz := keeper.cdc.MustMarshalBinaryLengthPrefixed(box)
-	store.Set(KeyBox(box.BoxId), bz)
+	keeper.AddBox(ctx, box)
 	return nil
 }
 

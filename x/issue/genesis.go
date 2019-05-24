@@ -12,12 +12,13 @@ import (
 
 // GenesisState - all issue state that must be provided at genesis
 type GenesisState struct {
-	StartingIssueId uint64 `json:"starting_issue_id"`
+	StartingIssueId uint64          `json:"starting_issue_id"`
+	Issues          []CoinIssueInfo `json:"issues"`
 }
 
 // NewGenesisState creates a new genesis state.
 func NewGenesisState(startingIssueId uint64) GenesisState {
-	return GenesisState{startingIssueId}
+	return GenesisState{StartingIssueId: startingIssueId}
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -42,17 +43,25 @@ func (data GenesisState) Equal(data2 GenesisState) bool {
 func InitGenesis(ctx sdk.Context, keeper keeper.Keeper, data GenesisState) {
 	err := keeper.SetInitialIssueStartingIssueId(ctx, data.StartingIssueId)
 	if err != nil {
-		// TODO: Handle this with #870
 		panic(err)
+	}
+
+	for _, issue := range data.Issues {
+		keeper.AddIssue(ctx, &issue)
 	}
 }
 
 // ExportGenesis returns a GenesisState for a given context and keeper.
 func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
+	genesisState := GenesisState{}
+
 	startingIssueId, _ := keeper.PeekCurrentIssueID(ctx)
-	return GenesisState{
-		StartingIssueId: startingIssueId,
-	}
+	genesisState.StartingIssueId = startingIssueId
+
+	genesisState.Issues = keeper.ListAll(ctx)
+
+	return genesisState
+
 }
 
 // ValidateGenesis performs basic validation of bank genesis data returning an

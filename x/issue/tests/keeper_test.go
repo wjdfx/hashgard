@@ -14,7 +14,7 @@ import (
 	"github.com/hashgard/hashgard/x/issue"
 )
 
-func TestAddIssue(t *testing.T) {
+func TestCreateIssue(t *testing.T) {
 
 	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.GenesisState{}, nil)
 
@@ -23,7 +23,7 @@ func TestAddIssue(t *testing.T) {
 
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	coinIssue := keeper.GetIssue(ctx, CoinIssueInfo.IssueId)
 	require.Equal(t, coinIssue.TotalSupply, CoinIssueInfo.TotalSupply)
@@ -49,7 +49,7 @@ func TestGetIssues(t *testing.T) {
 
 	cap := 10
 	for i := 0; i < cap; i++ {
-		_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+		_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 		require.Nil(t, err)
 	}
 	issues := keeper.GetIssues(ctx, CoinIssueInfo.Issuer.String())
@@ -67,7 +67,7 @@ func TestMint(t *testing.T) {
 	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 	_, err = keeper.Mint(ctx, CoinIssueInfo.IssueId, sdk.NewInt(10000), IssuerCoinsAccAddr, IssuerCoinsAccAddr)
 	require.Nil(t, err)
@@ -86,7 +86,7 @@ func TestBurnOwner(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	_, err = keeper.BurnOwner(ctx, CoinIssueInfo.IssueId, sdk.NewInt(5000), IssuerCoinsAccAddr)
@@ -110,7 +110,7 @@ func TestBurnHolder(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
@@ -137,7 +137,7 @@ func TestBurnFrom(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.SendCoins(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, sdk.NewCoins(sdk.NewCoin(CoinIssueInfo.IssueId, sdk.NewInt(10000))))
@@ -164,7 +164,7 @@ func TestApprove(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.Approve(ctx, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
@@ -186,7 +186,7 @@ func TestSendFrom(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.SendFrom(ctx, TransferAccAddr, IssuerCoinsAccAddr, ReceiverCoinsAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(1000))
@@ -217,7 +217,7 @@ func TestSendFromByFreeze(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
@@ -256,7 +256,7 @@ func TestIncreaseApproval(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
@@ -282,7 +282,7 @@ func TestDecreaseApproval(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.Approve(ctx, IssuerCoinsAccAddr, TransferAccAddr, CoinIssueInfo.IssueId, sdk.NewInt(5000))
@@ -318,7 +318,7 @@ func TestFreeze(t *testing.T) {
 
 	CoinIssueInfo.TotalSupply = sdk.NewInt(10000)
 
-	_, err := keeper.AddIssue(ctx, &CoinIssueInfo)
+	_, err := keeper.CreateIssue(ctx, &CoinIssueInfo)
 	require.Nil(t, err)
 
 	err = keeper.Freeze(ctx, CoinIssueInfo.IssueId, IssuerCoinsAccAddr, TransferAccAddr, types.FreezeIn, time.Now().Unix())

@@ -29,6 +29,9 @@ func KeyNextBoxID(boxType string) []byte {
 func KeyBox(boxIdStr string) []byte {
 	return []byte(fmt.Sprintf("ids:%s:%s", utils.GetBoxTypeByValue(boxIdStr), boxIdStr))
 }
+func KeyAllBox() []byte {
+	return []byte("ids:")
+}
 
 // Key for getting a specific address from the store
 func KeyAddress(boxType string, accAddress sdk.AccAddress) []byte {

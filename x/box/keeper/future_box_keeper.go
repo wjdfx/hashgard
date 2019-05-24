@@ -14,7 +14,7 @@ import (
 func (keeper Keeper) ProcessFutureBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	box.BoxStatus = types.BoxDepositing
 	box.Future.TotalWithdrawal = sdk.ZeroInt()
-	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.getFutureBoxSeqString(box, 0))
+	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
 	return nil
 }
 func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin, operation string) sdk.Error {
@@ -62,7 +62,7 @@ func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sen
 			return err
 		}
 		box.BoxStatus = types.BoxActived
-		keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.getFutureBoxSeqString(box, 0))
+		keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
 	}
 	keeper.setBox(ctx, box)
 	return nil
@@ -127,10 +127,10 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 		return errors.ErrAmountNotValid("Receivers")
 	}
 	times := len(box.Future.TimeLine)
-	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[times-1], keeper.getFutureBoxSeqString(box, times))
+	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[times-1], keeper.GetFutureBoxSeqString(box, times))
 	return nil
 }
-func (keeper Keeper) getFutureBoxSeqString(box *types.BoxInfo, seq int) string {
+func (keeper Keeper) GetFutureBoxSeqString(box *types.BoxInfo, seq int) string {
 	return fmt.Sprintf("%s:%d", box.BoxId, seq)
 }
 
@@ -156,7 +156,7 @@ func (keeper Keeper) processFutureBoxDepositToByEndBlocker(ctx sdk.Context, box 
 		}
 	}
 	//box.BoxStatus=types.BoxClosed
-	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.getFutureBoxSeqString(box, seq))
+	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, seq))
 	keeper.RemoveBox(ctx, box)
 	return nil
 }
@@ -197,7 +197,7 @@ func (keeper Keeper) processFutureBoxActiveByEndBlocker(ctx sdk.Context, box *ty
 		return nil
 	}
 	box.BoxStatus = types.BoxFinished
-	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[seq-1], keeper.getFutureBoxSeqString(box, seq))
+	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[seq-1], keeper.GetFutureBoxSeqString(box, seq))
 	keeper.setBox(ctx, box)
 	return nil
 }
