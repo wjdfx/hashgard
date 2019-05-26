@@ -10,6 +10,7 @@ import (
 type UsageType byte
 
 const (
+	UsageTypeNil		UsageType = 0x00
 	UsageTypeBurn       UsageType = 0x01
 	UsageTypeDistribute UsageType = 0x02
 	UsageTypeGrant      UsageType = 0x03
@@ -24,8 +25,10 @@ func UsageTypeFromString(str string) (UsageType, error) {
 		return UsageTypeDistribute, nil
 	case "Grant":
 		return UsageTypeGrant, nil
+	case "":
+		return UsageTypeNil, nil
 	default:
-		return UsageType(0xff), nil
+		return UsageType(0xff), fmt.Errorf("'%s' is not a valid usage type", str)
 	}
 }
 

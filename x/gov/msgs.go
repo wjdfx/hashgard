@@ -29,7 +29,7 @@ type MsgSubmitProposal struct {
 	TaxUsage	   TaxUsage		  `json:"tax_usage"`	   //  Tax usage
 }
 
-func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins, proposalParams ProposalParams, tagUsage TaxUsage) MsgSubmitProposal {
+func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins, proposalParams ProposalParams, taxUsage TaxUsage) MsgSubmitProposal {
 	return MsgSubmitProposal{
 		Title:          title,
 		Description:    description,
@@ -37,7 +37,7 @@ func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, 
 		Proposer:       proposer,
 		InitialDeposit: initialDeposit,
 		ProposalParams: proposalParams,
-		TaxUsage:		tagUsage,
+		TaxUsage:		taxUsage,
 	}
 }
 
@@ -102,7 +102,7 @@ func (msg MsgSubmitProposal) ValidateBasic() sdk.Error {
 }
 
 func (msg MsgSubmitProposal) String() string {
-	return fmt.Sprintf("MsgSubmitProposal{%s, %s, %s, %v}", msg.Title, msg.Description, msg.ProposalType, msg.InitialDeposit)
+	return fmt.Sprintf("MsgSubmitProposal{%s, %s, %s, %v, %v, %v}", msg.Title, msg.Description, msg.ProposalType, msg.InitialDeposit, msg.ProposalParams, msg.TaxUsage)
 }
 
 // Implements Msg.
