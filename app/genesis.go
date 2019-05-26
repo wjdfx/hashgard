@@ -21,13 +21,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/gov"
 )
 
 var (

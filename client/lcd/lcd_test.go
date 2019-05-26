@@ -27,12 +27,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	dclcommon "github.com/cosmos/cosmos-sdk/x/distribution/client/common"
 	distrrest "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
+	"github.com/hashgard/hashgard/x/gov"
 )
 
 const (

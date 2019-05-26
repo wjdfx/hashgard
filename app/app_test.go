@@ -9,7 +9,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/gov"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -20,6 +19,7 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
+	"github.com/hashgard/hashgard/x/gov"
 )
 
 func setGenesis(happ *HashgardApp, accs ...*auth.BaseAccount) error {
