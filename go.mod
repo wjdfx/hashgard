@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/mux v1.7.0
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/otiai10/copy v0.0.0-20180813032824-7e9a647135a1
-	github.com/pkg/errors v0.8.1 // indirect
+	github.com/pkg/errors v0.8.1
 	github.com/prometheus/procfs v0.0.0-20190306233201-d0f344d83b0c // indirect
 	github.com/rakyll/statik v0.1.4
 	github.com/rcrowley/go-metrics v0.0.0-20181016184325-3113b8401b8a // indirect
@@ -24,6 +24,6 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.34.4-hashgard.0.20190522013314-d9d5fa905bf2
+	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.34.4-hashgard.0.20190526090320-cc3761eb24d0
 	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
 )

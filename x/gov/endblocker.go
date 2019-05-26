@@ -60,7 +60,7 @@ func EndBlocker(ctx sdk.Context, keeper Keeper) sdk.Tags {
 			tagValue = tags.ActionProposalPassed
 
 			// Execute proposal
-			keeper.ExecuteProposal(ctx, activeProposal)
+			_ = keeper.ExecuteProposal(ctx, activeProposal)
 		} else {
 			keeper.DeleteDeposits(ctx, activeProposal.ProposalID)
 			activeProposal.Status = StatusRejected

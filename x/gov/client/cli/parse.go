@@ -20,6 +20,9 @@ func parseSubmitProposalFlags() (*proposal, error) {
 		proposal.Type = govClientUtils.NormalizeProposalType(viper.GetString(flagProposalType))
 		proposal.Deposit = viper.GetString(flagDeposit)
 		proposal.Params = viper.GetStringSlice(flagParam)
+		proposal.Usage = viper.GetString(flagUsage)
+		proposal.Percent = viper.GetString(flagPercent)
+		proposal.DestAddress = viper.GetString(flagDestAddress)
 		return proposal, nil
 	}
 

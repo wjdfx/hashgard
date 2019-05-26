@@ -26,9 +26,10 @@ type MsgSubmitProposal struct {
 	Proposer       sdk.AccAddress `json:"proposer"`        //  Address of the proposer
 	InitialDeposit sdk.Coins      `json:"initial_deposit"` //  Initial deposit paid by sender. Must be strictly positive.
 	ProposalParams ProposalParams `json:"proposal_params"` //  Parameter to change via proposal
+	TaxUsage	   TaxUsage		  `json:"tax_usage"`	   //  Tax usage
 }
 
-func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins, proposalParams ProposalParams) MsgSubmitProposal {
+func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, proposer sdk.AccAddress, initialDeposit sdk.Coins, proposalParams ProposalParams, tagUsage TaxUsage) MsgSubmitProposal {
 	return MsgSubmitProposal{
 		Title:          title,
 		Description:    description,
@@ -36,6 +37,7 @@ func NewMsgSubmitProposal(title, description string, proposalType ProposalKind, 
 		Proposer:       proposer,
 		InitialDeposit: initialDeposit,
 		ProposalParams: proposalParams,
+		TaxUsage:		tagUsage,
 	}
 }
 
@@ -71,7 +73,28 @@ func (msg MsgSubmitProposal) ValidateBasic() sdk.Error {
 	}
 	if msg.ProposalType == ProposalTypeParameterChange {
 		if len(msg.ProposalParams) == 0 {
-			ErrEmptyParameter(DefaultCodespace, "Proposal Parameter is empty")
+			return ErrEmptyParameter(DefaultCodespace, "Proposal Parameter is empty")
+		}else {
+			// check parameter
+			for _, proposalParam := range msg.ProposalParams {
+				err := ValidateProposalParam(proposalParam)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+	if msg.ProposalType == ProposalTypeTaxUsage {
+		if !ValidUsageType(msg.TaxUsage.Usage) {
+			return ErrInvalidUsageType(DefaultCodespace, msg.TaxUsage.Usage)
+		}
+
+		if msg.TaxUsage.Percent.LTE(sdk.NewDec(0)) || msg.TaxUsage.Percent.GT(sdk.NewDec(1)) {
+			return ErrInvalidPercent(DefaultCodespace, msg.TaxUsage.Percent)
+		}
+
+		if msg.TaxUsage.Usage != UsageTypeBurn && len(msg.TaxUsage.DestAddress) == 0 {
+			return sdk.ErrInvalidAddress(msg.Proposer.String())
 		}
 	}
 

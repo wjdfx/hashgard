@@ -34,18 +34,10 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 		content = NewSoftwareUpgradeProposal(msg.Title, msg.Description)
 	case ProposalTypeParameterChange:
 		content = NewParameterChangeProposal(msg.Title, msg.Description, msg.ProposalParams)
+	case ProposalTypeTaxUsage:
+		content = NewTaxUsageProposal(msg.Title, msg.Description, msg.TaxUsage)
 	default:
 		return ErrInvalidProposalType(keeper.codespace, msg.ProposalType).Result()
-	}
-
-	if msg.ProposalType == ProposalTypeParameterChange {
-		// check parameter
-		for _, proposalParam := range msg.ProposalParams {
-			err := keeper.ValidateProposalParam(proposalParam)
-			if err != nil {
-				return err.Result()
-			}
-		}
 	}
 
 	proposal, err := keeper.SubmitProposal(ctx, content)

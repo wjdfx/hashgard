@@ -24,6 +24,7 @@ const (
 	CodeEmptyParameter			sdk.CodeType = 12
 	CodeInvalidParamKey			sdk.CodeType = 13
 	CodeInvalidParamValue		sdk.CodeType = 14
+	CodeInvalidUsageType		sdk.CodeType = 15
 )
 
 // Error constructors
@@ -78,4 +79,12 @@ func ErrInvalidParamKey(codespace sdk.CodespaceType, key string) sdk.Error {
 
 func ErrInvalidParamValue(codespace sdk.CodespaceType, key string, val string, errorMsg string) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidParamValue, fmt.Sprintf("'%s' is not a valid %s: %s", val, key, errorMsg))
+}
+
+func ErrInvalidUsageType(codespace sdk.CodespaceType, usageType UsageType) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidUsageType, fmt.Sprintf("'%s' is not a valid tax usage type", usageType))
+}
+
+func ErrInvalidPercent(codespace sdk.CodespaceType, percent sdk.Dec) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidUsageType, fmt.Sprintf("'%s' must >0 && <=1", percent))
 }

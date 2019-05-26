@@ -113,6 +113,30 @@ func (pcp ParameterChangeProposal) ProposalType() ProposalKind {
 }
 
 
+// Tax Usage Proposals
+type TaxUsageProposal struct {
+	TextProposal
+	TaxUsage TaxUsage `json:"tax_usage"`
+}
+
+func NewTaxUsageProposal(title, description string, taxusage TaxUsage) TaxUsageProposal {
+	return TaxUsageProposal{
+		TextProposal:	NewTextProposal(title, description),
+		TaxUsage:       taxusage,
+	}
+}
+
+func (tup TaxUsageProposal) GetTaxUsage() TaxUsage { return tup.TaxUsage }
+
+// Implements Proposal Interface
+var _ ProposalContent = TaxUsageProposal{}
+
+// nolint
+func (tup TaxUsageProposal) ProposalType() ProposalKind {
+	return ProposalTypeParameterChange
+}
+
+
 // Software Upgrade Proposals
 type SoftwareUpgradeProposal struct {
 	TextProposal
@@ -144,6 +168,7 @@ const (
 	ProposalTypeText            ProposalKind = 0x01
 	ProposalTypeParameterChange ProposalKind = 0x02
 	ProposalTypeSoftwareUpgrade ProposalKind = 0x03
+	ProposalTypeTaxUsage 		ProposalKind = 0x04
 )
 
 // String to proposalType byte. Returns 0xff if invalid.
@@ -155,6 +180,8 @@ func ProposalTypeFromString(str string) (ProposalKind, error) {
 		return ProposalTypeParameterChange, nil
 	case "SoftwareUpgrade":
 		return ProposalTypeSoftwareUpgrade, nil
+	case "TaxUsage":
+		return ProposalTypeTaxUsage, nil
 	default:
 		return ProposalKind(0xff), fmt.Errorf("'%s' is not a valid proposal type", str)
 	}
@@ -164,7 +191,8 @@ func ProposalTypeFromString(str string) (ProposalKind, error) {
 func validProposalType(pt ProposalKind) bool {
 	if pt == ProposalTypeText ||
 		pt == ProposalTypeParameterChange ||
-		pt == ProposalTypeSoftwareUpgrade {
+		pt == ProposalTypeSoftwareUpgrade ||
+		pt == ProposalTypeTaxUsage {
 		return true
 	}
 	return false
@@ -211,6 +239,8 @@ func (pt ProposalKind) String() string {
 		return "ParameterChange"
 	case ProposalTypeSoftwareUpgrade:
 		return "SoftwareUpgrade"
+	case ProposalTypeTaxUsage:
+		return "TaxUsage"
 	default:
 		return ""
 	}

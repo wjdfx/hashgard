@@ -12,4 +12,7 @@ const (
 	flagNumLimit     = "limit"
 	flagProposal     = "proposal"
 	flagParam		 = "param"
+	flagUsage        = "usage"
+	flagDestAddress  = "dest-address"
+	flagPercent      = "percent"
 )

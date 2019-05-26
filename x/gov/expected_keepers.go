@@ -35,6 +35,7 @@ type DistributionKeeper interface {
 	SetBaseProposerReward(ctx sdk.Context, percent sdk.Dec)
 	SetBonusProposerReward(ctx sdk.Context, percent sdk.Dec)
 	SetWithdrawAddrEnabled(ctx sdk.Context, enabled bool)
+	AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool)
 }
 
 type MintKeeper interface {

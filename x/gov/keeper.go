@@ -519,69 +519,15 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 				return err
 			}
 		}
-	}
 
-	return nil
-}
+	case ProposalTypeTaxUsage :
+		burn := false
+		taxUsage := proposal.ProposalContent.(*TaxUsageProposal).TaxUsage
 
-func (keeper Keeper) ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
-	// check key
-	switch proposalParam.Key {
-	case "auth/max_memo_characters", "auth/tx_sig_limit", "auth/tx_size_cost_per_byte",
-		"mint/blocks_per_year":
-		var val uint64
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		if taxUsage.Usage == UsageTypeBurn {
+			burn = true
 		}
-	case "bank/send_enabled", "distribution/withdraw_addr_enabled":
-		var val bool
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "distribution/community_tax", "distribution/base_proposer_reward", "distribution/bonus_proposer_reward",
-		"gov/quorum", "gov/threshold", "gov/veto",
-		"mint/inflation_rate_change", "mint/inflation_max", "mint/inflation_min", "mint/goal_bonded",
-		"slashing/min_signed_per_window", "slashing/slash_fraction_double_sign", "slashing/slash_fraction_downtime":
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "gov/min_deposit":
-		var val sdk.Coins
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "gov/max_deposit_period", "gov/voting_period", "slashing/downtime_jail_duration",
-		"slashing/max_evidence_age", "staking/unbonding_time":
-		var val time.Duration
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "mint/mint_denom":
-		var val string
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "slashing/signed_blocks_window":
-		var val int64
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "staking/max_validators", "staking/max_entries":
-		var val uint16
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	default:
-		return ErrInvalidParamKey(DefaultCodespace, proposalParam.Key)
+		keeper.distributionKeeper.AllocateCommunityPool(ctx, taxUsage.DestAddress, taxUsage.Percent, burn)
 	}
 
 	return nil
