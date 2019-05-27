@@ -10,6 +10,7 @@ import (
 type (
 	Keeper  = keeper.Keeper
 	BoxInfo = types.BoxInfo
+	Hooks	= keeper.Hooks
 )
 
 var (

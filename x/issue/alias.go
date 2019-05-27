@@ -13,6 +13,7 @@ type (
 	CoinIssueInfo = types.CoinIssueInfo
 	Approval      = types.Approval
 	IssueFreeze   = types.IssueFreeze
+	Hooks		  = keeper.Hooks
 )
 
 var (
