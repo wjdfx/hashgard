@@ -1145,6 +1145,8 @@ func doSubmitProposal(
 		Proposer:       proposerAddr,
 		InitialDeposit: sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, amount)),
 		BaseReq:        baseReq,
+		ProposalParams:	[]gov.ProposalParam{},
+		TaxUsage:		gov.TaxUsage{Percent:sdk.ZeroDec()},
 	}
 
 	req, err := cdc.MarshalJSON(pr)
