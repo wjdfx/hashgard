@@ -3,7 +3,6 @@ package mint
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -21,10 +20,7 @@ func TestNewQuerier(t *testing.T) {
 	_, err := querier(input.ctx, []string{QueryParameters}, query)
 	require.NoError(t, err)
 
-	_, err = querier(input.ctx, []string{QueryInflation}, query)
-	require.NoError(t, err)
-
-	_, err = querier(input.ctx, []string{QueryAnnualProvisions}, query)
+	_, err = querier(input.ctx, []string{QueryMinter}, query)
 	require.NoError(t, err)
 
 	_, err = querier(input.ctx, []string{"foo"}, query)
@@ -45,30 +41,16 @@ func TestQueryParams(t *testing.T) {
 	require.Equal(t, input.mintKeeper.GetParams(input.ctx), params)
 }
 
-func TestQueryInflation(t *testing.T) {
+func TestQueryMinter(t *testing.T) {
 	input := newTestInput(t)
 
-	var inflation sdk.Dec
+	var minter Minter
 
-	res, sdkErr := queryInflation(input.ctx, input.mintKeeper)
+	res, sdkErr := queryMinter(input.ctx, input.mintKeeper)
 	require.NoError(t, sdkErr)
 
-	err := input.cdc.UnmarshalJSON(res, &inflation)
+	err := input.cdc.UnmarshalJSON(res, &minter)
 	require.NoError(t, err)
 
-	require.Equal(t, input.mintKeeper.GetMinter(input.ctx).Inflation, inflation)
-}
-
-func TestQueryAnnualProvisions(t *testing.T) {
-	input := newTestInput(t)
-
-	var annualProvisions sdk.Dec
-
-	res, sdkErr := queryAnnualProvisions(input.ctx, input.mintKeeper)
-	require.NoError(t, sdkErr)
-
-	err := input.cdc.UnmarshalJSON(res, &annualProvisions)
-	require.NoError(t, err)
-
-	require.Equal(t, input.mintKeeper.GetMinter(input.ctx).AnnualProvisions, annualProvisions)
+	require.Equal(t, input.mintKeeper.GetMinter(input.ctx), minter)
 }

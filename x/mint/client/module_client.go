@@ -30,8 +30,7 @@ func (mc ModuleClient) GetQueryCmd() *cobra.Command {
 	mintingQueryCmd.AddCommand(
 		client.GetCommands(
 			cli.GetCmdQueryParams(mc.cdc),
-			cli.GetCmdQueryInflation(mc.cdc),
-			cli.GetCmdQueryAnnualProvisions(mc.cdc),
+			cli.GetCmdQueryMinter(mc.cdc),
 		)...,
 	)
 

@@ -292,27 +292,13 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 		genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(accTokens)
 	}
 
-	inflationMin := sdk.ZeroDec()
-	if minting {
-		inflationMin = sdk.MustNewDecFromStr("10000.0")
-		genesisState.MintData.Params.InflationMax = sdk.MustNewDecFromStr("15000.0")
-	} else {
-		genesisState.MintData.Params.InflationMax = inflationMin
+	if !minting {
+		genesisState.MintData.Params.Inflation = sdk.ZeroDec()
 	}
-	genesisState.MintData.Minter.Inflation = inflationMin
-	genesisState.MintData.Params.InflationMin = inflationMin
 
 	// double check inflation is set according to the minting boolean flag
-	if minting {
-		require.Equal(t, sdk.MustNewDecFromStr("15000.0"),
-			genesisState.MintData.Params.InflationMax)
-		require.Equal(t, sdk.MustNewDecFromStr("10000.0"), genesisState.MintData.Minter.Inflation)
-		require.Equal(t, sdk.MustNewDecFromStr("10000.0"),
-			genesisState.MintData.Params.InflationMin)
-	} else {
-		require.Equal(t, sdk.ZeroDec(), genesisState.MintData.Params.InflationMax)
-		require.Equal(t, sdk.ZeroDec(), genesisState.MintData.Minter.Inflation)
-		require.Equal(t, sdk.ZeroDec(), genesisState.MintData.Params.InflationMin)
+	if !minting {
+		require.Equal(t, sdk.ZeroDec(), genesisState.MintData.Params.Inflation)
 	}
 
 	appState, err := codec.MarshalJSONIndent(cdc, genesisState)

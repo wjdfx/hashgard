@@ -69,7 +69,7 @@ func newTestInput(t *testing.T) testInput {
 	ctx := sdk.NewContext(ms, abci.Header{Time: time.Unix(0, 0)}, false, log.NewTMLogger(os.Stdout))
 
 	mintKeeper.SetParams(ctx, DefaultParams())
-	mintKeeper.SetMinter(ctx, DefaultInitialMinter())
+	mintKeeper.SetMinter(ctx, DefaultMinter())
 
 	return testInput{ctx, cdc, mintKeeper}
 }

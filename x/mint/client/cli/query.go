@@ -5,14 +5,12 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 
 	"github.com/hashgard/hashgard/x/mint"
 )
 
-// GetCmdQueryParams implements a command to return the current minting
-// parameters.
+// GetCmdQueryParams implements a command to return the current minting parameter(inflation and inflation base)
 func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "params",
@@ -37,54 +35,27 @@ func GetCmdQueryParams(cdc *codec.Codec) *cobra.Command {
 	}
 }
 
-// GetCmdQueryInflation implements a command to return the current minting
-// inflation value.
-func GetCmdQueryInflation(cdc *codec.Codec) *cobra.Command {
+// GetCmdQueryMinter implements a command to return the minter info(denom and blocks per year)
+func GetCmdQueryMinter(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "inflation",
-		Short: "Query the current minting inflation value",
+		Use:   "minter",
+		Short: "Query the current minter info",
 		Args:  cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
-			route := fmt.Sprintf("custom/%s/%s", mint.QuerierRoute, mint.QueryInflation)
+			route := fmt.Sprintf("custom/%s/%s", mint.QuerierRoute, mint.QueryMinter)
 			res, err := cliCtx.QueryWithData(route, nil)
 			if err != nil {
 				return err
 			}
 
-			var inflation sdk.Dec
-			if err := cdc.UnmarshalJSON(res, &inflation); err != nil {
+			var minter mint.Minter
+			if err := cdc.UnmarshalJSON(res, &minter); err != nil {
 				return err
 			}
 
-			return cliCtx.PrintOutput(inflation)
-		},
-	}
-}
-
-// GetCmdQueryAnnualProvisions implements a command to return the current minting
-// annual provisions value.
-func GetCmdQueryAnnualProvisions(cdc *codec.Codec) *cobra.Command {
-	return &cobra.Command{
-		Use:   "annual-provisions",
-		Short: "Query the current minting annual provisions value",
-		Args:  cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-
-			route := fmt.Sprintf("custom/%s/%s", mint.QuerierRoute, mint.QueryAnnualProvisions)
-			res, err := cliCtx.QueryWithData(route, nil)
-			if err != nil {
-				return err
-			}
-
-			var inflation sdk.Dec
-			if err := cdc.UnmarshalJSON(res, &inflation); err != nil {
-				return err
-			}
-
-			return cliCtx.PrintOutput(inflation)
+			return cliCtx.PrintOutput(minter)
 		},
 	}
 }
