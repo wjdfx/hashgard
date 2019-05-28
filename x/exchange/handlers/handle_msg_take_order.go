@@ -20,8 +20,8 @@ func HandleMsgTakeOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgTakeO
 		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", msg.OrderId),
 		tags.Sender, msg.Buyer.String(),
-		tags.SupplyTurnover, supplyTurnover,
-		tags.TargetTurnover, targetTurnover,
+		tags.SupplyTurnover, supplyTurnover.String(),
+		tags.TargetTurnover, targetTurnover.String(),
 	)
 
 	if soldOut {

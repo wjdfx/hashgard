@@ -15,6 +15,8 @@ var (
 	OrderStatus = "order_status"
 	SupplyDenom = "supply_denom"
 	TargetDenom = "target_denom"
+	SupplyAmount = "supply_amount"
+	TargetAmount = "target_amount"
 	SupplyTurnover = "supply_turnover"
 	TargetTurnover = "target_turnover"
 )
