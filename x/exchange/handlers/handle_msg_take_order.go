@@ -11,25 +11,22 @@ import (
 )
 
 func HandleMsgTakeOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgTakeOrder) sdk.Result {
-	_, _, soldOut, err := keeper.TakeOrder(ctx, msg.OrderId, msg.Buyer, msg.Value)
+	supplyTurnover, targetTurnover, soldOut, err := keeper.TakeOrder(ctx, msg.OrderId, msg.Buyer, msg.Value)
 	if err != nil {
 		return err.Result()
-	}
-
-	var status string
-
-	if soldOut {
-		status = "inactive"
-	} else {
-		status = "active"
 	}
 
 	resTags := sdk.NewTags(
 		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", msg.OrderId),
 		tags.Sender, msg.Buyer.String(),
-		tags.OrderStatus, status,
+		tags.SupplyTurnover, supplyTurnover,
+		tags.TargetTurnover, targetTurnover,
 	)
+
+	if soldOut {
+		resTags = resTags.AppendTag(tags.OrderStatus, "inactive")
+	}
 
 	return sdk.Result{
 		Tags: resTags,

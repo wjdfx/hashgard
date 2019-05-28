@@ -12,7 +12,9 @@ var (
 	Category    = sdk.TagCategory
 	Sender      = sdk.TagSender
 	OrderId     = "order_id"
-	SupplyToken = "supply_token"
-	TargetToken = "target_token"
 	OrderStatus = "order_status"
+	SupplyDenom = "supply_denom"
+	TargetDenom = "target_denom"
+	SupplyTurnover = "supply_turnover"
+	TargetTurnover = "target_turnover"
 )
