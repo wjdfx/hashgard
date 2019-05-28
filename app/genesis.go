@@ -21,13 +21,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/mint"
 )
 
 var (
@@ -104,7 +104,7 @@ func NewDefaultGenesisState() GenesisState {
 		AuthData:         auth.DefaultGenesisState(),
 		BankData:         bank.DefaultGenesisState(),
 		StakingData:      createStakingGenesisState(),
-		MintData:         createMintGenesisState(),
+		MintData:         mint.DefaultGenesisState(),
 		DistributionData: distribution.DefaultGenesisState(),
 		GovData:          createGovGenesisState(),
 		SlashingData:     slashing.DefaultGenesisState(),
@@ -127,20 +127,6 @@ func createStakingGenesisState() staking.GenesisState {
 			MaxValidators: 100,
 			MaxEntries:    7,
 			BondDenom:     StakeDenom,
-		},
-	}
-}
-
-func createMintGenesisState() mint.GenesisState {
-	return mint.GenesisState{
-		Minter: mint.InitialMinter(sdk.NewDecWithPrec(13, 2)),
-		Params: mint.Params{
-			MintDenom:           StakeDenom,
-			InflationRateChange: sdk.NewDecWithPrec(13, 2),
-			InflationMax:        sdk.NewDecWithPrec(20, 2),
-			InflationMin:        sdk.NewDecWithPrec(7, 2),
-			GoalBonded:          sdk.NewDecWithPrec(67, 2),
-			BlocksPerYear:       uint64(60 * 60 * 8766 / 5), // assuming 5 second block times
 		},
 	}
 }

@@ -679,69 +679,25 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setTallyParams(ctx, tParams)
 		return nil
 
-	case "mint/mint_denom" :
-		var val string
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.MintDenom = val
-		keeper.mintKeeper.SetParams(ctx, tParams)
-		return nil
-
-	case "mint/inflation_rate_change" :
+	case "mint/inflation" :
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.InflationRateChange = val
+		tParams.Inflation = val
 		keeper.mintKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "mint/inflation_max" :
-		var val sdk.Dec
+	case "mint/inflation_base" :
+		var val sdk.Int
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.InflationMax = val
-		keeper.mintKeeper.SetParams(ctx, tParams)
-		return nil
-
-	case "mint/inflation_min" :
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.InflationMin = val
-		keeper.mintKeeper.SetParams(ctx, tParams)
-		return nil
-
-	case "mint/goal_bonded" :
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.GoalBonded = val
-		keeper.mintKeeper.SetParams(ctx, tParams)
-		return nil
-
-	case "mint/blocks_per_year" :
-		var val uint64
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-		tParams := keeper.mintKeeper.GetParams(ctx)
-		tParams.BlocksPerYear = val
+		tParams.InflationBase = val
 		keeper.mintKeeper.SetParams(ctx, tParams)
 		return nil
 
