@@ -38,7 +38,7 @@ import (
 	bankrest "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	distrrest "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
-	mintrest "github.com/cosmos/cosmos-sdk/x/mint/client/rest"
+
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -64,6 +64,7 @@ import (
 	"github.com/hashgard/hashgard/x/gov"
 	govrest "github.com/hashgard/hashgard/x/gov/client/rest"
 	gcutils "github.com/hashgard/hashgard/x/gov/client/utils"
+	mintrest "github.com/hashgard/hashgard/x/mint/client/rest"
 )
 
 // makePathname creates a unique pathname for each test. It will panic if it
