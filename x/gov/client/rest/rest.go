@@ -61,6 +61,8 @@ type PostProposalReq struct {
 	ProposalType   string         `json:"proposal_type"`   // Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
 	Proposer       sdk.AccAddress `json:"proposer"`        // Address of the proposer
 	InitialDeposit sdk.Coins      `json:"initial_deposit"` // Coins to add to the proposal's deposit
+	ProposalParams gov.ProposalParams	`json:"proposal_params"`
+	TaxUsage	   gov.TaxUsage			`json:"tax_usage"`
 }
 
 // DepositReq defines the properties of a deposit request's body.
@@ -96,7 +98,7 @@ func postProposalHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 		}
 
 		// create the message
-		msg := gov.NewMsgSubmitProposal(req.Title, req.Description, proposalType, req.Proposer, req.InitialDeposit, []gov.ProposalParam{}, gov.TaxUsage{})
+		msg := gov.NewMsgSubmitProposal(req.Title, req.Description, proposalType, req.Proposer, req.InitialDeposit, req.ProposalParams, req.TaxUsage)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

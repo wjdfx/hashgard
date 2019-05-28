@@ -71,8 +71,8 @@ The target is what you want to get by this order.
 		},
 	}
 
-	cmd.Flags().String(FlagSupply, "", "coin of supply")
-	cmd.Flags().String(FlagTarget, "", "coin of target")
+	cmd.Flags().String(FlagSupply, "", "coin of supply, eg. 100000000agard")
+	cmd.Flags().String(FlagTarget, "", "coin of target, eg. 825000apple")
 
 	return cmd
 }
@@ -177,7 +177,7 @@ of corresponding amount.
 		},
 	}
 
-	cmd.Flags().String(FlagAmount, "", "coin of supply")
+	cmd.Flags().String(FlagAmount, "", "coin to take order")
 
 	return cmd
 }

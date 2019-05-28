@@ -20,8 +20,10 @@ func HandleMsgCreateOrder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgCre
 		tags.Category, tags.TxCategory,
 		tags.OrderId, fmt.Sprintf("%d", order.OrderId),
 		tags.Sender, order.Seller.String(),
-		tags.SupplyToken, order.Supply.Denom,
-		tags.TargetToken, order.Target.Denom,
+		tags.SupplyDenom, order.Supply.Denom,
+		tags.SupplyAmount, order.Supply.Amount.String(),
+		tags.TargetDenom, order.Target.Denom,
+		tags.TargetAmount, order.Target.Amount.String(),
 	)
 
 	return sdk.Result{
