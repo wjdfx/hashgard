@@ -235,6 +235,9 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 
 	// append any additional (non-proposing) validators
 	var accs []happ.GenesisAccount
+
+
+
 	for i := 0; i < nValidators; i++ {
 		operPrivKey := secp256k1.GenPrivKey()
 		operAddr := operPrivKey.PubKey().Address()
@@ -291,6 +294,16 @@ func InitializeTestLCD(t *testing.T, nValidators int, initAddrs []sdk.AccAddress
 		genesisState.Accounts = append(genesisState.Accounts, acc)
 		genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(accTokens)
 	}
+
+	// add foundation account
+	foundationAddr := appGenState.DistributionData.FoundationAddress
+	foundationAuth := auth.NewBaseAccountWithAddress(sdk.AccAddress(foundationAddr))
+	foundationTokens := sdk.TokensFromTendermintPower(100000000)
+	foundationAuth.Coins = sdk.NewCoins(sdk.NewCoin(happ.StakeDenom, foundationTokens))
+	foundation := happ.NewGenesisAccount(&foundationAuth)
+	genesisState.Accounts = append(genesisState.Accounts, foundation)
+	genesisState.StakingData.Pool.NotBondedTokens = genesisState.StakingData.Pool.NotBondedTokens.Add(foundationTokens)
+
 
 	if !minting {
 		genesisState.MintData.Params.Inflation = sdk.ZeroDec()

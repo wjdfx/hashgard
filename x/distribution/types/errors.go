@@ -13,6 +13,7 @@ const (
 	CodeNoDistributionInfo      CodeType          = 104
 	CodeNoValidatorCommission   CodeType          = 105
 	CodeSetWithdrawAddrDisabled CodeType          = 106
+	CodeFoundationDryUp			CodeType		  = 107
 )
 
 func ErrNilDelegatorAddr(codespace sdk.CodespaceType) sdk.Error {
@@ -38,4 +39,7 @@ func ErrSetWithdrawAddrDisabled(codespace sdk.CodespaceType) sdk.Error {
 }
 func ErrBadDistribution(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidInput, "community pool does not have sufficient coins to distribute")
+}
+func ErrFoundationDryUp(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeFoundationDryUp, "the fund of foundation address is insufficient")
 }

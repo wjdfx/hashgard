@@ -20,6 +20,7 @@ type StakingKeeper interface {
 
 // expected coin keeper
 type BankKeeper interface {
+	SubtractCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) (sdk.Coins, sdk.Error)
 	AddCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) (sdk.Coins, sdk.Error)
 }
 
