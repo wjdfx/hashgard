@@ -129,12 +129,12 @@ func (keeper Keeper) AddBox(ctx sdk.Context, box *types.BoxInfo) {
 
 //Keys remove
 //Remove box
-func (keeper Keeper) RemoveBox(ctx sdk.Context, box *types.BoxInfo) {
-	store := ctx.KVStore(keeper.storeKey)
-	store.Delete(KeyName(box.BoxType, box.Name))
-	store.Delete(KeyAddress(box.BoxType, box.Owner))
-	store.Delete(KeyBox(box.Id))
-}
+//func (keeper Keeper) RemoveBox(ctx sdk.Context, box *types.BoxInfo) {
+//	store := ctx.KVStore(keeper.storeKey)
+//	store.Delete(KeyName(box.BoxType, box.Name))
+//	store.Delete(KeyAddress(box.BoxType, box.Owner))
+//	store.Delete(KeyBox(box.Id))
+//}
 func (keeper Keeper) GetCoinDecimals(ctx sdk.Context, coin sdk.Coin) (uint, sdk.Error) {
 	if coin.Denom == types.Agard {
 		return types.AgardDecimals, nil

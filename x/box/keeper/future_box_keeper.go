@@ -157,10 +157,11 @@ func (keeper Keeper) processFutureBoxDepositToByEndBlocker(ctx sdk.Context, box 
 			}
 		}
 	}
-	//box.Status=types.BoxClosed
+	box.Status = types.BoxClosed
 	//keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, seq))
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
-	keeper.RemoveBox(ctx, box)
+	//keeper.RemoveBox(ctx, box)
+	keeper.setBox(ctx, box)
 	return nil
 }
 

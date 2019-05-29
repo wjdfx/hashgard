@@ -152,11 +152,12 @@ func (keeper Keeper) fetchDepositFromDepositBox(ctx sdk.Context, box *types.BoxI
 		return err
 	}
 	box.Deposit.Share = box.Deposit.Share.Sub(share)
-	if types.BoxClosed == box.Status && box.Deposit.Share.IsZero() {
-		keeper.RemoveBox(ctx, box)
-	} else {
-		keeper.setBox(ctx, box)
-	}
+	//if types.BoxClosed == box.Status && box.Deposit.Share.IsZero() {
+	//	keeper.RemoveBox(ctx, box)
+	//} else {
+	//	keeper.setBox(ctx, box)
+	//}
+	keeper.setBox(ctx, box)
 	return nil
 }
 func (keeper Keeper) ProcessDepositBoxByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
@@ -242,8 +243,8 @@ func (keeper Keeper) processBoxCreatedByEndBlocker(ctx sdk.Context, box *types.B
 		if err := keeper.backBoxInterestInjections(ctx, box); err != nil {
 			return err
 		}
-		keeper.RemoveBox(ctx, box)
 	}
+	keeper.setBox(ctx, box)
 	return nil
 }
 func (keeper Keeper) processDepositBoxDepositToByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
@@ -253,19 +254,12 @@ func (keeper Keeper) processDepositBoxDepositToByEndBlocker(ctx sdk.Context, box
 
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.Id)
 
-	if box.Deposit.TotalDeposit.IsZero() {
-		if err := keeper.backBoxInterestInjections(ctx, box); err != nil {
-			return err
-		}
-		keeper.RemoveBox(ctx, box)
-		return nil
-	}
+	box.Status = types.BoxClosed
 
-	if box.Deposit.TotalDeposit.LT(box.Deposit.BottomLine) {
+	if box.Deposit.TotalDeposit.IsZero() || box.Deposit.TotalDeposit.LT(box.Deposit.BottomLine) {
 		if err := keeper.backBoxInterestInjections(ctx, box); err != nil {
 			return err
 		}
-		box.Status = types.BoxClosed
 	} else {
 		if err := keeper.backBoxUnUsedInterestInjections(ctx, box); err != nil {
 			return err
