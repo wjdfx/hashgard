@@ -24,8 +24,6 @@ import (
 	authsim "github.com/cosmos/cosmos-sdk/x/auth/simulation"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	banksim "github.com/cosmos/cosmos-sdk/x/bank/simulation"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
-	distributionsim "github.com/cosmos/cosmos-sdk/x/distribution/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingsim "github.com/cosmos/cosmos-sdk/x/slashing/simulation"
@@ -35,6 +33,8 @@ import (
 	"github.com/hashgard/hashgard/x/gov"
 	govsim "github.com/hashgard/hashgard/x/gov/simulation"
 	"github.com/hashgard/hashgard/x/mint"
+	"github.com/hashgard/hashgard/x/distribution"
+	distributionsim "github.com/hashgard/hashgard/x/distribution/simulation"
 )
 
 var (
