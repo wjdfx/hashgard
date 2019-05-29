@@ -1,28 +1,27 @@
 # hashgardcli stake validator
 
-## 描述
+## Description
 
-查询验证人信息
+Query details about an individual validator:
 
-## 用法
+## Usage
 
 ```
 hashgardcli stake validator [validator-address] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询验证人
 
 ```
 hashgardcli stake validator [validator-address] --trust-node
 ```
 
-运行成功以后，返回的结果如下：
+The result is as follows：
 
 ```txt
 Validator

@@ -1,28 +1,29 @@
 # hashgardcli tendermint txs
 
-## 描述
+## Description
 
-查询与指定标签匹配的所有交易
+Search for transactions that match the exact given tags where results are paginated.
 
-## 用法
+## Usage
 
 ```
 hashgardcli tendermint txs [flags]
 ```
 
-## flags
+## Flags
 
-| 名称, 缩写 | 类型   | 必需 | 默认值 | 描述                      |
+| Name，shorthand | type  | Required|Default| Description   |
 | ---------- | ------ | ---- | ------ | ------------------------- |
-| --limit    | int    | 否   | 32     | 返回结果每页数量          |
-| --page     | int    | 否   | 1      | 指定返回第几页            |
-| --tags     | string | 是   |        | 需要匹配的 tag:value 列表 |
+| --limit    | int    | No  | 32     | Query number of transactions results per page returned     |
+| --page     | int    | No  | 1      |  Query a specific page of paginated results|
+| --tags     | string | Yes  |        | tag:value list of tags that must match|
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
 ```shell
  hashgardcli tendermint txs --tags '<tag1>:<value1>&<tag2>:<value2>' \
  --page 1 --limit 30 --trust-node
 ```
+

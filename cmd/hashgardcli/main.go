@@ -24,8 +24,6 @@ import (
 	crisiscmd "github.com/cosmos/cosmos-sdk/x/crisis/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	govcmd "github.com/cosmos/cosmos-sdk/x/gov/client/cli"
 	mintcmd "github.com/cosmos/cosmos-sdk/x/mint/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
@@ -42,6 +40,8 @@ import (
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
 	faucetcmd "github.com/hashgard/hashgard/x/faucet/client/cli"
 	"github.com/hashgard/hashgard/x/issue"
+	"github.com/hashgard/hashgard/x/gov"
+	govcmd "github.com/hashgard/hashgard/x/gov/client/cli"
 )
 
 // rootCmd is the entry point for this binary

@@ -1,28 +1,28 @@
 # hashgardcli stake delegation
 
-## 描述
+## Description
 
-基于委托人和验证人地址查询委托交易
+Query delegations for an individual delegator on an individual validator:
 
-## 用法
+
+## Usage
 
 ```
 hashgardcli stake delegation [delegator-addr] [validator-addr] [flags]
 ```
 
-## flags
+## Flags
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 示例
+## Example
 
-查询委托人和验证人的委托交易
 
 ```shell
 hashgardcli stake delegation gard13nyheuxft7nylrmxmtzewdrs8ukh9r6ejhwvdu gardvaloper13nyheuxft7nylrmxmtzewdrs8ukh9r6eq4rya3 --trust-node
 ```
 
-运行成功以后，返回结果如下：
+The result is as follows：
 
 ```txt
 Delegation:

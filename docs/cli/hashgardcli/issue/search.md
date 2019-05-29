@@ -1,37 +1,38 @@
 # hashgardcli issue search
 
-## 描述
+## Description
 根据代币符号来搜索发行的代币信息
-## 使用方式
+## Usage
 ```
 hashgardcli issue search [symbol] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 ### 搜索
 ```shell
-hashgardcli issue search fo -o=json
+hashgardcli issue search AAA
 ```
 ```txt
-[
- {
-  "issue_id": "coin174876e800",
-  "issuer": "gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc",
-  "owner": "gard1vf7pnhwh5v4lmdp59dms2andn2hhperghppkxc",
-  "issue_time": "2019-04-18T06:05:01.378656183Z",
-  "name": "foocoin",
-  "symbol": "FOO",
-  "total_supply": "99998224",
-  "decimals": "18",
-  "description": "",
-  "burning_off": false,
-  "burning_from_off": false,
-  "burning_any_off": false,
-  "minting_finished": false
- }
+ [
+    {
+        "issue_id":"coin174876e802",
+        "issuer":"gard1f76ncl7d9aeq2thj98pyveee8twplfqy3q4yv7",
+        "owner":"gard1f76ncl7d9aeq2thj98pyveee8twplfqy3q4yv7",
+        "issue_time":"1558179518",
+        "name":"issuename",
+        "symbol":"AAA",
+        "total_supply":"10000000001023",
+        "decimals":"18",
+        "description":"{"org":"Hashgard","website":"https://www.hashgard.com","logo":"https://cdn.hashgard.com/static/logo.2d949f3d.png","intro":"新一代金融公有链"}",
+        "burn_owner_disabled":false,
+        "burn_holder_disabled":false,
+        "burn_from_disabled":false,
+        "freeze_disabled":false,
+        "minting_finished":false
+    }
 ]
 
 ```

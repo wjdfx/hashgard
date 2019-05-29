@@ -1,28 +1,28 @@
 # hashgardcli bank
 
-## 描述
+## Description
 
-Bank模块允许你管理你本地账户的资产。 
+Bank allows you to manage assets in your local account
 
-## 使用方式
+
+## Usage
 
 ```
  hashgardcli bank [command]
 ```
 
-打印子命令和参数
+Print subcommands and parameters
 
 ```
 hashgardcli bank --help
 ```
-## 相关命令
+## Subcommands
 
-| 命令      | 描述                   |
+| Name  | Description      |
 | --------- | ---------------------- |
-| [account](account.md)   | 查询账户余额           |
-| [send](send.md)      | 创建和签名一个转账请求 |
-| [sign](sign.md)      | 签名离线传输文件       |
-| [multisign](multisign.md)      | 多重签名离线传输文件       |
-| [broadcast](broadcast.md) | 离线广播事务           |
-| [encode](encode.md) | 编码          |
-
+| [account](account.md)   |  Query account balance           |
+| [send](send.md)      |  Create and sign a send tx |
+| [sign](sign.md)      | Sign transactions generated offline    |
+| [multisign](multisign.md)|Generate multisig signatures for transactions generated offline |
+| [broadcast](broadcast.md) |Broadcast transactions generated offline |
+| [encode](encode.md) |  Encode           |

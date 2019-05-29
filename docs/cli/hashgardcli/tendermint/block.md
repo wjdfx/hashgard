@@ -1,26 +1,26 @@
 # hashgardcli tendermint block
 
-## 描述
+## Description
 
-获取指定高度的块的数据
+Get verified data for a the block at given height 
 
-## 用法
+## Usage
 
 ```
   hashgardcli tendermint block [height] [flags]
 ```
 
-## flags
+## Flags
 
-| 名称, 速记   | 默认值                | 描述                                                | 必需                               |
-| ------------ | --------------------- | --------------------------------------------------- | ---------------------------------- |
-| --chain-id   | 无                    | [string] tendermint 节点的链 ID                     | 否，当`--trust-node=false`时，为是 |
-| --node       | tcp://localhost:26657 | [string] 要连接的节点                               | 否                                 |
-| --trust-node | true                  | 信任连接的完整节点，值为 false 时对响应结果进行校验 | 否                                 |
+| Name, shorthand  | Default               | Description            | Required               |
+| ------------ | --------------------- | -------------------------- | ---------------------- |
+| --chain-id   | No                    | Chain ID of Tendermint node                     | No|
+| --node       | tcp://localhost:26657 | Node to connect to                      | No        |
+| --trust-node | true        | Trust connected full node (don't verify proofs for responses)| No |
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
 ```shell
 hashgardcli tendermint block 114263  --trust-node

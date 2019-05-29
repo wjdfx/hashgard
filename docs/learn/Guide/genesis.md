@@ -2,7 +2,7 @@
 ## 第1步：创建自己的帐户
 首先，如果您没有帐户或忘记密码，则需要为自己创建一个帐户作为相应的验证程序操作员。
 
-请按照[钱包创建文档](https://github.com/hashgard/hashgard/blob/master/docs/zh/hashgardcli/keys/add.md)创建
+请按照[钱包创建文档](https://github.com/hashgard/hashgard/blob/master/docs/cli/hashgardcli/keys/add.md)创建
 
 
 

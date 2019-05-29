@@ -1,28 +1,28 @@
 # hashgardcli exchange query-order
 
-## 描述
+## Description
 
-查看指定id的订单详情
+Query order details for the specified id
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli exchange query-order [order_id] [flags]
 ```
 
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 查询订单
+### checking order
 
 ```shell
 hashgardcli exchange query-order 1 --chain-id hashgard --indent -o=json
 ```
 
-下面是这个id为1的订单，seller是订单的创建者，supply是订单创建时提供的交换币种和数量，target是目标币种及数量，两者数量可计算交易的单价，remains则是目前订单中剩余的supply，create_time则是订单创建时间。
+The result is as follows：
 
 ```txt
 {
@@ -44,8 +44,10 @@ hashgardcli exchange query-order 1 --chain-id hashgard --indent -o=json
 }
 ```
 
-如何同订单交易？
 
-请点击下述链接：
+
+How to trade with orders?
+
+Please click on the link below:
 
 [take-order](take-order.md)

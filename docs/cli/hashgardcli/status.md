@@ -1,32 +1,32 @@
 # hashgardcli status
 
-## 描述
+## Description
 
-查询远程节点状态
+Query remote node for status
 
-## 用法
+## Usage
 
 ```shell
 hashgardcli status [flags]
 ```
 
-## flags
+## Flags
 
-| 名称, 缩写 | 默认值                | 描述                | 必需 |
+| Name,shorthand | Default               | description         | Required |
 | ---------- | --------------------- | ------------------- | ---- |
-| --node, -n | tcp://localhost:26657 | [string] 连接的节点 | 否   |
+| --node, -n | tcp://localhost:26657 |  Node to connect to  | No  |
 
-**全局 flags、查询命令 flags** 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-查询远程节点状态
+Query remote node for status
 
 ```shell
 hashgardcli status --node=tcp://localhost:26657 --indent
 ```
 
-查询到的结果如下：
+After that, you can get remote node status as follows:
 
 ```json
 {

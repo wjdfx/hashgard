@@ -1,27 +1,28 @@
 # hashgardcli gov deposit
 
-## 描述
+## Description
 
-充值保证金以激活提案
+Deposit tokens for active proposal
 
-## 使用方式
+
+## Usage
 
 ```
 hashgardcli gov deposit [proposal-id] [deposit] [flags]
 ```
-## Global Flags
+## Flags
 
- ### 参考：[hashgardcli](../README.md)
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-## 例子
+## Example
 
-### 充值保证金
+### Deposit
 
 ```shell
  hashgardcli gov deposit  1 50gard --from=hashgard --chain-id=hashgard -o=json --indent
 ```
 
-输入正确的密码后，你就充值了50个gard用以激活提案的投票状态。
+You need to deposit 50 gard to activate the proposal
 
 ```txt
 {
@@ -47,9 +48,8 @@ hashgardcli gov deposit [proposal-id] [deposit] [flags]
 }
 ```
 
-如何查询保证金充值明细？
+How to query deposit
 
-请点击下述链接：
 
 [query-deposit](query-deposit.md)
 

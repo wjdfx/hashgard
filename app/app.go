@@ -13,8 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/gov"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -26,6 +24,8 @@ import (
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
 	"github.com/hashgard/hashgard/x/issue"
+	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/mint"
 )
 
 const (
@@ -174,16 +174,6 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		slashing.DefaultCodespace,
 	)
 
-	app.govKeeper = gov.NewKeeper(
-		app.cdc,
-		app.keyGov,
-		app.paramsKeeper,
-		app.paramsKeeper.Subspace(gov.DefaultParamspace),
-		app.bankKeeper,
-		&stakingKeeper,
-		gov.DefaultCodespace,
-	)
-
 	app.issueKeeper = issue.NewKeeper(
 		app.cdc,
 		app.keyIssue,
@@ -216,6 +206,21 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.distributionKeeper,
 		app.bankKeeper,
 		app.feeCollectionKeeper,
+	)
+
+	app.govKeeper = gov.NewKeeper(
+		app.cdc,
+		app.keyGov,
+		app.paramsKeeper,
+		app.paramsKeeper.Subspace(gov.DefaultParamspace),
+		app.bankKeeper,
+		&stakingKeeper,
+		gov.DefaultCodespace,
+		app.accountKeeper,
+		app.distributionKeeper,
+		app.mintKeeper,
+		app.slashingKeeper,
+		&stakingKeeper,
 	)
 
 	// register the staking hooks

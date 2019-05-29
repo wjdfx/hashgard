@@ -17,7 +17,7 @@ hashgard add-genesis-account [address_or_key_name] [coin][,[coin]] [flags]
 | [address_or_key_name] | string |        | 被添加的账户名或地址       | `是`     |
 | [coin]                | string |        | 为该账户分配的 coin 及数量 | `是`     |
 
-## flags
+## Flags
 
 | 命令，缩写           | 类型   | 默认值         | 描述                             | 是否必须 |
 | -------------------- | ------ | -------------- | -------------------------------- | -------- |

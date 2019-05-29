@@ -13,4 +13,3 @@ hashgardcli gov proposal ${proposal_id} --trust-node
 hashgardcli gov vote ${proposal_id} ${option} --chain-id=hashgard --from hashgard
 ```
 需要指定投票的id```${proposal_id}```，和投票的选项```${option}```，可选项包括: Yes/No/NoWithVeto/Abstain
-

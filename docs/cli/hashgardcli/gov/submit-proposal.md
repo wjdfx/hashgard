@@ -1,31 +1,30 @@
 # hashgardcli gov submit-proposal
 
-## 描述
+## Description
 
-提交区块链治理提案以及发起提案所涉及的初始保证金，其中提案的类型包括Text/ParameterChange/SoftwareUpgrade这三种类型。
+Submit a proposal along with an initial deposit. Proposal type：Text/ParameterChange/SoftwareUpgrade。
 
-## 使用方式
+## Usage
 
 ```
 hashgardcli gov submit-proposal [flags]
 ```
 ## Flags
 
-| 名称        | 类型                | 是否必须                  | 默认值                      | 描述                                                                                                                                                 |
-| ---------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| --deposit        | string | 否 | "" | 提案的保证金                                                                                                                        |
-| --description    | string | 是 | "" | 提案的描述                                                                                                          |
-| --proposal | string | 否 | "" | 提案文件路径（如果设置了此路径则忽略其他提案参数）                                                                                             |
-| --title          | string | 是 | "" | 提案标题                                                                                                                          |
-| --type           | string | 是 | "" | 提案类型,例如:Text/ParameterChange/SoftwareUpgrade                                                                           |
+| name       | type               | Required      | Required                   | Description      |
+| ---------------- | -------------------------- | ------------ | -------------- | --------------- |
+| --deposit        | string | No| "" | deposit of proposal                                                                                                     |
+| --description    | string | Yes | "" | description of proposal                                                                                   |
+| --proposal | string | No| "" | proposal file path (if this path is given, other proposal flags are ignored)                 |
+| --title          | string | Yes | "" | title of proposal                                                                                                         |
+| --type           | string | Yes | "" | proposalType of proposal, types: text/parameter_change/software_upgrade    |
 
 ## Global Flags
+**Global flags, query command flags** [hashgardcli](../README.md)
 
-### 参考：[hashgardcli](../README.md)
- 
-## 例子
+## Example
 
-### 提交一个'Text'类型的提案
+### Submit a 'text' type proposal
 
 ```shell
 hashgardcli gov submit-proposal \
@@ -61,7 +60,7 @@ hashgardcli gov submit-proposal \
  ]
 }
 ```
-### 以提案文件的方式提交一个'Text'类型的提案
+### Submit a 'Text' type proposal
 ```bash
 hashgardcli gov submit-proposal \
     --proposal="path/to/proposal.json" \
@@ -106,7 +105,7 @@ hashgardcli gov submit-proposal \
  ]
 }
 ```
-### 提交一个'SoftwareUpgrade'类型的提案
+### Submit a 'SoftwareUpgrade' type proposal
 
 ```bash
 hashgardcli gov submit-proposal \
@@ -119,9 +118,7 @@ hashgardcli gov submit-proposal \
 在这种场景下，提案的 --title、--type 和--description参数必不可少，另外你也应该保留好提案ID，这是检索所提交提案的唯一方法。
 
 
-如何查询提案详情？
-
-请点击下述链接：
+How to query proposal
 
 [proposal](proposal.md)
 
