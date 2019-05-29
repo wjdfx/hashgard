@@ -20,6 +20,8 @@ func RegisterCodec(cdc *codec.Codec) {
 	cdc.RegisterConcrete(MsgBoxDescription{}, "box/MsgBoxDescription", nil)
 	cdc.RegisterConcrete(MsgBoxDisableFeature{}, "box/MsgBoxDisableFeature", nil)
 
+	cdc.RegisterConcrete(BoxConfigParams{}, "box/BoxConfigParams", nil)
+
 	cdc.RegisterInterface((*types.Box)(nil), nil)
 	cdc.RegisterConcrete(&types.BoxInfo{}, "box/BoxInfo", nil)
 }

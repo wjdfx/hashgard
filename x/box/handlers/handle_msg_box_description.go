@@ -10,6 +10,11 @@ import (
 
 //Handle MsgBoxDescription
 func HandleMsgBoxDescription(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDescription) sdk.Result {
+	fee := keeper.GetParams(ctx).DescribeFee
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
+
 	boxInfo, err := keeper.SetBoxDescription(ctx, msg.Id, msg.Sender, msg.Description)
 	if err != nil {
 		return err.Result()

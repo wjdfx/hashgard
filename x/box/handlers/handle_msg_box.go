@@ -10,7 +10,7 @@ import (
 
 //Handle MsgLockBox
 func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox) sdk.Result {
-	fee := keeper.GetLockBoxCreateFee(ctx)
+	fee := keeper.GetParams(ctx).LockCreateFee
 	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
 		return err.Result()
 	}
@@ -29,7 +29,7 @@ func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox
 
 //Handle MsgDepositBox
 func HandleMsgDepositBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgDepositBox) sdk.Result {
-	fee := keeper.GetDepositBoxCreateFee(ctx)
+	fee := keeper.GetParams(ctx).DepositBoxCreateFee
 	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
 		return err.Result()
 	}
@@ -48,7 +48,7 @@ func HandleMsgDepositBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgDepo
 
 //Handle MsgFutureBox
 func HandleMsgFutureBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgFutureBox) sdk.Result {
-	fee := keeper.GetFutureBoxCreateFee(ctx)
+	fee := keeper.GetParams(ctx).FutureBoxCreateFee
 	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
 		return err.Result()
 	}

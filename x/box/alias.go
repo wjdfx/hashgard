@@ -10,6 +10,7 @@ import (
 type (
 	Keeper  = keeper.Keeper
 	BoxInfo = types.BoxInfo
+	Params  = msgs.BoxConfigParams
 )
 
 var (
@@ -17,6 +18,7 @@ var (
 	NewKeeper     = keeper.NewKeeper
 	RegisterCodec = msgs.RegisterCodec
 	SendTxCmd     = cli.SendTxCmd
+	DefaultParams = msgs.DefaultParams
 )
 
 const (

@@ -9,24 +9,25 @@ import (
 )
 
 const (
-	CodeBoxOwnerMismatch          sdk.CodeType = 1
-	CodeBoxIDNotValid             sdk.CodeType = 2
-	CodeBoxNameNotValid           sdk.CodeType = 3
-	CodeAmountNotValid            sdk.CodeType = 4
-	CodeDecimalsNotValid          sdk.CodeType = 5
-	CodeTimelineNotValid          sdk.CodeType = 6
-	CodeBoxDescriptionNotValid    sdk.CodeType = 7
-	CodeUnknownBox                sdk.CodeType = 8
-	CodeUnknownBoxType            sdk.CodeType = 9
-	CodeUnknownOperation          sdk.CodeType = 10
-	CodeInterestInjectionNotValid sdk.CodeType = 11
-	CodeInterestFetchNotValid     sdk.CodeType = 12
-	CodeNotEnoughAmount           sdk.CodeType = 13
-	CodeTimeNotValid              sdk.CodeType = 14
-	CodeNotAllowedOperation       sdk.CodeType = 15
-	CodeNotSupportOperation       sdk.CodeType = 16
-	CodeUnknownFeature            sdk.CodeType = 17
-	CodeNotTransfer               sdk.CodeType = 18
+	CodeNotEnoughFee              sdk.CodeType = 1
+	CodeBoxOwnerMismatch          sdk.CodeType = 2
+	CodeBoxIDNotValid             sdk.CodeType = 3
+	CodeBoxNameNotValid           sdk.CodeType = 4
+	CodeAmountNotValid            sdk.CodeType = 5
+	CodeDecimalsNotValid          sdk.CodeType = 6
+	CodeTimelineNotValid          sdk.CodeType = 7
+	CodeBoxDescriptionNotValid    sdk.CodeType = 8
+	CodeUnknownBox                sdk.CodeType = 9
+	CodeUnknownBoxType            sdk.CodeType = 10
+	CodeUnknownOperation          sdk.CodeType = 11
+	CodeInterestInjectionNotValid sdk.CodeType = 12
+	CodeInterestFetchNotValid     sdk.CodeType = 13
+	CodeNotEnoughAmount           sdk.CodeType = 14
+	CodeTimeNotValid              sdk.CodeType = 15
+	CodeNotAllowedOperation       sdk.CodeType = 16
+	CodeNotSupportOperation       sdk.CodeType = 17
+	CodeUnknownFeature            sdk.CodeType = 18
+	CodeNotTransfer               sdk.CodeType = 19
 )
 
 //convert sdk.Error to error
@@ -37,6 +38,9 @@ func Errorf(err sdk.Error) error {
 // Error constructors
 func ErrOwnerMismatch(id string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeBoxOwnerMismatch, fmt.Sprintf("Owner mismatch with box %s", id))
+}
+func ErrNotEnoughFee() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughFee, fmt.Sprintf("Not enough fee"))
 }
 func ErrDecimalsNotValid(decimals uint) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeDecimalsNotValid, "%d is not a valid decimals", decimals)
@@ -83,6 +87,7 @@ func ErrUnknownOperation() sdk.Error {
 func ErrNotEnoughAmount() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughAmount, fmt.Sprintf("Not enough amount"))
 }
+
 func ErrNotSupportOperation() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeNotSupportOperation, fmt.Sprintf("Not support operation"))
 }

@@ -9,7 +9,10 @@ import (
 
 //Handle MsgIssueMint
 func HandleMsgIssueMint(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueMint) sdk.Result {
-
+	fee := keeper.GetParams(ctx).MintFee
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
 	_, err := keeper.Mint(ctx, msg.IssueId, msg.Amount, msg.Sender, msg.To)
 	if err != nil {
 		return err.Result()

@@ -10,10 +10,11 @@ import (
 
 //Handle MsgBoxDisableFeature
 func HandleMsgBoxDisableFeature(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDisableFeature) sdk.Result {
-	fee := keeper.GetEnableTransferFee(ctx)
+	fee := keeper.GetParams(ctx).DisableFeatureFee
 	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
 		return err.Result()
 	}
+
 	boxInfo, err := keeper.DisableFeature(ctx, msg.Sender, msg.Id, msg.Feature)
 	if err != nil {
 		return err.Result()

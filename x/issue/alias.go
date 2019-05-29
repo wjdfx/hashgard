@@ -12,6 +12,7 @@ type (
 	CoinIssueInfo = types.CoinIssueInfo
 	Approval      = types.Approval
 	IssueFreeze   = types.IssueFreeze
+	Params        = msgs.IssueConfigParams
 )
 
 var (
@@ -20,6 +21,7 @@ var (
 	NewModuleClient = client.NewModuleClient
 	//GetAccountCmd   = cli.GetAccountCmd
 	RegisterCodec = msgs.RegisterCodec
+	DefaultParams = msgs.DefaultParams
 )
 
 const (

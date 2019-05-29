@@ -9,24 +9,25 @@ import (
 )
 
 const (
-	CodeIssuerMismatch            sdk.CodeType = 1
-	CodeIssueIDNotValid           sdk.CodeType = 2
-	CodeIssueNameNotValid         sdk.CodeType = 3
-	CodeAmountNotValid            sdk.CodeType = 4
-	CodeIssueSymbolNotValid       sdk.CodeType = 5
-	CodeIssueTotalSupplyNotValid  sdk.CodeType = 6
-	CodeIssueCoinDecimalsNotValid sdk.CodeType = 7
-	CodeIssueDescriptionNotValid  sdk.CodeType = 8
-	CodeUnknownIssue              sdk.CodeType = 9
-	CanNotMint                    sdk.CodeType = 10
-	CanNotBurn                    sdk.CodeType = 11
-	CodeUnknownFeature            sdk.CodeType = 12
-	CodeUnknownFreezeType         sdk.CodeType = 13
-	CodeNotEnoughAmountToTransfer sdk.CodeType = 14
-	CodeCanNotFreeze              sdk.CodeType = 15
-	CodeFreezeEndTimeNotValid     sdk.CodeType = 16
-	CodeNotTransferIn             sdk.CodeType = 17
-	CodeNotTransferOut            sdk.CodeType = 18
+	CodeNotEnoughFee              sdk.CodeType = 1
+	CodeIssuerMismatch            sdk.CodeType = 2
+	CodeIssueIDNotValid           sdk.CodeType = 3
+	CodeIssueNameNotValid         sdk.CodeType = 4
+	CodeAmountNotValid            sdk.CodeType = 5
+	CodeIssueSymbolNotValid       sdk.CodeType = 6
+	CodeIssueTotalSupplyNotValid  sdk.CodeType = 7
+	CodeIssueCoinDecimalsNotValid sdk.CodeType = 8
+	CodeIssueDescriptionNotValid  sdk.CodeType = 9
+	CodeUnknownIssue              sdk.CodeType = 10
+	CanNotMint                    sdk.CodeType = 11
+	CanNotBurn                    sdk.CodeType = 12
+	CodeUnknownFeature            sdk.CodeType = 13
+	CodeUnknownFreezeType         sdk.CodeType = 14
+	CodeNotEnoughAmountToTransfer sdk.CodeType = 15
+	CodeCanNotFreeze              sdk.CodeType = 16
+	CodeFreezeEndTimeNotValid     sdk.CodeType = 17
+	CodeNotTransferIn             sdk.CodeType = 18
+	CodeNotTransferOut            sdk.CodeType = 19
 )
 
 //convert sdk.Error to error
@@ -37,6 +38,9 @@ func Errorf(err sdk.Error) error {
 // Error constructors
 func ErrOwnerMismatch(issueID string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeIssuerMismatch, fmt.Sprintf("Owner mismatch with token %s", issueID))
+}
+func ErrNotEnoughFee() sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughFee, fmt.Sprintf("Not enough fee"))
 }
 func ErrAmountNotValid(key string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeAmountNotValid, "%s is not a valid amount", key)

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box/msgs"
+
 	keeper2 "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
 	"github.com/hashgard/hashgard/x/box/utils"
@@ -27,7 +29,6 @@ import (
 
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/box/keeper"
-	"github.com/hashgard/hashgard/x/box/msgs"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 )
 

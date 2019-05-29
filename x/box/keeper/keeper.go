@@ -3,6 +3,8 @@ package keeper
 import (
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/box/msgs"
+
 	"github.com/hashgard/hashgard/x/box/utils"
 
 	"github.com/tendermint/tendermint/crypto"
@@ -63,7 +65,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	return Keeper{
 		storeKey:            key,
 		paramsKeeper:        paramsKeeper,
-		paramSpace:          paramSpace.WithKeyTable(boxparams.ParamKeyTable()),
+		paramSpace:          paramSpace.WithKeyTable(msgs.ParamKeyTable()),
 		ck:                  ck,
 		ik:                  ik,
 		feeCollectionKeeper: feeCollectionKeeper,
@@ -147,9 +149,12 @@ func (keeper Keeper) GetCoinDecimals(ctx sdk.Context, coin sdk.Coin) (uint, sdk.
 }
 
 func (keeper Keeper) Fee(ctx sdk.Context, sender sdk.AccAddress, fee sdk.Coin) sdk.Error {
+	if fee.IsZero() || fee.IsNegative() {
+		return nil
+	}
 	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, sender, sdk.NewCoins(fee))
 	if err != nil {
-		return err
+		return errors.ErrNotEnoughFee()
 	}
 	_ = keeper.GetFeeCollectionKeeper().AddCollectedFees(ctx, sdk.NewCoins(fee))
 	return nil
@@ -434,59 +439,17 @@ func (keeper Keeper) RemoveFromActiveBoxQueueByKey(ctx sdk.Context, key []byte) 
 	store.Delete(key)
 }
 
+// -----------------------------------------------------------------------------
 // Params
-// GetLockBoxCreateFee get's the constant fee from the paramSpace
-func (k Keeper) GetLockBoxCreateFee(ctx sdk.Context) (fee sdk.Coin) {
-	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyLockBoxCreateFee, &fee)
-	return
+
+// SetParams sets the auth module's parameters.
+func (ak Keeper) SetParams(ctx sdk.Context, params msgs.BoxConfigParams) {
+	ak.paramSpace.SetParamSet(ctx, &params)
 }
 
-// SetLockBoxCreateFee set's the constant fee in the paramSpace
-func (k Keeper) SetLockBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
-	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyLockBoxCreateFee, fee)
-}
-
-// GetDepositBoxCreateFee get's the constant fee from the paramSpace
-func (k Keeper) GetDepositBoxCreateFee(ctx sdk.Context) (fee sdk.Coin) {
-	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyDepositBoxCreateFee, &fee)
-	return
-}
-
-// SetDepositBoxCreateFee set's the constant fee in the paramSpace
-func (k Keeper) SetDepositBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
-	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyDepositBoxCreateFee, fee)
-}
-
-// GetFutureBoxCreateFee get's the constant fee from the paramSpace
-func (k Keeper) GetFutureBoxCreateFee(ctx sdk.Context) (fee sdk.Coin) {
-	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyFutureBoxCreateFee, &fee)
-	return
-}
-
-// SetFutureBoxCreateFee set's the constant fee in the paramSpace
-func (k Keeper) SetFutureBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
-	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyFutureBoxCreateFee, fee)
-}
-
-// GetEnableTransferFee get's the constant fee from the paramSpace
-func (k Keeper) GetEnableTransferFee(ctx sdk.Context) (fee sdk.Coin) {
-	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyBoxEnableTransferFee, &fee)
-	return
-}
-
-// SetEnableTransferFee set's the constant fee in the paramSpace
-func (k Keeper) SetEnableTransferFee(ctx sdk.Context, fee sdk.Coin) {
-	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyBoxEnableTransferFee, fee)
-}
-
-// SetBoxDescribeFee set's the constant fee in the paramSpace
-func (k Keeper) SetBoxDescribeFee(ctx sdk.Context, fee sdk.Coin) {
-	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyBoxDescribeFee, fee)
-}
-
-// GetBoxDescribeFee get's the constant fee from the paramSpace
-func (k Keeper) GetBoxDescribeFee(ctx sdk.Context) (fee sdk.Coin) {
-	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyBoxDescribeFee, &fee)
+// GetParams gets the auth module's parameters.
+func (ak Keeper) GetParams(ctx sdk.Context) (params msgs.BoxConfigParams) {
+	ak.paramSpace.GetParamSet(ctx, &params)
 	return
 }
 

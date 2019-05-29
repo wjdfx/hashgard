@@ -9,7 +9,10 @@ import (
 
 //Handle MsgIssue
 func HandleMsgIssue(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssue) sdk.Result {
-
+	fee := keeper.GetParams(ctx).IssueFee
+	if err := keeper.Fee(ctx, msg.Owner, fee); err != nil {
+		return err.Result()
+	}
 	coinIssueInfo := msg.CoinIssueInfo
 	_, err := keeper.CreateIssue(ctx, coinIssueInfo)
 	if err != nil {

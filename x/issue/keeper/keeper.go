@@ -7,22 +7,11 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/hashgard/hashgard/x/issue/errors"
+	"github.com/hashgard/hashgard/x/issue/msgs"
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
 )
-
-// Parameter store key
-var (
-	ParamStoreKeyIssueParams = []byte("issueparams")
-)
-
-// Key declaration for parameters
-func ParamKeyTable() params.KeyTable {
-	return params.NewKeyTable(
-		ParamStoreKeyIssueParams, issueparams.IssueConfigParams{},
-	)
-}
 
 // Issue Keeper
 type Keeper struct {
@@ -34,6 +23,8 @@ type Keeper struct {
 	storeKey sdk.StoreKey
 	// The reference to the CoinKeeper to modify balances
 	ck BankKeeper
+	// The reference to the FeeCollectionKeeper to add fee
+	feeCollectionKeeper FeeCollectionKeeper
 	// The codec codec for binary encoding/decoding.
 	cdc *codec.Codec
 	// Reserved codespace
@@ -45,13 +36,23 @@ func (keeper Keeper) Getcdc() *codec.Codec {
 	return keeper.cdc
 }
 
+//Get box bankKeeper
+func (keeper Keeper) GetBankKeeper() BankKeeper {
+	return keeper.ck
+}
+
+//Get box feeCollectionKeeper
+func (keeper Keeper) GetFeeCollectionKeeper() FeeCollectionKeeper {
+	return keeper.feeCollectionKeeper
+}
+
 //New issue keeper Instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper{
 		storeKey:     key,
 		paramsKeeper: paramsKeeper,
-		paramSpace:   paramSpace.WithKeyTable(ParamKeyTable()),
+		paramSpace:   paramSpace.WithKeyTable(msgs.ParamKeyTable()),
 		ck:           ck,
 		cdc:          cdc,
 		codespace:    codespace,
@@ -128,6 +129,18 @@ func (keeper Keeper) CreateIssue(ctx sdk.Context, coinIssueInfo *types.CoinIssue
 	coins, err := keeper.ck.AddCoins(ctx, coinIssueInfo.Owner, sdk.NewCoins(coin))
 
 	return coins, err
+}
+
+func (keeper Keeper) Fee(ctx sdk.Context, sender sdk.AccAddress, fee sdk.Coin) sdk.Error {
+	if fee.IsZero() || fee.IsNegative() {
+		return nil
+	}
+	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, sender, sdk.NewCoins(fee))
+	if err != nil {
+		return errors.ErrNotEnoughFee()
+	}
+	_ = keeper.GetFeeCollectionKeeper().AddCollectedFees(ctx, sdk.NewCoins(fee))
+	return nil
 }
 
 //Returns issue by issueID
@@ -566,17 +579,18 @@ func (keeper Keeper) GetSymbolIssues(ctx sdk.Context, symbol string) (issueIDs [
 	return issueIDs
 }
 
+// -----------------------------------------------------------------------------
 // Params
-// Returns the current issueConfigParams from the global param store
-func (keeper Keeper) GetIssueConfigParams(ctx sdk.Context) issueparams.IssueConfigParams {
-	var issueConfigParams issueparams.IssueConfigParams
-	keeper.paramSpace.Get(ctx, ParamStoreKeyIssueParams, &issueConfigParams)
-	return issueConfigParams
+
+// SetParams sets the auth module's parameters.
+func (ak Keeper) SetParams(ctx sdk.Context, params msgs.IssueConfigParams) {
+	ak.paramSpace.SetParamSet(ctx, &params)
 }
 
-//Set issueConfigParams
-func (keeper Keeper) SetIssueConfigParams(ctx sdk.Context, issueConfigParams issueparams.IssueConfigParams) {
-	keeper.paramSpace.Set(ctx, ParamStoreKeyIssueParams, &issueConfigParams)
+// GetParams gets the auth module's parameters.
+func (ak Keeper) GetParams(ctx sdk.Context) (params msgs.IssueConfigParams) {
+	ak.paramSpace.GetParamSet(ctx, &params)
+	return
 }
 
 //Set the initial issueCount

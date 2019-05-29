@@ -9,7 +9,10 @@ import (
 
 //Handle MsgIssueMint
 func HandleMsgIssueTransferOwnership(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueTransferOwnership) sdk.Result {
-
+	fee := keeper.GetParams(ctx).TransferOwnerFee
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
 	if err := keeper.TransferOwnership(ctx, msg.IssueId, msg.Sender, msg.To); err != nil {
 		return err.Result()
 	}

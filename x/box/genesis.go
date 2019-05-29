@@ -2,6 +2,9 @@ package box
 
 import (
 	"bytes"
+	"fmt"
+
+	"github.com/hashgard/hashgard/x/box/msgs"
 
 	"github.com/hashgard/hashgard/x/box/types"
 
@@ -10,30 +13,23 @@ import (
 
 // GenesisState - all box state that must be provided at genesis
 type GenesisState struct {
-	StartingLockId       uint64    `json:"starting_lock_id"`
-	StartingDepositId    uint64    `json:"starting_deposit_id"`
-	StartingFutureId     uint64    `json:"starting_future_id"`
-	LockBoxs             []BoxInfo `json:"lock_boxs"`
-	DepositBoxs          []BoxInfo `json:"deposit_boxs"`
-	FutureBoxs           []BoxInfo `json:"future_boxs"`
-	LockBoxCreateFee     sdk.Coin  `json:"lock_box_create_fee"`
-	DepositBoxCreateFee  sdk.Coin  `json:"deposit_box_create_fee"`
-	FutureBoxCreateFee   sdk.Coin  `json:"future_box_create_fee"`
-	BoxEnableTransferFee sdk.Coin  `json:"box_enable_transfer_fee"`
-	BoxDescribeFee       sdk.Coin  `json:"box_describe_fee"`
+	StartingLockId    uint64    `json:"starting_lock_id"`
+	StartingDepositId uint64    `json:"starting_deposit_id"`
+	StartingFutureId  uint64    `json:"starting_future_id"`
+	LockBoxs          []BoxInfo `json:"lock_boxs"`
+	DepositBoxs       []BoxInfo `json:"deposit_boxs"`
+	FutureBoxs        []BoxInfo `json:"future_boxs"`
+	Params            Params    `json:"params"`
 }
 
 // NewGenesisState creates a new genesis state.
 func NewGenesisState(startingLockId uint64, startingDepositId uint64, startingFutureId uint64) GenesisState {
 	return GenesisState{
-		StartingLockId:       startingLockId,
-		StartingDepositId:    startingDepositId,
-		StartingFutureId:     startingFutureId,
-		LockBoxCreateFee:     sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(100, 18)),
-		DepositBoxCreateFee:  sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
-		FutureBoxCreateFee:   sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
-		BoxEnableTransferFee: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
-		BoxDescribeFee:       sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(100, 18))}
+		StartingLockId:    startingLockId,
+		StartingDepositId: startingDepositId,
+		StartingFutureId:  startingFutureId,
+		Params:            msgs.DefaultParams(sdk.DefaultBondDenom),
+	}
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -66,11 +62,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 		panic(err)
 	}
 
-	keeper.SetLockBoxCreateFee(ctx, data.LockBoxCreateFee)
-	keeper.SetDepositBoxCreateFee(ctx, data.DepositBoxCreateFee)
-	keeper.SetFutureBoxCreateFee(ctx, data.FutureBoxCreateFee)
-	keeper.SetEnableTransferFee(ctx, data.BoxEnableTransferFee)
-	keeper.SetBoxDescribeFee(ctx, data.BoxDescribeFee)
+	keeper.SetParams(ctx, data.Params)
 
 	if data.LockBoxs != nil {
 		for _, box := range data.LockBoxs {
@@ -129,15 +121,29 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	genesisState.DepositBoxs = keeper.ListAll(ctx, types.Deposit)
 	genesisState.FutureBoxs = keeper.ListAll(ctx, types.Future)
 
-	genesisState.LockBoxCreateFee = keeper.GetLockBoxCreateFee(ctx)
-	genesisState.DepositBoxCreateFee = keeper.GetDepositBoxCreateFee(ctx)
-	genesisState.FutureBoxCreateFee = keeper.GetFutureBoxCreateFee(ctx)
-	genesisState.BoxEnableTransferFee = keeper.GetEnableTransferFee(ctx)
-	genesisState.BoxDescribeFee = keeper.GetBoxDescribeFee(ctx)
+	genesisState.Params = keeper.GetParams(ctx)
 
 	return genesisState
 }
 
 // ValidateGenesis performs basic validation of bank genesis data returning an
 // error for any failed validation criteria.
-func ValidateGenesis(data GenesisState) error { return nil }
+func ValidateGenesis(data GenesisState) error {
+
+	if data.Params.LockCreateFee.IsNegative() {
+		return fmt.Errorf("invalid lock create fee: %s", data.Params.LockCreateFee.String())
+	}
+	if data.Params.DepositBoxCreateFee.IsNegative() {
+		return fmt.Errorf("invalid deposit box create fee: %s", data.Params.DepositBoxCreateFee.String())
+	}
+	if data.Params.FutureBoxCreateFee.IsNegative() {
+		return fmt.Errorf("invalid future box create fee: %s", data.Params.FutureBoxCreateFee.String())
+	}
+	if data.Params.DisableFeatureFee.IsNegative() {
+		return fmt.Errorf("invalid disable feature fee: %s", data.Params.DisableFeatureFee.String())
+	}
+	if data.Params.DescribeFee.IsNegative() {
+		return fmt.Errorf("invalid describe fee: %s", data.Params.DescribeFee.String())
+	}
+	return nil
+}
