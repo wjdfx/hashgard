@@ -446,37 +446,48 @@ func (k Keeper) SetLockBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
 	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyLockBoxCreateFee, fee)
 }
 
-// GetLockBoxCreateFee get's the constant fee from the paramSpace
+// GetDepositBoxCreateFee get's the constant fee from the paramSpace
 func (k Keeper) GetDepositBoxCreateFee(ctx sdk.Context) (fee sdk.Coin) {
 	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyDepositBoxCreateFee, &fee)
 	return
 }
 
-// SetLockBoxCreateFee set's the constant fee in the paramSpace
+// SetDepositBoxCreateFee set's the constant fee in the paramSpace
 func (k Keeper) SetDepositBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
 	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyDepositBoxCreateFee, fee)
 }
 
-// GetLockBoxCreateFee get's the constant fee from the paramSpace
+// GetFutureBoxCreateFee get's the constant fee from the paramSpace
 func (k Keeper) GetFutureBoxCreateFee(ctx sdk.Context) (fee sdk.Coin) {
 	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyFutureBoxCreateFee, &fee)
 	return
 }
 
-// SetLockBoxCreateFee set's the constant fee in the paramSpace
+// SetFutureBoxCreateFee set's the constant fee in the paramSpace
 func (k Keeper) SetFutureBoxCreateFee(ctx sdk.Context, fee sdk.Coin) {
 	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyFutureBoxCreateFee, fee)
 }
 
-// GetLockBoxCreateFee get's the constant fee from the paramSpace
+// GetEnableTransferFee get's the constant fee from the paramSpace
 func (k Keeper) GetEnableTransferFee(ctx sdk.Context) (fee sdk.Coin) {
 	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyBoxEnableTransferFee, &fee)
 	return
 }
 
-// SetLockBoxCreateFee set's the constant fee in the paramSpace
+// SetEnableTransferFee set's the constant fee in the paramSpace
 func (k Keeper) SetEnableTransferFee(ctx sdk.Context, fee sdk.Coin) {
 	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyBoxEnableTransferFee, fee)
+}
+
+// SetBoxDescribeFee set's the constant fee in the paramSpace
+func (k Keeper) SetBoxDescribeFee(ctx sdk.Context, fee sdk.Coin) {
+	k.paramSpace.Set(ctx, boxparams.ParamStoreKeyBoxDescribeFee, fee)
+}
+
+// GetBoxDescribeFee get's the constant fee from the paramSpace
+func (k Keeper) GetBoxDescribeFee(ctx sdk.Context) (fee sdk.Coin) {
+	k.paramSpace.Get(ctx, boxparams.ParamStoreKeyBoxDescribeFee, &fee)
+	return
 }
 
 //Set the initial boxCount

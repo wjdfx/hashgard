@@ -11,6 +11,7 @@ var (
 	ParamStoreKeyDepositBoxCreateFee  = []byte("DepositBoxCreateFee")
 	ParamStoreKeyFutureBoxCreateFee   = []byte("FutureBoxCreateFee")
 	ParamStoreKeyBoxEnableTransferFee = []byte("BoxEnableTransferFee")
+	ParamStoreKeyBoxDescribeFee       = []byte("BoxDescribeFee")
 )
 
 // type declaration for parameters
@@ -20,5 +21,6 @@ func ParamKeyTable() params.KeyTable {
 		ParamStoreKeyDepositBoxCreateFee, sdk.Coin{},
 		ParamStoreKeyFutureBoxCreateFee, sdk.Coin{},
 		ParamStoreKeyBoxEnableTransferFee, sdk.Coin{},
+		ParamStoreKeyBoxDescribeFee, sdk.Coin{},
 	)
 }

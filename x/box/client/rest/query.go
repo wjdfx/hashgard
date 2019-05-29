@@ -1,9 +1,10 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+
+	"github.com/hashgard/hashgard/x/box/errors"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -11,22 +12,19 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"github.com/gorilla/mux"
 	"github.com/hashgard/hashgard/x/box/params"
-	"github.com/hashgard/hashgard/x/box/types"
 
 	"github.com/hashgard/hashgard/x/box/client/queriers"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
 )
 
-// RegisterRoutes - Central function to define routes that get registered by the main application
-func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
-	r.HandleFunc(fmt.Sprintf("/%s/{%s}", types.QuerierRoute, BoxID), queryBoxHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", types.QuerierRoute, types.QuerySearch, BoxType, Name), queryBoxSearchHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/{%s}/%s", types.QuerierRoute, BoxType, types.QueryList), queryBoxsHandlerFn(cdc, cliCtx)).Methods("GET")
-}
-func queryBoxHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func BoxQueryHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id := vars[BoxID]
+		id := vars[ID]
+		if boxutils.GetBoxTypeByValue(id) != boxType {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownBox(id).Error())
+			return
+		}
 		if err := boxutils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -39,10 +37,10 @@ func queryBoxHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handler
 		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
-func queryBoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func BoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		res, err := queriers.QueryBoxByName(vars[BoxType], vars[Name], cliCtx)
+		res, err := queriers.QueryBoxByName(boxType, vars[Name], cliCtx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -50,9 +48,8 @@ func queryBoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
 	}
 }
-func queryBoxsHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func BoxListHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
 		address, err := sdk.AccAddressFromBech32(r.URL.Query().Get(RestAddress))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
@@ -60,7 +57,7 @@ func queryBoxsHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 		}
 		boxQueryParams := params.BoxQueryParams{
 			StartId: r.URL.Query().Get(RestStartId),
-			BoxType: vars[BoxType],
+			BoxType: boxType,
 			Owner:   address,
 			Limit:   30,
 		}

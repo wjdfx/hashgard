@@ -25,7 +25,7 @@ type PostFutureBoxReq struct {
 	params.BoxFutureParams `json:"box"`
 }
 
-func postLockBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostLockBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req PostLockBoxReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
@@ -58,7 +58,7 @@ func postLockBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
-func postDepositBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostDepositBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req PostDepositBoxReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
@@ -91,7 +91,7 @@ func postDepositBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) 
 		clientrest.WriteGenerateStdTxResponse(w, cdc, cliCtx, req.BaseReq, []sdk.Msg{msg})
 	}
 }
-func postFutureBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostFutureBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req PostFutureBoxReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {

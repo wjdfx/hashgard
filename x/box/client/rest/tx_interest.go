@@ -12,7 +12,7 @@ import (
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 )
 
-func postInterestHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, operation string) http.HandlerFunc {
+func PostInterestHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, operation string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
@@ -33,7 +33,7 @@ func postInterestHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, operatio
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg, err := clientutils.GetInterestMsg(cdc, cliCtx, account, vars[BoxID], vars[Amount], operation, false)
+		msg, err := clientutils.GetInterestMsg(cdc, cliCtx, account, vars[ID], vars[Amount], operation, false)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

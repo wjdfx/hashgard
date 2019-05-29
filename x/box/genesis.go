@@ -20,6 +20,7 @@ type GenesisState struct {
 	DepositBoxCreateFee  sdk.Coin  `json:"deposit_box_create_fee"`
 	FutureBoxCreateFee   sdk.Coin  `json:"future_box_create_fee"`
 	BoxEnableTransferFee sdk.Coin  `json:"box_enable_transfer_fee"`
+	BoxDescribeFee       sdk.Coin  `json:"box_describe_fee"`
 }
 
 // NewGenesisState creates a new genesis state.
@@ -31,7 +32,8 @@ func NewGenesisState(startingLockId uint64, startingDepositId uint64, startingFu
 		LockBoxCreateFee:     sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(100, 18)),
 		DepositBoxCreateFee:  sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
 		FutureBoxCreateFee:   sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
-		BoxEnableTransferFee: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18))}
+		BoxEnableTransferFee: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
+		BoxDescribeFee:       sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(100, 18))}
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -68,6 +70,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	keeper.SetDepositBoxCreateFee(ctx, data.DepositBoxCreateFee)
 	keeper.SetFutureBoxCreateFee(ctx, data.FutureBoxCreateFee)
 	keeper.SetEnableTransferFee(ctx, data.BoxEnableTransferFee)
+	keeper.SetBoxDescribeFee(ctx, data.BoxDescribeFee)
 
 	if data.LockBoxs != nil {
 		for _, box := range data.LockBoxs {
@@ -130,6 +133,7 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	genesisState.DepositBoxCreateFee = keeper.GetDepositBoxCreateFee(ctx)
 	genesisState.FutureBoxCreateFee = keeper.GetFutureBoxCreateFee(ctx)
 	genesisState.BoxEnableTransferFee = keeper.GetEnableTransferFee(ctx)
+	genesisState.BoxDescribeFee = keeper.GetBoxDescribeFee(ctx)
 
 	return genesisState
 }

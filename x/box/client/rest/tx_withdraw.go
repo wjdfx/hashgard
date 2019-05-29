@@ -3,6 +3,9 @@ package rest
 import (
 	"net/http"
 
+	"github.com/hashgard/hashgard/x/box/errors"
+	boxutils "github.com/hashgard/hashgard/x/box/utils"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	clientrest "github.com/cosmos/cosmos-sdk/client/rest"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -12,10 +15,14 @@ import (
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 )
 
-func postWithdrawHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostWithdrawHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-
+		id := vars[ID]
+		if boxutils.GetBoxTypeByValue(id) != boxType {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownBox(id).Error())
+			return
+		}
 		var req PostBoxBaseReq
 		if !rest.ReadRESTReq(w, r, cdc, &req) {
 			return
@@ -33,7 +40,7 @@ func postWithdrawHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg, err := clientutils.GetWithdrawMsg(cdc, cliCtx, account, vars[BoxID])
+		msg, err := clientutils.GetWithdrawMsg(cdc, cliCtx, account, id)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

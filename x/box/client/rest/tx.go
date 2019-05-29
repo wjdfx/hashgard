@@ -29,23 +29,27 @@ type PostDescriptionReq struct {
 
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Lock), postLockBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Deposit), postDepositBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Future), postFutureBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/deposit-to/{%s}/{%s}", BoxID, Amount), postDepositHandlerFn(cdc, cliCtx, types.DepositTo)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/deposit-fetch/{%s}/{%s}", BoxID, Amount), postDepositHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/interest/injection/{%s}/{%s}", BoxID, Amount), postInterestHandlerFn(cdc, cliCtx, types.Injection)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/interest/fetch/{%s}/{%s}", BoxID, Amount), postInterestHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/withdraw/{%s}", BoxID), postWithdrawHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/disable-feature/{%s}/{%s}", BoxID, Feature), postDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/describe/{%s}", BoxID), postDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Lock), PostLockBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Deposit), PostDepositBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Future), PostFutureBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/deposit-to/{%s}/{%s}", ID, Amount), PostDepositHandlerFn(cdc, cliCtx, types.DepositTo)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/deposit-fetch/{%s}/{%s}", ID, Amount), PostDepositHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/interest/injection/{%s}/{%s}", ID, Amount), PostInterestHandlerFn(cdc, cliCtx, types.Injection)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/interest/fetch/{%s}/{%s}", ID, Amount), PostInterestHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/withdraw/{%s}", ID), PostWithdrawHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/disable-feature/{%s}/{%s}", ID, Feature), PostDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/box/describe/{%s}", ID), PostDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
 
-	//r.HandleFunc(fmt.Sprintf("/box/approve/{%s}/{%s}/{%s}", BoxID, AccAddress, Amount), postBoxApproveHandlerFn(cdc, cliCtx)).Methods("POST")
+	//r.HandleFunc(fmt.Sprintf("/box/approve/{%s}/{%s}/{%s}", ID, AccAddress, Amount), PostBoxApproveHandlerFn(cdc, cliCtx)).Methods("POST")
 }
-func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id := vars[BoxID]
+		id := vars[ID]
+		if boxutils.GetBoxTypeByValue(id) != boxType {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownBox(id).Error())
+			return
+		}
 		if err := utils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -94,10 +98,14 @@ func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) ht
 	}
 
 }
-func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
+func PostDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id := vars[BoxID]
+		id := vars[ID]
+		if boxutils.GetBoxTypeByValue(id) != boxType {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrUnknownBox(id).Error())
+			return
+		}
 		if err := boxutils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
