@@ -23,8 +23,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	dclcommon "github.com/cosmos/cosmos-sdk/x/distribution/client/common"
-	distrrest "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
@@ -32,6 +30,8 @@ import (
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/x/gov"
 	"github.com/hashgard/hashgard/x/mint"
+	dclcommon "github.com/hashgard/hashgard/x/distribution/client/common"
+	distrrest "github.com/hashgard/hashgard/x/distribution/client/rest"
 )
 
 const (

@@ -36,8 +36,6 @@ import (
 	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
 	txbuilder "github.com/cosmos/cosmos-sdk/x/auth/client/txbuilder"
 	bankrest "github.com/cosmos/cosmos-sdk/x/bank/client/rest"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
-	distrrest "github.com/cosmos/cosmos-sdk/x/distribution/client/rest"
 
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingrest "github.com/cosmos/cosmos-sdk/x/slashing/client/rest"
@@ -65,6 +63,8 @@ import (
 	govrest "github.com/hashgard/hashgard/x/gov/client/rest"
 	gcutils "github.com/hashgard/hashgard/x/gov/client/utils"
 	mintrest "github.com/hashgard/hashgard/x/mint/client/rest"
+	distr "github.com/hashgard/hashgard/x/distribution"
+	distrrest "github.com/hashgard/hashgard/x/distribution/client/rest"
 )
 
 // makePathname creates a unique pathname for each test. It will panic if it
