@@ -16,7 +16,7 @@ import (
 )
 
 func TestDepositBoxList(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.GenesisState{}, nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -47,7 +47,7 @@ func TestDepositBoxList(t *testing.T) {
 
 }
 func TestQueryDepositListFromDepositBox(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.GenesisState{}, nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.GenesisState{}, nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -58,7 +58,7 @@ func TestQueryDepositListFromDepositBox(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	_, err := keeper.ProcessDepositBoxInterest(ctx, boxInfo.Id, boxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
+	_, err := keeper.InjectionDepositBoxInterest(ctx, boxInfo.Id, boxInfo.Owner, boxInfo.Deposit.Interest.Token)
 	require.Nil(t, err)
 
 	boxInfo = keeper.GetBox(ctx, boxInfo.Id)

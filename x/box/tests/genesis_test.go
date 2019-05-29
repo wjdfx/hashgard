@@ -16,7 +16,7 @@ import (
 )
 
 func TestLockBoxImportExportQueues(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -25,16 +25,16 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 
 	boxInfo := GetLockBoxInfo()
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-	msg := msgs.NewMsgLockBox(newBoxInfo.Owner, boxInfo)
+	msg := msgs.NewMsgLockBox(SenderAccAddr, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id1 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
-	msg = msgs.NewMsgLockBox(newBoxInfo.Owner, boxInfo)
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
+	msg = msgs.NewMsgLockBox(SenderAccAddr, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id2 string
@@ -44,7 +44,7 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 
 	// Export the state and import it into a new Mock App
 	genState := box.ExportGenesis(ctx, keeper)
-	mapp2, keeper2, _, _, _, _ := getMockApp(t, 2, genState, genAccs)
+	mapp2, keeper2, _, _, _, _ := getMockApp(t, genState, genAccs)
 
 	header = abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp2.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -73,7 +73,7 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 }
 
 func TestDepositBoxImportExportQueues(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -82,14 +82,14 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 
 	boxInfo := GetDepositBoxInfo()
 
-	msg := msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
+	msg := msgs.NewMsgDepositBox(SenderAccAddr, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id1 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
-	msgBoxInterest := msgs.NewMsgBoxInterest(id1, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
+	msgBoxInterest := msgs.NewMsgBoxInterestInjection(id1, SenderAccAddr, boxInfo.Deposit.Interest.Token)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -97,7 +97,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	box.EndBlocker(ctx, keeper)
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount.Token})
-	msgBoxDeposit := msgs.NewMsgBoxDeposit(id1, TransferAccAddr, boxInfo.TotalAmount.Token, types.DepositTo)
+	msgBoxDeposit := msgs.NewMsgBoxDepositTo(id1, TransferAccAddr, boxInfo.TotalAmount.Token)
 	res = handler(ctx, msgBoxDeposit)
 	require.True(t, res.IsOK())
 
@@ -106,20 +106,20 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 
 	boxInfo = GetDepositBoxInfo()
 
-	msg = msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
+	msg = msgs.NewMsgDepositBox(SenderAccAddr, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id2 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id2)
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
-	msg = msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
+	msg = msgs.NewMsgDepositBox(SenderAccAddr, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id3 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id3)
 
-	msgBoxInterest = msgs.NewMsgBoxInterest(id3, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
+	msgBoxInterest = msgs.NewMsgBoxInterestInjection(id3, SenderAccAddr, boxInfo.Deposit.Interest.Token)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -127,7 +127,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 
 	// Export the state and import it into a new Mock App
 	genState := box.ExportGenesis(ctx, keeper)
-	mapp2, keeper2, _, _, _, _ := getMockApp(t, 2, genState, genAccs)
+	mapp2, keeper2, _, _, _, _ := getMockApp(t, genState, genAccs)
 
 	header = abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp2.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -151,7 +151,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	boxInfo1 = keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
 	boxInfo2 = keeper2.GetBox(ctx2, id2)
-	require.Nil(t, boxInfo2)
+	require.True(t, boxInfo2.Status == types.BoxClosed)
 	boxInfo3 = keeper2.GetBox(ctx2, id3)
 	require.NotNil(t, boxInfo3)
 
@@ -160,7 +160,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 }
 
 func TestFutureBoxImportExportQueues(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -169,20 +169,20 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 
 	boxInfo := GetFutureBoxInfo()
 
-	msg := msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
+	msg := msgs.NewMsgFutureBox(SenderAccAddr, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id1 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
-	msgDeposit := msgs.NewMsgBoxDeposit(id1, newBoxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
+	msgDeposit := msgs.NewMsgBoxDepositTo(id1, SenderAccAddr, boxInfo.TotalAmount.Token)
 	res = handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 
 	boxInfo = GetFutureBoxInfo()
 
-	msg = msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
+	msg = msgs.NewMsgFutureBox(SenderAccAddr, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
 	var id2 string
@@ -192,7 +192,7 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 
 	// Export the state and import it into a new Mock App
 	genState := box.ExportGenesis(ctx, keeper)
-	mapp2, keeper2, _, _, _, _ := getMockApp(t, 2, genState, genAccs)
+	mapp2, keeper2, _, _, _, _ := getMockApp(t, genState, genAccs)
 
 	header = abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp2.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -213,7 +213,7 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 	boxInfo1 = keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
 	boxInfo2 = keeper2.GetBox(ctx2, id2)
-	require.Nil(t, boxInfo2)
+	require.True(t, boxInfo2.Status == types.BoxClosed)
 
 	require.True(t, boxInfo1.Status == types.BoxFinished)
 

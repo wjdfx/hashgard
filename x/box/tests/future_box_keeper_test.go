@@ -18,7 +18,7 @@ func createFutureBox(t *testing.T, ctx sdk.Context, keeper box.Keeper) *types.Bo
 	boxInfo := GetFutureBoxInfo()
 
 	handler := box.NewHandler(keeper)
-	msg := msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
+	msg := msgs.NewMsgFutureBox(SenderAccAddr, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 
@@ -32,7 +32,7 @@ func createFutureBox(t *testing.T, ctx sdk.Context, keeper box.Keeper) *types.Bo
 }
 
 func TestFutureBoxAdd(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -48,7 +48,7 @@ func TestFutureBoxAdd(t *testing.T) {
 }
 
 func TestFutureBoxFetchDeposit(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})

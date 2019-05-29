@@ -18,7 +18,7 @@ import (
 )
 
 func TestFutureBoxEndBlocker(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 10, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -31,7 +31,7 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-	msgDeposit := msgs.NewMsgBoxDeposit(boxInfo.Id, boxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
+	msgDeposit := msgs.NewMsgBoxDepositTo(boxInfo.Id, boxInfo.Owner, boxInfo.TotalAmount.Token)
 	res := handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 

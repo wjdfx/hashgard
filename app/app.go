@@ -23,8 +23,8 @@ import (
 
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/mint"
 )
 
@@ -180,6 +180,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(issue.DefaultParamspace),
 		app.bankKeeper,
+		app.feeCollectionKeeper,
 		issue.DefaultCodespace)
 
 	app.boxKeeper = box.NewKeeper(

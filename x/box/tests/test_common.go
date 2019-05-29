@@ -35,11 +35,10 @@ import (
 var (
 	Receiver          = "Receiver"
 	TransferAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
-	SenderAccAddr     = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
+	SenderAccAddr     sdk.AccAddress
 	TestTokenDecimals = uint(18)
 
 	newBoxInfo = types.BoxInfo{
-		Owner:            SenderAccAddr,
 		Name:             "testBox",
 		BoxType:          types.Lock,
 		Description:      "{}",
@@ -118,7 +117,7 @@ func getEndBlocker(keeper keeper.Keeper) sdk.EndBlocker {
 }
 
 // initialize the mock application for this module
-func getMockApp(t *testing.T, numGenAccs int, genState box.GenesisState, genAccs []auth.Account) (
+func getMockApp(t *testing.T, genState box.GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper keeper.Keeper, sk staking.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 	mapp = mock.NewApp()
@@ -136,8 +135,8 @@ func getMockApp(t *testing.T, numGenAccs int, genState box.GenesisState, genAccs
 	ik := NewIssueKeeper()
 	fck := keeper2.DummyFeeCollectionKeeper{}
 
-	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), ck, ik, fck, types.DefaultCodespace)
+	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
 
 	mapp.Router().AddRoute(types.RouterKey, box.NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(types.QuerierRoute, box.NewQuerier(keeper))
@@ -146,12 +145,13 @@ func getMockApp(t *testing.T, numGenAccs int, genState box.GenesisState, genAccs
 
 	require.NoError(t, mapp.CompleteSetup(keyBox))
 
-	valTokens := sdk.TokensFromTendermintPower(42)
+	valTokens := sdk.TokensFromTendermintPower(10000000)
 	if len(genAccs) == 0 {
-		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(numGenAccs,
+		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(1,
 			sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, valTokens)))
 	}
 
+	SenderAccAddr = genAccs[0].GetAddress()
 	mock.SetGenesis(mapp, genAccs)
 
 	return mapp, keeper, sk, addrs, pubKeys, privKeys

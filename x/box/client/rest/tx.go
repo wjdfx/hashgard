@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -27,21 +26,6 @@ type PostDescriptionReq struct {
 	Description string       `json:"description"`
 }
 
-// RegisterRoutes - Central function to define routes that get registered by the main application
-func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Lock), PostLockBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Deposit), PostDepositBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/%s/create", types.Future), PostFutureBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/deposit-to/{%s}/{%s}", ID, Amount), PostDepositHandlerFn(cdc, cliCtx, types.DepositTo)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/deposit-fetch/{%s}/{%s}", ID, Amount), PostDepositHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/interest/injection/{%s}/{%s}", ID, Amount), PostInterestHandlerFn(cdc, cliCtx, types.Injection)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/interest/fetch/{%s}/{%s}", ID, Amount), PostInterestHandlerFn(cdc, cliCtx, types.Fetch)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/withdraw/{%s}", ID), PostWithdrawHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/disable-feature/{%s}/{%s}", ID, Feature), PostDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/box/describe/{%s}", ID), PostDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
-
-	//r.HandleFunc(fmt.Sprintf("/box/approve/{%s}/{%s}/{%s}", ID, AccAddress, Amount), PostBoxApproveHandlerFn(cdc, cliCtx)).Methods("POST")
-}
 func PostDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)

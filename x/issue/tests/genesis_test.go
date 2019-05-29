@@ -13,7 +13,7 @@ import (
 )
 
 func TestLockBoxImportExportQueues(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 0, issue.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, issue.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -39,7 +39,7 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 
 	// Export the state and import it into a new Mock App
 	genState := issue.ExportGenesis(ctx, keeper)
-	mapp2, keeper2, _, _, _, _ := getMockApp(t, 2, genState, genAccs)
+	mapp2, keeper2, _, _, _, _ := getMockApp(t, genState, genAccs)
 
 	header = abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp2.BeginBlock(abci.RequestBeginBlock{Header: header})

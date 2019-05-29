@@ -25,14 +25,11 @@ import (
 )
 
 var (
-	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
 	TransferAccAddr      = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
-	SenderAccAddr        = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
+	SenderAccAddr        sdk.AccAddress
 
 	CoinIssueInfo = types.CoinIssueInfo{
-		Issuer:             IssuerCoinsAccAddr,
-		Owner:              IssuerCoinsAccAddr,
 		IssueTime:          time.Now().Unix(),
 		Name:               "testCoin",
 		Symbol:             "TEST",
@@ -45,7 +42,7 @@ var (
 )
 
 // initialize the mock application for this module
-func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAccs []auth.Account) (
+func getMockApp(t *testing.T, genState issue.GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper keeper.Keeper, sk staking.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 	mapp = mock.NewApp()
@@ -68,11 +65,14 @@ func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAc
 
 	require.NoError(t, mapp.CompleteSetup(keyIssue))
 
-	valTokens := sdk.TokensFromTendermintPower(42)
+	valTokens := sdk.TokensFromTendermintPower(1000000000000)
 	if len(genAccs) == 0 {
-		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(numGenAccs,
+		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(1,
 			sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, valTokens)))
 	}
+	SenderAccAddr = genAccs[0].GetAddress()
+	CoinIssueInfo.Issuer = SenderAccAddr
+	CoinIssueInfo.Owner = SenderAccAddr
 
 	mock.SetGenesis(mapp, genAccs)
 

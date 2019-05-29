@@ -13,7 +13,7 @@ import (
 )
 
 func TestLockBoxEndBlocker(t *testing.T) {
-	mapp, keeper, _, _, _, _ := getMockApp(t, 10, box.DefaultGenesisState(), nil)
+	mapp, keeper, _, _, _, _ := getMockApp(t, box.DefaultGenesisState(), nil)
 
 	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
 	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
@@ -28,9 +28,9 @@ func TestLockBoxEndBlocker(t *testing.T) {
 
 	boxParams := GetLockBoxInfo()
 
-	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxParams.TotalAmount.Token))
+	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxParams.TotalAmount.Token))
 
-	msg := msgs.NewMsgLockBox(newBoxInfo.Owner, boxParams)
+	msg := msgs.NewMsgLockBox(SenderAccAddr, boxParams)
 
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
