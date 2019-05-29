@@ -3,7 +3,7 @@ package keeper
 import (
 	"fmt"
 
-	"github.com/hashgard/hashgard/x/box/config"
+	"github.com/hashgard/hashgard/x/box/msgs"
 
 	"github.com/hashgard/hashgard/x/box/utils"
 
@@ -65,7 +65,7 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	return Keeper{
 		storeKey:            key,
 		paramsKeeper:        paramsKeeper,
-		paramSpace:          paramSpace.WithKeyTable(config.ParamKeyTable()),
+		paramSpace:          paramSpace.WithKeyTable(msgs.ParamKeyTable()),
 		ck:                  ck,
 		ik:                  ik,
 		feeCollectionKeeper: feeCollectionKeeper,
@@ -82,7 +82,7 @@ func (keeper Keeper) SendDepositedCoin(ctx sdk.Context, fromAddr sdk.AccAddress,
 	toAddr := keeper.getDepositedCoinsAddress(id)
 	return keeper.GetBankKeeper().SendCoins(ctx, fromAddr, toAddr, amt)
 }
-func (keeper Keeper) CancelDepositedCoin(ctx sdk.Context, toAddr sdk.AccAddress, amt sdk.Coins, id string) sdk.Error {
+func (keeper Keeper) FetchDepositedCoin(ctx sdk.Context, toAddr sdk.AccAddress, amt sdk.Coins, id string) sdk.Error {
 	fromAddr := keeper.getDepositedCoinsAddress(id)
 	return keeper.GetBankKeeper().SendCoins(ctx, fromAddr, toAddr, amt)
 }
@@ -321,19 +321,19 @@ func (keeper Keeper) CreateBox(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	return nil
 }
 
-func (keeper Keeper) ProcessInjectBox(ctx sdk.Context, id string, sender sdk.AccAddress, amount sdk.Coin, operation string) (*types.BoxInfo, sdk.Error) {
+func (keeper Keeper) ProcessDepositToBox(ctx sdk.Context, id string, sender sdk.AccAddress, amount sdk.Coin, operation string) (*types.BoxInfo, sdk.Error) {
 	box := keeper.GetBox(ctx, id)
 	if box == nil {
 		return nil, errors.ErrUnknownBox(id)
 	}
-	if types.BoxInjecting != box.Status && types.BoxClosed != box.Status {
+	if types.BoxDepositing != box.Status && types.BoxClosed != box.Status {
 		return nil, errors.ErrNotAllowedOperation(box.Status)
 	}
 	switch box.BoxType {
 	case types.Deposit:
-		return box, keeper.processDepositBoxInject(ctx, box, sender, amount, operation)
+		return box, keeper.processDepositBoxDeposit(ctx, box, sender, amount, operation)
 	case types.Future:
-		return box, keeper.processFutureBoxInject(ctx, box, sender, amount, operation)
+		return box, keeper.processFutureBoxDeposit(ctx, box, sender, amount, operation)
 	}
 	return nil, errors.ErrUnknownBoxType()
 }
@@ -443,12 +443,12 @@ func (keeper Keeper) RemoveFromActiveBoxQueueByKey(ctx sdk.Context, key []byte) 
 // Params
 
 // SetParams sets the auth module's parameters.
-func (ak Keeper) SetParams(ctx sdk.Context, params config.Params) {
+func (ak Keeper) SetParams(ctx sdk.Context, params msgs.BoxConfigParams) {
 	ak.paramSpace.SetParamSet(ctx, &params)
 }
 
 // GetParams gets the auth module's parameters.
-func (ak Keeper) GetParams(ctx sdk.Context) (params config.Params) {
+func (ak Keeper) GetParams(ctx sdk.Context) (params msgs.BoxConfigParams) {
 	ak.paramSpace.GetParamSet(ctx, &params)
 	return
 }

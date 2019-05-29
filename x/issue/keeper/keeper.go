@@ -3,12 +3,11 @@ package keeper
 import (
 	"strings"
 
-	"github.com/hashgard/hashgard/x/issue/config"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/hashgard/hashgard/x/issue/errors"
+	"github.com/hashgard/hashgard/x/issue/msgs"
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
@@ -49,15 +48,14 @@ func (keeper Keeper) GetFeeCollectionKeeper() FeeCollectionKeeper {
 
 //New issue keeper Instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
-	paramSpace params.Subspace, ck BankKeeper, feeCollectionKeeper FeeCollectionKeeper, codespace sdk.CodespaceType) Keeper {
+	paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper{
-		storeKey:            key,
-		paramsKeeper:        paramsKeeper,
-		paramSpace:          paramSpace.WithKeyTable(config.ParamKeyTable()),
-		ck:                  ck,
-		feeCollectionKeeper: feeCollectionKeeper,
-		cdc:                 cdc,
-		codespace:           codespace,
+		storeKey:     key,
+		paramsKeeper: paramsKeeper,
+		paramSpace:   paramSpace.WithKeyTable(msgs.ParamKeyTable()),
+		ck:           ck,
+		cdc:          cdc,
+		codespace:    codespace,
 	}
 }
 
@@ -519,7 +517,13 @@ func (keeper Keeper) DecreaseApproval(ctx sdk.Context, sender sdk.AccAddress, sp
 	}
 	return keeper.setApprove(ctx, sender, spender, issueID, allowance)
 }
-func (keeper Keeper) CheckFreeze(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, issueID string) sdk.Error {
+
+//Transfer tokens from one address to another
+func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
+	allowance := keeper.Allowance(ctx, from, sender, issueID)
+	if allowance.LT(amount) {
+		return errors.ErrNotEnoughAmountToTransfer()
+	}
 	freeze := keeper.GetFreeze(ctx, from, issueID)
 	if freeze.OutEndTime > 0 && freeze.OutEndTime > ctx.BlockHeader().Time.Unix() {
 		return errors.ErrCanNotTransferOut(issueID, from.String())
@@ -527,15 +531,6 @@ func (keeper Keeper) CheckFreeze(ctx sdk.Context, from sdk.AccAddress, to sdk.Ac
 	freeze = keeper.GetFreeze(ctx, to, issueID)
 	if freeze.InEndTime > 0 && freeze.InEndTime > ctx.BlockHeader().Time.Unix() {
 		return errors.ErrCanNotTransferIn(issueID, to.String())
-	}
-	return nil
-}
-
-//Transfer tokens from one address to another
-func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
-	allowance := keeper.Allowance(ctx, from, sender, issueID)
-	if allowance.LT(amount) {
-		return errors.ErrNotEnoughAmountToTransfer()
 	}
 	err := keeper.SendCoins(ctx, from, to, sdk.Coins{sdk.NewCoin(issueID, amount)})
 	if err != nil {
@@ -588,12 +583,12 @@ func (keeper Keeper) GetSymbolIssues(ctx sdk.Context, symbol string) (issueIDs [
 // Params
 
 // SetParams sets the auth module's parameters.
-func (ak Keeper) SetParams(ctx sdk.Context, params config.Params) {
+func (ak Keeper) SetParams(ctx sdk.Context, params msgs.IssueConfigParams) {
 	ak.paramSpace.SetParamSet(ctx, &params)
 }
 
 // GetParams gets the auth module's parameters.
-func (ak Keeper) GetParams(ctx sdk.Context) (params config.Params) {
+func (ak Keeper) GetParams(ctx sdk.Context) (params msgs.IssueConfigParams) {
 	ak.paramSpace.GetParamSet(ctx, &params)
 	return
 }

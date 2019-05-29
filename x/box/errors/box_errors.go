@@ -9,25 +9,25 @@ import (
 )
 
 const (
-	CodeNotEnoughFee           sdk.CodeType = 1
-	CodeBoxOwnerMismatch       sdk.CodeType = 2
-	CodeBoxIDNotValid          sdk.CodeType = 3
-	CodeBoxNameNotValid        sdk.CodeType = 4
-	CodeAmountNotValid         sdk.CodeType = 5
-	CodeDecimalsNotValid       sdk.CodeType = 6
-	CodeTimelineNotValid       sdk.CodeType = 7
-	CodeBoxDescriptionNotValid sdk.CodeType = 8
-	CodeUnknownBox             sdk.CodeType = 9
-	CodeUnknownBoxType         sdk.CodeType = 10
-	CodeUnknownOperation       sdk.CodeType = 11
-	CodeInterestInjectNotValid sdk.CodeType = 12
-	CodeInterestCancelNotValid sdk.CodeType = 13
-	CodeNotEnoughAmount        sdk.CodeType = 14
-	CodeTimeNotValid           sdk.CodeType = 15
-	CodeNotAllowedOperation    sdk.CodeType = 16
-	CodeNotSupportOperation    sdk.CodeType = 17
-	CodeUnknownFeature         sdk.CodeType = 18
-	CodeNotTransfer            sdk.CodeType = 19
+	CodeNotEnoughFee              sdk.CodeType = 1
+	CodeBoxOwnerMismatch          sdk.CodeType = 2
+	CodeBoxIDNotValid             sdk.CodeType = 3
+	CodeBoxNameNotValid           sdk.CodeType = 4
+	CodeAmountNotValid            sdk.CodeType = 5
+	CodeDecimalsNotValid          sdk.CodeType = 6
+	CodeTimelineNotValid          sdk.CodeType = 7
+	CodeBoxDescriptionNotValid    sdk.CodeType = 8
+	CodeUnknownBox                sdk.CodeType = 9
+	CodeUnknownBoxType            sdk.CodeType = 10
+	CodeUnknownOperation          sdk.CodeType = 11
+	CodeInterestInjectionNotValid sdk.CodeType = 12
+	CodeInterestFetchNotValid     sdk.CodeType = 13
+	CodeNotEnoughAmount           sdk.CodeType = 14
+	CodeTimeNotValid              sdk.CodeType = 15
+	CodeNotAllowedOperation       sdk.CodeType = 16
+	CodeNotSupportOperation       sdk.CodeType = 17
+	CodeUnknownFeature            sdk.CodeType = 18
+	CodeNotTransfer               sdk.CodeType = 19
 )
 
 //convert sdk.Error to error
@@ -54,11 +54,11 @@ func ErrTimeNotValid(timeKey string) sdk.Error {
 func ErrAmountNotValid(key string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeAmountNotValid, "%s is not a valid amount", key)
 }
-func ErrInterestInjectNotValid(coin sdk.Coin) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeInterestInjectNotValid, "%s is not a valid interest injection", coin.String())
+func ErrInterestInjectionNotValid(coin sdk.Coin) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeInterestInjectionNotValid, "%s is not a valid interest injection", coin.String())
 }
-func ErrInterestCancelNotValid(coin sdk.Coin) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeInterestCancelNotValid, "%s is not a valid interest fetch", coin.String())
+func ErrInterestFetchNotValid(coin sdk.Coin) sdk.Error {
+	return sdk.NewError(types.DefaultCodespace, CodeInterestFetchNotValid, "%s is not a valid interest fetch", coin.String())
 }
 func ErrBoxPriceNotValid(name string) sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeBoxNameNotValid, fmt.Sprintf("Price mismatch with %s", name))

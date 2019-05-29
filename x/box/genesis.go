@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/hashgard/hashgard/x/box/config"
+	"github.com/hashgard/hashgard/x/box/msgs"
 
 	"github.com/hashgard/hashgard/x/box/types"
 
@@ -28,7 +28,7 @@ func NewGenesisState(startingLockId uint64, startingDepositId uint64, startingFu
 		StartingLockId:    startingLockId,
 		StartingDepositId: startingDepositId,
 		StartingFutureId:  startingFutureId,
-		Params:            config.DefaultParams(sdk.DefaultBondDenom),
+		Params:            msgs.DefaultParams(sdk.DefaultBondDenom),
 	}
 }
 
@@ -64,32 +64,38 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 
 	keeper.SetParams(ctx, data.Params)
 
-	for _, box := range data.LockBoxs {
-		keeper.AddBox(ctx, &box)
-		if box.Status == types.LockBoxLocked {
-			keeper.InsertActiveBoxQueue(ctx, box.Lock.EndTime, box.Id)
+	if data.LockBoxs != nil {
+		for _, box := range data.LockBoxs {
+			keeper.AddBox(ctx, &box)
+			if box.Status == types.LockBoxLocked {
+				keeper.InsertActiveBoxQueue(ctx, box.Lock.EndTime, box.Id)
+			}
 		}
 	}
 
-	for _, box := range data.DepositBoxs {
-		keeper.AddBox(ctx, &box)
-		switch box.Status {
-		case types.BoxCreated:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.Id)
-		case types.BoxInjecting:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.Id)
-		case types.DepositBoxInterest:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.Id)
+	if data.DepositBoxs != nil {
+		for _, box := range data.DepositBoxs {
+			keeper.AddBox(ctx, &box)
+			switch box.Status {
+			case types.BoxCreated:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.Id)
+			case types.BoxDepositing:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.Id)
+			case types.DepositBoxInterest:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.Id)
+			}
 		}
 	}
 
-	for _, box := range data.FutureBoxs {
-		keeper.AddBox(ctx, &box)
-		switch box.Status {
-		case types.BoxInjecting:
-			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
-		case types.BoxActived:
-			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)
+	if data.FutureBoxs != nil {
+		for _, box := range data.FutureBoxs {
+			keeper.AddBox(ctx, &box)
+			switch box.Status {
+			case types.BoxDepositing:
+				keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
+			case types.BoxActived:
+				keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)
+			}
 		}
 	}
 }
