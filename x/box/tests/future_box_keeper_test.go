@@ -22,10 +22,10 @@ func createFutureBox(t *testing.T, ctx sdk.Context, keeper box.Keeper) *types.Bo
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
 
-	var boxID string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID)
+	var id string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id)
 
-	box := keeper.GetBox(ctx, boxID)
+	box := keeper.GetBox(ctx, id)
 	require.Equal(t, box.Name, boxInfo.Name)
 
 	return box
@@ -43,7 +43,7 @@ func TestFutureBoxAdd(t *testing.T) {
 
 	err := keeper.CreateBox(ctx, boxInfo)
 	require.Nil(t, err)
-	box := keeper.GetBox(ctx, boxInfo.BoxId)
+	box := keeper.GetBox(ctx, boxInfo.Id)
 	require.Equal(t, boxInfo.Name, box.Name)
 }
 
@@ -59,7 +59,7 @@ func TestFutureBoxFetchDeposit(t *testing.T) {
 
 	err := keeper.CreateBox(ctx, boxInfo)
 	require.Nil(t, err)
-	box := keeper.GetBox(ctx, boxInfo.BoxId)
+	box := keeper.GetBox(ctx, boxInfo.Id)
 	require.Equal(t, boxInfo.Name, box.Name)
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
@@ -67,23 +67,23 @@ func TestFutureBoxFetchDeposit(t *testing.T) {
 	depositTo := issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)
 	fetch := issueutils.MulDecimals(sdk.NewInt(500), TestTokenDecimals)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr,
+	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr,
 		sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
 			issueutils.MulDecimals(sdk.NewInt(10000), TestTokenDecimals)), types.DepositTo)
 	require.Error(t, err)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr,
+	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr,
 		sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, depositTo), types.DepositTo)
 	require.Nil(t, err)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
 		issueutils.MulDecimals(sdk.NewInt(5000), TestTokenDecimals)), types.Fetch)
 	require.Error(t, err)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.BoxId, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, fetch), types.Fetch)
+	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, fetch), types.Fetch)
 	require.Nil(t, err)
 
-	newBoxInfo := keeper.GetBox(ctx, boxInfo.BoxId)
+	newBoxInfo := keeper.GetBox(ctx, boxInfo.Id)
 	require.Equal(t, newBoxInfo.Future.Deposits[0].Amount, depositTo.Sub(fetch))
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)

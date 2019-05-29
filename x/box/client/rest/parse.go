@@ -1,7 +1,7 @@
 package rest
 
 const (
-	restAddress    = "address"
-	restStartBoxId = "start_box_id"
-	restLimit      = "limit"
+	RestAddress = "address"
+	RestStartId = "start_id"
+	RestLimit   = "limit"
 )

@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	"github.com/cosmos/cosmos-sdk/client/utils"
@@ -41,7 +39,7 @@ func GetCmdIssueSendFrom(cdc *codec.Codec) *cobra.Command {
 
 			amount, ok := sdk.NewIntFromString(args[3])
 			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[1])
+				return errors.Errorf(errors.ErrAmountNotValid(args[3]))
 			}
 
 			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
@@ -128,7 +126,7 @@ func issueApprove(cdc *codec.Codec, args []string, approveType string) error {
 	}
 	amount, ok := sdk.NewIntFromString(args[2])
 	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
+		return errors.Errorf(errors.ErrAmountNotValid(args[2]))
 	}
 	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 	if err != nil {

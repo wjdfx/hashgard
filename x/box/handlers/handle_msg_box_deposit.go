@@ -2,7 +2,7 @@ package handlers
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/hashgard/hashgard/x/box/tags"
+	"github.com/hashgard/hashgard/x/box/types"
 
 	"github.com/hashgard/hashgard/x/box/keeper"
 	"github.com/hashgard/hashgard/x/box/msgs"
@@ -10,14 +10,27 @@ import (
 )
 
 //Handle MsgBoxDeposit
-func HandleMsgBoxDeposit(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDeposit) sdk.Result {
-	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.BoxId, msg.Sender, msg.Deposit, msg.Operation)
+func HandleMsgBoxDepositTo(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDepositTo) sdk.Result {
+	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.Id, msg.Sender, msg.Amount, types.DepositTo)
 	if err != nil {
 		return err.Result()
 	}
 
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.BoxId),
-		Tags: utils.GetBoxTags(msg.BoxId, boxInfo.BoxType, msg.Sender).AppendTag(tags.Operation, msg.Operation),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.Id),
+		Tags: utils.GetBoxTags(msg.Id, boxInfo.BoxType, msg.Sender),
+	}
+}
+
+//Handle MsgBoxDepositTo
+func HandleMsgBoxDepositFetch(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDepositFetch) sdk.Result {
+	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.Id, msg.Sender, msg.Amount, types.Fetch)
+	if err != nil {
+		return err.Result()
+	}
+
+	return sdk.Result{
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.Id),
+		Tags: utils.GetBoxTags(msg.Id, boxInfo.BoxType, msg.Sender),
 	}
 }

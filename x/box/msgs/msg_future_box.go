@@ -27,13 +27,10 @@ func NewMsgFutureBox(sender sdk.AccAddress, params *params.BoxFutureParams) MsgF
 func (msg MsgFutureBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgFutureBox) Type() string { return types.TypeMsgBoxCreateFuture }
+func (msg MsgFutureBox) Type() string { return types.TypeMsgBoxCreate }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgFutureBox) ValidateBasic() sdk.Error {
-	if types.Future != msg.BoxType {
-		return errors.ErrUnknownBoxType()
-	}
 	if len(msg.Sender) == 0 {
 		return sdk.ErrInvalidAddress("Sender address cannot be empty")
 	}

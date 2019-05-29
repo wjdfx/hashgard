@@ -34,14 +34,14 @@ func TestLockBoxEndBlocker(t *testing.T) {
 
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID)
-	boxInfo := keeper.GetBox(ctx, boxID)
+	var id string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id)
+	boxInfo := keeper.GetBox(ctx, id)
 
 	coins := keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Owner)
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), sdk.ZeroInt())
 
-	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	coins = keeper.GetDepositedCoins(ctx, boxInfo.Id)
 	require.True(t, coins.IsEqual(sdk.NewCoins(boxInfo.TotalAmount.Token)))
 
 	inactiveQueue = keeper.ActiveBoxQueueIterator(ctx, ctx.BlockHeader().Time.Unix())
@@ -73,6 +73,6 @@ func TestLockBoxEndBlocker(t *testing.T) {
 	coins = keeper.GetBankKeeper().GetCoins(ctx, boxInfo.Owner)
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount)
 
-	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	coins = keeper.GetDepositedCoins(ctx, boxInfo.Id)
 	require.True(t, coins.IsZero())
 }

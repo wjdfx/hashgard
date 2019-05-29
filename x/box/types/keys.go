@@ -21,7 +21,7 @@ const (
 )
 
 var (
-	BoxIdLength                    = 14
+	IdLength                       = 14
 	BoxMaxId                uint64 = 99999999999999
 	BoxMinId                uint64 = 10000000000000
 	BoxMaxInstalment               = 99
@@ -68,17 +68,17 @@ const (
 )
 
 const (
-	TypeMsgBoxCreateLock    = "box_create_lock"
-	TypeMsgBoxCreateDeposit = "box_create_deposit"
-	TypeMsgBoxCreateFuture  = "box_create_future"
+	TypeMsgBoxCreate = "create"
 
-	TypeMsgBoxWithdraw = "box_withdraw"
+	TypeMsgBoxWithdraw = "withdraw"
 
-	TypeMsgBoxInterest = "box_interest"
-	TypeMsgBoxDeposit  = "box_deposit"
+	TypeMsgBoxInterestInjection = "interest_injection"
+	TypeMsgBoxInterestFetch     = "interest_fetch"
+	TypeMsgBoxDepositTo         = "deposit_to"
+	TypeMsgBoxDepositFetch      = "deposit_fetch"
 
-	TypeMsgBoxDescription    = "box_description"
-	TypeMsgBoxDisableFeature = "box_disable_feature"
+	TypeMsgBoxDescription    = "describe"
+	TypeMsgBoxDisableFeature = "disable_feature"
 )
 const (
 	KeyDelimiterString                   = ":"

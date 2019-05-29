@@ -9,8 +9,8 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 )
 
-func GetQueryBoxPath(boxID string) string {
-	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryBox, boxID)
+func GetQueryBoxPath(id string) string {
+	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryBox, id)
 }
 func GetQueryBoxSearchPath(boxType string, name string) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QuerySearch, boxType, name)
@@ -23,8 +23,8 @@ func QueryBoxByName(boxType string, name string, cliCtx context.CLIContext) ([]b
 	return cliCtx.QueryWithData(GetQueryBoxSearchPath(boxType, name), nil)
 }
 
-func QueryBoxByID(boxID string, cliCtx context.CLIContext) ([]byte, error) {
-	return cliCtx.QueryWithData(GetQueryBoxPath(boxID), nil)
+func QueryBoxByID(id string, cliCtx context.CLIContext) ([]byte, error) {
+	return cliCtx.QueryWithData(GetQueryBoxPath(id), nil)
 }
 
 func QueryBoxsList(params params.BoxQueryParams, cdc *codec.Codec, cliCtx context.CLIContext) ([]byte, error) {

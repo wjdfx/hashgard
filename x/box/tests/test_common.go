@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	keeper2 "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	"github.com/hashgard/hashgard/x/box/utils"
 
 	"github.com/hashgard/hashgard/x/box/params"
@@ -53,7 +55,6 @@ func GetLockBoxInfo() *params.BoxLockParams {
 	box := &params.BoxLockParams{}
 
 	box.Name = newBoxInfo.Name
-	box.BoxType = types.Lock
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(5) * time.Second).Unix()}
 	return box
@@ -62,7 +63,6 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 	box := &params.BoxDepositParams{}
 
 	box.Name = newBoxInfo.Name
-	box.BoxType = types.Deposit
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.Deposit = types.DepositBox{
 		StartTime:     time.Now().Add(time.Duration(10) * time.Second).Unix(),
@@ -82,7 +82,6 @@ func GetDepositBoxInfo() *params.BoxDepositParams {
 func GetFutureBoxInfo() *params.BoxFutureParams {
 	box := &params.BoxFutureParams{}
 	box.Name = newBoxInfo.Name
-	box.BoxType = types.Future
 	box.TotalAmount = newBoxInfo.TotalAmount
 	box.TotalAmount.Token.Amount = issueutils.MulDecimals(sdk.NewInt(2000), TestTokenDecimals)
 	box.Future.TimeLine = []int64{
@@ -134,9 +133,10 @@ func getMockApp(t *testing.T, numGenAccs int, genState box.GenesisState, genAccs
 	//ik := issue.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testIssue"), ck, issue.DefaultCodespace)
 
 	ik := NewIssueKeeper()
+	fck := keeper2.DummyFeeCollectionKeeper{}
 
 	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
-	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), ck, ik, types.DefaultCodespace)
+	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), ck, ik, fck, types.DefaultCodespace)
 
 	mapp.Router().AddRoute(types.RouterKey, box.NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(types.QuerierRoute, box.NewQuerier(keeper))

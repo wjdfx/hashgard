@@ -35,13 +35,13 @@ func CalcInterest(perCoupon sdk.Dec, share sdk.Int, interest types.BoxToken) sdk
 	return dec.MulInt(issueutils.GetDecimalsInt(decimals)).TruncateInt()
 }
 
-func IsBoxId(boxID string) bool {
-	return strings.HasPrefix(boxID, types.IDPreStr)
+func IsId(id string) bool {
+	return strings.HasPrefix(id, types.IDPreStr)
 }
 
-func CheckBoxId(boxID string) sdk.Error {
-	if !IsBoxId(boxID) {
-		return errors.ErrBoxID(boxID)
+func CheckId(id string) sdk.Error {
+	if !IsId(id) {
+		return errors.ErrBoxID(id)
 	}
 	return nil
 }
@@ -70,14 +70,14 @@ func GetBoxTypeByValue(value string) string {
 	}
 	return ""
 }
-func GetCoinDenomByFutureBoxSeq(boxID string, seq int) string {
-	return fmt.Sprintf("%s%02d", boxID, seq)
+func GetCoinDenomByFutureBoxSeq(id string, seq int) string {
+	return fmt.Sprintf("%s%02d", id, seq)
 }
-func GetBoxIdFromBoxSeqID(boxIDSeq string) string {
-	if len(boxIDSeq) > types.BoxIdLength {
-		return boxIDSeq[:types.BoxIdLength]
+func GetIdFromBoxSeqID(idSeq string) string {
+	if len(idSeq) > types.IdLength {
+		return idSeq[:types.IdLength]
 	}
-	return boxIDSeq
+	return idSeq
 }
 func GetSeqFromFutureBoxSeq(boxSeqStr string) int {
 	seqStr := boxSeqStr[len(boxSeqStr)-2:]

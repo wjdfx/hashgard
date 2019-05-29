@@ -17,14 +17,14 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 )
 
-// GetCmdBox implements create lock box transaction command.
-func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
+// GetCreate implements create lock transaction command.
+func GetCreateCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-lock [name] [total-amount] [end-time]",
+		Use:     "create [name] [total-amount] [end-time]",
 		Args:    cobra.ExactArgs(3),
-		Short:   "Create a new lock box",
-		Long:    "Create a new lock box",
-		Example: "$ hashgardcli box create-lock foocoin 100000000coin174876e800 2557223200 --from foo",
+		Short:   "Create a new lock",
+		Long:    "Create a new lock",
+		Example: "$ hashgardcli lock create foocoin 100000000coin174876e800 2557223200 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// parse coins trying to be sent
 			coin, err := sdk.ParseCoin(args[1])
@@ -49,7 +49,6 @@ func GetCmdLockBoxCreate(cdc *codec.Codec) *cobra.Command {
 			coin.Amount = boxutils.MulDecimals(coin, decimal)
 			box := &params.BoxLockParams{}
 			box.Name = args[0]
-			box.BoxType = types.Lock
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.Lock = types.LockBox{EndTime: endTime}
 

@@ -10,56 +10,71 @@ import (
 
 //Handle MsgLockBox
 func HandleMsgLockBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgLockBox) sdk.Result {
+	fee := keeper.GetLockBoxCreateFee(ctx)
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
+
 	box := &types.BoxInfo{
 		Owner:            msg.Sender,
 		Name:             msg.Name,
-		BoxType:          msg.BoxType,
+		BoxType:          types.Lock,
 		TotalAmount:      msg.TotalAmount,
 		Description:      msg.Description,
 		TransferDisabled: true,
 		Lock:             msg.Lock,
 	}
-	return createBox(ctx, keeper, box)
+	return createBox(ctx, keeper, box, fee)
 }
 
 //Handle MsgDepositBox
 func HandleMsgDepositBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgDepositBox) sdk.Result {
+	fee := keeper.GetDepositBoxCreateFee(ctx)
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
+
 	box := &types.BoxInfo{
 		Owner:            msg.Sender,
 		Name:             msg.Name,
-		BoxType:          msg.BoxType,
+		BoxType:          types.Deposit,
 		TotalAmount:      msg.TotalAmount,
 		Description:      msg.Description,
 		TransferDisabled: msg.TransferDisabled,
 		Deposit:          msg.Deposit,
 	}
-	return createBox(ctx, keeper, box)
+	return createBox(ctx, keeper, box, fee)
 }
 
 //Handle MsgFutureBox
 func HandleMsgFutureBox(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgFutureBox) sdk.Result {
+	fee := keeper.GetFutureBoxCreateFee(ctx)
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
 	box := &types.BoxInfo{
 		Owner:            msg.Sender,
 		Name:             msg.Name,
-		BoxType:          msg.BoxType,
+		BoxType:          types.Future,
 		TotalAmount:      msg.TotalAmount,
 		Description:      msg.Description,
 		TransferDisabled: msg.TransferDisabled,
 		Future:           msg.Future,
 	}
-	return createBox(ctx, keeper, box)
+	return createBox(ctx, keeper, box, fee)
 }
-func createBox(ctx sdk.Context, keeper keeper.Keeper, box *types.BoxInfo) sdk.Result {
+func createBox(ctx sdk.Context, keeper keeper.Keeper, box *types.BoxInfo, fee sdk.Coin) sdk.Result {
 	err := keeper.CreateBox(ctx, box)
 	if err != nil {
 		return err.Result()
 	}
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(box.BoxId),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(box.Id),
 		Tags: sdk.NewTags(
-			tags.Category, tags.TxCategory,
-			tags.BoxID, box.BoxId,
+			tags.Category, box.BoxType,
+			tags.BoxID, box.Id,
 			tags.Sender, box.Owner.String(),
+			tags.Fee, fee.String(),
 		),
 	}
 }

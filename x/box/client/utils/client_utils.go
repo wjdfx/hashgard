@@ -30,10 +30,10 @@ func GetCliContext(cdc *codec.Codec) (authtxb.TxBuilder, context.CLIContext, aut
 	return txBldr, cliCtx, account, err
 }
 
-func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (types.Box, error) {
+func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, id string) (types.Box, error) {
 	var boxInfo types.Box
 	// Query the box
-	res, err := boxqueriers.QueryBoxByID(boxID, cliCtx)
+	res, err := boxqueriers.QueryBoxByID(id, cliCtx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +41,13 @@ func GetBoxByID(cdc *codec.Codec, cliCtx context.CLIContext, boxID string) (type
 	return boxInfo, nil
 }
 
-func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, boxID string) (types.Box, error) {
-	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+func BoxOwnerCheck(cdc *codec.Codec, cliCtx context.CLIContext, sender auth.Account, id string) (types.Box, error) {
+	boxInfo, err := GetBoxByID(cdc, cliCtx, id)
 	if err != nil {
 		return nil, err
 	}
 	if !sender.GetAddress().Equals(boxInfo.GetOwner()) {
-		return nil, errors.Errorf(errors.ErrOwnerMismatch(boxID))
+		return nil, errors.Errorf(errors.ErrOwnerMismatch(id))
 	}
 	return boxInfo, nil
 }
@@ -167,9 +167,9 @@ func StructCopy(destPtr interface{}, srcPtr interface{}) {
 	return
 }
 func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
-	boxID string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
+	id string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
 
-	if err := boxutils.CheckBoxId(boxID); err != nil {
+	if err := boxutils.CheckId(id); err != nil {
 		return nil, errors.Errorf(err)
 	}
 	amount, ok := sdk.NewIntFromString(amountStr)
@@ -177,9 +177,12 @@ func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Acc
 		return nil, errors.Errorf(errors.ErrAmountNotValid(amountStr))
 	}
 
-	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+	boxInfo, err := GetBoxByID(cdc, cliCtx, id)
 	if err != nil {
 		return nil, err
+	}
+	if types.BoxDepositing != boxInfo.GetStatus() {
+		return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetStatus()))
 	}
 	if cli {
 		decimal, err := GetCoinDecimal(cdc, cliCtx, boxInfo.GetTotalAmount().Token)
@@ -188,43 +191,46 @@ func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Acc
 		}
 		amount = boxutils.MulDecimals(boxutils.ParseCoin(boxInfo.GetTotalAmount().Token.Denom, amount), decimal)
 	}
+	var msg sdk.Msg
 	switch operation {
 	case types.DepositTo:
 		if err = checkAmountByDepositTo(amount, boxInfo); err != nil {
 			return nil, err
 		}
+		msg = msgs.NewMsgBoxDepositTo(id, account.GetAddress(),
+			sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount))
 	case types.Fetch:
 		if err = checkAmountByFetch(amount, boxInfo, account); err != nil {
 			return nil, err
 		}
+		msg = msgs.NewMsgBoxDepositFetch(id, account.GetAddress(),
+			sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount))
 	default:
 		return nil, errors.ErrNotSupportOperation()
 	}
-
-	msg := msgs.NewMsgBoxDeposit(boxID, account.GetAddress(), sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount), operation)
 	if err := msg.ValidateBasic(); err != nil {
 		return nil, errors.Errorf(err)
 	}
 	return msg, nil
 }
 func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
-	boxID string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
+	id string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
 
-	if err := boxutils.CheckBoxId(boxID); err != nil {
+	if err := boxutils.CheckId(id); err != nil {
 		return nil, errors.Errorf(err)
 	}
 	amount, ok := sdk.NewIntFromString(amountStr)
 	if !ok {
 		return nil, errors.Errorf(errors.ErrAmountNotValid(amountStr))
 	}
-	box, err := GetBoxByID(cdc, cliCtx, boxID)
+	box, err := GetBoxByID(cdc, cliCtx, id)
 	if err != nil {
 		return nil, err
 	}
 	if box.GetBoxType() != types.Deposit {
 		return nil, errors.Errorf(errors.ErrNotSupportOperation())
 	}
-	if box.GetBoxStatus() != types.BoxCreated {
+	if box.GetStatus() != types.BoxCreated {
 		return nil, errors.Errorf(errors.ErrNotSupportOperation())
 	}
 	if cli {
@@ -234,7 +240,9 @@ func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 		}
 		amount = boxutils.MulDecimals(boxutils.ParseCoin(box.GetDeposit().Interest.Token.Denom, amount), decimal)
 	}
-	if types.Fetch == operation {
+	var msg sdk.Msg
+	switch operation {
+	case types.Fetch:
 		flag := true
 		for i, v := range box.GetDeposit().InterestInjections {
 			if v.Address.Equals(account.GetAddress()) {
@@ -247,7 +255,8 @@ func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 		if flag {
 			return nil, errors.ErrNotEnoughAmount()
 		}
-	} else {
+		msg = msgs.NewMsgBoxInterestFetch(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
+	case types.Injection:
 		if box.GetDeposit().InterestInjections != nil {
 			totalInterest := sdk.ZeroInt()
 			for _, v := range box.GetDeposit().InterestInjections {
@@ -260,38 +269,40 @@ func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 					sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount)))
 			}
 		}
+		msg = msgs.NewMsgBoxInterestInjection(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
+	default:
+		return nil, errors.ErrUnknownOperation()
 	}
-	msg := msgs.NewMsgBoxInterest(boxID, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount), operation)
 	if err := msg.ValidateBasic(); err != nil {
 		return nil, errors.Errorf(err)
 	}
 	return msg, nil
 }
-func GetWithdrawMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account, boxID string) (sdk.Msg, error) {
-	if account.GetCoins().AmountOf(boxID).IsZero() {
+func GetWithdrawMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account, id string) (sdk.Msg, error) {
+	if account.GetCoins().AmountOf(id).IsZero() {
 		return nil, errors.Errorf(errors.ErrNotEnoughAmount())
 	}
-	boxInfo, err := GetBoxByID(cdc, cliCtx, boxID)
+	boxInfo, err := GetBoxByID(cdc, cliCtx, id)
 	if err != nil {
 		return nil, err
 	}
 	switch boxInfo.GetBoxType() {
 	case types.Deposit:
-		if types.BoxFinished != boxInfo.GetBoxStatus() {
-			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
+		if types.BoxFinished != boxInfo.GetStatus() {
+			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetStatus()))
 		}
 	case types.Future:
-		if types.BoxCreated == boxInfo.GetBoxStatus() {
-			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetBoxStatus()))
+		if types.BoxCreated == boxInfo.GetStatus() {
+			return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetStatus()))
 		}
-		seq := boxutils.GetSeqFromFutureBoxSeq(boxID)
+		seq := boxutils.GetSeqFromFutureBoxSeq(id)
 		if boxInfo.GetFuture().TimeLine[seq-1] > time.Now().Unix() {
 			return nil, errors.Errorf(errors.ErrNotAllowedOperation(types.BoxUndue))
 		}
 	default:
-		return nil, errors.Errorf(errors.ErrUnknownBox(boxID))
+		return nil, errors.Errorf(errors.ErrUnknownBox(id))
 	}
-	msg := msgs.NewMsgBoxWithdraw(boxID, account.GetAddress())
+	msg := msgs.NewMsgBoxWithdraw(id, account.GetAddress())
 	if err := msg.ValidateBasic(); err != nil {
 		return nil, errors.Errorf(err)
 	}
@@ -303,7 +314,7 @@ func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account)
 		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
 			return errors.ErrAmountNotValid(amount.String())
 		}
-		if account.GetCoins().AmountOf(boxInfo.GetBoxId()).LT(amount.Quo(boxInfo.GetDeposit().Price)) {
+		if account.GetCoins().AmountOf(boxInfo.GetId()).LT(amount.Quo(boxInfo.GetDeposit().Price)) {
 			return errors.Errorf(errors.ErrNotEnoughAmount())
 		}
 	case types.Future:

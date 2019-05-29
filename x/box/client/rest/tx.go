@@ -45,8 +45,8 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		boxID := vars[BoxID]
-		if err := utils.CheckBoxId(boxID); err != nil {
+		id := vars[BoxID]
+		if err := utils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -74,7 +74,7 @@ func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) ht
 			return
 		}
 
-		boxInfo, err := clientutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
+		boxInfo, err := clientutils.BoxOwnerCheck(cdc, cliCtx, account, id)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -83,7 +83,7 @@ func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) ht
 			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrNotSupportOperation().Error())
 			return
 		}
-		msg := msgs.NewMsgBoxDisableFeature(boxID, fromAddress, feature)
+		msg := msgs.NewMsgBoxDisableFeature(id, fromAddress, feature)
 
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -97,8 +97,8 @@ func postDisableFeatureHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) ht
 func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		boxID := vars[BoxID]
-		if err := boxutils.CheckBoxId(boxID); err != nil {
+		id := vars[BoxID]
+		if err := boxutils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
@@ -120,7 +120,7 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			return
 		}
 
-		msg := msgs.NewMsgBoxDescription(boxID, fromAddress, []byte(req.Description))
+		msg := msgs.NewMsgBoxDescription(id, fromAddress, []byte(req.Description))
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -130,7 +130,7 @@ func postDescribeHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Han
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		_, err = clientutils.BoxOwnerCheck(cdc, cliCtx, account, boxID)
+		_, err = clientutils.BoxOwnerCheck(cdc, cliCtx, account, id)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

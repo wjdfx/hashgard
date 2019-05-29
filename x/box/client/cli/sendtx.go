@@ -76,7 +76,7 @@ func SendTxCmd(cdc *codec.Codec) *cobra.Command {
 }
 
 func processBoxSend(cdc *codec.Codec, cliCtx context.CLIContext, coin *sdk.Coin) error {
-	if !boxutils.IsBoxId(coin.Denom) {
+	if !boxutils.IsId(coin.Denom) {
 		return nil
 	}
 	boxInfo, err := boxclientutils.GetBoxByID(cdc, cliCtx, coin.Denom)

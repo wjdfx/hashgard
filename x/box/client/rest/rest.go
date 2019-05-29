@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	BoxID      = "box-id"
+	BoxID      = "id"
 	Feature    = "feature"
 	AccAddress = "accAddress"
 	From       = "from"

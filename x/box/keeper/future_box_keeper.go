@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/types"
@@ -12,67 +10,69 @@ import (
 //Process Future box
 
 func (keeper Keeper) ProcessFutureBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	box.BoxStatus = types.BoxDepositing
+	box.Status = types.BoxDepositing
 	box.Future.TotalWithdrawal = sdk.ZeroInt()
-	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
+	//keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
+	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
 	return nil
 }
-func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin, operation string) sdk.Error {
+func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin, operation string) sdk.Error {
 	switch operation {
 	case types.DepositTo:
-		return keeper.depositToFutureBox(ctx, box, sender, deposit)
+		return keeper.depositToFutureBox(ctx, box, sender, amount)
 	case types.Fetch:
-		return keeper.fetchDepositFromFutureBox(ctx, box, sender, deposit)
+		return keeper.fetchDepositFromFutureBox(ctx, box, sender, amount)
 	default:
 		return errors.ErrUnknownOperation()
 	}
 }
-func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
+func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
 	if box.Future.TimeLine[0] < ctx.BlockHeader().Time.Unix() {
 		return errors.ErrNotSupportOperation()
 	}
-	if box.TotalAmount.Token.Denom != deposit.Denom {
-		return errors.ErrAmountNotValid(deposit.Denom)
+	if box.TotalAmount.Token.Denom != amount.Denom {
+		return errors.ErrAmountNotValid(amount.Denom)
 	}
 	totalDeposit := sdk.ZeroInt()
 	if box.Future.Deposits == nil {
-		box.Future.Deposits = []types.AddressDeposit{{Address: sender, Amount: deposit.Amount}}
+		box.Future.Deposits = []types.AddressDeposit{{Address: sender, Amount: amount.Amount}}
 	} else {
 		exist := false
 		for i, v := range box.Future.Deposits {
 			totalDeposit = totalDeposit.Add(v.Amount)
 			if v.Address.Equals(sender) {
-				box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Add(deposit.Amount)
+				box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Add(amount.Amount)
 				exist = true
 			}
 		}
 		if !exist {
-			box.Future.Deposits = append(box.Future.Deposits, types.NewAddressDeposit(sender, deposit.Amount))
+			box.Future.Deposits = append(box.Future.Deposits, types.NewAddressDeposit(sender, amount.Amount))
 		}
 	}
-	totalDeposit = totalDeposit.Add(deposit.Amount)
+	totalDeposit = totalDeposit.Add(amount.Amount)
 	if totalDeposit.GT(box.TotalAmount.Token.Amount) {
 		return errors.ErrNotEnoughAmount()
 	}
-	if err := keeper.SendDepositedCoin(ctx, sender, sdk.Coins{deposit}, box.BoxId); err != nil {
+	if err := keeper.SendDepositedCoin(ctx, sender, sdk.Coins{amount}, box.Id); err != nil {
 		return err
 	}
 	if totalDeposit.Equal(box.TotalAmount.Token.Amount) {
 		if err := keeper.processFutureBoxDistribute(ctx, box); err != nil {
 			return err
 		}
-		box.BoxStatus = types.BoxActived
-		keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
+		box.Status = types.BoxActived
+		//keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
+		keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
 	}
 	keeper.setBox(ctx, box)
 	return nil
 }
-func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, deposit sdk.Coin) sdk.Error {
-	if box.BoxStatus == types.BoxActived {
-		return errors.ErrNotAllowedOperation(box.BoxStatus)
+func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
+	if box.Status == types.BoxActived {
+		return errors.ErrNotAllowedOperation(box.Status)
 	}
-	if box.TotalAmount.Token.Denom != deposit.Denom {
-		return errors.ErrAmountNotValid(deposit.Denom)
+	if box.TotalAmount.Token.Denom != amount.Denom {
+		return errors.ErrAmountNotValid(amount.Denom)
 	}
 	if box.Future.Deposits == nil {
 		return errors.ErrNotEnoughAmount()
@@ -80,10 +80,10 @@ func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxIn
 	exist := false
 	for i, v := range box.Future.Deposits {
 		if v.Address.Equals(sender) {
-			if box.Future.Deposits[i].Amount.LT(deposit.Amount) {
+			if box.Future.Deposits[i].Amount.LT(amount.Amount) {
 				return errors.ErrNotEnoughAmount()
 			}
-			box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Sub(deposit.Amount)
+			box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Sub(amount.Amount)
 			exist = true
 			break
 		}
@@ -92,7 +92,7 @@ func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxIn
 		return errors.ErrNotEnoughAmount()
 	}
 
-	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(deposit), box.BoxId); err != nil {
+	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(amount), box.Id); err != nil {
 		return err
 	}
 	keeper.setBox(ctx, box)
@@ -115,7 +115,7 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 			if !ok {
 				return errors.ErrAmountNotValid(rec)
 			}
-			boxDenom := utils.GetCoinDenomByFutureBoxSeq(box.BoxId, j)
+			boxDenom := utils.GetCoinDenomByFutureBoxSeq(box.Id, j)
 			_, err := keeper.GetBankKeeper().AddCoins(ctx, address, sdk.NewCoins(sdk.NewCoin(boxDenom, amount)))
 			if err != nil {
 				return err
@@ -126,62 +126,65 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 	if !total.Equal(box.TotalAmount.Token.Amount) {
 		return errors.ErrAmountNotValid("Receivers")
 	}
-	times := len(box.Future.TimeLine)
-	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[times-1], keeper.GetFutureBoxSeqString(box, times))
+	//times := len(box.Future.TimeLine)
+	//keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[times-1], keeper.GetFutureBoxSeqString(box, times))
+	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)
 	return nil
 }
-func (keeper Keeper) GetFutureBoxSeqString(box *types.BoxInfo, seq int) string {
-	return fmt.Sprintf("%s:%d", box.BoxId, seq)
-}
 
-func (keeper Keeper) ProcessFutureBoxByEndBlocker(ctx sdk.Context, box *types.BoxInfo, seq int) sdk.Error {
-	switch box.BoxStatus {
+//func (keeper Keeper) GetFutureBoxSeqString(box *types.BoxInfo, seq int) string {
+//	return fmt.Sprintf("%s:%d", box.Id, seq)
+//}
+
+func (keeper Keeper) ProcessFutureBoxByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	switch box.Status {
 	case types.BoxDepositing:
-		return keeper.processFutureBoxDepositToByEndBlocker(ctx, box, seq)
+		return keeper.processFutureBoxDepositToByEndBlocker(ctx, box)
 	case types.BoxActived:
-		return keeper.processFutureBoxActiveByEndBlocker(ctx, box, seq)
+		return keeper.processFutureBoxActiveByEndBlocker(ctx, box)
 	default:
-		return errors.ErrNotAllowedOperation(box.BoxStatus)
+		return errors.ErrNotAllowedOperation(box.Status)
 	}
 }
-func (keeper Keeper) processFutureBoxDepositToByEndBlocker(ctx sdk.Context, box *types.BoxInfo, seq int) sdk.Error {
-	if types.BoxDepositing != box.BoxStatus {
-		return errors.ErrNotAllowedOperation(box.BoxStatus)
+func (keeper Keeper) processFutureBoxDepositToByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	if types.BoxDepositing != box.Status {
+		return errors.ErrNotAllowedOperation(box.Status)
 	}
 	if box.Future.Deposits != nil {
 		for _, v := range box.Future.Deposits {
-			if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, v.Amount)), box.BoxId); err != nil {
+			if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, v.Amount)), box.Id); err != nil {
 				return err
 			}
 		}
 	}
-	//box.BoxStatus=types.BoxClosed
-	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, seq))
+	//box.Status=types.BoxClosed
+	//keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, seq))
+	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
 	keeper.RemoveBox(ctx, box)
 	return nil
 }
 
-func (keeper Keeper) processFutureBoxWithdraw(ctx sdk.Context, boxIDSeq string, sender sdk.AccAddress) (*types.BoxInfo, sdk.Error) {
-	box := keeper.GetBox(ctx, boxIDSeq)
+func (keeper Keeper) processFutureBoxWithdraw(ctx sdk.Context, idSeq string, sender sdk.AccAddress) (*types.BoxInfo, sdk.Error) {
+	box := keeper.GetBox(ctx, idSeq)
 	if box == nil {
-		return nil, errors.ErrUnknownBox(boxIDSeq)
+		return nil, errors.ErrUnknownBox(idSeq)
 	}
 	if types.Future != box.BoxType {
 		return nil, errors.ErrNotSupportOperation()
 	}
-	if types.BoxCreated == box.BoxStatus {
-		return nil, errors.ErrNotAllowedOperation(box.BoxStatus)
+	if types.BoxCreated == box.Status {
+		return nil, errors.ErrNotAllowedOperation(box.Status)
 	}
-	seq := utils.GetSeqFromFutureBoxSeq(boxIDSeq)
+	seq := utils.GetSeqFromFutureBoxSeq(idSeq)
 	if box.Future.TimeLine[seq-1] > ctx.BlockHeader().Time.Unix() {
 		return nil, errors.ErrNotAllowedOperation(types.BoxUndue)
 	}
-	amount := keeper.GetBankKeeper().GetCoins(ctx, sender).AmountOf(boxIDSeq)
-	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, sender, sdk.NewCoins(sdk.NewCoin(boxIDSeq, amount)))
+	amount := keeper.GetBankKeeper().GetCoins(ctx, sender).AmountOf(idSeq)
+	_, err := keeper.GetBankKeeper().SubtractCoins(ctx, sender, sdk.NewCoins(sdk.NewCoin(idSeq, amount)))
 	if err != nil {
 		return nil, err
 	}
-	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.BoxId); err != nil {
+	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.Id); err != nil {
 		return nil, err
 	}
 	box.Future.TotalWithdrawal = amount.Add(box.Future.TotalWithdrawal)
@@ -189,15 +192,13 @@ func (keeper Keeper) processFutureBoxWithdraw(ctx sdk.Context, boxIDSeq string, 
 	return box, nil
 }
 
-func (keeper Keeper) processFutureBoxActiveByEndBlocker(ctx sdk.Context, box *types.BoxInfo, seq int) sdk.Error {
-	if types.BoxActived != box.BoxStatus {
-		return errors.ErrNotAllowedOperation(box.BoxStatus)
+func (keeper Keeper) processFutureBoxActiveByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	if types.BoxActived != box.Status {
+		return errors.ErrNotAllowedOperation(box.Status)
 	}
-	if seq == 0 {
-		return nil
-	}
-	box.BoxStatus = types.BoxFinished
-	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[seq-1], keeper.GetFutureBoxSeqString(box, seq))
+	box.Status = types.BoxFinished
+	//keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[seq-1], keeper.GetFutureBoxSeqString(box, seq))
+	keeper.RemoveFromActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)
 	keeper.setBox(ctx, box)
 	return nil
 }

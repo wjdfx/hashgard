@@ -1,9 +1,8 @@
 package utils
 
 import (
-	"math"
+	"math/big"
 	"math/rand"
-	"strconv"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -35,10 +34,8 @@ func CheckIssueId(issueID string) sdk.Error {
 }
 
 func GetDecimalsInt(decimals uint) sdk.Int {
-	multiple := math.Pow10(int(decimals))
-	multipleStr := strconv.FormatFloat(multiple, 'f', 0, 64)
-	multipleDecimals, _ := sdk.NewIntFromString(multipleStr)
-	return multipleDecimals
+	exp := new(big.Int).Exp(big.NewInt(10), big.NewInt(int64(decimals)), nil)
+	return sdk.NewIntFromBigInt(exp)
 }
 
 func MulDecimals(totalSupply sdk.Int, decimals uint) sdk.Int {

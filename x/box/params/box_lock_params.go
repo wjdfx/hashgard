@@ -6,7 +6,6 @@ import (
 
 type BoxLockParams struct {
 	Name        string         `json:"name"`
-	BoxType     string         `json:"type"`
 	TotalAmount types.BoxToken `json:"total_amount"`
 	Description string         `json:"description"`
 	Lock        types.LockBox  `json:"lock"`

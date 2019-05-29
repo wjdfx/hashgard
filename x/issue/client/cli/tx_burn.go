@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -68,7 +66,7 @@ func issueBurnFrom(cdc *codec.Codec, args []string, burnFromType string) error {
 	}
 	amount, ok := sdk.NewIntFromString(amountStr)
 	if !ok {
-		return fmt.Errorf("Amount %s not a valid int, please input a valid amount", amountStr)
+		return errors.Errorf(errors.ErrAmountNotValid(amountStr))
 	}
 	msg, err := clientutils.GetBurnMsg(cdc, cliCtx, account, accAddress, issueID, amount, burnFromType, true)
 	if err != nil {

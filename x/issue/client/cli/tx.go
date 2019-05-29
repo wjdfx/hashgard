@@ -174,7 +174,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 			}
 			amount, ok := sdk.NewIntFromString(args[1])
 			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
+				return errors.Errorf(errors.ErrAmountNotValid(args[1]))
 			}
 
 			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)

@@ -2,7 +2,6 @@ package issue
 
 import (
 	"github.com/hashgard/hashgard/x/issue/client"
-	"github.com/hashgard/hashgard/x/issue/client/cli"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -19,8 +18,8 @@ var (
 	MsgCdc          = msgs.MsgCdc
 	NewKeeper       = keeper.NewKeeper
 	NewModuleClient = client.NewModuleClient
-	GetAccountCmd   = cli.GetAccountCmd
-	RegisterCodec   = msgs.RegisterCodec
+	//GetAccountCmd   = cli.GetAccountCmd
+	RegisterCodec = msgs.RegisterCodec
 )
 
 const (

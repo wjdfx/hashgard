@@ -9,14 +9,14 @@ import (
 
 //Box interface
 type Box interface {
-	GetBoxId() string
-	SetBoxId(string)
+	GetId() string
+	SetId(string)
 
 	GetBoxType() string
 	SetBoxType(string)
 
-	GetBoxStatus() string
-	SetBoxStatus(string)
+	GetStatus() string
+	SetStatus(string)
 
 	GetOwner() sdk.AccAddress
 	SetOwner(sdk.AccAddress)
@@ -54,8 +54,8 @@ type BoxInfos []BoxInfo
 //type BaseBoxInfo struct {
 //}
 type BoxInfo struct {
-	BoxId            string         `json:"box_id"`
-	BoxStatus        string         `json:"box_status"`
+	Id               string         `json:"id"`
+	Status           string         `json:"status"`
 	Owner            sdk.AccAddress `json:"owner"`
 	Name             string         `json:"name"`
 	BoxType          string         `json:"type"`
@@ -71,11 +71,11 @@ type BoxInfo struct {
 // Implements Box Interface
 var _ Box = (*BoxInfo)(nil)
 
-func (bi BoxInfo) GetBoxId() string {
-	return bi.BoxId
+func (bi BoxInfo) GetId() string {
+	return bi.Id
 }
-func (bi *BoxInfo) SetBoxId(boxId string) {
-	bi.BoxId = boxId
+func (bi *BoxInfo) SetId(boxId string) {
+	bi.Id = boxId
 }
 func (bi BoxInfo) GetBoxType() string {
 	return bi.BoxType
@@ -83,11 +83,11 @@ func (bi BoxInfo) GetBoxType() string {
 func (bi *BoxInfo) SetBoxType(boxType string) {
 	bi.BoxType = boxType
 }
-func (bi BoxInfo) GetBoxStatus() string {
-	return bi.BoxStatus
+func (bi BoxInfo) GetStatus() string {
+	return bi.Status
 }
-func (bi *BoxInfo) SetBoxStatus(boxStatus string) {
-	bi.BoxStatus = boxStatus
+func (bi *BoxInfo) SetStatus(boxStatus string) {
+	bi.Status = boxStatus
 }
 func (bi BoxInfo) GetOwner() sdk.AccAddress {
 	return bi.Owner
@@ -167,15 +167,15 @@ func (bi AddressDeposit) String() string {
 //nolint
 func (bi BoxInfo) String() string {
 	return fmt.Sprintf(`Box:
-  BoxId: 	         			%s
-  BoxStatus:					%s
+  Id: 	         			%s
+  Status:					%s
   Owner:           				%s
   Name:             			%s
   TotalAmount:      			%s
   CreatedTime:					%d
   Description:	    			%s
   TransferDisabled:			%t`,
-		bi.BoxId, bi.BoxStatus, bi.Owner.String(), bi.Name, bi.TotalAmount.String(),
+		bi.Id, bi.Status, bi.Owner.String(), bi.Name, bi.TotalAmount.String(),
 		bi.CreatedTime, bi.Description, bi.TransferDisabled)
 }
 
@@ -185,7 +185,7 @@ func (bi BoxInfos) String() string {
 		"BoxID", "Status", "Owner", "Name", "BoxTime")
 	for _, box := range bi {
 		out += fmt.Sprintf("%-17s|%-10s|%-44s|%-16s|%d\n",
-			box.GetBoxId(), box.GetBoxStatus(), box.GetOwner().String(), box.GetName(), box.GetCreatedTime())
+			box.GetId(), box.GetStatus(), box.GetOwner().String(), box.GetName(), box.GetCreatedTime())
 	}
 	return strings.TrimSpace(out)
 }

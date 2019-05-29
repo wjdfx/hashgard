@@ -12,11 +12,11 @@ var (
 	Category  = sdk.TagCategory
 	Sender    = sdk.TagSender
 	Feature   = "feature"
+	Fee       = "fee"
 	Owner     = "owner"
 	Operation = "operation"
 	Interest  = "interest"
-	BoxID     = "box-id"
-	BoxType   = "box-type"
-	BoxStatus = "box-status"
+	BoxID     = "id"
+	Status    = "status"
 	Seq       = "seq"
 )

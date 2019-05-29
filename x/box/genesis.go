@@ -10,20 +10,28 @@ import (
 
 // GenesisState - all box state that must be provided at genesis
 type GenesisState struct {
-	StartingLockBoxId    uint64    `json:"starting_lock_box_id"`
-	StartingDepositBoxId uint64    `json:"starting_deposit_box_id"`
-	StartingFutureBoxId  uint64    `json:"starting_future_box_id"`
+	StartingLockId       uint64    `json:"starting_lock_id"`
+	StartingDepositId    uint64    `json:"starting_deposit_id"`
+	StartingFutureId     uint64    `json:"starting_future_id"`
 	LockBoxs             []BoxInfo `json:"lock_boxs"`
 	DepositBoxs          []BoxInfo `json:"deposit_boxs"`
 	FutureBoxs           []BoxInfo `json:"future_boxs"`
+	LockBoxCreateFee     sdk.Coin  `json:"lock_box_create_fee"`
+	DepositBoxCreateFee  sdk.Coin  `json:"deposit_box_create_fee"`
+	FutureBoxCreateFee   sdk.Coin  `json:"future_box_create_fee"`
+	BoxEnableTransferFee sdk.Coin  `json:"box_enable_transfer_fee"`
 }
 
 // NewGenesisState creates a new genesis state.
-func NewGenesisState(startingLockBoxId uint64, startingDepositBoxId uint64, startingFutureBoxId uint64) GenesisState {
+func NewGenesisState(startingLockId uint64, startingDepositId uint64, startingFutureId uint64) GenesisState {
 	return GenesisState{
-		StartingLockBoxId:    startingLockBoxId,
-		StartingDepositBoxId: startingDepositBoxId,
-		StartingFutureBoxId:  startingFutureBoxId}
+		StartingLockId:       startingLockId,
+		StartingDepositId:    startingDepositId,
+		StartingFutureId:     startingFutureId,
+		LockBoxCreateFee:     sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(100, 18)),
+		DepositBoxCreateFee:  sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
+		FutureBoxCreateFee:   sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18)),
+		BoxEnableTransferFee: sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewIntWithDecimal(1000, 18))}
 }
 
 // DefaultGenesisState returns a default genesis state
@@ -46,41 +54,53 @@ func (data GenesisState) Equal(data2 GenesisState) bool {
 
 // InitGenesis sets distribution information for genesis.
 func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
-	if err := keeper.SetInitialBoxStartingBoxId(ctx, types.Lock, data.StartingLockBoxId); err != nil {
+	if err := keeper.SetInitialBoxStartingId(ctx, types.Lock, data.StartingLockId); err != nil {
 		panic(err)
 	}
-	if err := keeper.SetInitialBoxStartingBoxId(ctx, types.Deposit, data.StartingDepositBoxId); err != nil {
+	if err := keeper.SetInitialBoxStartingId(ctx, types.Deposit, data.StartingDepositId); err != nil {
 		panic(err)
 	}
-	if err := keeper.SetInitialBoxStartingBoxId(ctx, types.Future, data.StartingFutureBoxId); err != nil {
+	if err := keeper.SetInitialBoxStartingId(ctx, types.Future, data.StartingFutureId); err != nil {
 		panic(err)
 	}
 
-	for _, box := range data.LockBoxs {
-		keeper.AddBox(ctx, &box)
-		if box.BoxStatus == types.LockBoxLocked {
-			keeper.InsertActiveBoxQueue(ctx, box.Lock.EndTime, box.BoxId)
+	keeper.SetLockBoxCreateFee(ctx, data.LockBoxCreateFee)
+	keeper.SetDepositBoxCreateFee(ctx, data.DepositBoxCreateFee)
+	keeper.SetFutureBoxCreateFee(ctx, data.FutureBoxCreateFee)
+	keeper.SetEnableTransferFee(ctx, data.BoxEnableTransferFee)
+
+	if data.LockBoxs != nil {
+		for _, box := range data.LockBoxs {
+			keeper.AddBox(ctx, &box)
+			if box.Status == types.LockBoxLocked {
+				keeper.InsertActiveBoxQueue(ctx, box.Lock.EndTime, box.Id)
+			}
 		}
 	}
-	for _, box := range data.DepositBoxs {
-		keeper.AddBox(ctx, &box)
-		switch box.BoxStatus {
-		case types.BoxCreated:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.BoxId)
-		case types.BoxDepositing:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.BoxId)
-		case types.DepositBoxInterest:
-			keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.BoxId)
+
+	if data.DepositBoxs != nil {
+		for _, box := range data.DepositBoxs {
+			keeper.AddBox(ctx, &box)
+			switch box.Status {
+			case types.BoxCreated:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.Id)
+			case types.BoxDepositing:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.Id)
+			case types.DepositBoxInterest:
+				keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.Id)
+			}
 		}
 	}
-	for _, box := range data.FutureBoxs {
-		keeper.AddBox(ctx, &box)
-		switch box.BoxStatus {
-		case types.BoxDepositing:
-			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(&box, 0))
-		case types.BoxActived:
-			times := len(box.Future.TimeLine)
-			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[times-1], keeper.GetFutureBoxSeqString(&box, times))
+
+	if data.FutureBoxs != nil {
+		for _, box := range data.FutureBoxs {
+			keeper.AddBox(ctx, &box)
+			switch box.Status {
+			case types.BoxDepositing:
+				keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
+			case types.BoxActived:
+				keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)
+			}
 		}
 	}
 }
@@ -90,21 +110,26 @@ func ExportGenesis(ctx sdk.Context, keeper Keeper) GenesisState {
 	genesisState := GenesisState{}
 	var err sdk.Error
 
-	genesisState.StartingLockBoxId, err = keeper.PeekCurrentBoxID(ctx, types.Lock)
+	genesisState.StartingLockId, err = keeper.PeekCurrentBoxID(ctx, types.Lock)
 	if err != nil {
 		panic(err)
 	}
-	genesisState.StartingDepositBoxId, err = keeper.PeekCurrentBoxID(ctx, types.Deposit)
+	genesisState.StartingDepositId, err = keeper.PeekCurrentBoxID(ctx, types.Deposit)
 	if err != nil {
 		panic(err)
 	}
-	genesisState.StartingFutureBoxId, err = keeper.PeekCurrentBoxID(ctx, types.Future)
+	genesisState.StartingFutureId, err = keeper.PeekCurrentBoxID(ctx, types.Future)
 	if err != nil {
 		panic(err)
 	}
 	genesisState.LockBoxs = keeper.ListAll(ctx, types.Lock)
 	genesisState.DepositBoxs = keeper.ListAll(ctx, types.Deposit)
 	genesisState.FutureBoxs = keeper.ListAll(ctx, types.Future)
+
+	genesisState.LockBoxCreateFee = keeper.GetLockBoxCreateFee(ctx)
+	genesisState.DepositBoxCreateFee = keeper.GetDepositBoxCreateFee(ctx)
+	genesisState.FutureBoxCreateFee = keeper.GetFutureBoxCreateFee(ctx)
+	genesisState.BoxEnableTransferFee = keeper.GetEnableTransferFee(ctx)
 
 	return genesisState
 }

@@ -27,13 +27,10 @@ func NewMsgLockBox(sender sdk.AccAddress, params *params.BoxLockParams) MsgLockB
 func (msg MsgLockBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgLockBox) Type() string { return types.TypeMsgBoxCreateLock }
+func (msg MsgLockBox) Type() string { return types.TypeMsgBoxCreate }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgLockBox) ValidateBasic() sdk.Error {
-	if types.Lock != msg.BoxType {
-		return errors.ErrUnknownBoxType()
-	}
 	if len(msg.Sender) == 0 {
 		return sdk.ErrInvalidAddress("Sender address cannot be empty")
 	}

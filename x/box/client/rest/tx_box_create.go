@@ -44,7 +44,6 @@ func postLockBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) htt
 
 		params := params.BoxLockParams{
 			Name:        req.Name,
-			BoxType:     req.BoxType,
 			TotalAmount: req.TotalAmount,
 			Description: req.Description,
 			Lock:        req.Lock,
@@ -78,7 +77,6 @@ func postDepositBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) 
 
 		params := params.BoxDepositParams{
 			Name:        req.Name,
-			BoxType:     req.BoxType,
 			TotalAmount: req.TotalAmount,
 			Description: req.Description,
 			Deposit:     req.Deposit,
@@ -112,7 +110,6 @@ func postFutureBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) h
 
 		params := params.BoxFutureParams{
 			Name:        req.Name,
-			BoxType:     req.BoxType,
 			TotalAmount: req.TotalAmount,
 			Description: req.Description,
 			Future:      req.Future,

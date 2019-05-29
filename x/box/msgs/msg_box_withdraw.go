@@ -12,7 +12,7 @@ import (
 
 // MsgBoxWithdraw
 type MsgBoxWithdraw struct {
-	BoxId  string         `json:"box_id"`
+	Id     string         `json:"id"`
 	Sender sdk.AccAddress `json:"sender"`
 }
 
@@ -29,7 +29,7 @@ func (msg MsgBoxWithdraw) Type() string { return types.TypeMsgBoxWithdraw }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgBoxWithdraw) ValidateBasic() sdk.Error {
-	if len(msg.BoxId) == 0 {
+	if len(msg.Id) == 0 {
 		return errors.ErrUnknownBox("")
 	}
 	return nil
@@ -47,5 +47,5 @@ func (msg MsgBoxWithdraw) GetSigners() []sdk.AccAddress {
 }
 
 func (msg MsgBoxWithdraw) String() string {
-	return fmt.Sprintf("MsgBoxWithdraw{%s}", msg.BoxId)
+	return fmt.Sprintf("MsgBoxWithdraw{%s}", msg.Id)
 }

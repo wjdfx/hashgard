@@ -31,16 +31,16 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-	msgDeposit := msgs.NewMsgBoxDeposit(boxInfo.BoxId, boxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
+	msgDeposit := msgs.NewMsgBoxDeposit(boxInfo.Id, boxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
 	res := handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 
-	newBoxInfo := keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, newBoxInfo.BoxStatus, types.BoxActived)
+	newBoxInfo := keeper.GetBox(ctx, boxInfo.Id)
+	require.Equal(t, newBoxInfo.Status, types.BoxActived)
 
 	var address sdk.AccAddress
 
-	coins := keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	coins := keeper.GetDepositedCoins(ctx, boxInfo.Id)
 	require.True(t, coins.IsEqual(sdk.NewCoins(boxInfo.TotalAmount.Token)))
 
 	for _, v := range boxInfo.Future.Receivers {
@@ -51,7 +51,7 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 				continue
 			}
 			amount, _ := sdk.NewIntFromString(rec)
-			boxDenom := utils.GetCoinDenomByFutureBoxSeq(boxInfo.BoxId, j)
+			boxDenom := utils.GetCoinDenomByFutureBoxSeq(boxInfo.Id, j)
 			require.Equal(t, coins.AmountOf(boxDenom), amount)
 		}
 	}
@@ -65,8 +65,8 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 	require.False(t, inactiveQueue.Valid())
 	inactiveQueue.Close()
 
-	newBoxInfo = keeper.GetBox(ctx, boxInfo.BoxId)
-	require.Equal(t, newBoxInfo.BoxStatus, types.BoxFinished)
+	newBoxInfo = keeper.GetBox(ctx, boxInfo.Id)
+	require.Equal(t, newBoxInfo.Status, types.BoxFinished)
 
 	for _, v := range boxInfo.Future.Receivers {
 		address, _ = sdk.AccAddressFromBech32(v[0])
@@ -84,6 +84,6 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 		coins1 := keeper.GetBankKeeper().GetCoins(ctx, address)
 		require.Equal(t, coins1.AmountOf(boxInfo.TotalAmount.Token.Denom), totalAmount)
 	}
-	coins = keeper.GetDepositedCoins(ctx, boxInfo.BoxId)
+	coins = keeper.GetDepositedCoins(ctx, boxInfo.Id)
 	require.True(t, coins.IsZero())
 }

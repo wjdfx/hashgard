@@ -1,7 +1,6 @@
 package box
 
 import (
-	"github.com/hashgard/hashgard/x/box/client"
 	"github.com/hashgard/hashgard/x/box/client/cli"
 	"github.com/hashgard/hashgard/x/box/keeper"
 	"github.com/hashgard/hashgard/x/box/msgs"
@@ -14,11 +13,10 @@ type (
 )
 
 var (
-	MsgCdc          = msgs.MsgCdc
-	NewKeeper       = keeper.NewKeeper
-	NewModuleClient = client.NewModuleClient
-	RegisterCodec   = msgs.RegisterCodec
-	SendTxCmd       = cli.SendTxCmd
+	MsgCdc        = msgs.MsgCdc
+	NewKeeper     = keeper.NewKeeper
+	RegisterCodec = msgs.RegisterCodec
+	SendTxCmd     = cli.SendTxCmd
 )
 
 const (

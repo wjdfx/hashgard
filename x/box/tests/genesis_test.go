@@ -30,15 +30,15 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 	msg := msgs.NewMsgLockBox(newBoxInfo.Owner, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID1 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID1)
+	var id1 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
 	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
 	msg = msgs.NewMsgLockBox(newBoxInfo.Owner, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID2 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID2)
+	var id2 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id2)
 
 	genAccs := mapp.AccountKeeper.GetAllAccounts(ctx)
 
@@ -51,25 +51,25 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 
 	ctx2 := mapp2.BaseApp.NewContext(false, abci.Header{})
 
-	boxInfo1 := keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 := keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 := keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 := keeper2.GetBox(ctx2, id2)
 	require.NotNil(t, boxInfo2)
 
-	require.True(t, boxInfo1.BoxStatus == types.LockBoxLocked)
-	require.True(t, boxInfo2.BoxStatus == types.LockBoxLocked)
+	require.True(t, boxInfo1.Status == types.LockBoxLocked)
+	require.True(t, boxInfo2.Status == types.LockBoxLocked)
 
 	ctx2 = ctx2.WithBlockTime(time.Unix(boxInfo.Lock.EndTime, 0))
 
 	box.EndBlocker(ctx2, keeper2)
 
-	boxInfo1 = keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 = keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 = keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 = keeper2.GetBox(ctx2, id2)
 	require.NotNil(t, boxInfo2)
 
-	require.True(t, boxInfo1.BoxStatus == types.LockBoxUnlocked)
-	require.True(t, boxInfo2.BoxStatus == types.LockBoxUnlocked)
+	require.True(t, boxInfo1.Status == types.LockBoxUnlocked)
+	require.True(t, boxInfo2.Status == types.LockBoxUnlocked)
 }
 
 func TestDepositBoxImportExportQueues(t *testing.T) {
@@ -85,11 +85,11 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	msg := msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID1 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID1)
+	var id1 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
 	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
-	msgBoxInterest := msgs.NewMsgBoxInterest(boxID1, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
+	msgBoxInterest := msgs.NewMsgBoxInterest(id1, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -97,7 +97,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	box.EndBlocker(ctx, keeper)
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount.Token})
-	msgBoxDeposit := msgs.NewMsgBoxDeposit(boxID1, TransferAccAddr, boxInfo.TotalAmount.Token, types.DepositTo)
+	msgBoxDeposit := msgs.NewMsgBoxDeposit(id1, TransferAccAddr, boxInfo.TotalAmount.Token, types.DepositTo)
 	res = handler(ctx, msgBoxDeposit)
 	require.True(t, res.IsOK())
 
@@ -109,17 +109,17 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	msg = msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID2 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID2)
+	var id2 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id2)
 
 	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 	msg = msgs.NewMsgDepositBox(newBoxInfo.Owner, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID3 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID3)
+	var id3 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id3)
 
-	msgBoxInterest = msgs.NewMsgBoxInterest(boxID3, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
+	msgBoxInterest = msgs.NewMsgBoxInterest(id3, newBoxInfo.Owner, boxInfo.Deposit.Interest.Token, types.Injection)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -134,29 +134,29 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 
 	ctx2 := mapp2.BaseApp.NewContext(false, abci.Header{})
 
-	boxInfo1 := keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 := keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 := keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 := keeper2.GetBox(ctx2, id2)
 	require.NotNil(t, boxInfo2)
-	boxInfo3 := keeper2.GetBox(ctx2, boxID3)
+	boxInfo3 := keeper2.GetBox(ctx2, id3)
 	require.NotNil(t, boxInfo3)
 
-	require.True(t, boxInfo1.BoxStatus == types.DepositBoxInterest)
-	require.True(t, boxInfo2.BoxStatus == types.BoxCreated)
-	require.True(t, boxInfo3.BoxStatus == types.BoxCreated)
+	require.True(t, boxInfo1.Status == types.DepositBoxInterest)
+	require.True(t, boxInfo2.Status == types.BoxCreated)
+	require.True(t, boxInfo3.Status == types.BoxCreated)
 
 	ctx2 = ctx2.WithBlockTime(time.Unix(boxInfo.Deposit.MaturityTime, 0))
 	box.EndBlocker(ctx2, keeper2)
 
-	boxInfo1 = keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 = keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 = keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 = keeper2.GetBox(ctx2, id2)
 	require.Nil(t, boxInfo2)
-	boxInfo3 = keeper2.GetBox(ctx2, boxID3)
+	boxInfo3 = keeper2.GetBox(ctx2, id3)
 	require.NotNil(t, boxInfo3)
 
-	require.True(t, boxInfo1.BoxStatus == types.BoxFinished)
-	require.True(t, boxInfo3.BoxStatus == types.BoxDepositing)
+	require.True(t, boxInfo1.Status == types.BoxFinished)
+	require.True(t, boxInfo3.Status == types.BoxDepositing)
 }
 
 func TestFutureBoxImportExportQueues(t *testing.T) {
@@ -172,11 +172,11 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 	msg := msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
 	res := handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID1 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID1)
+	var id1 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
 	keeper.GetBankKeeper().AddCoins(ctx, newBoxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
-	msgDeposit := msgs.NewMsgBoxDeposit(boxID1, newBoxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
+	msgDeposit := msgs.NewMsgBoxDeposit(id1, newBoxInfo.Owner, boxInfo.TotalAmount.Token, types.DepositTo)
 	res = handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 
@@ -185,8 +185,8 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 	msg = msgs.NewMsgFutureBox(newBoxInfo.Owner, boxInfo)
 	res = handler(ctx, msg)
 	require.True(t, res.IsOK())
-	var boxID2 string
-	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &boxID2)
+	var id2 string
+	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id2)
 
 	genAccs := mapp.AccountKeeper.GetAllAccounts(ctx)
 
@@ -199,22 +199,22 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 
 	ctx2 := mapp2.BaseApp.NewContext(false, abci.Header{})
 
-	boxInfo1 := keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 := keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 := keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 := keeper2.GetBox(ctx2, id2)
 	require.NotNil(t, boxInfo2)
 
-	require.True(t, boxInfo1.BoxStatus == types.BoxActived)
-	require.True(t, boxInfo2.BoxStatus == types.BoxDepositing)
+	require.True(t, boxInfo1.Status == types.BoxActived)
+	require.True(t, boxInfo2.Status == types.BoxDepositing)
 
 	ctx2 = ctx2.WithBlockTime(time.Unix(boxInfo.Future.TimeLine[len(boxInfo.Future.TimeLine)-1], 0))
 	box.EndBlocker(ctx2, keeper2)
 
-	boxInfo1 = keeper2.GetBox(ctx2, boxID1)
+	boxInfo1 = keeper2.GetBox(ctx2, id1)
 	require.NotNil(t, boxInfo1)
-	boxInfo2 = keeper2.GetBox(ctx2, boxID2)
+	boxInfo2 = keeper2.GetBox(ctx2, id2)
 	require.Nil(t, boxInfo2)
 
-	require.True(t, boxInfo1.BoxStatus == types.BoxFinished)
+	require.True(t, boxInfo1.Status == types.BoxFinished)
 
 }

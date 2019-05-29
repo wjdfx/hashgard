@@ -29,13 +29,10 @@ func NewMsgDepositBox(sender sdk.AccAddress, params *params.BoxDepositParams) Ms
 func (msg MsgDepositBox) Route() string { return types.RouterKey }
 
 // Type Implements Msg.789
-func (msg MsgDepositBox) Type() string { return types.TypeMsgBoxCreateDeposit }
+func (msg MsgDepositBox) Type() string { return types.TypeMsgBoxCreate }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgDepositBox) ValidateBasic() sdk.Error {
-	if types.Deposit != msg.BoxType {
-		return errors.ErrUnknownBoxType()
-	}
 	if len(msg.Sender) == 0 {
 		return sdk.ErrInvalidAddress("Sender address cannot be empty")
 	}

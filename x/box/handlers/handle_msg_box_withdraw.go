@@ -11,18 +11,18 @@ import (
 
 //Handle MsgBoxWithdraw
 func HandleMsgBoxWithdraw(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxWithdraw) sdk.Result {
-	interest, boxInfo, err := keeper.ProcessBoxWithdraw(ctx, msg.BoxId, msg.Sender)
+	interest, boxInfo, err := keeper.ProcessBoxWithdraw(ctx, msg.Id, msg.Sender)
 	if err != nil {
 		return err.Result()
 	}
 
-	resTags := utils.GetBoxTags(msg.BoxId, boxInfo.BoxType, msg.Sender)
+	resTags := utils.GetBoxTags(msg.Id, boxInfo.BoxType, msg.Sender)
 	if types.Deposit == boxInfo.BoxType {
 		resTags = resTags.AppendTag(tags.Interest, interest.String())
 	}
 
 	return sdk.Result{
-		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.BoxId),
+		Data: keeper.Getcdc().MustMarshalBinaryLengthPrefixed(msg.Id),
 		Tags: resTags,
 	}
 }

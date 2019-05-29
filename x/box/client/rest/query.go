@@ -26,12 +26,12 @@ func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Co
 func queryBoxHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		boxID := vars[BoxID]
-		if err := boxutils.CheckBoxId(boxID); err != nil {
+		id := vars[BoxID]
+		if err := boxutils.CheckId(id); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		res, err := queriers.QueryBoxByID(boxID, cliCtx)
+		res, err := queriers.QueryBoxByID(id, cliCtx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
@@ -53,20 +53,20 @@ func queryBoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.H
 func queryBoxsHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		address, err := sdk.AccAddressFromBech32(r.URL.Query().Get(restAddress))
+		address, err := sdk.AccAddressFromBech32(r.URL.Query().Get(RestAddress))
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 		boxQueryParams := params.BoxQueryParams{
-			StartBoxId: r.URL.Query().Get(restStartBoxId),
-			BoxType:    vars[BoxType],
-			Owner:      address,
-			Limit:      30,
+			StartId: r.URL.Query().Get(RestStartId),
+			BoxType: vars[BoxType],
+			Owner:   address,
+			Limit:   30,
 		}
-		strNumLimit := r.URL.Query().Get(restLimit)
+		strNumLimit := r.URL.Query().Get(RestLimit)
 		if len(strNumLimit) > 0 {
-			limit, err := strconv.Atoi(r.URL.Query().Get(restLimit))
+			limit, err := strconv.Atoi(r.URL.Query().Get(RestLimit))
 			if err != nil {
 				rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 				return
