@@ -16,6 +16,7 @@ type BankKeeper interface {
 
 	// TODO remove once governance doesn't require use of accounts
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) sdk.Error
+	SetSendEnabled(ctx sdk.Context, enabled bool)
 }
 
 type AuthKeeper interface {

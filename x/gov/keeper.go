@@ -651,7 +651,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		}
 		keeper.distributionKeeper.SetFoundationAddress(ctx, val)
 		return nil
-		
+
 	default:
 		return ErrInvalidParamKey(DefaultCodespace, proposalParam.Key)
 	}
