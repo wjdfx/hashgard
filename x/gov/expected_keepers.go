@@ -10,20 +10,12 @@ import(
 	"github.com/hashgard/hashgard/x/mint"
 )
 
-type (
-	AuthParams = auth.Params
-	MintParams = mint.Params
-	SlashingParams = slashing.Params
-	StakingParams = staking.Params
-)
-
 // expected bank keeper
 type BankKeeper interface {
 	GetCoins(ctx sdk.Context, addr sdk.AccAddress) sdk.Coins
 
 	// TODO remove once governance doesn't require use of accounts
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) sdk.Error
-	SetSendEnabled(ctx sdk.Context, enabled bool)
 }
 
 type AuthKeeper interface {
@@ -33,9 +25,7 @@ type AuthKeeper interface {
 
 type DistributionKeeper interface {
 	SetCommunityTax(ctx sdk.Context, percent sdk.Dec)
-	SetBaseProposerReward(ctx sdk.Context, percent sdk.Dec)
-	SetBonusProposerReward(ctx sdk.Context, percent sdk.Dec)
-	SetWithdrawAddrEnabled(ctx sdk.Context, enabled bool)
+	SetFoundationAddress(ctx sdk.Context, foundationAddress sdk.AccAddress)
 	AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool)
 }
 
