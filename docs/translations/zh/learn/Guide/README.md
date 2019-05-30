@@ -51,8 +51,8 @@ hashgard init --chain-id=sif-5001 --moniker=${your_node_name}
 cd ~/.hashgard/config/
 rm genesis.json
 rm config.toml
-curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5001/config/config.toml
-curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5001/config/genesis.json
+curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5001/config/config.toml > config.toml
+curl https://raw.githubusercontent.com/hashgard/testnets/master/sif/sif-5001/config/genesis.json > genesis.json
 ```
 
 #### 4.3: 修改配置文件
