@@ -13,6 +13,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
+	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -23,9 +24,8 @@ import (
 
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/gov"
 	"github.com/hashgard/hashgard/x/issue"
-	"github.com/hashgard/hashgard/x/mint"
+	"github.com/hashgard/hashgard/x/gov"
 )
 
 const (
@@ -133,7 +133,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keyFeeCollection,
 	)
 
-	app.bankKeeper = bank.NewBaseKeeper(
+	bankKeeper := bank.NewBaseKeeper(
 		app.accountKeeper,
 		app.paramsKeeper.Subspace(bank.DefaultParamspace),
 		bank.DefaultCodespace,
@@ -143,7 +143,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.cdc,
 		app.keyStaking,
 		app.tkeyStaking,
-		app.bankKeeper,
+		&bankKeeper,
 		app.paramsKeeper.Subspace(staking.DefaultParamspace),
 		staking.DefaultCodespace,
 	)
@@ -160,7 +160,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.cdc,
 		app.keyDistribution,
 		app.paramsKeeper.Subspace(distribution.DefaultParamspace),
-		app.bankKeeper,
+		&bankKeeper,
 		&stakingKeeper,
 		app.feeCollectionKeeper,
 		distribution.DefaultCodespace,
@@ -179,8 +179,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keyIssue,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(issue.DefaultParamspace),
-		app.bankKeeper,
-		app.feeCollectionKeeper,
+		&bankKeeper,
 		issue.DefaultCodespace)
 
 	app.boxKeeper = box.NewKeeper(
@@ -188,9 +187,8 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keyBox,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(box.DefaultParamspace),
-		app.bankKeeper,
+		&bankKeeper,
 		app.issueKeeper,
-		app.feeCollectionKeeper,
 		box.DefaultCodespace)
 
 	app.exchangeKeeper = exchange.NewKeeper(
@@ -198,14 +196,14 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keyExchange,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(exchange.DefaultParamspace),
-		app.bankKeeper,
+		&bankKeeper,
 		exchange.DefaultCodespace,
 	)
 
 	app.crisisKeeper = crisis.NewKeeper(
 		app.paramsKeeper.Subspace(crisis.DefaultParamspace),
 		app.distributionKeeper,
-		app.bankKeeper,
+		&bankKeeper,
 		app.feeCollectionKeeper,
 	)
 
@@ -214,7 +212,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.keyGov,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(gov.DefaultParamspace),
-		app.bankKeeper,
+		&bankKeeper,
 		&stakingKeeper,
 		gov.DefaultCodespace,
 		app.accountKeeper,
@@ -229,6 +227,10 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 	// so that it can be modified like below:
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		NewStakingHooks(app.distributionKeeper.Hooks(), app.slashingKeeper.Hooks()),
+	)
+
+	app.bankKeeper = *bankKeeper.SetHooks(
+		NewBankHooks(app.boxKeeper.Hooks(), app.issueKeeper.Hooks()),
 	)
 
 	// register the crisis routes
@@ -506,4 +508,35 @@ func (h StakingHooks) AfterDelegationModified(ctx sdk.Context, delAddr sdk.AccAd
 func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAddress, fraction sdk.Dec) {
 	h.dh.BeforeValidatorSlashed(ctx, valAddr, fraction)
 	h.sh.BeforeValidatorSlashed(ctx, valAddr, fraction)
+}
+
+// ______________________________________________________________________________________________
+
+var _ bank.BankHooks = BankHooks{}
+
+type BankHooks struct {
+	boxHooks	box.Hooks
+	issueHooks	issue.Hooks
+}
+
+func NewBankHooks(boxHooks box.Hooks, issueHooks issue.Hooks) BankHooks {
+	return BankHooks{
+		boxHooks: boxHooks,
+		issueHooks: issueHooks,
+	}
+}
+
+// nolint
+func (bankHooks BankHooks) CanSend(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) (bool, sdk.Error) {
+	_, err := bankHooks.boxHooks.CanSend(ctx, fromAddr, toAddr, amt)
+	if err != nil {
+		return false, err
+	}
+
+	_, err = bankHooks.issueHooks.CanSend(ctx, fromAddr, toAddr, amt)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
