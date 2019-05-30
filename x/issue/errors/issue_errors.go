@@ -94,8 +94,8 @@ func ErrNotEnoughAmountToTransfer() sdk.Error {
 	return sdk.NewError(types.DefaultCodespace, CodeNotEnoughAmountToTransfer, fmt.Sprintf("Not enough amount allowed to transfer"))
 }
 func ErrCanNotTransferIn(issueID string, accAddress string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeNotTransferIn, fmt.Sprintf("Can not transfer %s to %s", issueID, accAddress))
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransferIn, fmt.Sprintf("Can not transfer in %s to %s", issueID, accAddress))
 }
 func ErrCanNotTransferOut(issueID string, accAddress string) sdk.Error {
-	return sdk.NewError(types.DefaultCodespace, CodeNotTransferOut, fmt.Sprintf("Can not transfer %s from %s", issueID, accAddress))
+	return sdk.NewError(types.DefaultCodespace, CodeNotTransferOut, fmt.Sprintf("Can not transfer out %s from %s", issueID, accAddress))
 }

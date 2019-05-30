@@ -518,13 +518,7 @@ func (keeper Keeper) DecreaseApproval(ctx sdk.Context, sender sdk.AccAddress, sp
 	}
 	return keeper.setApprove(ctx, sender, spender, issueID, allowance)
 }
-
-//Transfer tokens from one address to another
-func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
-	allowance := keeper.Allowance(ctx, from, sender, issueID)
-	if allowance.LT(amount) {
-		return errors.ErrNotEnoughAmountToTransfer()
-	}
+func (keeper Keeper) CheckFreeze(ctx sdk.Context, from sdk.AccAddress, to sdk.AccAddress, issueID string) sdk.Error {
 	freeze := keeper.GetFreeze(ctx, from, issueID)
 	if freeze.OutEndTime > 0 && freeze.OutEndTime > ctx.BlockHeader().Time.Unix() {
 		return errors.ErrCanNotTransferOut(issueID, from.String())
@@ -532,6 +526,18 @@ func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.A
 	freeze = keeper.GetFreeze(ctx, to, issueID)
 	if freeze.InEndTime > 0 && freeze.InEndTime > ctx.BlockHeader().Time.Unix() {
 		return errors.ErrCanNotTransferIn(issueID, to.String())
+	}
+	return nil
+}
+
+//Transfer tokens from one address to another
+func (keeper Keeper) SendFrom(ctx sdk.Context, sender sdk.AccAddress, from sdk.AccAddress, to sdk.AccAddress, issueID string, amount sdk.Int) sdk.Error {
+	allowance := keeper.Allowance(ctx, from, sender, issueID)
+	if allowance.LT(amount) {
+		return errors.ErrNotEnoughAmountToTransfer()
+	}
+	if err := keeper.CheckFreeze(ctx, from, to, issueID); err != nil {
+		return err
 	}
 	err := keeper.SendCoins(ctx, from, to, sdk.Coins{sdk.NewCoin(issueID, amount)})
 	if err != nil {
