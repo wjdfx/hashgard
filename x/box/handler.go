@@ -21,14 +21,14 @@ func NewHandler(keeper keeper.Keeper) sdk.Handler {
 			return handlers.HandleMsgDepositBox(ctx, keeper, msg)
 		case msgs.MsgFutureBox:
 			return handlers.HandleMsgFutureBox(ctx, keeper, msg)
-		case msgs.MsgBoxInterestInjection:
-			return handlers.HandleMsgBoxInterestInjection(ctx, keeper, msg)
-		case msgs.MsgBoxInterestFetch:
-			return handlers.HandleMsgBoxInterestFetch(ctx, keeper, msg)
-		case msgs.MsgBoxDepositTo:
-			return handlers.HandleMsgBoxDepositTo(ctx, keeper, msg)
-		case msgs.MsgBoxDepositFetch:
-			return handlers.HandleMsgBoxDepositFetch(ctx, keeper, msg)
+		case msgs.MsgBoxInterestInject:
+			return handlers.HandleMsgBoxInterestInject(ctx, keeper, msg)
+		case msgs.MsgBoxInterestCancel:
+			return handlers.HandleMsgBoxInterestCancel(ctx, keeper, msg)
+		case msgs.MsgBoxInject:
+			return handlers.HandleMsgBoxInject(ctx, keeper, msg)
+		case msgs.MsgBoxInjectCancel:
+			return handlers.HandleMsgBoxInjectCancel(ctx, keeper, msg)
 		case msgs.MsgBoxWithdraw:
 			return handlers.HandleMsgBoxWithdraw(ctx, keeper, msg)
 		case msgs.MsgBoxDescription:

@@ -9,43 +9,29 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func GetDepositToCmd(cdc *codec.Codec) *cobra.Command {
+func GetInjectCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "deposit-to [id] [amount]",
+		Use:     "inject [id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Deposit to the future box",
-		Long:    "Deposit to the future box",
-		Example: "$ hashgardcli future deposit-to box174876e800 88888 --from foo",
+		Short:   "Deposit token to the future box",
+		Long:    "Deposit token to the future box",
+		Example: "$ hashgardcli future inject box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxDeposit(cdc, args[0], args[1], types.DepositTo)
+			return boxcli.ProcessBoxInject(cdc, args[0], args[1], types.Inject)
 		},
 	}
 	return cmd
 }
 
-func GetFetchDepositCmd(cdc *codec.Codec) *cobra.Command {
+func GetCancelDepositCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fetch [id] [amount]",
+		Use:     "cancel [id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Fetch deposit from a future box",
-		Long:    "Fetch deposit from a future box",
-		Example: "$ hashgardcli future fetch box174876e800 88888 --from foo",
+		Short:   "Cancel deposit from a future box",
+		Long:    "Cancel deposit from a future box",
+		Example: "$ hashgardcli future cancel box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxDeposit(cdc, args[0], args[1], types.Fetch)
-		},
-	}
-	return cmd
-}
-
-func GetWithdrawCmd(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "withdraw [id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Holder withdraw from a future box",
-		Long:    "Holder withdraw from a future box when the future box can be withdraw",
-		Example: "$ hashgardcli future withdraw boxab3jlxpt2ps --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxWithdrawCmd(cdc, types.Future, args[0])
+			return boxcli.ProcessBoxInject(cdc, args[0], args[1], types.Cancel)
 		},
 	}
 	return cmd

@@ -10,46 +10,47 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 )
 
-// MsgBoxInterestInjection
-type MsgBoxInterestInjection struct {
+// MsgBoxInjectCancel
+type MsgBoxInjectCancel struct {
 	Id     string         `json:"id"`
 	Sender sdk.AccAddress `json:"sender"`
 	Amount sdk.Coin       `json:"amount"`
 }
 
-//New MsgBoxInterestInjection Instance
-func NewMsgBoxInterestInjection(boxId string, sender sdk.AccAddress, interest sdk.Coin) MsgBoxInterestInjection {
-	return MsgBoxInterestInjection{boxId, sender, interest}
+//New MsgBoxInjectCancel Instance
+func NewMsgBoxInjectCancel(boxId string, sender sdk.AccAddress, amount sdk.Coin) MsgBoxInjectCancel {
+	return MsgBoxInjectCancel{boxId, sender, amount}
 }
 
 // Route Implements Msg.
-func (msg MsgBoxInterestInjection) Route() string { return types.RouterKey }
+func (msg MsgBoxInjectCancel) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgBoxInterestInjection) Type() string { return types.TypeMsgBoxInterestInjection }
+func (msg MsgBoxInjectCancel) Type() string { return types.TypeMsgBoxCancel }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
-func (msg MsgBoxInterestInjection) ValidateBasic() sdk.Error {
+func (msg MsgBoxInjectCancel) ValidateBasic() sdk.Error {
 	if len(msg.Id) == 0 {
 		return errors.ErrUnknownBox("")
 	}
 	if msg.Amount.IsZero() || msg.Amount.IsNegative() {
 		return errors.ErrAmountNotValid(msg.Amount.Denom)
 	}
+
 	return nil
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgBoxInterestInjection) GetSignBytes() []byte {
+func (msg MsgBoxInjectCancel) GetSignBytes() []byte {
 	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // GetSigners Implements Msg.
-func (msg MsgBoxInterestInjection) GetSigners() []sdk.AccAddress {
+func (msg MsgBoxInjectCancel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
 
-func (msg MsgBoxInterestInjection) String() string {
-	return fmt.Sprintf("MsgBoxInterestInjection{%s}", msg.Id)
+func (msg MsgBoxInjectCancel) String() string {
+	return fmt.Sprintf("MsgBoxInjectCancel{%s}", msg.Id)
 }

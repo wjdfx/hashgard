@@ -1,8 +1,10 @@
-package msgs
+package config
 
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/hashgard/hashgard/x/box/msgs"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
@@ -17,10 +19,10 @@ var (
 	ParamStoreKeyBoxDescribeFee       = []byte("BoxDescribeFee")
 )
 
-var _ params.ParamSet = &BoxConfigParams{}
+var _ params.ParamSet = &Params{}
 
 // Param Config issue for issue
-type BoxConfigParams struct {
+type Params struct {
 	LockCreateFee       sdk.Coin `json:"lock_create_fee"`
 	DepositBoxCreateFee sdk.Coin `json:"deposit_box_create_fee"`
 	FutureBoxCreateFee  sdk.Coin `json:"future_box_create_fee"`
@@ -30,13 +32,13 @@ type BoxConfigParams struct {
 
 // ParamKeyTable for auth module
 func ParamKeyTable() params.KeyTable {
-	return params.NewKeyTable().RegisterParamSet(&BoxConfigParams{})
+	return params.NewKeyTable().RegisterParamSet(&Params{})
 }
 
 // ParamSetPairs implements the ParamSet interface and returns all the key/value pairs
 // pairs of auth module's parameters.
 // nolint
-func (p *BoxConfigParams) ParamSetPairs() params.ParamSetPairs {
+func (p *Params) ParamSetPairs() params.ParamSetPairs {
 	return params.ParamSetPairs{
 		{ParamStoreKeyLockCreateFee, &p.LockCreateFee},
 		{ParamStoreKeyDepositBoxCreateFee, &p.DepositBoxCreateFee},
@@ -46,16 +48,16 @@ func (p *BoxConfigParams) ParamSetPairs() params.ParamSetPairs {
 	}
 }
 
-// Checks equality of BoxConfigParams
-func (dp BoxConfigParams) Equal(dp2 BoxConfigParams) bool {
-	b1 := MsgCdc.MustMarshalBinaryBare(dp)
-	b2 := MsgCdc.MustMarshalBinaryBare(dp2)
+// Checks equality of Params
+func (dp Params) Equal(dp2 Params) bool {
+	b1 := msgs.MsgCdc.MustMarshalBinaryBare(dp)
+	b2 := msgs.MsgCdc.MustMarshalBinaryBare(dp2)
 	return bytes.Equal(b1, b2)
 }
 
 // DefaultParams returns a default set of parameters.
-func DefaultParams(denom string) BoxConfigParams {
-	return BoxConfigParams{
+func DefaultParams(denom string) Params {
+	return Params{
 		LockCreateFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
 		DepositBoxCreateFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
 		FutureBoxCreateFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
@@ -64,8 +66,8 @@ func DefaultParams(denom string) BoxConfigParams {
 	}
 }
 
-func (dp BoxConfigParams) String() string {
-	return fmt.Sprintf(`BoxConfigParams:
+func (dp Params) String() string {
+	return fmt.Sprintf(`Params:
   LockCreateFee:			%s
   DepositBoxCreateFee:			%s
   FutureBoxCreateFee:			%s

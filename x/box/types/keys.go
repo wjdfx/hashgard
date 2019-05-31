@@ -21,11 +21,11 @@ const (
 )
 
 var (
-	IdLength                       = 14
-	BoxMaxId                uint64 = 99999999999999
-	BoxMinId                uint64 = 10000000000000
-	BoxMaxInstalment               = 99
-	BoxMaxInjectionInterest        = 100
+	IdLength                    = 14
+	BoxMaxId             uint64 = 99999999999999
+	BoxMinId             uint64 = 10000000000000
+	BoxMaxInstalment            = 99
+	BoxMaxInjectInterest        = 100
 )
 
 const (
@@ -40,15 +40,19 @@ const (
 	QueryBox    = "query"
 	QuerySearch = "search"
 )
+const (
+	Inject = "inject"
+	Cancel = "cancel"
+)
 
 //box status
 const (
-	BoxCreated    = "created"
-	BoxDepositing = "depositing"
-	BoxActived    = "actived"
-	BoxUndue      = "undue"
-	BoxClosed     = "closed"
-	BoxFinished   = "finished"
+	BoxCreated   = "created"
+	BoxInjecting = Inject + "ing"
+	BoxActived   = "actived"
+	BoxUndue     = "undue"
+	BoxClosed    = "closed"
+	BoxFinished  = "finished"
 )
 
 //lock box status
@@ -61,22 +65,16 @@ const (
 const (
 	DepositBoxInterest = "interest"
 )
-const (
-	Injection = "injection"
-	DepositTo = "deposit-to"
-	Fetch     = "fetch"
-)
 
 const (
 	TypeMsgBoxCreate = "create"
 
 	TypeMsgBoxWithdraw = "withdraw"
 
-	TypeMsgBoxInterestInjection = "interest_injection"
-	TypeMsgBoxInterestFetch     = "interest_fetch"
-	TypeMsgBoxDepositTo         = "deposit_to"
-	TypeMsgBoxDepositFetch      = "deposit_fetch"
-
+	TypeMsgBoxInterestInject = "interest_" + Inject
+	TypeMsgBoxInterestCancel = "interest_" + Cancel
+	TypeMsgBoxInject         = Inject
+	TypeMsgBoxCancel         = Cancel
 	TypeMsgBoxDescription    = "describe"
 	TypeMsgBoxDisableFeature = "disable_feature"
 )

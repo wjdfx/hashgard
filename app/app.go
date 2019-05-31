@@ -13,7 +13,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/mint"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -24,8 +23,9 @@ import (
 
 	"github.com/hashgard/hashgard/x/box"
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/issue"
+	"github.com/hashgard/hashgard/x/mint"
 )
 
 const (
@@ -180,6 +180,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.paramsKeeper,
 		app.paramsKeeper.Subspace(issue.DefaultParamspace),
 		&bankKeeper,
+		app.feeCollectionKeeper,
 		issue.DefaultCodespace)
 
 	app.boxKeeper = box.NewKeeper(
@@ -189,6 +190,7 @@ func NewHashgardApp(logger log.Logger, db dbm.DB, traceStore io.Writer,
 		app.paramsKeeper.Subspace(box.DefaultParamspace),
 		&bankKeeper,
 		app.issueKeeper,
+		app.feeCollectionKeeper,
 		box.DefaultCodespace)
 
 	app.exchangeKeeper = exchange.NewKeeper(
@@ -515,13 +517,13 @@ func (h StakingHooks) BeforeValidatorSlashed(ctx sdk.Context, valAddr sdk.ValAdd
 var _ bank.BankHooks = BankHooks{}
 
 type BankHooks struct {
-	boxHooks	box.Hooks
-	issueHooks	issue.Hooks
+	boxHooks   box.Hooks
+	issueHooks issue.Hooks
 }
 
 func NewBankHooks(boxHooks box.Hooks, issueHooks issue.Hooks) BankHooks {
 	return BankHooks{
-		boxHooks: boxHooks,
+		boxHooks:   boxHooks,
 		issueHooks: issueHooks,
 	}
 }

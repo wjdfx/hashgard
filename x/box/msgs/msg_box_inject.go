@@ -10,26 +10,26 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 )
 
-// MsgBoxDepositTo
-type MsgBoxDepositTo struct {
+// MsgBoxInject
+type MsgBoxInject struct {
 	Id     string         `json:"id"`
 	Sender sdk.AccAddress `json:"sender"`
 	Amount sdk.Coin       `json:"amount"`
 }
 
-//New MsgBoxDepositTo Instance
-func NewMsgBoxDepositTo(boxId string, sender sdk.AccAddress, amount sdk.Coin) MsgBoxDepositTo {
-	return MsgBoxDepositTo{boxId, sender, amount}
+//New MsgBoxInject Instance
+func NewMsgBoxInject(boxId string, sender sdk.AccAddress, amount sdk.Coin) MsgBoxInject {
+	return MsgBoxInject{boxId, sender, amount}
 }
 
 // Route Implements Msg.
-func (msg MsgBoxDepositTo) Route() string { return types.RouterKey }
+func (msg MsgBoxInject) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgBoxDepositTo) Type() string { return types.TypeMsgBoxDepositTo }
+func (msg MsgBoxInject) Type() string { return types.TypeMsgBoxInject }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
-func (msg MsgBoxDepositTo) ValidateBasic() sdk.Error {
+func (msg MsgBoxInject) ValidateBasic() sdk.Error {
 	if len(msg.Id) == 0 {
 		return errors.ErrUnknownBox("")
 	}
@@ -41,16 +41,16 @@ func (msg MsgBoxDepositTo) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgBoxDepositTo) GetSignBytes() []byte {
+func (msg MsgBoxInject) GetSignBytes() []byte {
 	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // GetSigners Implements Msg.
-func (msg MsgBoxDepositTo) GetSigners() []sdk.AccAddress {
+func (msg MsgBoxInject) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
 
-func (msg MsgBoxDepositTo) String() string {
-	return fmt.Sprintf("MsgBoxDepositTo{%s}", msg.Id)
+func (msg MsgBoxInject) String() string {
+	return fmt.Sprintf("MsgBoxInject{%s}", msg.Id)
 }

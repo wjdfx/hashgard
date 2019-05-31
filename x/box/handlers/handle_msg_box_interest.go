@@ -8,9 +8,9 @@ import (
 	"github.com/hashgard/hashgard/x/box/utils"
 )
 
-//Handle MsgBoxInterestInjection
-func HandleMsgBoxInterestInjection(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInterestInjection) sdk.Result {
-	boxInfo, err := keeper.InjectionDepositBoxInterest(ctx, msg.Id, msg.Sender, msg.Amount)
+//Handle MsgBoxInterestInject
+func HandleMsgBoxInterestInject(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInterestInject) sdk.Result {
+	boxInfo, err := keeper.InjectDepositBoxInterest(ctx, msg.Id, msg.Sender, msg.Amount)
 	if err != nil {
 		return err.Result()
 	}
@@ -21,9 +21,9 @@ func HandleMsgBoxInterestInjection(ctx sdk.Context, keeper keeper.Keeper, msg ms
 	}
 }
 
-//Handle MsgBoxInterestFetch
-func HandleMsgBoxInterestFetch(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInterestFetch) sdk.Result {
-	boxInfo, err := keeper.FetchInterestFromDepositBox(ctx, msg.Id, msg.Sender, msg.Amount)
+//Handle MsgBoxInterestCancel
+func HandleMsgBoxInterestCancel(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInterestCancel) sdk.Result {
+	boxInfo, err := keeper.CancelInterestFromDepositBox(ctx, msg.Id, msg.Sender, msg.Amount)
 	if err != nil {
 		return err.Result()
 	}

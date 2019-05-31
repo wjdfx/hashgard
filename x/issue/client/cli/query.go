@@ -16,6 +16,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+// QueryCmd implements the query issue command.
+func QueryCmd(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:     "issue [denom]",
+		Args:    cobra.ExactArgs(1),
+		Short:   "Query the details of the account coin",
+		Long:    "Query the details of the account issue coin",
+		Example: "$ hashgardcli bank issue coin174876e800",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return processQuery(cdc, args)
+		},
+	}
+}
+
 // GetCmdQueryIssue implements the query issue command.
 func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
@@ -23,23 +37,27 @@ func GetCmdQueryIssue(cdc *codec.Codec) *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 		Short:   "Query a single issue",
 		Long:    "Query details for a issue. You can find the issue-id by running hashgardcli issue list-issues",
-		Example: "$ hashgardcli issue query-issue gardh1c7d59vebq",
+		Example: "$ hashgardcli issue query-issue coin174876e800",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			issueID := args[0]
-			if err := issueutils.CheckIssueId(issueID); err != nil {
-				return errors.Errorf(err)
-			}
-			// Query the issue
-			res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
-			if err != nil {
-				return err
-			}
-			var issueInfo types.Issue
-			cdc.MustUnmarshalJSON(res, &issueInfo)
-			return cliCtx.PrintOutput(issueInfo)
+			return processQuery(cdc, args)
 		},
 	}
+}
+
+func processQuery(cdc *codec.Codec, args []string) error {
+	cliCtx := context.NewCLIContext().WithCodec(cdc)
+	issueID := args[0]
+	if err := issueutils.CheckIssueId(issueID); err != nil {
+		return errors.Errorf(err)
+	}
+	// Query the issue
+	res, err := issuequeriers.QueryIssueByID(issueID, cliCtx)
+	if err != nil {
+		return err
+	}
+	var issueInfo types.Issue
+	cdc.MustUnmarshalJSON(res, &issueInfo)
+	return cliCtx.PrintOutput(issueInfo)
 }
 
 // GetCmdQueryAllowance implements the query allowance command.

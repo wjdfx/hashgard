@@ -7,6 +7,20 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// GetQueryParamsCmd implements the query params command.
+func GetQueryParamsCmd(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:     "params",
+		Short:   "Query the parameters of the lock process",
+		Long:    "Query the all the parameters",
+		Example: "$ hashgardcli deposit params",
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return boxcli.ProcessQueryBoxParamsCmd(cdc, types.Lock)
+		},
+	}
+}
+
 // GetQueryCmd implements the query box command.
 func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{

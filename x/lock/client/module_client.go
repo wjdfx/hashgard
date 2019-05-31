@@ -30,6 +30,7 @@ func (mc ModuleClient) GetCmd() *cobra.Command {
 	}
 	boxCmd.AddCommand(
 		client.GetCommands(
+			cli.GetQueryParamsCmd(mc.cdc),
 			cli.GetQueryCmd(mc.cdc),
 			cli.GetListCmd(mc.cdc),
 			cli.GetSearchCmd(mc.cdc),

@@ -59,11 +59,11 @@ type Keeper struct {
 	ck BankKeeper
 
 	// The reference to these Keepers to modify parameters
-	authKeeper AuthKeeper
+	authKeeper         AuthKeeper
 	distributionKeeper DistributionKeeper
-	mintKeeper MintKeeper
-	slashingKeeper SlashingKeeper
-	stakingKeeper StakingKeeper
+	mintKeeper         MintKeeper
+	slashingKeeper     SlashingKeeper
+	stakingKeeper      StakingKeeper
 
 	// The ValidatorSet to get information about validators
 	vs sdk.ValidatorSet
@@ -92,19 +92,19 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	slashingKeeper SlashingKeeper, stakingKeeper StakingKeeper) Keeper {
 
 	return Keeper{
-		storeKey:     key,
-		paramsKeeper: paramsKeeper,
-		paramSpace:   paramSpace.WithKeyTable(ParamKeyTable()),
-		ck:           ck,
-		ds:           ds,
-		vs:           ds.GetValidatorSet(),
-		cdc:          cdc,
-		codespace:    codespace,
-		authKeeper:		authKeeper,
+		storeKey:           key,
+		paramsKeeper:       paramsKeeper,
+		paramSpace:         paramSpace.WithKeyTable(ParamKeyTable()),
+		ck:                 ck,
+		ds:                 ds,
+		vs:                 ds.GetValidatorSet(),
+		cdc:                cdc,
+		codespace:          codespace,
+		authKeeper:         authKeeper,
 		distributionKeeper: distributionKeeper,
-		mintKeeper:		mintKeeper,
-		slashingKeeper:	slashingKeeper,
-		stakingKeeper:	stakingKeeper,
+		mintKeeper:         mintKeeper,
+		slashingKeeper:     slashingKeeper,
+		stakingKeeper:      stakingKeeper,
 	}
 }
 
@@ -124,7 +124,7 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, content ProposalContent) (p
 
 		Status:           StatusDepositPeriod,
 		FinalTallyResult: EmptyTallyResult(),
-		TotalDeposit:     sdk.NewCoins(),
+		TotalInject:      sdk.NewCoins(),
 		SubmitTime:       submitTime,
 		DepositEndTime:   submitTime.Add(depositPeriod),
 	}
@@ -402,12 +402,12 @@ func (keeper Keeper) AddDeposit(ctx sdk.Context, proposalID uint64, depositorAdd
 	}
 
 	// Update proposal
-	proposal.TotalDeposit = proposal.TotalDeposit.Add(depositAmount)
+	proposal.TotalInject = proposal.TotalInject.Add(depositAmount)
 	keeper.SetProposal(ctx, proposal)
 
 	// Check if deposit has provided sufficient total funds to transition the proposal into the voting period
 	activatedVotingPeriod := false
-	if proposal.Status == StatusDepositPeriod && proposal.TotalDeposit.IsAllGTE(keeper.GetDepositParams(ctx).MinDeposit) {
+	if proposal.Status == StatusDepositPeriod && proposal.TotalInject.IsAllGTE(keeper.GetDepositParams(ctx).MinDeposit) {
 		keeper.activateVotingPeriod(ctx, proposal)
 		activatedVotingPeriod = true
 	}
@@ -508,10 +508,9 @@ func (keeper Keeper) RemoveFromInactiveProposalQueue(ctx sdk.Context, endTime ti
 	store.Delete(KeyInactiveProposalQueueProposal(endTime, proposalID))
 }
 
-
 func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Error {
 	switch proposal.ProposalType() {
-	case ProposalTypeParameterChange :
+	case ProposalTypeParameterChange:
 		proposalParams := proposal.ProposalContent.(*ParameterChangeProposal).ProposalParams
 		for _, proposalParam := range proposalParams {
 			err := keeper.SetProposalParam(ctx, proposalParam)
@@ -520,7 +519,7 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 			}
 		}
 
-	case ProposalTypeTaxUsage :
+	case ProposalTypeTaxUsage:
 		burn := false
 		taxUsage := proposal.ProposalContent.(*TaxUsageProposal).TaxUsage
 
@@ -568,7 +567,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.authKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "bank/send_enabled" :
+	case "bank/send_enabled":
 		var val bool
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -577,7 +576,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.ck.SetSendEnabled(ctx, val)
 		return nil
 
-	case "distribution/community_tax" :
+	case "distribution/community_tax":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -586,7 +585,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.distributionKeeper.SetCommunityTax(ctx, val)
 		return nil
 
-	case "distribution/base_proposer_reward" :
+	case "distribution/base_proposer_reward":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -595,7 +594,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.distributionKeeper.SetBaseProposerReward(ctx, val)
 		return nil
 
-	case "distribution/bonus_proposer_reward" :
+	case "distribution/bonus_proposer_reward":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -604,7 +603,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.distributionKeeper.SetBonusProposerReward(ctx, val)
 		return nil
 
-	case "distribution/withdraw_addr_enabled" :
+	case "distribution/withdraw_addr_enabled":
 		var val bool
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -613,7 +612,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.distributionKeeper.SetWithdrawAddrEnabled(ctx, val)
 		return nil
 
-	case "gov/min_deposit" :
+	case "gov/min_deposit":
 		var val sdk.Coins
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -624,7 +623,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setDepositParams(ctx, tParams)
 		return nil
 
-	case "gov/max_deposit_period" :
+	case "gov/max_deposit_period":
 		var val time.Duration
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -635,7 +634,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setDepositParams(ctx, tParams)
 		return nil
 
-	case "gov/voting_period" :
+	case "gov/voting_period":
 		var val time.Duration
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -646,7 +645,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setVotingParams(ctx, tParams)
 		return nil
 
-	case "gov/quorum" :
+	case "gov/quorum":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -657,7 +656,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setTallyParams(ctx, tParams)
 		return nil
 
-	case "gov/threshold" :
+	case "gov/threshold":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -668,7 +667,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setTallyParams(ctx, tParams)
 		return nil
 
-	case "gov/veto" :
+	case "gov/veto":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -679,7 +678,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.setTallyParams(ctx, tParams)
 		return nil
 
-	case "mint/inflation" :
+	case "mint/inflation":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -690,7 +689,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.mintKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "mint/inflation_base" :
+	case "mint/inflation_base":
 		var val sdk.Int
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -701,7 +700,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.mintKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/max_evidence_age" :
+	case "slashing/max_evidence_age":
 		var val time.Duration
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -712,7 +711,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/signed_blocks_window" :
+	case "slashing/signed_blocks_window":
 		var val int64
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -723,7 +722,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/min_signed_per_window" :
+	case "slashing/min_signed_per_window":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -734,7 +733,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/downtime_jail_duration" :
+	case "slashing/downtime_jail_duration":
 		var val time.Duration
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -745,7 +744,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/slash_fraction_double_sign" :
+	case "slashing/slash_fraction_double_sign":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -756,7 +755,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "slashing/slash_fraction_downtime" :
+	case "slashing/slash_fraction_downtime":
 		var val sdk.Dec
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -767,7 +766,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.slashingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "staking/unbonding_time" :
+	case "staking/unbonding_time":
 		var val time.Duration
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -778,7 +777,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.stakingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "staking/max_validators" :
+	case "staking/max_validators":
 		var val uint16
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -789,7 +788,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		keeper.stakingKeeper.SetParams(ctx, tParams)
 		return nil
 
-	case "staking/max_entries" :
+	case "staking/max_entries":
 		var val uint16
 		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
@@ -804,4 +803,3 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return ErrInvalidParamKey(DefaultCodespace, proposalParam.Key)
 	}
 }
-

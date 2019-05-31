@@ -27,7 +27,7 @@ func (keeper Keeper) ProcessLockBoxByEndBlocker(ctx sdk.Context, box *types.BoxI
 	if err != nil {
 		return err
 	}
-	if err := keeper.FetchDepositedCoin(ctx, box.Owner, sdk.Coins{box.TotalAmount.Token}, box.Id); err != nil {
+	if err := keeper.CancelDepositedCoin(ctx, box.Owner, sdk.Coins{box.TotalAmount.Token}, box.Id); err != nil {
 		return err
 	}
 	keeper.RemoveFromActiveBoxQueue(ctx, box.Lock.EndTime, box.Id)

@@ -39,9 +39,9 @@ import (
 	"github.com/hashgard/hashgard/x/exchange"
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
 	faucetcmd "github.com/hashgard/hashgard/x/faucet/client/cli"
-	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/gov"
 	govcmd "github.com/hashgard/hashgard/x/gov/client/cli"
+	"github.com/hashgard/hashgard/x/issue"
 )
 
 // rootCmd is the entry point for this binary
@@ -157,6 +157,10 @@ func addBankCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 		client.LineBreak,
 	)
 	bankCmd.AddCommand(
+		issue.QueryCmd(cdc),
+		box.QueryCmd(cdc),
+		box.WithdrawCmd(cdc),
+		client.LineBreak,
 		box.SendTxCmd(cdc),
 		authcmd.GetSignCommand(cdc),
 		authcmd.GetMultiSignCommand(cdc),

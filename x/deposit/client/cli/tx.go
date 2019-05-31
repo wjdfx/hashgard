@@ -14,31 +14,31 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// GetInterestInjectionCmd implements interest injection a deposit box transaction command.
-func GetInterestInjectionCmd(cdc *codec.Codec) *cobra.Command {
+// GetInterestInjectCmd implements interest injection a deposit box transaction command.
+func GetInterestInjectCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "interest-injection [id] [amount]",
+		Use:     "interest-inject [id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Injection interest to the deposit box",
-		Long:    "Injection interest to the deposit box",
-		Example: "$ hashgardcli deposit interest-injection box174876e800 88888 --from foo",
+		Short:   "Inject interest to the deposit box",
+		Long:    "Inject interest to the deposit box",
+		Example: "$ hashgardcli deposit interest-inject box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args[0], args[1], types.Injection)
+			return interest(cdc, args[0], args[1], types.Inject)
 		},
 	}
 	return cmd
 }
 
-// GetInterestFetchCmd implements fetch interest from a deposit box transaction command.
-func GetInterestFetchCmd(cdc *codec.Codec) *cobra.Command {
+// GetInterestCancelCmd implements fetch interest from a deposit box transaction command.
+func GetInterestCancelCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "interest-fetch [id] [amount]",
+		Use:     "interest-cancel [id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Fetch interest from a deposit box",
-		Long:    "Fetch interest from a deposit box",
-		Example: "$ hashgardcli deposit interest-fetch box174876e800 88888 --from foo",
+		Short:   "Cancel interest from a deposit box",
+		Long:    "Cancel interest from a deposit box",
+		Example: "$ hashgardcli deposit interest-cancel box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return interest(cdc, args[0], args[1], types.Fetch)
+			return interest(cdc, args[0], args[1], types.Cancel)
 		},
 	}
 	return cmd
@@ -60,43 +60,29 @@ func interest(cdc *codec.Codec, id string, amountStr string, operation string) e
 	return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 }
 
-func GetDepositToCmd(cdc *codec.Codec) *cobra.Command {
+func GetInjectCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "deposit-to [id] [amount]",
+		Use:     "inject [id] [amount]",
 		Args:    cobra.ExactArgs(2),
 		Short:   "Deposit to the deposit box",
 		Long:    "Deposit to the deposit box",
 		Example: "$ hashgardcli deposit deposit-to box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxDeposit(cdc, args[0], args[1], types.DepositTo)
+			return boxcli.ProcessBoxInject(cdc, args[0], args[1], types.Inject)
 		},
 	}
 	return cmd
 }
 
-func GetFetchDepositCmd(cdc *codec.Codec) *cobra.Command {
+func GetCancelDepositCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "fetch [id] [amount]",
+		Use:     "cancel [id] [amount]",
 		Args:    cobra.ExactArgs(2),
-		Short:   "Fetch deposit from a deposit box",
-		Long:    "Fetch deposit from a deposit box",
+		Short:   "Cancel deposit from a deposit box",
+		Long:    "Cancel deposit from a deposit box",
 		Example: "$ hashgardcli deposit fetch box174876e800 88888 --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxDeposit(cdc, args[0], args[1], types.Fetch)
-		},
-	}
-	return cmd
-}
-
-func GetWithdrawCmd(cdc *codec.Codec) *cobra.Command {
-	cmd := &cobra.Command{
-		Use:     "withdraw [id]",
-		Args:    cobra.ExactArgs(1),
-		Short:   "Holder withdraw from a deposit box",
-		Long:    "Holder withdraw from a deposit box when the deposit box can be withdraw",
-		Example: "$ hashgardcli deposit withdraw boxab3jlxpt2ps --from foo",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return boxcli.ProcessBoxWithdrawCmd(cdc, types.Deposit, args[0])
+			return boxcli.ProcessBoxInject(cdc, args[0], args[1], types.Cancel)
 		},
 	}
 	return cmd

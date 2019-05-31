@@ -28,6 +28,7 @@ func (mc ModuleClient) GetCmd() *cobra.Command {
 	}
 	boxCmd.AddCommand(
 		client.GetCommands(
+			cli.GetQueryParamsCmd(mc.cdc),
 			cli.GetQueryCmd(mc.cdc),
 			cli.GetListCmd(mc.cdc),
 			cli.GetSearchCmd(mc.cdc),
@@ -36,9 +37,8 @@ func (mc ModuleClient) GetCmd() *cobra.Command {
 
 	txCmd := client.PostCommands(
 		cli.GetCreateCmd(mc.cdc),
-		cli.GetDepositToCmd(mc.cdc),
-		cli.GetFetchDepositCmd(mc.cdc),
-		cli.GetWithdrawCmd(mc.cdc),
+		cli.GetInjectCmd(mc.cdc),
+		cli.GetCancelDepositCmd(mc.cdc),
 		cli.GetDescriptionCmd(mc.cdc),
 		cli.GetDisableFeatureCmd(mc.cdc),
 	)

@@ -59,8 +59,8 @@ func GetLockBoxInfo() *params.BoxLockParams {
 	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(5) * time.Second).Unix()}
 	return box
 }
-func GetDepositBoxInfo() *params.BoxDepositParams {
-	box := &params.BoxDepositParams{}
+func GetDepositBoxInfo() *params.BoxInjectParams {
+	box := &params.BoxInjectParams{}
 
 	box.Name = newBoxInfo.Name
 	box.TotalAmount = newBoxInfo.TotalAmount
@@ -135,8 +135,10 @@ func getMockApp(t *testing.T, genState box.GenesisState, genAccs []auth.Account)
 	ik := NewIssueKeeper()
 	fck := keeper2.DummyFeeCollectionKeeper{}
 
-	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), ck, ik, fck, types.DefaultCodespace)
+	keeper = box.NewKeeper(mapp.Cdc, keyBox, pk, pk.Subspace("testBox"), &ck, ik, fck, types.DefaultCodespace)
 	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
+
+	ck.SetHooks(keeper.Hooks())
 
 	mapp.Router().AddRoute(types.RouterKey, box.NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(types.QuerierRoute, box.NewQuerier(keeper))

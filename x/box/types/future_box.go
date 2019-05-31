@@ -7,18 +7,18 @@ import (
 )
 
 type FutureBox struct {
-	Deposits        []AddressDeposit `json:"deposits"`
-	TimeLine        []int64          `json:"time"`
-	Receivers       [][]string       `json:"receivers"`
-	TotalWithdrawal sdk.Int          `json:"total_withdrawal"`
+	Injects         []AddressInject `json:"injects"`
+	TimeLine        []int64         `json:"time"`
+	Receivers       [][]string      `json:"receivers"`
+	TotalWithdrawal sdk.Int         `json:"total_withdrawal"`
 }
 
 //nolint
 func (bi FutureBox) String() string {
 	return fmt.Sprintf(`FutureInfo:
-  Deposit:			%s			
+  Injects:			%s			
   TimeLine:			%d
   Receivers:			%s
   TotalWithdrawal:			%s`,
-		bi.Deposits, bi.TimeLine, bi.Receivers, bi.TotalWithdrawal.String())
+		bi.Injects, bi.TimeLine, bi.Receivers, bi.TotalWithdrawal.String())
 }

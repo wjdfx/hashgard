@@ -42,7 +42,7 @@ func GetCreateCmd(cdc *codec.Codec) *cobra.Command {
 			}
 			coin.Amount = boxutils.MulDecimals(coin, decimal)
 
-			box := params.BoxDepositParams{}
+			box := params.BoxInjectParams{}
 			box.Name = args[0]
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
 			box.TransferDisabled = viper.GetBool(boxcli.FlagTransferDisabled)

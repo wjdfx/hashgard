@@ -9,9 +9,9 @@ import (
 	"github.com/hashgard/hashgard/x/box/utils"
 )
 
-//Handle MsgBoxDeposit
-func HandleMsgBoxDepositTo(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDepositTo) sdk.Result {
-	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.Id, msg.Sender, msg.Amount, types.DepositTo)
+//Handle MsgBoxInject
+func HandleMsgBoxInject(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInject) sdk.Result {
+	boxInfo, err := keeper.ProcessInjectBox(ctx, msg.Id, msg.Sender, msg.Amount, types.Inject)
 	if err != nil {
 		return err.Result()
 	}
@@ -22,9 +22,9 @@ func HandleMsgBoxDepositTo(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBo
 	}
 }
 
-//Handle MsgBoxDepositTo
-func HandleMsgBoxDepositFetch(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxDepositFetch) sdk.Result {
-	boxInfo, err := keeper.ProcessDepositToBox(ctx, msg.Id, msg.Sender, msg.Amount, types.Fetch)
+//Handle MsgBoxInject
+func HandleMsgBoxInjectCancel(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgBoxInjectCancel) sdk.Result {
+	boxInfo, err := keeper.ProcessInjectBox(ctx, msg.Id, msg.Sender, msg.Amount, types.Cancel)
 	if err != nil {
 		return err.Result()
 	}

@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/issue/config"
+
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -15,7 +17,7 @@ import (
 type GenesisState struct {
 	StartingIssueId uint64          `json:"starting_issue_id"`
 	Issues          []CoinIssueInfo `json:"issues"`
-	Params          Params          `json:"params"`
+	Params          config.Params   `json:"params"`
 }
 
 // NewGenesisState creates a new genesis state.

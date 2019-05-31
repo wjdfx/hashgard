@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/hashgard/hashgard/x/box/msgs"
+	"github.com/hashgard/hashgard/x/box/config"
 
 	"github.com/hashgard/hashgard/x/box/types"
 
@@ -28,7 +28,7 @@ func NewGenesisState(startingLockId uint64, startingDepositId uint64, startingFu
 		StartingLockId:    startingLockId,
 		StartingDepositId: startingDepositId,
 		StartingFutureId:  startingFutureId,
-		Params:            msgs.DefaultParams(sdk.DefaultBondDenom),
+		Params:            config.DefaultParams(sdk.DefaultBondDenom),
 	}
 }
 
@@ -76,7 +76,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 		switch box.Status {
 		case types.BoxCreated:
 			keeper.InsertActiveBoxQueue(ctx, box.Deposit.StartTime, box.Id)
-		case types.BoxDepositing:
+		case types.BoxInjecting:
 			keeper.InsertActiveBoxQueue(ctx, box.Deposit.EstablishTime, box.Id)
 		case types.DepositBoxInterest:
 			keeper.InsertActiveBoxQueue(ctx, box.Deposit.MaturityTime, box.Id)
@@ -86,7 +86,7 @@ func InitGenesis(ctx sdk.Context, keeper Keeper, data GenesisState) {
 	for _, box := range data.FutureBoxs {
 		keeper.AddBox(ctx, &box)
 		switch box.Status {
-		case types.BoxDepositing:
+		case types.BoxInjecting:
 			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
 		case types.BoxActived:
 			keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[len(box.Future.TimeLine)-1], box.Id)

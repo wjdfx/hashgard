@@ -10,6 +10,15 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 )
 
+func QueryParams(ctx sdk.Context, keeper keeper.Keeper) ([]byte, sdk.Error) {
+	params := keeper.GetParams(ctx)
+	bz, err := codec.MarshalJSONIndent(keeper.Getcdc(), params)
+	if err != nil {
+		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+	}
+	return bz, nil
+}
+
 func QueryBox(ctx sdk.Context, id string, keeper keeper.Keeper) ([]byte, sdk.Error) {
 	box := keeper.GetBox(ctx, id)
 	if box == nil {

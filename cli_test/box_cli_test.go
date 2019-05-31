@@ -55,7 +55,7 @@ func CreateLockBox(t *testing.T, f *Fixtures, issueID string, sender sdk.AccAddr
 	boxId := string(bytes[2:])
 	return boxId, params
 }
-func CreateDepositBox(t *testing.T, f *Fixtures, issueAID string, issueBID string, sender sdk.AccAddress) (string, *params.BoxDepositParams) {
+func CreateDepositBox(t *testing.T, f *Fixtures, issueAID string, issueBID string, sender sdk.AccAddress) (string, *params.BoxInjectParams) {
 	params := boxtests.GetDepositBoxInfo()
 
 	params.TotalAmount.Token.Amount = BoxAmount
@@ -146,20 +146,20 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 
 	boxID, params := CreateDepositBox(t, f, issueAID, issueBID, fooAddr)
 
-	f.TxDepositBoxInterestInjection(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestInject(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInjection := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInjection, fmt.Sprintf("sender:%s", fooAddr))
-	require.Len(t, txsInjection, 1)
+	txsInject := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInject, 1)
 
-	f.TxDepositBoxInterestFetch(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestCancel(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInjection = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestFetch, fmt.Sprintf("sender:%s", fooAddr))
-	require.Len(t, txsInjection, 1)
+	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestCancel, fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInject, 1)
 
-	f.TxDepositBoxInterestInjection(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestInject(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInjection = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInjection, fmt.Sprintf("sender:%s", fooAddr))
-	require.Len(t, txsInjection, 2)
+	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", fooAddr))
+	require.Len(t, txsInject, 2)
 
 	depositTo := BoxAmount.QuoRaw(int64(2))
 	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueAID, depositTo), DefaultFlag)
@@ -167,9 +167,9 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Deposit.StartTime), f.Port)
 
-	f.TxDepositTo(keyBar, boxID, depositTo, DefaultFlag)
+	f.TxInject(keyBar, boxID, depositTo, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDepositTo, fmt.Sprintf("sender:%s", barAddr.String()))
+	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	fooAcc := f.QueryAccount(barAddr)
@@ -203,22 +203,22 @@ func TestHashgardCLIFutureBox(t *testing.T) {
 	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
-	f.TxDepositTo(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
+	f.TxInject(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDepositTo, fmt.Sprintf("sender:%s", barAddr.String()))
+	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
-	f.TxDepositFetch(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
+	f.TxDepositCancel(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDepositFetch, fmt.Sprintf("sender:%s", barAddr.String()))
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxCancel, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	f.TxSend(keyBar, fooAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
-	f.TxDepositTo(keyFoo, boxID, depositTo, DefaultFlag)
+	f.TxInject(keyFoo, boxID, depositTo, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxDepositTo, fmt.Sprintf("sender:%s", fooAddr.String()))
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", fooAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Future.TimeLine[len(params.Future.TimeLine)-1]), f.Port)

@@ -23,9 +23,9 @@ type proposal struct {
 	Description string
 	Type        string
 	Deposit     string
-	Params		[]string
-	Usage		string
-	Percent		string
+	Params      []string
+	Usage       string
+	Percent     string
 	DestAddress string
 }
 
@@ -173,7 +173,7 @@ $ hashgardcli gov deposit 1 10gard --from mykey
 
 			from := cliCtx.GetFromAddress()
 
-			// Fetch associated account
+			// Cancel associated account
 			account, err := cliCtx.GetAccount(from)
 			if err != nil {
 				return err
@@ -262,7 +262,7 @@ func getParamFromString(paramStrArr []string) (gov.ProposalParams, error) {
 		}
 		proposalParams = append(proposalParams,
 			gov.ProposalParam{
-				Key: str[0],
+				Key:   str[0],
 				Value: str[1],
 			})
 	}

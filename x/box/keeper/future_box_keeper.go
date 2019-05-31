@@ -10,23 +10,23 @@ import (
 //Process Future box
 
 func (keeper Keeper) ProcessFutureBoxCreate(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	box.Status = types.BoxDepositing
+	box.Status = types.BoxInjecting
 	box.Future.TotalWithdrawal = sdk.ZeroInt()
 	//keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], keeper.GetFutureBoxSeqString(box, 0))
 	keeper.InsertActiveBoxQueue(ctx, box.Future.TimeLine[0], box.Id)
 	return nil
 }
-func (keeper Keeper) processFutureBoxDeposit(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin, operation string) sdk.Error {
+func (keeper Keeper) processFutureBoxInject(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin, operation string) sdk.Error {
 	switch operation {
-	case types.DepositTo:
-		return keeper.depositToFutureBox(ctx, box, sender, amount)
-	case types.Fetch:
-		return keeper.fetchDepositFromFutureBox(ctx, box, sender, amount)
+	case types.Inject:
+		return keeper.injectFutureBox(ctx, box, sender, amount)
+	case types.Cancel:
+		return keeper.cancelDepositFromFutureBox(ctx, box, sender, amount)
 	default:
 		return errors.ErrUnknownOperation()
 	}
 }
-func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
+func (keeper Keeper) injectFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
 	if box.Future.TimeLine[0] < ctx.BlockHeader().Time.Unix() {
 		return errors.ErrNotSupportOperation()
 	}
@@ -34,19 +34,19 @@ func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sen
 		return errors.ErrAmountNotValid(amount.Denom)
 	}
 	totalDeposit := sdk.ZeroInt()
-	if box.Future.Deposits == nil {
-		box.Future.Deposits = []types.AddressDeposit{{Address: sender, Amount: amount.Amount}}
+	if box.Future.Injects == nil {
+		box.Future.Injects = []types.AddressInject{{Address: sender, Amount: amount.Amount}}
 	} else {
 		exist := false
-		for i, v := range box.Future.Deposits {
+		for i, v := range box.Future.Injects {
 			totalDeposit = totalDeposit.Add(v.Amount)
 			if v.Address.Equals(sender) {
-				box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Add(amount.Amount)
+				box.Future.Injects[i].Amount = box.Future.Injects[i].Amount.Add(amount.Amount)
 				exist = true
 			}
 		}
 		if !exist {
-			box.Future.Deposits = append(box.Future.Deposits, types.NewAddressDeposit(sender, amount.Amount))
+			box.Future.Injects = append(box.Future.Injects, types.NewAddressInject(sender, amount.Amount))
 		}
 	}
 	totalDeposit = totalDeposit.Add(amount.Amount)
@@ -67,23 +67,23 @@ func (keeper Keeper) depositToFutureBox(ctx sdk.Context, box *types.BoxInfo, sen
 	keeper.setBox(ctx, box)
 	return nil
 }
-func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
+func (keeper Keeper) cancelDepositFromFutureBox(ctx sdk.Context, box *types.BoxInfo, sender sdk.AccAddress, amount sdk.Coin) sdk.Error {
 	if box.Status == types.BoxActived {
 		return errors.ErrNotAllowedOperation(box.Status)
 	}
 	if box.TotalAmount.Token.Denom != amount.Denom {
 		return errors.ErrAmountNotValid(amount.Denom)
 	}
-	if box.Future.Deposits == nil {
+	if box.Future.Injects == nil {
 		return errors.ErrNotEnoughAmount()
 	}
 	exist := false
-	for i, v := range box.Future.Deposits {
+	for i, v := range box.Future.Injects {
 		if v.Address.Equals(sender) {
-			if box.Future.Deposits[i].Amount.LT(amount.Amount) {
+			if box.Future.Injects[i].Amount.LT(amount.Amount) {
 				return errors.ErrNotEnoughAmount()
 			}
-			box.Future.Deposits[i].Amount = box.Future.Deposits[i].Amount.Sub(amount.Amount)
+			box.Future.Injects[i].Amount = box.Future.Injects[i].Amount.Sub(amount.Amount)
 			exist = true
 			break
 		}
@@ -92,7 +92,7 @@ func (keeper Keeper) fetchDepositFromFutureBox(ctx sdk.Context, box *types.BoxIn
 		return errors.ErrNotEnoughAmount()
 	}
 
-	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(amount), box.Id); err != nil {
+	if err := keeper.CancelDepositedCoin(ctx, sender, sdk.NewCoins(amount), box.Id); err != nil {
 		return err
 	}
 	keeper.setBox(ctx, box)
@@ -138,21 +138,21 @@ func (keeper Keeper) processFutureBoxDistribute(ctx sdk.Context, box *types.BoxI
 
 func (keeper Keeper) ProcessFutureBoxByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
 	switch box.Status {
-	case types.BoxDepositing:
-		return keeper.processFutureBoxDepositToByEndBlocker(ctx, box)
+	case types.BoxInjecting:
+		return keeper.processFutureBoxInjectByEndBlocker(ctx, box)
 	case types.BoxActived:
 		return keeper.processFutureBoxActiveByEndBlocker(ctx, box)
 	default:
 		return errors.ErrNotAllowedOperation(box.Status)
 	}
 }
-func (keeper Keeper) processFutureBoxDepositToByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
-	if types.BoxDepositing != box.Status {
+func (keeper Keeper) processFutureBoxInjectByEndBlocker(ctx sdk.Context, box *types.BoxInfo) sdk.Error {
+	if types.BoxInjecting != box.Status {
 		return errors.ErrNotAllowedOperation(box.Status)
 	}
-	if box.Future.Deposits != nil {
-		for _, v := range box.Future.Deposits {
-			if err := keeper.FetchDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, v.Amount)), box.Id); err != nil {
+	if box.Future.Injects != nil {
+		for _, v := range box.Future.Injects {
+			if err := keeper.CancelDepositedCoin(ctx, v.Address, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, v.Amount)), box.Id); err != nil {
 				return err
 			}
 		}
@@ -185,7 +185,7 @@ func (keeper Keeper) processFutureBoxWithdraw(ctx sdk.Context, idSeq string, sen
 	if err != nil {
 		return nil, err
 	}
-	if err := keeper.FetchDepositedCoin(ctx, sender, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.Id); err != nil {
+	if err := keeper.CancelDepositedCoin(ctx, sender, sdk.NewCoins(sdk.NewCoin(box.TotalAmount.Token.Denom, amount)), box.Id); err != nil {
 		return nil, err
 	}
 	box.Future.TotalWithdrawal = amount.Add(box.Future.TotalWithdrawal)

@@ -17,7 +17,11 @@ tags:
   description: Slashing module APIs
 - name: ICS24
   description: Fee distribution module APIs
-- name: ICS30
+- name: HRC10
+  description: Issue module APIs
+- name: HRC11
+  description: Exchange module APIs
+- name: HRC12
   description: Exchange module APIs
 - name: version
   description: Query app version

@@ -21,7 +21,7 @@ type Proposal struct {
 
 	SubmitTime     time.Time `json:"submit_time"`      //  Time of the block where TxGovSubmitProposal was included
 	DepositEndTime time.Time `json:"deposit_end_time"` // Time that the Proposal would expire if deposit amount isn't met
-	TotalDeposit   sdk.Coins `json:"total_deposit"`    //  Current deposit on this proposal. Initial value is set at InitialDeposit
+	TotalInject    sdk.Coins `json:"total_inject"`     //  Current deposit on this proposal. Initial value is set at InitialDeposit
 
 	VotingStartTime time.Time `json:"voting_start_time"` //  Time of the block where MinDeposit was reached. -1 if MinDeposit is not reached
 	VotingEndTime   time.Time `json:"voting_end_time"`   // Time that the VotingPeriod for this proposal will end and votes will be tallied
@@ -41,7 +41,7 @@ func (p Proposal) String() string {
   Description:        %s`,
 		p.ProposalID, p.GetTitle(), p.ProposalType(),
 		p.Status, p.SubmitTime, p.DepositEndTime,
-		p.TotalDeposit, p.VotingStartTime, p.VotingEndTime, p.GetDescription(),
+		p.TotalInject, p.VotingStartTime, p.VotingEndTime, p.GetDescription(),
 	)
 }
 
@@ -90,7 +90,6 @@ func (tp TextProposal) GetTitle() string           { return tp.Title }
 func (tp TextProposal) GetDescription() string     { return tp.Description }
 func (tp TextProposal) ProposalType() ProposalKind { return ProposalTypeText }
 
-
 // Parameter Change Proposals
 type ParameterChangeProposal struct {
 	TextProposal
@@ -99,7 +98,7 @@ type ParameterChangeProposal struct {
 
 func NewParameterChangeProposal(title, description string, proposalParams ProposalParams) ParameterChangeProposal {
 	return ParameterChangeProposal{
-		TextProposal: NewTextProposal(title, description),
+		TextProposal:   NewTextProposal(title, description),
 		ProposalParams: proposalParams,
 	}
 }
@@ -112,7 +111,6 @@ func (pcp ParameterChangeProposal) ProposalType() ProposalKind {
 	return ProposalTypeParameterChange
 }
 
-
 // Tax Usage Proposals
 type TaxUsageProposal struct {
 	TextProposal
@@ -121,8 +119,8 @@ type TaxUsageProposal struct {
 
 func NewTaxUsageProposal(title, description string, taxusage TaxUsage) TaxUsageProposal {
 	return TaxUsageProposal{
-		TextProposal:	NewTextProposal(title, description),
-		TaxUsage:       taxusage,
+		TextProposal: NewTextProposal(title, description),
+		TaxUsage:     taxusage,
 	}
 }
 
@@ -135,7 +133,6 @@ var _ ProposalContent = TaxUsageProposal{}
 func (tup TaxUsageProposal) ProposalType() ProposalKind {
 	return ProposalTypeParameterChange
 }
-
 
 // Software Upgrade Proposals
 type SoftwareUpgradeProposal struct {
@@ -168,7 +165,7 @@ const (
 	ProposalTypeText            ProposalKind = 0x01
 	ProposalTypeParameterChange ProposalKind = 0x02
 	ProposalTypeSoftwareUpgrade ProposalKind = 0x03
-	ProposalTypeTaxUsage 		ProposalKind = 0x04
+	ProposalTypeTaxUsage        ProposalKind = 0x04
 )
 
 // String to proposalType byte. Returns 0xff if invalid.

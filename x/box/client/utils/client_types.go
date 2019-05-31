@@ -12,6 +12,7 @@ import (
 
 type LockBoxInfo struct {
 	Id               string         `json:"id"`
+	BoxType          string         `json:"type"`
 	Status           string         `json:"status"`
 	Owner            sdk.AccAddress `json:"owner"`
 	Name             string         `json:"name"`
@@ -23,6 +24,7 @@ type LockBoxInfo struct {
 }
 type DepositBoxInfo struct {
 	Id               string           `json:"id"`
+	BoxType          string           `json:"type"`
 	Status           string           `json:"status"`
 	Owner            sdk.AccAddress   `json:"owner"`
 	Name             string           `json:"name"`
@@ -34,6 +36,7 @@ type DepositBoxInfo struct {
 }
 type FutureBoxInfo struct {
 	Id               string          `json:"id"`
+	BoxType          string          `json:"type"`
 	Status           string          `json:"status"`
 	Owner            sdk.AccAddress  `json:"owner"`
 	Name             string          `json:"name"`

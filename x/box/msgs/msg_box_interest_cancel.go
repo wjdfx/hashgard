@@ -10,26 +10,26 @@ import (
 	"github.com/hashgard/hashgard/x/box/types"
 )
 
-// MsgBoxInterestFetch
-type MsgBoxInterestFetch struct {
+// MsgBoxInterestCancel
+type MsgBoxInterestCancel struct {
 	Id     string         `json:"id"`
 	Sender sdk.AccAddress `json:"sender"`
 	Amount sdk.Coin       `json:"amount"`
 }
 
-//New MsgBoxInterestFetch Instance
-func NewMsgBoxInterestFetch(boxId string, sender sdk.AccAddress, interest sdk.Coin) MsgBoxInterestFetch {
-	return MsgBoxInterestFetch{boxId, sender, interest}
+//New MsgBoxInterestCancel Instance
+func NewMsgBoxInterestCancel(boxId string, sender sdk.AccAddress, interest sdk.Coin) MsgBoxInterestCancel {
+	return MsgBoxInterestCancel{boxId, sender, interest}
 }
 
 // Route Implements Msg.
-func (msg MsgBoxInterestFetch) Route() string { return types.RouterKey }
+func (msg MsgBoxInterestCancel) Route() string { return types.RouterKey }
 
 // Type Implements Msg.
-func (msg MsgBoxInterestFetch) Type() string { return types.TypeMsgBoxInterestFetch }
+func (msg MsgBoxInterestCancel) Type() string { return types.TypeMsgBoxInterestCancel }
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
-func (msg MsgBoxInterestFetch) ValidateBasic() sdk.Error {
+func (msg MsgBoxInterestCancel) ValidateBasic() sdk.Error {
 	if len(msg.Id) == 0 {
 		return errors.ErrUnknownBox("")
 	}
@@ -40,16 +40,16 @@ func (msg MsgBoxInterestFetch) ValidateBasic() sdk.Error {
 }
 
 // GetSignBytes Implements Msg.
-func (msg MsgBoxInterestFetch) GetSignBytes() []byte {
+func (msg MsgBoxInterestCancel) GetSignBytes() []byte {
 	bz := MsgCdc.MustMarshalJSON(msg)
 	return sdk.MustSortJSON(bz)
 }
 
 // GetSigners Implements Msg.
-func (msg MsgBoxInterestFetch) GetSigners() []sdk.AccAddress {
+func (msg MsgBoxInterestCancel) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{msg.Sender}
 }
 
-func (msg MsgBoxInterestFetch) String() string {
-	return fmt.Sprintf("MsgBoxInterestFetch{%s}", msg.Id)
+func (msg MsgBoxInterestCancel) String() string {
+	return fmt.Sprintf("MsgBoxInterestCancel{%s}", msg.Id)
 }

@@ -41,12 +41,12 @@ func KeyName(boxType string, name string) []byte {
 	return []byte(fmt.Sprintf("name:%s:%s", boxType, strings.ToLower(name)))
 }
 
-//func KeyAddressDeposit(id string, accAddress sdk.AccAddress) []byte {
+//func KeyAddressInject(id string, accAddress sdk.AccAddress) []byte {
 //	return []byte(fmt.Sprintf("deposit:%s:%s", id, accAddress.String()))
 //}
 //
-//func GetAddressFromKeyAddressDeposit(keyAddressDeposit []byte) sdk.AccAddress {
-//	str := fmt.Sprintf("%s", keyAddressDeposit)
+//func GetAddressFromKeyAddressInject(keyAddressInject []byte) sdk.AccAddress {
+//	str := fmt.Sprintf("%s", keyAddressInject)
 //	keys := strings.Split(str, ":")
 //	address, _ := sdk.AccAddressFromBech32(keys[2])
 //	return address

@@ -7,12 +7,12 @@ import (
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 )
 
-func ProcessBoxDeposit(cdc *codec.Codec, id string, amountStr string, operation string) error {
+func ProcessBoxInject(cdc *codec.Codec, id string, amountStr string, operation string) error {
 	txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 	if err != nil {
 		return err
 	}
-	msg, err := clientutils.GetDepositMsg(cdc, cliCtx, account, id, amountStr, operation, true)
+	msg, err := clientutils.GetInjectMsg(cdc, cliCtx, account, id, amountStr, operation, true)
 	if err != nil {
 		return err
 	}

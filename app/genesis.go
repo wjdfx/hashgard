@@ -158,13 +158,11 @@ func createCrisisGenesisState() crisis.GenesisState {
 func createBoxGenesisState() box.GenesisState {
 	genesisState := box.DefaultGenesisState()
 	genesisState.Params = box.DefaultParams(StakeDenom)
-
 	return genesisState
 }
 func createIssueGenesisState() issue.GenesisState {
 	genesisState := issue.DefaultGenesisState()
 	genesisState.Params = issue.DefaultParams(StakeDenom)
-
 	return genesisState
 }
 

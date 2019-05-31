@@ -149,15 +149,15 @@ func (bi *BoxInfo) SetFuture(future FutureBox) {
 	bi.Future = future
 }
 
-type AddressDeposit struct {
+type AddressInject struct {
 	Address sdk.AccAddress `json:"address"`
 	Amount  sdk.Int        `json:"amount"`
 }
 
-func NewAddressDeposit(address sdk.AccAddress, amount sdk.Int) AddressDeposit {
-	return AddressDeposit{address, amount}
+func NewAddressInject(address sdk.AccAddress, amount sdk.Int) AddressInject {
+	return AddressInject{address, amount}
 }
-func (bi AddressDeposit) String() string {
+func (bi AddressInject) String() string {
 	return fmt.Sprintf(`
   Address:			%s
   Amount:			%s`,

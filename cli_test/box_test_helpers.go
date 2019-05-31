@@ -30,7 +30,7 @@ func (f *Fixtures) TxLockBoxCreate(sender string, params *params.BoxLockParams, 
 // TxDepositBoxCreate is hashgardcli deposit create
 //hashgardcli deposit create foocoin 10000coin174876e800 --from joehe
 // --bottom-line=1000 --price=100 --start-time=1557982140 --establish-time=1557982141  --maturity-time=1557982142 --interest=200coin174876e801 -y
-func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxDepositParams, flags ...string) (bool, string, string) {
+func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxInjectParams, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli deposit create %s %s "+
 		"--bottom-line=%s "+
 		"--price=%s --start-time=%d --establish-time=%d "+
@@ -55,36 +55,36 @@ func (f *Fixtures) TxFutureBoxCreate(sender string, params *params.BoxFuturePara
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
-// TxDepositBoxCreate is hashgardcli deposit interest-injection
-//hashgardcli deposit interest-injection boxab3jlxpt2pt 200 --from joehe -y
-func (f *Fixtures) TxDepositBoxInterestInjection(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("../build/hashgardcli deposit interest-injection %s %s "+
+// TxDepositBoxCreate is hashgardcli deposit interest-inject
+//hashgardcli deposit interest-inject boxab3jlxpt2pt 200 --from joehe -y
+func (f *Fixtures) TxDepositBoxInterestInject(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli deposit interest-inject %s %s "+
 		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
-// TxDepositBoxCreate is hashgardcli deposit interest-fetch
-//hashgardcli deposit interest-fetch boxab3jlxpt2pt 200 --from joehe -y
-func (f *Fixtures) TxDepositBoxInterestFetch(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
-	cmd := fmt.Sprintf("../build/hashgardcli deposit interest-fetch %s %s "+
+// TxDepositBoxCreate is hashgardcli deposit interest-cancel
+//hashgardcli deposit interest-cancel boxab3jlxpt2pt 200 --from joehe -y
+func (f *Fixtures) TxDepositBoxInterestCancel(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+	cmd := fmt.Sprintf("../build/hashgardcli deposit interest-cancel %s %s "+
 		"--from=%s %v", boxID, amount.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
-// TxDepositTo is hashgardcli box deposit-to
-//hashgardcli box deposit-to boxab3jlxpt2pt 1000 --from test -y
-func (f *Fixtures) TxDepositTo(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+// TxInject is hashgardcli box inject
+//hashgardcli box inject boxab3jlxpt2pt 1000 --from test -y
+func (f *Fixtures) TxInject(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
 	boxType := boxutils.GetBoxTypeByValue(boxID)
-	cmd := fmt.Sprintf("../build/hashgardcli %s deposit-to %s %s "+
+	cmd := fmt.Sprintf("../build/hashgardcli %s inject %s %s "+
 		"--from=%s %v", boxType, boxID, amount.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 
-// TxDepositTo is hashgardcli box fetch
-//hashgardcli box fetch boxab3jlxpt2pt 1000 --from test -y
-func (f *Fixtures) TxDepositFetch(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
+// TxInject is hashgardcli box cancel
+//hashgardcli box cancel boxab3jlxpt2pt 1000 --from test -y
+func (f *Fixtures) TxDepositCancel(sender string, boxID string, amount sdk.Int, flags ...string) (bool, string, string) {
 	boxType := boxutils.GetBoxTypeByValue(boxID)
-	cmd := fmt.Sprintf("../build/hashgardcli %s fetch %s %s "+
+	cmd := fmt.Sprintf("../build/hashgardcli %s cancel %s %s "+
 		"--from=%s %v", boxType, boxID, amount.String(), sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
@@ -92,9 +92,8 @@ func (f *Fixtures) TxDepositFetch(sender string, boxID string, amount sdk.Int, f
 // TxWithdraw is hashgardcli box withdraw
 //hashgardcli box withdraw boxab3jlxpt2pt --from test -y
 func (f *Fixtures) TxWithdraw(sender string, boxID string, flags ...string) (bool, string, string) {
-	boxType := boxutils.GetBoxTypeByValue(boxID)
-	cmd := fmt.Sprintf("../build/hashgardcli %s withdraw %s "+
-		"--from=%s %v", boxType, boxID, sender, f.Flags())
+	cmd := fmt.Sprintf("../build/hashgardcli bank withdraw %s "+
+		"--from=%s %v", boxID, sender, f.Flags())
 	return executeWriteRetStdStreams(f.T, addFlags(cmd, flags), app.DefaultKeyPass)
 }
 

@@ -31,7 +31,7 @@ func TestFutureBoxEndBlocker(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-	msgDeposit := msgs.NewMsgBoxDepositTo(boxInfo.Id, boxInfo.Owner, boxInfo.TotalAmount.Token)
+	msgDeposit := msgs.NewMsgBoxInject(boxInfo.Id, boxInfo.Owner, boxInfo.TotalAmount.Token)
 	res := handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 

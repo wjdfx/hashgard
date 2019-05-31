@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/hashgard/hashgard/x/box/config"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -76,6 +78,24 @@ func GetBoxInfo(box types.BoxInfo) fmt.Stringer {
 		return clientBox
 	default:
 		return box
+	}
+}
+func GetBoxParams(params config.Params, boxType string) fmt.Stringer {
+	switch boxType {
+	case types.Lock:
+		var clientParams LockBoxParams
+		StructCopy(&clientParams, &params)
+		return clientParams
+	case types.Deposit:
+		var clientParams DepositBoxParams
+		StructCopy(&clientParams, &params)
+		return clientParams
+	case types.Future:
+		var clientParams FutureBoxParams
+		StructCopy(&clientParams, &params)
+		return clientParams
+	default:
+		return params
 	}
 }
 func processDepositBoxInfo(box types.BoxInfo) DepositBoxInfo {
@@ -166,7 +186,7 @@ func StructCopy(destPtr interface{}, srcPtr interface{}) {
 	}
 	return
 }
-func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
+func GetInjectMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Account,
 	id string, amountStr string, operation string, cli bool) (sdk.Msg, error) {
 
 	if err := boxutils.CheckId(id); err != nil {
@@ -181,7 +201,7 @@ func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Acc
 	if err != nil {
 		return nil, err
 	}
-	if types.BoxDepositing != boxInfo.GetStatus() {
+	if types.BoxInjecting != boxInfo.GetStatus() {
 		return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetStatus()))
 	}
 	if cli {
@@ -193,17 +213,17 @@ func GetDepositMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Acc
 	}
 	var msg sdk.Msg
 	switch operation {
-	case types.DepositTo:
-		if err = checkAmountByDepositTo(amount, boxInfo); err != nil {
+	case types.Inject:
+		if err = checkAmountByInject(amount, boxInfo); err != nil {
 			return nil, err
 		}
-		msg = msgs.NewMsgBoxDepositTo(id, account.GetAddress(),
+		msg = msgs.NewMsgBoxInject(id, account.GetAddress(),
 			sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount))
-	case types.Fetch:
-		if err = checkAmountByFetch(amount, boxInfo, account); err != nil {
+	case types.Cancel:
+		if err = checkAmountByCancel(amount, boxInfo, account); err != nil {
 			return nil, err
 		}
-		msg = msgs.NewMsgBoxDepositFetch(id, account.GetAddress(),
+		msg = msgs.NewMsgBoxInjectCancel(id, account.GetAddress(),
 			sdk.NewCoin(boxInfo.GetTotalAmount().Token.Denom, amount))
 	default:
 		return nil, errors.ErrNotSupportOperation()
@@ -242,11 +262,11 @@ func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 	}
 	var msg sdk.Msg
 	switch operation {
-	case types.Fetch:
+	case types.Cancel:
 		flag := true
-		for i, v := range box.GetDeposit().InterestInjections {
+		for i, v := range box.GetDeposit().InterestInjects {
 			if v.Address.Equals(account.GetAddress()) {
-				if box.GetDeposit().InterestInjections[i].Amount.GTE(amount) {
+				if box.GetDeposit().InterestInjects[i].Amount.GTE(amount) {
 					flag = false
 					break
 				}
@@ -255,21 +275,21 @@ func GetInterestMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 		if flag {
 			return nil, errors.ErrNotEnoughAmount()
 		}
-		msg = msgs.NewMsgBoxInterestFetch(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
-	case types.Injection:
-		if box.GetDeposit().InterestInjections != nil {
+		msg = msgs.NewMsgBoxInterestCancel(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
+	case types.Inject:
+		if box.GetDeposit().InterestInjects != nil {
 			totalInterest := sdk.ZeroInt()
-			for _, v := range box.GetDeposit().InterestInjections {
+			for _, v := range box.GetDeposit().InterestInjects {
 				if v.Address.Equals(account.GetAddress()) {
 					totalInterest = totalInterest.Add(v.Amount)
 				}
 			}
 			if totalInterest.Add(amount).GT(box.GetDeposit().Interest.Token.Amount) {
-				return nil, errors.Errorf(errors.ErrInterestInjectionNotValid(
+				return nil, errors.Errorf(errors.ErrInterestInjectNotValid(
 					sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount)))
 			}
 		}
-		msg = msgs.NewMsgBoxInterestInjection(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
+		msg = msgs.NewMsgBoxInterestInject(id, account.GetAddress(), sdk.NewCoin(box.GetDeposit().Interest.Token.Denom, amount))
 	default:
 		return nil, errors.ErrUnknownOperation()
 	}
@@ -300,7 +320,7 @@ func GetWithdrawMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 			return nil, errors.Errorf(errors.ErrNotAllowedOperation(types.BoxUndue))
 		}
 	default:
-		return nil, errors.Errorf(errors.ErrUnknownBox(id))
+		return nil, errors.Errorf(errors.ErrNotAllowedOperation(boxInfo.GetStatus()))
 	}
 	msg := msgs.NewMsgBoxWithdraw(id, account.GetAddress())
 	if err := msg.ValidateBasic(); err != nil {
@@ -308,7 +328,7 @@ func GetWithdrawMsg(cdc *codec.Codec, cliCtx context.CLIContext, account auth.Ac
 	}
 	return msg, nil
 }
-func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account) error {
+func checkAmountByCancel(amount sdk.Int, boxInfo types.Box, account auth.Account) error {
 	switch boxInfo.GetBoxType() {
 	case types.Deposit:
 		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
@@ -318,10 +338,10 @@ func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account)
 			return errors.Errorf(errors.ErrNotEnoughAmount())
 		}
 	case types.Future:
-		if boxInfo.GetFuture().Deposits == nil {
+		if boxInfo.GetFuture().Injects == nil {
 			return errors.Errorf(errors.ErrNotEnoughAmount())
 		}
-		for _, v := range boxInfo.GetFuture().Deposits {
+		for _, v := range boxInfo.GetFuture().Injects {
 			if v.Address.Equals(account.GetAddress()) {
 				if v.Amount.GTE(amount) {
 					return nil
@@ -334,19 +354,19 @@ func checkAmountByFetch(amount sdk.Int, boxInfo types.Box, account auth.Account)
 	}
 	return nil
 }
-func checkAmountByDepositTo(amount sdk.Int, boxInfo types.Box) error {
+func checkAmountByInject(amount sdk.Int, boxInfo types.Box) error {
 	switch boxInfo.GetBoxType() {
 	case types.Deposit:
 		if !amount.Mod(boxInfo.GetDeposit().Price).IsZero() {
 			return errors.ErrAmountNotValid(amount.String())
 		}
-		if amount.Add(boxInfo.GetDeposit().TotalDeposit).GT(boxInfo.GetTotalAmount().Token.Amount) {
+		if amount.Add(boxInfo.GetDeposit().TotalInject).GT(boxInfo.GetTotalAmount().Token.Amount) {
 			return errors.Errorf(errors.ErrNotEnoughAmount())
 		}
 	case types.Future:
 		total := sdk.ZeroInt()
-		if boxInfo.GetFuture().Deposits != nil {
-			for _, v := range boxInfo.GetFuture().Deposits {
+		if boxInfo.GetFuture().Injects != nil {
+			for _, v := range boxInfo.GetFuture().Injects {
 				total = total.Add(v.Amount)
 			}
 		}
