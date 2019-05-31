@@ -15,7 +15,7 @@ import (
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 )
 
-func PostDepositHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string, operation string) http.HandlerFunc {
+func PostInjectHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string, operation string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id := vars[ID]
@@ -40,7 +40,7 @@ func PostDepositHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType s
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg, err := clientutils.GetDepositMsg(cdc, cliCtx, account, id, vars[Amount], operation, false)
+		msg, err := clientutils.GetInjectMsg(cdc, cliCtx, account, id, vars[Amount], operation, false)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

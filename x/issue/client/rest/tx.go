@@ -47,7 +47,7 @@ func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec
 	r.HandleFunc(fmt.Sprintf("/issue/unfreeze/{%s}/{%s}/{%s}", FreezeType, IssueID, AccAddress), postIssueUnFreezeHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/send-from/{%s}/{%s}/{%s}/{%s}", IssueID, From, To, Amount), postIssueSendFrom(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/mint/{%s}/{%s}/{%s}", IssueID, Amount, To), postMintHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/issue/transfer-ownership/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/issue/ownership/transfer/{%s}/{%s}", IssueID, To), postTransferOwnershipHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/description/{%s}", IssueID), postDescribeHandlerFn(cdc, cliCtx)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/issue/feature/disable/{%s}/{%s}", IssueID, Feature), postDisableFeatureHandlerFn(cdc, cliCtx)).Methods("POST")
 

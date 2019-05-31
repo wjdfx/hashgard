@@ -40,9 +40,15 @@ const (
 	QueryBox    = "query"
 	QuerySearch = "search"
 )
+
+//action
 const (
-	Inject = "inject"
-	Cancel = "cancel"
+	Create   = "create"
+	Inject   = "inject"
+	Cancel   = "cancel"
+	Withdraw = "withdraw"
+	Describe = "describe"
+	Disable  = "disable"
 )
 
 //box status
@@ -67,16 +73,14 @@ const (
 )
 
 const (
-	TypeMsgBoxCreate = "create"
-
-	TypeMsgBoxWithdraw = "withdraw"
-
-	TypeMsgBoxInterestInject = "interest_" + Inject
-	TypeMsgBoxInterestCancel = "interest_" + Cancel
+	TypeMsgBoxCreate         = Create
+	TypeMsgBoxWithdraw       = Withdraw
+	TypeMsgBoxInterestInject = DepositBoxInterest + "_" + Inject
+	TypeMsgBoxInterestCancel = DepositBoxInterest + "_" + Cancel
 	TypeMsgBoxInject         = Inject
 	TypeMsgBoxCancel         = Cancel
-	TypeMsgBoxDescription    = "describe"
-	TypeMsgBoxDisableFeature = "disable_feature"
+	TypeMsgBoxDescription    = Describe
+	TypeMsgBoxDisableFeature = Disable + "_" + Future
 )
 const (
 	KeyDelimiterString                   = ":"

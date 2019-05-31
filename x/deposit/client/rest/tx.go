@@ -13,11 +13,11 @@ import (
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerTxRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
 	r.HandleFunc(fmt.Sprintf("/%s", types.Deposit), boxrest.PostDepositBoxCreateHandlerFn(cdc, cliCtx)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/interest/injection/{%s}/{%s}", types.Deposit, boxrest.ID, boxrest.Amount), boxrest.PostInterestHandlerFn(cdc, cliCtx, types.Inject)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/interest/fetch/{%s}/{%s}", types.Deposit, boxrest.ID, boxrest.Amount), boxrest.PostInterestHandlerFn(cdc, cliCtx, types.Cancel)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/deposit-to/{%s}/{%s}", types.Deposit, boxrest.ID, boxrest.Amount), boxrest.PostDepositHandlerFn(cdc, cliCtx, types.Deposit, types.Inject)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/fetch/{%s}/{%s}", types.Deposit, boxrest.ID, boxrest.Amount), boxrest.PostDepositHandlerFn(cdc, cliCtx, types.Deposit, types.Cancel)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/withdraw/{%s}", types.Deposit, boxrest.ID), boxrest.PostWithdrawHandlerFn(cdc, cliCtx, types.Deposit)).Methods("POST")
-	r.HandleFunc(fmt.Sprintf("/%s/feature/disable/{%s}/{%s}", types.Deposit, boxrest.ID, boxrest.Feature), boxrest.PostDisableFeatureHandlerFn(cdc, cliCtx, types.Deposit)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/%s/{%s}/{%s}", types.Deposit, types.DepositBoxInterest, types.Inject, boxrest.ID, boxrest.Amount), boxrest.PostInterestHandlerFn(cdc, cliCtx, types.Inject)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/%s/{%s}/{%s}", types.Deposit, types.DepositBoxInterest, types.Cancel, boxrest.ID, boxrest.Amount), boxrest.PostInterestHandlerFn(cdc, cliCtx, types.Cancel)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", types.Deposit, types.Inject, boxrest.ID, boxrest.Amount), boxrest.PostInjectHandlerFn(cdc, cliCtx, types.Deposit, types.Inject)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", types.Deposit, types.Cancel, boxrest.ID, boxrest.Amount), boxrest.PostInjectHandlerFn(cdc, cliCtx, types.Deposit, types.Cancel)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.Deposit, types.Withdraw, boxrest.ID), boxrest.PostWithdrawHandlerFn(cdc, cliCtx, types.Deposit)).Methods("POST")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/%s/{%s}/{%s}", types.Deposit, types.Feature, types.Disable, boxrest.ID, boxrest.Feature), boxrest.PostDisableFeatureHandlerFn(cdc, cliCtx, types.Deposit)).Methods("POST")
 	r.HandleFunc(fmt.Sprintf("/%s/description/{%s}", types.Deposit, boxrest.ID), boxrest.PostDescribeHandlerFn(cdc, cliCtx, types.Deposit)).Methods("POST")
 }

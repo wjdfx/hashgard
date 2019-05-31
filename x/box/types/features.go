@@ -1,6 +1,7 @@
 package types
 
 const (
+	Feature  = "feature"
 	Transfer = "transfer"
 )
 
