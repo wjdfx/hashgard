@@ -29,13 +29,17 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 	var content ProposalContent
 	switch msg.ProposalType {
 	case ProposalTypeText:
-		content = NewTextProposal(msg.Title, msg.Description)
+		textProposal := NewTextProposal(msg.Title, msg.Description)
+		content = &textProposal
 	case ProposalTypeSoftwareUpgrade:
-		content = NewSoftwareUpgradeProposal(msg.Title, msg.Description)
+		softwareUpgradeProposal := NewSoftwareUpgradeProposal(msg.Title, msg.Description)
+		content = &softwareUpgradeProposal
 	case ProposalTypeParameterChange:
-		content = NewParameterChangeProposal(msg.Title, msg.Description, msg.ProposalParams)
+		parameterChangeProposal := NewParameterChangeProposal(msg.Title, msg.Description, msg.ProposalParams)
+		content = &parameterChangeProposal
 	case ProposalTypeTaxUsage:
-		content = NewTaxUsageProposal(msg.Title, msg.Description, msg.TaxUsage)
+		taxUsageProposal := NewTaxUsageProposal(msg.Title, msg.Description, msg.TaxUsage)
+		content = &taxUsageProposal
 	default:
 		return ErrInvalidProposalType(keeper.codespace, msg.ProposalType).Result()
 	}

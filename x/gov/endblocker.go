@@ -59,6 +59,9 @@ func EndBlocker(ctx sdk.Context, keeper Keeper) sdk.Tags {
 			activeProposal.Status = StatusPassed
 			tagValue = tags.ActionProposalPassed
 
+			fmt.Println("pass")
+			fmt.Println(activeProposal)
+
 			// Execute proposal
 			_ = keeper.ExecuteProposal(ctx, activeProposal)
 		} else {
