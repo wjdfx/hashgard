@@ -89,7 +89,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
 	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
-	msgBoxInterest := msgs.NewMsgBoxInterestInjection(id1, SenderAccAddr, boxInfo.Deposit.Interest.Token)
+	msgBoxInterest := msgs.NewMsgBoxInterestInject(id1, SenderAccAddr, boxInfo.Deposit.Interest.Token)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -97,8 +97,8 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	box.EndBlocker(ctx, keeper)
 
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.Coins{boxInfo.TotalAmount.Token})
-	msgBoxDeposit := msgs.NewMsgBoxDepositTo(id1, TransferAccAddr, boxInfo.TotalAmount.Token)
-	res = handler(ctx, msgBoxDeposit)
+	msgBoxInject := msgs.NewMsgBoxInject(id1, TransferAccAddr, boxInfo.TotalAmount.Token)
+	res = handler(ctx, msgBoxInject)
 	require.True(t, res.IsOK())
 
 	ctx = ctx.WithBlockTime(time.Unix(boxInfo.Deposit.EstablishTime, 0))
@@ -119,7 +119,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	var id3 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id3)
 
-	msgBoxInterest = msgs.NewMsgBoxInterestInjection(id3, SenderAccAddr, boxInfo.Deposit.Interest.Token)
+	msgBoxInterest = msgs.NewMsgBoxInterestInject(id3, SenderAccAddr, boxInfo.Deposit.Interest.Token)
 	res = handler(ctx, msgBoxInterest)
 	require.True(t, res.IsOK())
 
@@ -156,7 +156,7 @@ func TestDepositBoxImportExportQueues(t *testing.T) {
 	require.NotNil(t, boxInfo3)
 
 	require.True(t, boxInfo1.Status == types.BoxFinished)
-	require.True(t, boxInfo3.Status == types.BoxDepositing)
+	require.True(t, boxInfo3.Status == types.BoxInjecting)
 }
 
 func TestFutureBoxImportExportQueues(t *testing.T) {
@@ -176,7 +176,7 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &id1)
 
 	keeper.GetBankKeeper().AddCoins(ctx, SenderAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
-	msgDeposit := msgs.NewMsgBoxDepositTo(id1, SenderAccAddr, boxInfo.TotalAmount.Token)
+	msgDeposit := msgs.NewMsgBoxInject(id1, SenderAccAddr, boxInfo.TotalAmount.Token)
 	res = handler(ctx, msgDeposit)
 	require.True(t, res.IsOK())
 
@@ -205,7 +205,7 @@ func TestFutureBoxImportExportQueues(t *testing.T) {
 	require.NotNil(t, boxInfo2)
 
 	require.True(t, boxInfo1.Status == types.BoxActived)
-	require.True(t, boxInfo2.Status == types.BoxDepositing)
+	require.True(t, boxInfo2.Status == types.BoxInjecting)
 
 	ctx2 = ctx2.WithBlockTime(time.Unix(boxInfo.Future.TimeLine[len(boxInfo.Future.TimeLine)-1], 0))
 	box.EndBlocker(ctx2, keeper2)

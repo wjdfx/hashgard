@@ -58,7 +58,7 @@ func TestQueryDepositListFromDepositBox(t *testing.T) {
 
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.Deposit.Interest.Token))
 
-	_, err := keeper.InjectionDepositBoxInterest(ctx, boxInfo.Id, boxInfo.Owner, boxInfo.Deposit.Interest.Token)
+	_, err := keeper.InjectDepositBoxInterest(ctx, boxInfo.Id, boxInfo.Owner, boxInfo.Deposit.Interest.Token)
 	require.Nil(t, err)
 
 	boxInfo = keeper.GetBox(ctx, boxInfo.Id)
@@ -68,16 +68,16 @@ func TestQueryDepositListFromDepositBox(t *testing.T) {
 	keeper.GetBankKeeper().AddCoins(ctx, TransferAccAddr, sdk.NewCoins(boxInfo.TotalAmount.Token))
 	keeper.GetBankKeeper().AddCoins(ctx, boxInfo.Owner, sdk.NewCoins(boxInfo.TotalAmount.Token))
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(5000), TestTokenDecimals)), types.DepositTo)
+	_, err = keeper.ProcessInjectBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(5000), TestTokenDecimals)), types.Inject)
 	require.Nil(t, err)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.DepositTo)
+	_, err = keeper.ProcessInjectBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.Inject)
 	require.Nil(t, err)
 
-	_, err = keeper.ProcessDepositToBox(ctx, boxInfo.Id, boxInfo.Owner, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
-		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.DepositTo)
+	_, err = keeper.ProcessInjectBox(ctx, boxInfo.Id, boxInfo.Owner, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom,
+		issueutils.MulDecimals(sdk.NewInt(1000), TestTokenDecimals)), types.Inject)
 	require.Nil(t, err)
 
 }

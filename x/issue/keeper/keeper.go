@@ -48,15 +48,14 @@ func (keeper Keeper) GetFeeCollectionKeeper() FeeCollectionKeeper {
 
 //New issue keeper Instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
-	paramSpace params.Subspace, ck BankKeeper, feeCollectionKeeper FeeCollectionKeeper, codespace sdk.CodespaceType) Keeper {
+	paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper{
-		storeKey:            key,
-		paramsKeeper:        paramsKeeper,
-		paramSpace:          paramSpace.WithKeyTable(msgs.ParamKeyTable()),
-		ck:                  ck,
-		feeCollectionKeeper: feeCollectionKeeper,
-		cdc:                 cdc,
-		codespace:           codespace,
+		storeKey:     key,
+		paramsKeeper: paramsKeeper,
+		paramSpace:   paramSpace.WithKeyTable(msgs.ParamKeyTable()),
+		ck:           ck,
+		cdc:          cdc,
+		codespace:    codespace,
 	}
 }
 
