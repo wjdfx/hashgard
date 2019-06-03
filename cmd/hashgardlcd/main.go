@@ -30,10 +30,8 @@ import (
 	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
-	gov "github.com/hashgard/hashgard/x/gov/client/rest"
 	distribution "github.com/hashgard/hashgard/x/distribution/client/rest"
-	distributioncmd "github.com/hashgard/hashgard/x/distribution"
-	issue "github.com/hashgard/hashgard/x/issue/client/rest"
+	gov "github.com/hashgard/hashgard/x/gov/client/rest"
 	mint "github.com/hashgard/hashgard/x/mint/client/rest"
 )
 

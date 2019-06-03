@@ -33,15 +33,15 @@ import (
 	"github.com/hashgard/hashgard/app"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
+	"github.com/hashgard/hashgard/x/distribution"
+	distributioncmd "github.com/hashgard/hashgard/x/distribution/client/cli"
 	"github.com/hashgard/hashgard/x/exchange"
 	exchangecmd "github.com/hashgard/hashgard/x/exchange/client/cli"
 	faucetcmd "github.com/hashgard/hashgard/x/faucet/client/cli"
 	"github.com/hashgard/hashgard/x/gov"
 	govcmd "github.com/hashgard/hashgard/x/gov/client/cli"
-	"github.com/hashgard/hashgard/x/distribution"
-	distributioncmd "github.com/hashgard/hashgard/x/distribution/client/cli"
-	mintcmd "github.com/hashgard/hashgard/x/mint/client/cli"
 	"github.com/hashgard/hashgard/x/issue"
+	mintcmd "github.com/hashgard/hashgard/x/mint/client/cli"
 )
 
 // rootCmd is the entry point for this binary
