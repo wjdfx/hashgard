@@ -13,7 +13,7 @@ func GetQueryParamsCmd(cdc *codec.Codec) *cobra.Command {
 		Use:     "params",
 		Short:   "Query the parameters of the future box process",
 		Long:    "Query the all the parameters",
-		Example: "$ hashgardcli deposit params",
+		Example: "$ hashgardcli future params",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return boxcli.ProcessQueryBoxParamsCmd(cdc, types.Future)
