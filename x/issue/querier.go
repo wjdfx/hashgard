@@ -13,6 +13,8 @@ import (
 func NewQuerier(keeper keeper.Keeper) sdk.Querier {
 	return func(ctx sdk.Context, path []string, req abci.RequestQuery) ([]byte, sdk.Error) {
 		switch path[0] {
+		case types.QueryParams:
+			return queriers.QueryParams(ctx, keeper)
 		case types.QueryIssue:
 			return queriers.QueryIssue(ctx, path[1], keeper)
 		case types.QueryAllowance:

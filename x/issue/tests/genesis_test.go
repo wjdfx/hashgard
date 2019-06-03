@@ -21,14 +21,14 @@ func TestLockBoxImportExportQueues(t *testing.T) {
 
 	handler := issue.NewHandler(keeper)
 
-	res := handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+	res := handler(ctx, msgs.NewMsgIssue(SenderAccAddr, &IssueParams))
 	require.True(t, res.IsOK())
 
 	var issueID1 string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &issueID1)
 	require.NotNil(t, issueID1)
 
-	res = handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+	res = handler(ctx, msgs.NewMsgIssue(SenderAccAddr, &IssueParams))
 	require.True(t, res.IsOK())
 
 	var issueID2 string

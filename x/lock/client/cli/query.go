@@ -13,7 +13,7 @@ func GetQueryParamsCmd(cdc *codec.Codec) *cobra.Command {
 		Use:     "params",
 		Short:   "Query the parameters of the lock process",
 		Long:    "Query the all the parameters",
-		Example: "$ hashgardcli deposit params",
+		Example: "$ hashgardcli lock params",
 		Args:    cobra.NoArgs,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return boxcli.ProcessQueryBoxParamsCmd(cdc, types.Lock)
@@ -39,7 +39,6 @@ func GetQueryCmd(cdc *codec.Codec) *cobra.Command {
 func GetListCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list",
-		Args:    cobra.ExactArgs(1),
 		Short:   "Query lock list",
 		Long:    "Query all or one of the account lock list, the limit default is 30",
 		Example: "$ hashgardcli lock list",

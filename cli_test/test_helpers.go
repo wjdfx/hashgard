@@ -52,7 +52,7 @@ var (
 		sdk.NewCoin(feeDenom, sdk.TokensFromTendermintPower(1000000)),
 		sdk.NewCoin(fee2Denom, sdk.TokensFromTendermintPower(1000000)),
 		sdk.NewCoin(fooDenom, sdk.TokensFromTendermintPower(1000)),
-		sdk.NewCoin(denom, sdk.TokensFromTendermintPower(150000000)),
+		sdk.NewCoin(denom, sdk.TokensFromTendermintPower(150)),
 	}
 
 	vestingCoins = sdk.Coins{
