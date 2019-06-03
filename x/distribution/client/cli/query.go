@@ -36,14 +36,21 @@ func GetCmdQueryParams(queryRoute string, cdc *codec.Codec) *cobra.Command {
 // GetCmdQueryValidatorOutstandingRewards implements the query validator outstanding rewards command.
 func GetCmdQueryValidatorOutstandingRewards(queryRoute string, cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "validator-outstanding-rewards",
-		Args:  cobra.NoArgs,
+		Use:   "validator-outstanding-rewards [validator]",
+		Args:  cobra.ExactArgs(1),
 		Short: "Query distribution outstanding (un-withdrawn) rewards for a validator and all their delegations",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 
+			validatorAddr, err := sdk.ValAddressFromBech32(args[0])
+			if err != nil {
+				return err
+			}
+
+			bin := cdc.MustMarshalJSON(distr.NewQueryValidatorOutstandingRewardsParams(validatorAddr))
+
 			route := fmt.Sprintf("custom/%s/validator_outstanding_rewards", queryRoute)
-			res, err := cliCtx.QueryWithData(route, []byte{})
+			res, err := cliCtx.QueryWithData(route, bin)
 			if err != nil {
 				return err
 			}
