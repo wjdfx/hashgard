@@ -7,10 +7,11 @@ import (
 	"os"
 	"path"
 
+	"github.com/hashgard/hashgard/x/box/client/types"
+
 	"github.com/cosmos/cosmos-sdk/tests"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/hashgard/hashgard/app"
-	"github.com/hashgard/hashgard/x/box/client/utils"
 	"github.com/hashgard/hashgard/x/box/params"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	"github.com/stretchr/testify/require"
@@ -47,7 +48,7 @@ func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxInjectPar
 func (f *Fixtures) TxFutureBoxCreate(sender string, params *params.BoxFutureParams, flags ...string) (bool, string, string) {
 	json, _ := json.Marshal(params.Future)
 	fileName := path.Join(f.GDHome, "future_data.json")
-	if err := ioutil.WriteFile(fileName, json, os.ModeDir); err != nil {
+	if err := ioutil.WriteFile(fileName, json, os.ModePerm); err != nil {
 		panic(err)
 	}
 	cmd := fmt.Sprintf("../build/hashgardcli future create %s %s %s "+
@@ -99,11 +100,11 @@ func (f *Fixtures) TxWithdraw(sender string, boxID string, flags ...string) (boo
 
 // QueryBox is hashgardcli box query
 //hashgardcli box query boxab3jlxpt2ps
-func (f *Fixtures) QueryFutureBox(boxID string, flags ...string) utils.FutureBoxInfo {
+func (f *Fixtures) QueryFutureBox(boxID string, flags ...string) types.FutureBoxInfo {
 	boxType := boxutils.GetBoxTypeByValue(boxID)
 	cmd := fmt.Sprintf("../build/hashgardcli %s query %s %v", boxType, boxID, f.Flags())
 	out, _ := tests.ExecuteT(f.T, addFlags(cmd, flags), "")
-	var boxInfo utils.FutureBoxInfo
+	var boxInfo types.FutureBoxInfo
 	cdc := app.MakeCodec()
 	err := cdc.UnmarshalJSON([]byte(out), &boxInfo)
 	require.NoError(f.T, err, "out %v\n, err %v", out, err)

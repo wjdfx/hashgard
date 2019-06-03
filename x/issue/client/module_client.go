@@ -30,6 +30,7 @@ func (mc ModuleClient) GetCmd() *cobra.Command {
 	}
 	issueCmd.AddCommand(
 		client.GetCommands(
+			issueCli.GetQueryParamsCmd(mc.cdc),
 			issueCli.GetCmdQueryIssues(mc.cdc),
 			issueCli.GetCmdQueryFreezes(mc.cdc),
 			issueCli.GetCmdQueryIssue(mc.cdc),

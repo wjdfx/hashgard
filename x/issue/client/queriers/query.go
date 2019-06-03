@@ -13,6 +13,9 @@ import (
 func GetQueryIssuePath(issueID string) string {
 	return fmt.Sprintf("%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryIssue, issueID)
 }
+func GetQueryParamsPath() string {
+	return fmt.Sprintf("%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryParams)
+}
 func GetQueryIssueAllowancePath(issueID string, owner sdk.AccAddress, spender sdk.AccAddress) string {
 	return fmt.Sprintf("%s/%s/%s/%s/%s/%s", types.Custom, types.QuerierRoute, types.QueryAllowance, issueID, owner.String(), spender.String())
 }
@@ -32,7 +35,9 @@ func GetQueryIssuesPath() string {
 func QueryIssueBySymbol(symbol string, cliCtx context.CLIContext) ([]byte, error) {
 	return cliCtx.QueryWithData(GetQueryIssueSearchPath(symbol), nil)
 }
-
+func QueryParams(cliCtx context.CLIContext) ([]byte, error) {
+	return cliCtx.QueryWithData(GetQueryParamsPath(), nil)
+}
 func QueryIssueByID(issueID string, cliCtx context.CLIContext) ([]byte, error) {
 	return cliCtx.QueryWithData(GetQueryIssuePath(issueID), nil)
 }

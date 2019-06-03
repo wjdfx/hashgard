@@ -871,6 +871,8 @@ func TestHashgardCLISendGenerateSignAndBroadcast(t *testing.T) {
 	// Ensure foo has right amount of funds
 	fooAcc := f.QueryAccount(fooAddr)
 	startTokens := sdk.TokensFromTendermintPower(50)
+	fmt.Println(sendTokens)
+	fmt.Println(fooAcc.GetCoins().AmountOf(denom))
 	require.Equal(t, startTokens, fooAcc.GetCoins().AmountOf(denom))
 
 	// Test broadcast

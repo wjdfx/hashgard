@@ -1,7 +1,6 @@
 package cli
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -10,11 +9,33 @@ import (
 	issuequeriers "github.com/hashgard/hashgard/x/issue/client/queriers"
 	"github.com/hashgard/hashgard/x/issue/errors"
 	"github.com/hashgard/hashgard/x/issue/params"
-	"github.com/hashgard/hashgard/x/issue/types"
 	issueutils "github.com/hashgard/hashgard/x/issue/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+// GetQueryParamsCmd implements the query params command.
+func GetQueryParamsCmd(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:     "params",
+		Short:   "Query the parameters of the lock process",
+		Long:    "Query the all the parameters",
+		Example: "$ hashgardcli lock params",
+		Args:    cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			res, err := issuequeriers.QueryParams(cliCtx)
+			if err != nil {
+				return err
+			}
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
+			}
+			return nil
+		},
+	}
+}
 
 // QueryCmd implements the query issue command.
 func QueryCmd(cdc *codec.Codec) *cobra.Command {
@@ -55,9 +76,14 @@ func processQuery(cdc *codec.Codec, args []string) error {
 	if err != nil {
 		return err
 	}
-	var issueInfo types.Issue
-	cdc.MustUnmarshalJSON(res, &issueInfo)
-	return cliCtx.PrintOutput(issueInfo)
+	//var issueInfo types.Issue
+	//cdc.MustUnmarshalJSON(res, &issueInfo)
+	//return cliCtx.PrintOutput(issueInfo)
+	_, err = cliCtx.Output.Write(res)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetCmdQueryAllowance implements the query allowance command.
@@ -86,10 +112,15 @@ func GetCmdQueryAllowance(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var approval types.Approval
-			cdc.MustUnmarshalJSON(res, &approval)
-
-			return cliCtx.PrintOutput(approval)
+			//var approval types.Approval
+			//cdc.MustUnmarshalJSON(res, &approval)
+			//
+			//return cliCtx.PrintOutput(approval)
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 }
@@ -116,10 +147,15 @@ func GetCmdQueryFreeze(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var freeze types.IssueFreeze
-			cdc.MustUnmarshalJSON(res, &freeze)
-
-			return cliCtx.PrintOutput(freeze)
+			//var freeze types.IssueFreeze
+			//cdc.MustUnmarshalJSON(res, &freeze)
+			//
+			//return cliCtx.PrintOutput(freeze)
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 }
@@ -149,13 +185,18 @@ func GetCmdQueryIssues(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			var tokenIssues types.CoinIssues
-			cdc.MustUnmarshalJSON(res, &tokenIssues)
-			if len(tokenIssues) == 0 {
-				fmt.Println("No records")
-				return nil
+			//var tokenIssues types.CoinIssues
+			//cdc.MustUnmarshalJSON(res, &tokenIssues)
+			//if len(tokenIssues) == 0 {
+			//	fmt.Println("No records")
+			//	return nil
+			//}
+			//return cliCtx.PrintOutput(tokenIssues)
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
 			}
-			return cliCtx.PrintOutput(tokenIssues)
+			return nil
 		},
 	}
 
@@ -182,9 +223,14 @@ func GetCmdQueryFreezes(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var issueFreeze types.IssueAddressFreezeList
-			cdc.MustUnmarshalJSON(res, &issueFreeze)
-			return cliCtx.PrintOutput(issueFreeze)
+			//var issueFreeze types.IssueAddressFreezeList
+			//cdc.MustUnmarshalJSON(res, &issueFreeze)
+			//return cliCtx.PrintOutput(issueFreeze)
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 	return cmd
@@ -205,9 +251,14 @@ func GetCmdSearchIssues(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			var tokenIssues types.CoinIssues
-			cdc.MustUnmarshalJSON(res, &tokenIssues)
-			return cliCtx.PrintOutput(tokenIssues)
+			//var tokenIssues types.CoinIssues
+			//cdc.MustUnmarshalJSON(res, &tokenIssues)
+			//return cliCtx.PrintOutput(tokenIssues)
+			_, err = cliCtx.Output.Write(res)
+			if err != nil {
+				return err
+			}
+			return nil
 		},
 	}
 	return cmd

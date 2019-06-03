@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/hashgard/hashgard/x/issue/errors"
 
@@ -73,20 +72,8 @@ func postIssueHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.Handle
 			rest.WriteErrorResponse(w, http.StatusBadRequest, errors.ErrCoinDescriptionNotValid().Error())
 			return
 		}
-		coinIssueInfo := types.CoinIssueInfo{
-			Owner:              fromAddress,
-			Name:               req.Name,
-			Symbol:             strings.ToUpper(req.Symbol),
-			TotalSupply:        req.TotalSupply,
-			Decimals:           req.Decimals,
-			Description:        req.Description,
-			BurnOwnerDisabled:  req.BurnOwnerDisabled,
-			BurnHolderDisabled: req.BurnHolderDisabled,
-			BurnFromDisabled:   req.BurnFromDisabled,
-			MintingFinished:    req.MintingFinished,
-		}
 		// create the message
-		msg := msgs.NewMsgIssue(&coinIssueInfo)
+		msg := msgs.NewMsgIssue(fromAddress, &req.IssueParams)
 		if err := msg.ValidateBasic(); err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

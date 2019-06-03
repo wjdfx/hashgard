@@ -2,7 +2,8 @@ package tests
 
 import (
 	"testing"
-	"time"
+
+	"github.com/hashgard/hashgard/x/issue/params"
 
 	keeper2 "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
 
@@ -31,8 +32,19 @@ var (
 	TransferAccAddr      sdk.AccAddress
 	SenderAccAddr        sdk.AccAddress
 
+	IssueParams = params.IssueParams{
+		Name:               "testCoin",
+		Symbol:             "TEST",
+		TotalSupply:        sdk.NewInt(10000),
+		Decimals:           types.CoinDecimalsMaxValue,
+		BurnOwnerDisabled:  false,
+		BurnHolderDisabled: false,
+		BurnFromDisabled:   false,
+		MintingFinished:    false}
+
 	CoinIssueInfo = types.CoinIssueInfo{
-		IssueTime:          time.Now().Unix(),
+		Owner:              SenderAccAddr,
+		Issuer:             SenderAccAddr,
 		Name:               "testCoin",
 		Symbol:             "TEST",
 		TotalSupply:        sdk.NewInt(10000),
@@ -76,8 +88,9 @@ func getMockApp(t *testing.T, genState issue.GenesisState, genAccs []auth.Accoun
 	}
 	SenderAccAddr = genAccs[0].GetAddress()
 	TransferAccAddr = genAccs[1].GetAddress()
-	CoinIssueInfo.Issuer = SenderAccAddr
+
 	CoinIssueInfo.Owner = SenderAccAddr
+	CoinIssueInfo.Issuer = SenderAccAddr
 
 	mock.SetGenesis(mapp, genAccs)
 
