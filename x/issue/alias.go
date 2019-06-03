@@ -2,6 +2,8 @@ package issue
 
 import (
 	"github.com/hashgard/hashgard/x/issue/client"
+	"github.com/hashgard/hashgard/x/issue/client/cli"
+	"github.com/hashgard/hashgard/x/issue/config"
 	"github.com/hashgard/hashgard/x/issue/keeper"
 	"github.com/hashgard/hashgard/x/issue/msgs"
 	"github.com/hashgard/hashgard/x/issue/types"
@@ -12,7 +14,8 @@ type (
 	CoinIssueInfo = types.CoinIssueInfo
 	Approval      = types.Approval
 	IssueFreeze   = types.IssueFreeze
-	Params        = msgs.IssueConfigParams
+	Params        = config.Params
+	Hooks         = keeper.Hooks
 )
 
 var (
@@ -20,8 +23,9 @@ var (
 	NewKeeper       = keeper.NewKeeper
 	NewModuleClient = client.NewModuleClient
 	//GetAccountCmd   = cli.GetAccountCmd
+	QueryCmd      = cli.QueryCmd
 	RegisterCodec = msgs.RegisterCodec
-	DefaultParams = msgs.DefaultParams
+	DefaultParams = config.DefaultParams
 )
 
 const (

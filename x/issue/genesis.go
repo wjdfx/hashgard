@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/hashgard/hashgard/x/issue/config"
+
 	"github.com/hashgard/hashgard/x/issue/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -13,17 +15,9 @@ import (
 
 // GenesisState - all issue state that must be provided at genesis
 type GenesisState struct {
-	IssueFee         sdk.Coin        `json:"issue_fee"`
-	MintFee          sdk.Coin        `json:"mint_fee"`
-	FreezeFee        sdk.Coin        `json:"freeze_fee"`
-	UnFreezeFee      sdk.Coin        `json:"unfreeze_fee"`
-	BurnFee          sdk.Coin        `json:"burn_fee"`
-	BurnFromFee      sdk.Coin        `json:"burn_from_fee"`
-	TransferOwnerFee sdk.Coin        `json:"transfer_owner_fee"`
-	DescribeFee      sdk.Coin        `json:"describe_fee"`
-	StartingIssueId  uint64          `json:"starting_issue_id"`
-	Issues           []CoinIssueInfo `json:"issues"`
-	Params           Params          `json:"params"`
+	StartingIssueId uint64          `json:"starting_issue_id"`
+	Issues          []CoinIssueInfo `json:"issues"`
+	Params          config.Params   `json:"params"`
 }
 
 // NewGenesisState creates a new genesis state.
@@ -81,7 +75,7 @@ func ExportGenesis(ctx sdk.Context, keeper keeper.Keeper) GenesisState {
 // error for any failed validation criteria.
 func ValidateGenesis(data GenesisState) error {
 	if data.Params.IssueFee.IsNegative() {
-		return fmt.Errorf("invalid lock create fee: %s", data.Params.IssueFee.String())
+		return fmt.Errorf("invalid issue fee: %s", data.Params.IssueFee.String())
 	}
 	if data.Params.MintFee.IsNegative() {
 		return fmt.Errorf("invalid mint fee: %s", data.Params.MintFee.String())
@@ -93,7 +87,7 @@ func ValidateGenesis(data GenesisState) error {
 		return fmt.Errorf("invalid burn from fee: %s", data.Params.BurnFromFee.String())
 	}
 	if data.Params.FreezeFee.IsNegative() {
-		return fmt.Errorf("invalid freeze  fee: %s", data.Params.FreezeFee.String())
+		return fmt.Errorf("invalid freeze fee: %s", data.Params.FreezeFee.String())
 	}
 	if data.Params.UnFreezeFee.IsNegative() {
 		return fmt.Errorf("invalid unfreeze fee: %s", data.Params.UnFreezeFee.String())

@@ -2,6 +2,7 @@ package box
 
 import (
 	"github.com/hashgard/hashgard/x/box/client/cli"
+	"github.com/hashgard/hashgard/x/box/config"
 	"github.com/hashgard/hashgard/x/box/keeper"
 	"github.com/hashgard/hashgard/x/box/msgs"
 	"github.com/hashgard/hashgard/x/box/types"
@@ -10,7 +11,8 @@ import (
 type (
 	Keeper  = keeper.Keeper
 	BoxInfo = types.BoxInfo
-	Params  = msgs.BoxConfigParams
+	Params  = config.Params
+	Hooks   = keeper.Hooks
 )
 
 var (
@@ -18,7 +20,9 @@ var (
 	NewKeeper     = keeper.NewKeeper
 	RegisterCodec = msgs.RegisterCodec
 	SendTxCmd     = cli.SendTxCmd
-	DefaultParams = msgs.DefaultParams
+	QueryCmd      = cli.QueryCmd
+	WithdrawCmd   = cli.WithdrawCmd
+	DefaultParams = config.DefaultParams
 )
 
 const (
