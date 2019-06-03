@@ -131,4 +131,10 @@ func TestDepositBoxCancelDeposit(t *testing.T) {
 	coins := keeper.GetBankKeeper().GetCoins(ctx, TransferAccAddr)
 	require.Equal(t, coins.AmountOf(boxInfo.TotalAmount.Token.Denom), boxInfo.TotalAmount.Token.Amount.Sub(inject).Add(fetch))
 
+	_, err = keeper.ProcessInjectBox(ctx, boxInfo.Id, TransferAccAddr, sdk.NewCoin(boxInfo.TotalAmount.Token.Denom, inject), types.Inject)
+	require.Nil(t, err)
+
+	boxInfo = keeper.GetBox(ctx, boxInfo.Id)
+
+	require.Equal(t, boxInfo.Deposit.TotalInject, inject.Add(inject).Sub(fetch))
 }

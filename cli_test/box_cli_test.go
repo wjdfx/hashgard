@@ -1,3 +1,5 @@
+// +build cli_test
+
 package clitest
 
 import (
@@ -171,6 +173,16 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	txsDeposit := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 1)
+
+	f.TxDepositCancel(keyBar, boxID, depositTo, DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxCancel, fmt.Sprintf("sender:%s", barAddr.String()))
+	require.Len(t, txsDeposit, 1)
+
+	f.TxInject(keyBar, boxID, depositTo, DefaultFlag)
+	tests.WaitForNextNBlocksTM(1, f.Port)
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", barAddr.String()))
+	require.Len(t, txsDeposit, 2)
 
 	fooAcc := f.QueryAccount(barAddr)
 	require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), depositTo.Quo(params.Deposit.Price))

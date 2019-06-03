@@ -95,6 +95,7 @@ func registerSwaggerUI(rs *lcd.RestServer) {
 	if err != nil {
 		panic(err)
 	}
+
 	staticServer := http.FileServer(statikFS)
 	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }

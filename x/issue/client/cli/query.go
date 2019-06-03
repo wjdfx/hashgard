@@ -170,7 +170,7 @@ func GetCmdQueryFreezes(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "list-freeze",
 		Short:   "Query freeze list",
-		Long:    "Query all or one of the account freeze list",
+		Long:    "Query all or one of the issue freeze list",
 		Example: "$ hashgardcli issue list-freeze",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

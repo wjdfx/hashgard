@@ -152,6 +152,7 @@ func (keeper Keeper) cancelDepositFromDepositBox(ctx sdk.Context, box *types.Box
 		return err
 	}
 	box.Deposit.Share = box.Deposit.Share.Sub(share)
+	box.Deposit.TotalInject = box.Deposit.TotalInject.Sub(amount.Amount)
 	//if types.BoxClosed == box.Status && box.Deposit.Share.IsZero() {
 	//	keeper.RemoveBox(ctx, box)
 	//} else {
