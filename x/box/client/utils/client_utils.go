@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"time"
 
+	boxclienttype "github.com/hashgard/hashgard/x/box/client/types"
+
 	"github.com/hashgard/hashgard/x/box/config"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -67,13 +69,13 @@ func GetCoinDecimal(cdc *codec.Codec, cliCtx context.CLIContext, coin sdk.Coin) 
 func GetBoxInfo(box types.BoxInfo) fmt.Stringer {
 	switch box.BoxType {
 	case types.Lock:
-		var clientBox LockBoxInfo
+		var clientBox boxclienttype.LockBoxInfo
 		StructCopy(&clientBox, &box)
 		return clientBox
 	case types.Deposit:
 		return processDepositBoxInfo(box)
 	case types.Future:
-		var clientBox FutureBoxInfo
+		var clientBox boxclienttype.FutureBoxInfo
 		StructCopy(&clientBox, &box)
 		return clientBox
 	default:
@@ -98,33 +100,33 @@ func GetBoxParams(params config.Params, boxType string) fmt.Stringer {
 		return params
 	}
 }
-func processDepositBoxInfo(box types.BoxInfo) DepositBoxInfo {
-	var clientBox DepositBoxInfo
+func processDepositBoxInfo(box types.BoxInfo) boxclienttype.DepositBoxInfo {
+	var clientBox boxclienttype.DepositBoxInfo
 	StructCopy(&clientBox, &box)
 	return clientBox
 }
 func GetBoxList(boxs types.BoxInfos, boxType string) fmt.Stringer {
 	switch boxType {
 	case types.Lock:
-		var boxInfos = make(LockBoxInfos, 0, len(boxs))
+		var boxInfos = make(boxclienttype.LockBoxInfos, 0, len(boxs))
 		for _, box := range boxs {
-			var clientBox LockBoxInfo
+			var clientBox boxclienttype.LockBoxInfo
 			StructCopy(&clientBox, &box)
 			boxInfos = append(boxInfos, clientBox)
 		}
 
 		return boxInfos
 	case types.Deposit:
-		var boxInfos = make(DepositBoxInfos, 0, len(boxs))
+		var boxInfos = make(boxclienttype.DepositBoxInfos, 0, len(boxs))
 		for _, box := range boxs {
 			boxInfos = append(boxInfos, processDepositBoxInfo(box))
 		}
 
 		return boxInfos
 	case types.Future:
-		var boxInfos = make(FutureBoxInfos, 0, len(boxs))
+		var boxInfos = make(boxclienttype.FutureBoxInfos, 0, len(boxs))
 		for _, box := range boxs {
-			var clientBox FutureBoxInfo
+			var clientBox boxclienttype.FutureBoxInfo
 			StructCopy(&clientBox, &box)
 			boxInfos = append(boxInfos, clientBox)
 		}

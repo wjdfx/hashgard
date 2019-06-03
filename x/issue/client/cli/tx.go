@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"strings"
 
+	"github.com/hashgard/hashgard/x/issue/params"
+
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -39,9 +41,7 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			coinIssueInfo := types.CoinIssueInfo{
-				Issuer:             account.GetAddress(),
-				Owner:              account.GetAddress(),
+			coinIssueInfo := params.IssueParams{
 				Name:               args[0],
 				Symbol:             strings.ToUpper(args[1]),
 				BurnOwnerDisabled:  viper.GetBool(flagBurnOwnerDisabled),
@@ -51,8 +51,8 @@ func GetCmdIssueCreate(cdc *codec.Codec) *cobra.Command {
 				TotalSupply:        totalSupply,
 				Decimals:           uint(viper.GetInt(flagDecimals)),
 			}
-			coinIssueInfo.SetTotalSupply(issueutils.MulDecimals(coinIssueInfo.TotalSupply, coinIssueInfo.Decimals))
-			msg := msgs.NewMsgIssue(&coinIssueInfo)
+			coinIssueInfo.TotalSupply = issueutils.MulDecimals(coinIssueInfo.TotalSupply, coinIssueInfo.Decimals)
+			msg := msgs.NewMsgIssue(account.GetAddress(), &coinIssueInfo)
 
 			validateErr := msg.ValidateBasic()
 

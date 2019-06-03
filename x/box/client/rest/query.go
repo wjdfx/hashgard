@@ -4,6 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/hashgard/hashgard/x/box/types"
+
+	"github.com/hashgard/hashgard/x/box"
+	"github.com/hashgard/hashgard/x/box/client/utils"
+
 	"github.com/hashgard/hashgard/x/box/errors"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
@@ -17,6 +22,18 @@ import (
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
 )
 
+func BoxQueryParamsHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		res, err := queriers.QueryBoxParams(cliCtx)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
+			return
+		}
+		var params box.Params
+		cdc.MustUnmarshalJSON(res, &params)
+		rest.PostProcessResponse(w, cdc, utils.GetBoxParams(params, boxType), cliCtx.Indent)
+	}
+}
 func BoxQueryHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -34,7 +51,9 @@ func BoxQueryHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType stri
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
-		rest.PostProcessResponse(w, cdc, res, cliCtx.Indent)
+		var box types.BoxInfo
+		cdc.MustUnmarshalJSON(res, &box)
+		rest.PostProcessResponse(w, cdc, utils.GetBoxInfo(box), cliCtx.Indent)
 	}
 }
 func BoxSearchHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext, boxType string) http.HandlerFunc {

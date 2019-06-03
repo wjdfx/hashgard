@@ -31,7 +31,7 @@ func TestQueryIssue(t *testing.T) {
 	querier := issue.NewQuerier(keeper)
 	handler := issue.NewHandler(keeper)
 
-	res := handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+	res := handler(ctx, msgs.NewMsgIssue(SenderAccAddr, &IssueParams))
 	var issueID string
 	keeper.Getcdc().MustUnmarshalBinaryLengthPrefixed(res.Data, &issueID)
 	bz := getQueried(t, ctx, querier, queriers2.GetQueryIssuePath(issueID), types.QueryIssue, issueID)
@@ -54,7 +54,7 @@ func TestQueryIssues(t *testing.T) {
 	handler := issue.NewHandler(keeper)
 	cap := 10
 	for i := 0; i < cap; i++ {
-		handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+		handler(ctx, msgs.NewMsgIssue(SenderAccAddr, &IssueParams))
 	}
 	issues := keeper.List(ctx, params.IssueQueryParams{Limit: 10})
 	require.Len(t, issues, cap)
@@ -71,7 +71,7 @@ func TestSearchIssues(t *testing.T) {
 	handler := issue.NewHandler(keeper)
 	cap := 10
 	for i := 0; i < cap; i++ {
-		handler(ctx, msgs.NewMsgIssue(&CoinIssueInfo))
+		handler(ctx, msgs.NewMsgIssue(SenderAccAddr, &IssueParams))
 	}
 	bz := getQueried(t, ctx, querier, queriers2.GetQueryIssuePath("TES"), types.QuerySearch, "TES")
 	var issues types.CoinIssues

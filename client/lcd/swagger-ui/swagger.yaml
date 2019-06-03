@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   version: "3.0"
-  title: LCD for Hashgard
+  title: LCD for Hashgard-23
   description: A REST interface for state queries, transaction generation and broadcasting.
 tags:
 - name: ICS0
@@ -17,11 +17,11 @@ tags:
   description: Slashing module APIs
 - name: ICS24
   description: Fee distribution module APIs
+- name: ICS25
+  description: Token lock-up subcommands
 - name: HRC10
   description: Issue module APIs
 - name: HRC11
-  description: Exchange module APIs
-- name: ICS30
   description: Exchange module APIs
 - name: version
   description: Query app version
@@ -1810,6 +1810,48 @@ paths:
                 type: string
         500:
           description: Internal Server Error
+  /lock/params:
+    get:
+      summary: Query lock params
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      responses:
+        500:
+          description: Internal Server Error
+  /lock/{id}:
+    get:
+      summary: Query details for a lock. You can find the id by running hashgardcli lock list
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        400:
+          description: Invalid issueId
+        500:
+          description: Internal Server Error
+  /issue/params:
+    get:
+      summary: Query issue params
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      responses:
+        500:
+          description: Internal Server Error
   /issue/{issueId}:
     get:
       summary: Query a issue
@@ -1862,7 +1904,7 @@ paths:
             $ref: "#/definitions/Issue"
         500:
           description: Internal Server Error
-  /issue/search:
+  /issue/search/{symbol}:
     get:
       summary: Search issue
       produces:
@@ -1963,13 +2005,862 @@ paths:
           description: Invalid issueId
         500:
           description: Internal Server Error
+  /issue:
+    post:
+      summary: Issue a new token
+      description: Issue a new token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - description: valid value of `"name"` , `"symbol"`, `"total_supply"`, `"decimals"`
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              issue:
+                $ref: "#/definitions/IssueParams"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/approve/{issueId}/{address}/{amount}:
+    post:
+      summary: Approve spend tokens on behalf of sender
+      description: Approve the passed address to spend the specified amount of tokens on behalf of sender
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/approve/increase/{issueId}/{address}/{amount}:
+    post:
+      summary: Increase approve spend tokens on behalf of sender
+      description: Increase approve the passed address to spend the specified amount of tokens on behalf of sender
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/approve/decrease/{issueId}/{address}/{amount}:
+    post:
+      summary: Decrease approve spend tokens on behalf of sender
+      description: Decrease approve the passed address to spend the specified amount of tokens on behalf of sender
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/burn/{issueId}/{amount}:
+    post:
+      summary: Token holder burn the token
+      description: Token holder or the Owner burn the token he holds (the Owner can burn if 'burning_owner_disabled' is false, the holder can burn if 'burning_holder_disabled' is false)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/burn-from/{issueId}/{address}/{amount}:
+    post:
+      summary: Token owner burn the token
+      description: Token Owner burn the token from any holder (the Owner can burn if 'burning_any_disabled' is false)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/freeze/in/{issueId}/{address}/{endTime}:
+    post:
+      summary: Freeze the transfer from a address
+      description: The address can not transfer in before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/freeze/out/{issueId}/{address}/{endTime}:
+    post:
+      summary: Freeze the transfer from a address
+      description: The address can not transfer out before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/freeze/in-out/{issueId}/{address}/{endTime}:
+    post:
+      summary: Freeze the transfer from a address
+      description: The address can not transfer in and out before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/unfreeze/in/{issueId}/{address}/{endTime}:
+    post:
+      summary: Unfreeze the transfer from a address
+      description: The address can transfer in before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/unfreeze/out/{issueId}/{address}/{endTime}:
+    post:
+      summary: Unfreeze the transfer from a address
+      description: The address can transfer out before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/unfreeze/in-out/{issueId}/{address}/{endTime}:
+    post:
+      summary: Unfreeze the transfer from a address
+      description: The address can transfer in and out before the end time
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: long
+          name: endTime
+          required: true
+          in: path
+          x-example: 1559020560
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/send-from/{issueId}/{from}/{to}/{amount}:
+    post:
+      summary: Send tokens from one address to another
+      description: Send tokens from one address to another by allowance
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: from
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: to
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000000'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/mint/{issueId}/{amount}/{to}:
+    post:
+      summary: Mint a token
+      description: Token owner mint the token to a address
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '10000000000000000000000'
+        - type: string
+          name: to
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/ownership/transfer/{issueId}/{to}:
+    post:
+      summary: Transfer ownership a token
+      description: Token owner transfer the ownership to new account
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: to
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/description/{issueId}:
+    post:
+      summary: Describe a token
+      description: Owner can add description of the token issued by owner, and the description need to be in json format. You can customize preferences or use recommended templates.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/feature/disable/{issueId}/burn-owner:
+    post:
+      summary: Disable feature from a token
+      description: Token owner can burn the token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/feature/disable/{issueId}/burn-holder:
+    post:
+      summary: Disable feature from a token
+      description: Token holder can burn the token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/feature/disable/{issueId}/burn-from:
+    post:
+      summary: Disable feature from a token
+      description: Token owner can burn the token from any holder
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/feature/disable/{issueId}/freeze:
+    post:
+      summary: Disable feature from a token
+      description: Token owner can freeze in and out the token from any address
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /issue/feature/disable/{issueId}/minting:
+    post:
+      summary: Disable feature from a token
+      description: Token owner can mint the token
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        400:
+          description: Invalid issue body
+        500:
+          description: Internal Server Error
   /exchange/order/{orderId}:
     get:
       summary: Query a order
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - type: string
         name: orderId
@@ -1991,7 +2882,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - type: string
         name: address
@@ -2015,7 +2906,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - type: string
         name: address
@@ -2042,7 +2933,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - description: valid value of `"proposal_type"` can be `"text"`, `"parameter_change"`, `"software_upgrade"`
         name: post_order_body
@@ -2075,7 +2966,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - type: string
         description: order id
@@ -2110,7 +3001,7 @@ paths:
       produces:
       - application/json
       tags:
-      - ICS30
+      - HRC11
       parameters:
       - type: string
         description: order id
@@ -2717,3 +3608,52 @@ definitions:
         type: boolean
       minting_finished:
         type: boolean
+  IssueParams:
+    type: object
+    properties:
+      name:
+        type: string
+      symbol:
+        type: string
+      total_supply:
+        type: string
+      decimals:
+        type: string
+      description:
+        type: string
+      burn_owner_disabled:
+        type: boolean
+      burn_holder_disabled:
+        type: boolean
+      burn_from_disabled:
+        type: boolean
+      freeze_disabled:
+        type: boolean
+      minting_finished:
+        type: boolean
+  LockBox:
+    type: object
+    properties:
+      end_time:
+        type: integer
+  LockBoxInfo:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      owner:
+        type: string
+      name:
+        type: string
+      created_time:
+        type: string
+      total_amount:
+        type: string
+      description:
+        type: string
+      transfer_disabled:
+        type: boolean
+      lock:
+        $ref: "#/definitions/LockBox"
