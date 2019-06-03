@@ -17,6 +17,7 @@ func BeginBlocker(ctx sdk.Context, k Keeper) {
 	// mint coins, add to collected fees, update supply
 	mintedCoin := minter.BlockProvision(annualProvisions)
 	k.fck.AddCollectedFees(ctx, sdk.Coins{mintedCoin})
-	k.sk.InflateSupply(ctx, mintedCoin.Amount)
 
+	// first year do not inflate total supply
+	// k.sk.InflateSupply(ctx, mintedCoin.Amount)
 }

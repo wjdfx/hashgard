@@ -22,9 +22,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	authcmd "github.com/cosmos/cosmos-sdk/x/auth/client/cli"
 	crisiscmd "github.com/cosmos/cosmos-sdk/x/crisis/client/cli"
-	"github.com/cosmos/cosmos-sdk/x/distribution"
-	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution/client/cli"
-	mintcmd "github.com/cosmos/cosmos-sdk/x/mint/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	slashingcmd "github.com/cosmos/cosmos-sdk/x/slashing/client/cli"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -41,6 +38,9 @@ import (
 	faucetcmd "github.com/hashgard/hashgard/x/faucet/client/cli"
 	"github.com/hashgard/hashgard/x/gov"
 	govcmd "github.com/hashgard/hashgard/x/gov/client/cli"
+	"github.com/hashgard/hashgard/x/distribution"
+	distributioncmd "github.com/hashgard/hashgard/x/distribution/client/cli"
+	mintcmd "github.com/hashgard/hashgard/x/mint/client/cli"
 	"github.com/hashgard/hashgard/x/issue"
 )
 
@@ -359,8 +359,7 @@ func addMintCmd(cdc *codec.Codec, rootCmd *cobra.Command) {
 	mintCmd.AddCommand(
 		client.GetCommands(
 			mintcmd.GetCmdQueryParams(cdc),
-			mintcmd.GetCmdQueryInflation(cdc),
-			mintcmd.GetCmdQueryAnnualProvisions(cdc),
+			mintcmd.GetCmdQueryMinter(cdc),
 		)...)
 	rootCmd.AddCommand(mintCmd)
 }

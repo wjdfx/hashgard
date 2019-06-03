@@ -7,6 +7,20 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+const (
+	communityTax			= "distribution/community_tax"
+	foundationAddress		= "distribution/foundation_address"
+	inflation				= "mint/inflation"
+	inflationBase			= "mint/inflation_base"
+	minDeposit				= "gov/min_deposit"
+	signedBlocksWindow		= "slashing/signed_blocks_window"
+	minSignedPerWindow		= "slashing/min_signed_per_window"
+	slashFractionDowntime	= "slashing/slash_fraction_downtime"
+	downtimeJailDuration	= "slashing/downtime_jail_duration"
+	maxValidators			= "staking/max_validators"
+	unbondingTime			= "staking/unbonding_time"
+)
+
 var cdc = MakeCodec()
 
 type ProposalParam struct {
@@ -26,53 +40,44 @@ func MakeCodec() *codec.Codec {
 func ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
 	// check key
 	switch proposalParam.Key {
-	case "auth/max_memo_characters", "auth/tx_sig_limit", "auth/tx_size_cost_per_byte" :
-		var val uint64
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "bank/send_enabled", "distribution/withdraw_addr_enabled":
-		var val bool
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
-		}
-	case "distribution/community_tax", "distribution/base_proposer_reward", "distribution/bonus_proposer_reward",
-		"gov/quorum", "gov/threshold", "gov/veto", "mint/inflation", "slashing/min_signed_per_window",
-		"slashing/slash_fraction_double_sign", "slashing/slash_fraction_downtime":
+	case communityTax, inflation, minSignedPerWindow, slashFractionDowntime:
 		var val sdk.Dec
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
-	case "gov/min_deposit":
+	case minDeposit:
 		var val sdk.Coins
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
-	case "gov/max_deposit_period", "gov/voting_period", "slashing/downtime_jail_duration",
-		"slashing/max_evidence_age", "staking/unbonding_time":
+	case downtimeJailDuration, unbondingTime:
 		var val time.Duration
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
-	case "slashing/signed_blocks_window":
+	case signedBlocksWindow:
 		var val int64
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
-	case "staking/max_validators", "staking/max_entries":
+	case maxValidators:
 		var val uint16
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
-	case "mint/inflation_base":
+	case inflationBase:
 		var val sdk.Int
+		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		if err != nil {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		}
+	case foundationAddress:
+		var val sdk.AccAddress
 		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
