@@ -23,8 +23,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 
-	"github.com/hashgard/hashgard/x/gov"
 	"github.com/hashgard/hashgard/app"
+	"github.com/hashgard/hashgard/x/gov"
 )
 
 func TestHashgardCLIExchange(t *testing.T) {

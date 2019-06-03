@@ -10,7 +10,10 @@ import (
 
 //Handle MsgIssueDescription
 func HandleMsgIssueDescription(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueDescription) sdk.Result {
-
+	fee := keeper.GetParams(ctx).DescribeFee
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
 	if err := keeper.SetIssueDescription(ctx, msg.IssueId, msg.Sender, msg.Description); err != nil {
 		return err.Result()
 	}

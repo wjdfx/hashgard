@@ -13,7 +13,7 @@ import (
 // MsgBoxDescription to allow a registered owner
 // to box new coins.
 type MsgBoxDescription struct {
-	BoxId       string         `json:"box_id"`
+	Id          string         `json:"id"`
 	Sender      sdk.AccAddress `json:"sender"`
 	Description []byte         `json:"description"`
 }
@@ -31,13 +31,12 @@ func (msg MsgBoxDescription) Type() string { return types.TypeMsgBoxDescription 
 
 // Implements Msg. Ensures addresses are valid and Coin is positive
 func (msg MsgBoxDescription) ValidateBasic() sdk.Error {
-	if len(msg.BoxId) == 0 {
+	if len(msg.Id) == 0 {
 		return errors.ErrUnknownBox("")
 	}
 	if len(msg.Description) > types.BoxDescriptionMaxLength {
 		return errors.ErrBoxDescriptionMaxLengthNotValid()
 	}
-
 	return nil
 }
 
@@ -53,5 +52,5 @@ func (msg MsgBoxDescription) GetSigners() []sdk.AccAddress {
 }
 
 func (msg MsgBoxDescription) String() string {
-	return fmt.Sprintf("MsgBoxDescription{%s}", msg.BoxId)
+	return fmt.Sprintf("MsgBoxDescription{%s}", msg.Id)
 }

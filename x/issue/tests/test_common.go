@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	keeper2 "github.com/cosmos/cosmos-sdk/x/distribution/keeper"
+
 	"github.com/cosmos/cosmos-sdk/x/staking"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -25,14 +27,11 @@ import (
 )
 
 var (
-	IssuerCoinsAccAddr   = sdk.AccAddress(crypto.AddressHash([]byte("issuerCoins")))
 	ReceiverCoinsAccAddr = sdk.AccAddress(crypto.AddressHash([]byte("receiverCoins")))
-	TransferAccAddr      = sdk.AccAddress(crypto.AddressHash([]byte("transferAddress")))
-	SenderAccAddr        = sdk.AccAddress(crypto.AddressHash([]byte("senderAddress")))
+	TransferAccAddr      sdk.AccAddress
+	SenderAccAddr        sdk.AccAddress
 
 	CoinIssueInfo = types.CoinIssueInfo{
-		Issuer:             IssuerCoinsAccAddr,
-		Owner:              IssuerCoinsAccAddr,
 		IssueTime:          time.Now().Unix(),
 		Name:               "testCoin",
 		Symbol:             "TEST",
@@ -45,7 +44,7 @@ var (
 )
 
 // initialize the mock application for this module
-func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAccs []auth.Account) (
+func getMockApp(t *testing.T, genState issue.GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper keeper.Keeper, sk staking.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 	mapp = mock.NewApp()
@@ -57,9 +56,11 @@ func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAc
 
 	pk := mapp.ParamsKeeper
 	ck := bank.NewBaseKeeper(mapp.AccountKeeper, mapp.ParamsKeeper.Subspace(bank.DefaultParamspace), bank.DefaultCodespace)
+	fck := keeper2.DummyFeeCollectionKeeper{}
 
 	sk = staking.NewKeeper(mapp.Cdc, keyStaking, tkeyStaking, ck, pk.Subspace(staking.DefaultParamspace), staking.DefaultCodespace)
-	keeper = issue.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testissue"), ck, types.DefaultCodespace)
+	keeper = issue.NewKeeper(mapp.Cdc, keyIssue, pk, pk.Subspace("testissue"), &ck, fck, types.DefaultCodespace)
+	ck.SetHooks(keeper.Hooks())
 
 	mapp.Router().AddRoute(types.RouterKey, issue.NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(types.QuerierRoute, issue.NewQuerier(keeper))
@@ -68,11 +69,15 @@ func getMockApp(t *testing.T, numGenAccs int, genState issue.GenesisState, genAc
 
 	require.NoError(t, mapp.CompleteSetup(keyIssue))
 
-	valTokens := sdk.TokensFromTendermintPower(42)
+	valTokens := sdk.TokensFromTendermintPower(1000000000000)
 	if len(genAccs) == 0 {
-		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(numGenAccs,
+		genAccs, addrs, pubKeys, privKeys = mock.CreateGenAccounts(2,
 			sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, valTokens)))
 	}
+	SenderAccAddr = genAccs[0].GetAddress()
+	TransferAccAddr = genAccs[1].GetAddress()
+	CoinIssueInfo.Issuer = SenderAccAddr
+	CoinIssueInfo.Owner = SenderAccAddr
 
 	mock.SetGenesis(mapp, genAccs)
 

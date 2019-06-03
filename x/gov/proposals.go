@@ -90,7 +90,6 @@ func (tp TextProposal) GetTitle() string           { return tp.Title }
 func (tp TextProposal) GetDescription() string     { return tp.Description }
 func (tp TextProposal) ProposalType() ProposalKind { return ProposalTypeText }
 
-
 // Parameter Change Proposals
 type ParameterChangeProposal struct {
 	TextProposal
@@ -99,7 +98,7 @@ type ParameterChangeProposal struct {
 
 func NewParameterChangeProposal(title, description string, proposalParams ProposalParams) ParameterChangeProposal {
 	return ParameterChangeProposal{
-		TextProposal: NewTextProposal(title, description),
+		TextProposal:   NewTextProposal(title, description),
 		ProposalParams: proposalParams,
 	}
 }
@@ -112,7 +111,6 @@ func (pcp ParameterChangeProposal) ProposalType() ProposalKind {
 	return ProposalTypeParameterChange
 }
 
-
 // Tax Usage Proposals
 type TaxUsageProposal struct {
 	TextProposal
@@ -121,8 +119,8 @@ type TaxUsageProposal struct {
 
 func NewTaxUsageProposal(title, description string, taxusage TaxUsage) TaxUsageProposal {
 	return TaxUsageProposal{
-		TextProposal:	NewTextProposal(title, description),
-		TaxUsage:       taxusage,
+		TextProposal: NewTextProposal(title, description),
+		TaxUsage:     taxusage,
 	}
 }
 
@@ -135,7 +133,6 @@ var _ ProposalContent = TaxUsageProposal{}
 func (tup TaxUsageProposal) ProposalType() ProposalKind {
 	return ProposalTypeParameterChange
 }
-
 
 // Software Upgrade Proposals
 type SoftwareUpgradeProposal struct {
@@ -168,7 +165,7 @@ const (
 	ProposalTypeText            ProposalKind = 0x01
 	ProposalTypeParameterChange ProposalKind = 0x02
 	ProposalTypeSoftwareUpgrade ProposalKind = 0x03
-	ProposalTypeTaxUsage 		ProposalKind = 0x04
+	ProposalTypeTaxUsage        ProposalKind = 0x04
 )
 
 // String to proposalType byte. Returns 0xff if invalid.

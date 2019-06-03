@@ -23,9 +23,9 @@ type proposal struct {
 	Description string
 	Type        string
 	Deposit     string
-	Params		[]string
-	Usage		string
-	Percent		string
+	Params      []string
+	Usage       string
+	Percent     string
 	DestAddress string
 }
 
@@ -262,7 +262,7 @@ func getParamFromString(paramStrArr []string) (gov.ProposalParams, error) {
 		}
 		proposalParams = append(proposalParams,
 			gov.ProposalParam{
-				Key: str[0],
+				Key:   str[0],
 				Value: str[1],
 			})
 	}

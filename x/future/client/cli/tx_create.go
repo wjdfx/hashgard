@@ -4,34 +4,35 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	"github.com/hashgard/hashgard/x/box/params"
-
 	"github.com/cosmos/cosmos-sdk/client/utils"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	boxcli "github.com/hashgard/hashgard/x/box/client/cli"
 	clientutils "github.com/hashgard/hashgard/x/box/client/utils"
 	"github.com/hashgard/hashgard/x/box/errors"
 	"github.com/hashgard/hashgard/x/box/msgs"
+	"github.com/hashgard/hashgard/x/box/params"
 	"github.com/hashgard/hashgard/x/box/types"
 	boxutils "github.com/hashgard/hashgard/x/box/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-// GetCmdFutureBoxCreate implements create Future box transaction command.
-func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
+// GetCreateCmd implements create Future box transaction command.
+func GetCreateCmd(cdc *codec.Codec) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:     "create-future [name] [total-amount] [mini-multiple] [distribute-file]",
-		Args:    cobra.ExactArgs(4),
+		Use:     "create [name] [total-amount] [distribute-file]",
+		Args:    cobra.ExactArgs(3),
 		Short:   "Create a new future box",
 		Long:    "Create a new future box",
-		Example: "$ hashgardcli box create-future foocoin 100000000coin174876e800 1 path/distribute.json --from foo",
+		Example: "$ hashgardcli future create foocoin 100000000coin174876e800 path/distribute.json --from foo",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// parse coins trying to be sent
 			coin, err := sdk.ParseCoin(args[1])
 			if err != nil {
 				return err
 			}
+
 			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
 			if err != nil {
 				return err
@@ -40,10 +41,11 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			contents, err := ioutil.ReadFile(args[3])
+			contents, err := ioutil.ReadFile(args[2])
 			if err != nil {
 				return err
 			}
+
 			futureBox := types.FutureBox{}
 			err = json.Unmarshal(contents, &futureBox)
 			if err != nil {
@@ -54,23 +56,18 @@ func GetCmdFutureBoxCreate(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 			box := params.BoxFutureParams{}
-			box.Sender = account.GetAddress()
 			box.Name = args[0]
-			box.BoxType = types.Future
 			box.TotalAmount = types.BoxToken{Token: coin, Decimals: decimal}
-			box.TradeDisabled = viper.GetBool(flagTradeDisabled)
+			box.TransferDisabled = viper.GetBool(boxcli.FlagTransferDisabled)
 			box.Future = futureBox
-			box.Future.MiniMultiple = uint(viper.GetInt(flagMiniMultiple))
-			msg := msgs.NewMsgFutureBox(&box)
-			validateErr := msg.ValidateBasic()
-			if validateErr != nil {
-				return errors.Errorf(validateErr)
+			msg := msgs.NewMsgFutureBox(account.GetAddress(), &box)
+			if err := msg.ValidateService(); err != nil {
+				return errors.Errorf(err)
 			}
 			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg}, false)
 		},
 	}
-	cmd.Flags().Bool(flagTradeDisabled, true, "Disable the box trade")
-	cmd.Flags().Uint(flagMiniMultiple, 1, "Trade mini multiple")
+	cmd.Flags().Bool(boxcli.FlagTransferDisabled, true, "Disable transfer the box")
 	return cmd
 }
 

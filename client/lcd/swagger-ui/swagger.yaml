@@ -17,6 +17,10 @@ tags:
   description: Slashing module APIs
 - name: ICS24
   description: Fee distribution module APIs
+- name: HRC10
+  description: Issue module APIs
+- name: HRC11
+  description: Exchange module APIs
 - name: ICS30
   description: Exchange module APIs
 - name: version
@@ -1806,6 +1810,159 @@ paths:
                 type: string
         500:
           description: Internal Server Error
+  /issue/{issueId}:
+    get:
+      summary: Query a issue
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        400:
+          description: Invalid issueId
+        500:
+          description: Internal Server Error
+  /issue/list:
+    get:
+      summary: Issue list
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - in: query
+          name: limit
+          description: Maximum number of items per page
+          type: integer
+          x-example: 30
+        - in: query
+          name: address
+          description: Token owner address
+          type: string
+          x-example: ''
+        - in: query
+          name: start_issue_id
+          description: Start issueId of issues
+          type: string
+          x-example: ''
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        500:
+          description: Internal Server Error
+  /issue/search:
+    get:
+      summary: Search issue
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: symbol
+          required: true
+          in: path
+          x-example: 'fo'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        500:
+          description: Internal Server Error
+  /issue/freeze/{issueId}/{address}:
+    get:
+      summary: Query freeze the transfer from a address
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        400:
+          description: Invalid issueId
+        500:
+          description: Internal Server Error
+  /issue/freezes/{issueId}:
+    get:
+      summary: Query all or one of the issue freeze list
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        400:
+          description: Invalid issueId
+        500:
+          description: Internal Server Error
+  /issue/allowance/{issueId}/{address}/{spender_address}:
+    get:
+      summary: Query the amount of tokens that an owner allowed to a spender
+      produces:
+        - application/json
+      tags:
+        - HRC10
+      parameters:
+        - type: string
+          name: issueId
+          required: true
+          in: path
+          x-example: 'coin174876e800'
+        - type: string
+          name: address
+          required: true
+          in: path
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: string
+          name: spender_address
+          required: true
+          in: path
+          x-example: 'gard1j43nxrk3tmtw3nd36ggjcj643pawemsavlh8ud'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Issue"
+        400:
+          description: Invalid issueId
+        500:
+          description: Internal Server Error
   /exchange/order/{orderId}:
     get:
       summary: Query a order
@@ -2529,3 +2686,34 @@ definitions:
         $ref: "#/definitions/Coin"
       create_time:
         type: string
+  Issue:
+    type: object
+    properties:
+      issue_id:
+        type: string
+      issuer:
+        type: string
+      owner:
+        type: string
+      issue_time:
+        type: integer
+      name:
+        type: string
+      symbol:
+        type: string
+      total_supply:
+        type: string
+      decimals:
+        type: integer
+      description:
+        type: string
+      burn_owner_disabled:
+        type: boolean
+      burn_holder_disabled:
+        type: boolean
+      burn_from_disabled:
+        type: boolean
+      freeze_disabled:
+        type: boolean
+      minting_finished:
+        type: boolean
