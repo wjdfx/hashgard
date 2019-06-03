@@ -173,7 +173,7 @@ $ hashgardcli gov deposit 1 10gard --from mykey
 
 			from := cliCtx.GetFromAddress()
 
-			// Cancel associated account
+			// Fetch associated account
 			account, err := cliCtx.GetAccount(from)
 			if err != nil {
 				return err

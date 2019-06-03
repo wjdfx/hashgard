@@ -101,7 +101,7 @@ func TestDeposits(t *testing.T) {
 
 	expTokens := sdk.TokensFromTendermintPower(42)
 	require.Equal(t, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, expTokens)), addr0Initial)
-	require.True(t, proposal.TotalInject.IsEqual(sdk.NewCoins()))
+	require.True(t, proposal.TotalDeposit.IsEqual(sdk.NewCoins()))
 
 	// Check no deposits at beginning
 	deposit, found := keeper.GetDeposit(ctx, proposalID, addrs[1])
@@ -120,7 +120,7 @@ func TestDeposits(t *testing.T) {
 	require.Equal(t, addrs[0], deposit.Depositor)
 	proposal, ok = keeper.GetProposal(ctx, proposalID)
 	require.True(t, ok)
-	require.Equal(t, fourStake, proposal.TotalInject)
+	require.Equal(t, fourStake, proposal.TotalDeposit)
 	require.Equal(t, addr0Initial.Sub(fourStake), keeper.ck.GetCoins(ctx, addrs[0]))
 
 	// Check a second deposit from same address
@@ -133,7 +133,7 @@ func TestDeposits(t *testing.T) {
 	require.Equal(t, addrs[0], deposit.Depositor)
 	proposal, ok = keeper.GetProposal(ctx, proposalID)
 	require.True(t, ok)
-	require.Equal(t, fourStake.Add(fiveStake), proposal.TotalInject)
+	require.Equal(t, fourStake.Add(fiveStake), proposal.TotalDeposit)
 	require.Equal(t, addr0Initial.Sub(fourStake).Sub(fiveStake), keeper.ck.GetCoins(ctx, addrs[0]))
 
 	// Check third deposit from a new address
@@ -146,7 +146,7 @@ func TestDeposits(t *testing.T) {
 	require.Equal(t, fourStake, deposit.Amount)
 	proposal, ok = keeper.GetProposal(ctx, proposalID)
 	require.True(t, ok)
-	require.Equal(t, fourStake.Add(fiveStake).Add(fourStake), proposal.TotalInject)
+	require.Equal(t, fourStake.Add(fiveStake).Add(fourStake), proposal.TotalDeposit)
 	require.Equal(t, addr1Initial.Sub(fourStake), keeper.ck.GetCoins(ctx, addrs[1]))
 
 	// Check that proposal moved to voting period

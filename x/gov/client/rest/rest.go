@@ -55,14 +55,14 @@ func RegisterRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) 
 
 // PostProposalReq defines the properties of a proposal request's body.
 type PostProposalReq struct {
-	BaseReq        rest.BaseReq   `json:"base_req"`
-	Title          string         `json:"title"`           // Title of the proposal
-	Description    string         `json:"description"`     // Description of the proposal
-	ProposalType   string         `json:"proposal_type"`   // Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
-	Proposer       sdk.AccAddress `json:"proposer"`        // Address of the proposer
-	InitialDeposit sdk.Coins      `json:"initial_deposit"` // Coins to add to the proposal's deposit
-	ProposalParams gov.ProposalParams	`json:"proposal_params"`
-	TaxUsage	   gov.TaxUsage			`json:"tax_usage"`
+	BaseReq        rest.BaseReq       `json:"base_req"`
+	Title          string             `json:"title"`           // Title of the proposal
+	Description    string             `json:"description"`     // Description of the proposal
+	ProposalType   string             `json:"proposal_type"`   // Type of proposal. Initial set {PlainTextProposal, SoftwareUpgradeProposal}
+	Proposer       sdk.AccAddress     `json:"proposer"`        // Address of the proposer
+	InitialDeposit sdk.Coins          `json:"initial_deposit"` // Coins to add to the proposal's deposit
+	ProposalParams gov.ProposalParams `json:"proposal_params"`
+	TaxUsage       gov.TaxUsage       `json:"tax_usage"`
 }
 
 // DepositReq defines the properties of a deposit request's body.

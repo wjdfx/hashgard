@@ -35,7 +35,7 @@ func EndBlocker(ctx sdk.Context, keeper Keeper) sdk.Tags {
 				inactiveProposal.ProposalID,
 				inactiveProposal.GetTitle(),
 				keeper.GetDepositParams(ctx).MinDeposit,
-				inactiveProposal.TotalInject,
+				inactiveProposal.TotalDeposit,
 			),
 		)
 	}

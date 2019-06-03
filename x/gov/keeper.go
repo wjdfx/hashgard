@@ -59,11 +59,11 @@ type Keeper struct {
 	ck BankKeeper
 
 	// The reference to these Keepers to modify parameters
-	authKeeper AuthKeeper
+	authKeeper         AuthKeeper
 	distributionKeeper DistributionKeeper
-	mintKeeper MintKeeper
-	slashingKeeper SlashingKeeper
-	stakingKeeper StakingKeeper
+	mintKeeper         MintKeeper
+	slashingKeeper     SlashingKeeper
+	stakingKeeper      StakingKeeper
 
 	// The ValidatorSet to get information about validators
 	vs sdk.ValidatorSet
@@ -92,19 +92,19 @@ func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
 	slashingKeeper SlashingKeeper, stakingKeeper StakingKeeper) Keeper {
 
 	return Keeper{
-		storeKey:     key,
-		paramsKeeper: paramsKeeper,
-		paramSpace:   paramSpace.WithKeyTable(ParamKeyTable()),
-		ck:           ck,
-		ds:           ds,
-		vs:           ds.GetValidatorSet(),
-		cdc:          cdc,
-		codespace:    codespace,
-		authKeeper:		authKeeper,
+		storeKey:           key,
+		paramsKeeper:       paramsKeeper,
+		paramSpace:         paramSpace.WithKeyTable(ParamKeyTable()),
+		ck:                 ck,
+		ds:                 ds,
+		vs:                 ds.GetValidatorSet(),
+		cdc:                cdc,
+		codespace:          codespace,
+		authKeeper:         authKeeper,
 		distributionKeeper: distributionKeeper,
-		mintKeeper:		mintKeeper,
-		slashingKeeper:	slashingKeeper,
-		stakingKeeper:	stakingKeeper,
+		mintKeeper:         mintKeeper,
+		slashingKeeper:     slashingKeeper,
+		stakingKeeper:      stakingKeeper,
 	}
 }
 
@@ -508,10 +508,9 @@ func (keeper Keeper) RemoveFromInactiveProposalQueue(ctx sdk.Context, endTime ti
 	store.Delete(KeyInactiveProposalQueueProposal(endTime, proposalID))
 }
 
-
 func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Error {
 	switch proposal.ProposalType() {
-	case ProposalTypeParameterChange :
+	case ProposalTypeParameterChange:
 		proposalParams := proposal.ProposalContent.(*ParameterChangeProposal).ProposalParams
 		for _, proposalParam := range proposalParams {
 			err := keeper.SetProposalParam(ctx, proposalParam)
@@ -520,7 +519,7 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 			}
 		}
 
-	case ProposalTypeTaxUsage :
+	case ProposalTypeTaxUsage:
 		burn := false
 		taxUsage := proposal.ProposalContent.(*TaxUsageProposal).TaxUsage
 

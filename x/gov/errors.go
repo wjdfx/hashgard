@@ -21,10 +21,10 @@ const (
 	CodeInvalidVote             sdk.CodeType = 9
 	CodeInvalidGenesis          sdk.CodeType = 10
 	CodeInvalidProposalStatus   sdk.CodeType = 11
-	CodeEmptyParameter			sdk.CodeType = 12
-	CodeInvalidParamKey			sdk.CodeType = 13
-	CodeInvalidParamValue		sdk.CodeType = 14
-	CodeInvalidUsageType		sdk.CodeType = 15
+	CodeEmptyParameter          sdk.CodeType = 12
+	CodeInvalidParamKey         sdk.CodeType = 13
+	CodeInvalidParamValue       sdk.CodeType = 14
+	CodeInvalidUsageType        sdk.CodeType = 15
 )
 
 // Error constructors
