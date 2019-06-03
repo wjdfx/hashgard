@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -15,8 +16,6 @@ import (
 	cmn "github.com/tendermint/tendermint/libs/common"
 
 	clientkeys "github.com/cosmos/cosmos-sdk/client/keys"
-	"github.com/hashgard/hashgard/app"
-	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys"
 	"github.com/cosmos/cosmos-sdk/server"
@@ -25,10 +24,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-
+	"github.com/hashgard/hashgard/app"
+	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/x/exchange"
-	"github.com/hashgard/hashgard/x/issue"
 	"github.com/hashgard/hashgard/x/gov"
+	"github.com/hashgard/hashgard/x/issue"
 )
 
 func init() {
@@ -52,7 +52,7 @@ var (
 		sdk.NewCoin(feeDenom, sdk.TokensFromTendermintPower(1000000)),
 		sdk.NewCoin(fee2Denom, sdk.TokensFromTendermintPower(1000000)),
 		sdk.NewCoin(fooDenom, sdk.TokensFromTendermintPower(1000)),
-		sdk.NewCoin(denom, sdk.TokensFromTendermintPower(150)),
+		sdk.NewCoin(denom, sdk.TokensFromTendermintPower(150000000)),
 	}
 
 	vestingCoins = sdk.Coins{
@@ -196,6 +196,12 @@ func (f *Fixtures) HGInit(moniker string, flags ...string) {
 	require.NoError(f.T, err)
 
 	f.ChainID = chainID
+	file := path.Join(f.GDHome, "config", "config.toml")
+	content, err := ioutil.ReadFile(file)
+	require.NoError(f.T, err)
+	str := strings.ReplaceAll(string(content), "timeout_commit = \"5s\"", "timeout_commit = \"1s\"")
+	err = ioutil.WriteFile(file, []byte(str), os.ModeDir)
+	require.NoError(f.T, err)
 }
 
 // AddGenesisAccount is hashgard add-genesis-account
@@ -639,10 +645,10 @@ func executeWriteRetStdStreams(t *testing.T, cmdStr string, writes ...string) (b
 
 	// Log output.
 	if len(stdout) > 0 {
-		t.Log("Stdout:", cmn.Green(string(stdout)))
+		t.Log(time.Now().Format("2006-01-02 15:04:05"), "Stdout:", cmn.Green(string(stdout)))
 	}
 	if len(stderr) > 0 {
-		t.Log("Stderr:", cmn.Red(string(stderr)))
+		t.Log(time.Now().Format("2006-01-02 15:04:05"), "Stderr:", cmn.Red(string(stderr)))
 	}
 
 	// Wait for process to exit

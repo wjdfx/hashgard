@@ -8,24 +8,24 @@ import (
 )
 
 const (
-	communityTax			= "distribution/community_tax"
-	foundationAddress		= "distribution/foundation_address"
-	inflation				= "mint/inflation"
-	inflationBase			= "mint/inflation_base"
-	minDeposit				= "gov/min_deposit"
-	signedBlocksWindow		= "slashing/signed_blocks_window"
-	minSignedPerWindow		= "slashing/min_signed_per_window"
-	slashFractionDowntime	= "slashing/slash_fraction_downtime"
-	downtimeJailDuration	= "slashing/downtime_jail_duration"
-	maxValidators			= "staking/max_validators"
-	unbondingTime			= "staking/unbonding_time"
+	communityTax          = "distribution/community_tax"
+	foundationAddress     = "distribution/foundation_address"
+	inflation             = "mint/inflation"
+	inflationBase         = "mint/inflation_base"
+	minDeposit            = "gov/min_deposit"
+	signedBlocksWindow    = "slashing/signed_blocks_window"
+	minSignedPerWindow    = "slashing/min_signed_per_window"
+	slashFractionDowntime = "slashing/slash_fraction_downtime"
+	downtimeJailDuration  = "slashing/downtime_jail_duration"
+	maxValidators         = "staking/max_validators"
+	unbondingTime         = "staking/unbonding_time"
 )
 
 var cdc = MakeCodec()
 
 type ProposalParam struct {
-	Key		 string	`json:"key"`
-	Value	 string	`json:"value"`
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type ProposalParams []ProposalParam
@@ -88,4 +88,3 @@ func ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
 
 	return nil
 }
-

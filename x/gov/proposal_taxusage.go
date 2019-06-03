@@ -10,7 +10,7 @@ import (
 type UsageType byte
 
 const (
-	UsageTypeNil		UsageType = 0x00
+	UsageTypeNil        UsageType = 0x00
 	UsageTypeBurn       UsageType = 0x01
 	UsageTypeDistribute UsageType = 0x02
 	UsageTypeGrant      UsageType = 0x03
@@ -100,7 +100,7 @@ func (ut UsageType) Format(s fmt.State, verb rune) {
 }
 
 type TaxUsage struct {
-	Usage       UsageType		`json:"usage"`
-	DestAddress sdk.AccAddress	`json:"dest_address"`
-	Percent     sdk.Dec			`json:"percent"`
+	Usage       UsageType      `json:"usage"`
+	DestAddress sdk.AccAddress `json:"dest_address"`
+	Percent     sdk.Dec        `json:"percent"`
 }

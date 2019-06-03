@@ -94,7 +94,7 @@ func GetCmdIssueTransferOwnership(cdc *codec.Codec) *cobra.Command {
 				return err
 			}
 
-			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+			_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
@@ -140,7 +140,7 @@ func GetCmdIssueDescription(cdc *codec.Codec) *cobra.Command {
 			}
 			contents = buffer.Bytes()
 
-			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+			_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
@@ -174,7 +174,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 			}
 			amount, ok := sdk.NewIntFromString(args[1])
 			if !ok {
-				return fmt.Errorf("Amount %s not a valid int, please input a valid amount", args[2])
+				return errors.Errorf(errors.ErrAmountNotValid(args[1]))
 			}
 
 			txBldr, cliCtx, account, err := clientutils.GetCliContext(cdc)
@@ -190,7 +190,7 @@ func GetCmdIssueMint(cdc *codec.Codec) *cobra.Command {
 				}
 			}
 
-			issueInfo, err := issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+			issueInfo, err := clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}
@@ -248,7 +248,7 @@ func GetCmdIssueDisableFeature(cdc *codec.Codec) *cobra.Command {
 			if err != nil {
 				return err
 			}
-			_, err = issueutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
+			_, err = clientutils.IssueOwnerCheck(cdc, cliCtx, account, issueID)
 			if err != nil {
 				return err
 			}

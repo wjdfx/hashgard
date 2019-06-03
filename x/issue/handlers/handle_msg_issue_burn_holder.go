@@ -10,7 +10,10 @@ import (
 
 //Handle MsgIssueBurnHolder
 func HandleMsgIssueBurnHolder(ctx sdk.Context, keeper keeper.Keeper, msg msgs.MsgIssueBurnHolder) sdk.Result {
-
+	fee := keeper.GetParams(ctx).BurnFee
+	if err := keeper.Fee(ctx, msg.Sender, fee); err != nil {
+		return err.Result()
+	}
 	_, err := keeper.BurnHolder(ctx, msg.IssueId, msg.Amount, msg.Sender)
 
 	if err != nil {

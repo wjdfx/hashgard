@@ -17,5 +17,5 @@ var (
 	ProposalID        = "proposal-id"
 	VotingPeriodStart = "voting-period-start"
 	ProposalResult    = "proposal-result"
-	ProposalType	  = "proposal-type"
+	ProposalType      = "proposal-type"
 )

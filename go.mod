@@ -24,6 +24,6 @@ require (
 )
 
 replace (
-	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.34.4-hashgard.0.20190526090320-cc3761eb24d0
+	github.com/cosmos/cosmos-sdk => github.com/hashgard/cosmos-sdk v0.34.4-hashgard.0.20190527100854-f7ff75d0d1eb
 	golang.org/x/crypto => github.com/tendermint/crypto v0.0.0-20180820045704-3764759f34a5
 )

@@ -18,15 +18,20 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
+	issue "github.com/hashgard/hashgard/x/issue/client/rest"
+	deposit "github.com/hashgard/hashgard/x/lock/client/rest"
+	future "github.com/hashgard/hashgard/x/lock/client/rest"
+	lock "github.com/hashgard/hashgard/x/lock/client/rest"
+
+	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution"
+
 	"github.com/hashgard/hashgard/app"
 	"github.com/hashgard/hashgard/client/lcd"
 	_ "github.com/hashgard/hashgard/client/lcd/statik"
 	hashgardInit "github.com/hashgard/hashgard/init"
 	"github.com/hashgard/hashgard/version"
-	gov "github.com/hashgard/hashgard/x/gov/client/rest"
 	distribution "github.com/hashgard/hashgard/x/distribution/client/rest"
-	distributioncmd "github.com/hashgard/hashgard/x/distribution"
-	issue "github.com/hashgard/hashgard/x/issue/client/rest"
+	gov "github.com/hashgard/hashgard/x/gov/client/rest"
 	mint "github.com/hashgard/hashgard/x/mint/client/rest"
 )
 
@@ -79,6 +84,9 @@ func registerRoutes(rs *lcd.RestServer) {
 	slashing.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc, rs.KeyBase)
 	gov.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	issue.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	lock.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	deposit.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	future.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	mint.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
@@ -87,6 +95,7 @@ func registerSwaggerUI(rs *lcd.RestServer) {
 	if err != nil {
 		panic(err)
 	}
+
 	staticServer := http.FileServer(statikFS)
 	rs.Mux.PathPrefix("/swagger-ui/").Handler(http.StripPrefix("/swagger-ui/", staticServer))
 }

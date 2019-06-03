@@ -109,8 +109,8 @@ func NewDefaultGenesisState() GenesisState {
 		GovData:          createGovGenesisState(),
 		SlashingData:     slashing.DefaultGenesisState(),
 		ExchangeData:     exchange.DefaultGenesisState(),
-		IssueData:        issue.DefaultGenesisState(),
-		BoxData:          box.DefaultGenesisState(),
+		IssueData:        createIssueGenesisState(),
+		BoxData:          createBoxGenesisState(),
 		CrisisData:       createCrisisGenesisState(),
 		GenTxs:           nil,
 	}
@@ -153,6 +153,17 @@ func createCrisisGenesisState() crisis.GenesisState {
 	return crisis.GenesisState{
 		ConstantFee: sdk.NewCoin(StakeDenom, sdk.NewIntWithDecimal(1000, 18)),
 	}
+}
+
+func createBoxGenesisState() box.GenesisState {
+	genesisState := box.DefaultGenesisState()
+	genesisState.Params = box.DefaultParams(StakeDenom)
+	return genesisState
+}
+func createIssueGenesisState() issue.GenesisState {
+	genesisState := issue.DefaultGenesisState()
+	genesisState.Params = issue.DefaultParams(StakeDenom)
+	return genesisState
 }
 
 // nolint

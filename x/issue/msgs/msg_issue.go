@@ -40,7 +40,7 @@ func (msg MsgIssue) ValidateBasic() sdk.Error {
 	if utils.QuoDecimals(msg.CoinIssueInfo.TotalSupply, msg.CoinIssueInfo.Decimals).GT(types.CoinMaxTotalSupply) {
 		return errors.ErrCoinTotalSupplyMaxValueNotValid()
 	}
-	if len(msg.Name) > types.CoinNameMaxLength {
+	if len(msg.Name) < types.CoinNameMinLength || len(msg.Name) > types.CoinNameMaxLength {
 		return errors.ErrCoinNamelNotValid()
 	}
 	if len(msg.Symbol) < types.CoinSymbolMinLength || len(msg.Symbol) > types.CoinSymbolMaxLength {
