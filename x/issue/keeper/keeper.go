@@ -3,11 +3,12 @@ package keeper
 import (
 	"strings"
 
+	"github.com/hashgard/hashgard/x/issue/config"
+
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/hashgard/hashgard/x/issue/errors"
-	"github.com/hashgard/hashgard/x/issue/msgs"
 	issueparams "github.com/hashgard/hashgard/x/issue/params"
 	"github.com/hashgard/hashgard/x/issue/types"
 	"github.com/hashgard/hashgard/x/issue/utils"
@@ -48,14 +49,15 @@ func (keeper Keeper) GetFeeCollectionKeeper() FeeCollectionKeeper {
 
 //New issue keeper Instance
 func NewKeeper(cdc *codec.Codec, key sdk.StoreKey, paramsKeeper params.Keeper,
-	paramSpace params.Subspace, ck BankKeeper, codespace sdk.CodespaceType) Keeper {
+	paramSpace params.Subspace, ck BankKeeper, feeCollectionKeeper FeeCollectionKeeper, codespace sdk.CodespaceType) Keeper {
 	return Keeper{
-		storeKey:     key,
-		paramsKeeper: paramsKeeper,
-		paramSpace:   paramSpace.WithKeyTable(msgs.ParamKeyTable()),
-		ck:           ck,
-		cdc:          cdc,
-		codespace:    codespace,
+		storeKey:            key,
+		paramsKeeper:        paramsKeeper,
+		paramSpace:          paramSpace.WithKeyTable(config.ParamKeyTable()),
+		ck:                  ck,
+		feeCollectionKeeper: feeCollectionKeeper,
+		cdc:                 cdc,
+		codespace:           codespace,
 	}
 }
 
@@ -589,12 +591,12 @@ func (keeper Keeper) GetSymbolIssues(ctx sdk.Context, symbol string) (issueIDs [
 // Params
 
 // SetParams sets the auth module's parameters.
-func (ak Keeper) SetParams(ctx sdk.Context, params msgs.IssueConfigParams) {
+func (ak Keeper) SetParams(ctx sdk.Context, params config.Params) {
 	ak.paramSpace.SetParamSet(ctx, &params)
 }
 
 // GetParams gets the auth module's parameters.
-func (ak Keeper) GetParams(ctx sdk.Context) (params msgs.IssueConfigParams) {
+func (ak Keeper) GetParams(ctx sdk.Context) (params config.Params) {
 	ak.paramSpace.GetParamSet(ctx, &params)
 	return
 }
