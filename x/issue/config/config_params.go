@@ -74,15 +74,15 @@ func (dp Params) Equal(dp2 Params) bool {
 // DefaultParams returns a default set of parameters.
 func DefaultParams(denom string) Params {
 	return Params{
-		IssueFee:          sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
-		MintFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
-		FreezeFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
-		UnFreezeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
-		BurnFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
-		BurnFromFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
-		TransferOwnerFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
-		DisableFeatureFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
-		DescribeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(100, 18)),
+		IssueFee:          sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		MintFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		FreezeFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		UnFreezeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		BurnFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		BurnFromFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		TransferOwnerFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		DisableFeatureFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		DescribeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
 	}
 }
 
