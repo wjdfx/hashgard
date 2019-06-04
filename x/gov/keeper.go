@@ -526,7 +526,10 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 		if taxUsage.Usage == UsageTypeBurn {
 			burn = true
 		}
-		keeper.distributionKeeper.AllocateCommunityPool(ctx, taxUsage.DestAddress, taxUsage.Percent, burn)
+		err := keeper.distributionKeeper.AllocateCommunityPool(ctx, taxUsage.DestAddress, taxUsage.Percent, burn)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
