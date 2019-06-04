@@ -32,6 +32,7 @@ type proposal struct {
 var proposalFlags = []string{
 	flagTitle,
 	flagDescription,
+	flagDescription,
 	flagProposalType,
 	flagDeposit,
 }
@@ -135,7 +136,7 @@ $ hashgardcli gov submit-proposal --title="Test Proposal" --description="My awes
 	cmd.Flags().String(flagDeposit, "", "deposit of proposal")
 	cmd.Flags().String(flagProposal, "", "proposal file path (if this path is given, other proposal flags are ignored)")
 	cmd.Flags().StringSlice(flagParam, []string{}, "parameter of proposal,eg. \"mint/Inflation=0.03\",\"staking/max_validators\"")
-	cmd.Flags().String(flagUsage, "", "the transaction fee tax usage type, valid values can be Burn, Distribute and Grant")
+	cmd.Flags().String(flagUsage, "", "the transaction fee tax usage type, valid values can be Burn and Grant")
 	cmd.Flags().String(flagPercent, "0", "percent of transaction fee tax pool to use, integer or decimal >0 and <=1")
 	cmd.Flags().String(flagDestAddress, "", "the destination trustee address")
 
