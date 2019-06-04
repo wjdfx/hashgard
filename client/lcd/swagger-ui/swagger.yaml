@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   version: "3.0"
-  title: LCD for Hashgard-23
+  title: LCD for Hashgard-24
   description: A REST interface for state queries, transaction generation and broadcasting.
 tags:
 - name: ICS0
@@ -1837,9 +1837,118 @@ paths:
         200:
           description: OK
           schema:
-            $ref: "#/definitions/Issue"
+            $ref: "#/definitions/LockBoxInfo"
+        500:
+          description: Internal Server Error
+  /lock/list:
+    get:
+      summary: Query all or one of the account lock list, the limit default is 30
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      parameters:
+        - type: string
+          name: address
+          required: false
+          in: query
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: integer
+          name: limit
+          required: false
+          in: query
+          x-example: 30
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/LockBoxInfo"
+        500:
+          description: Internal Server Error
+  /lock/search/{name}:
+    get:
+      summary: Search lock based on name
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      parameters:
+        - type: string
+          name: name
+          required: true
+          in: path
+          x-example: 'fo'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/LockBoxInfo"
+        500:
+          description: Internal Server Error
+  /lock:
+    post:
+      summary: Create a new lock
+      description: Create a new lock
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      parameters:
+        - description: valid value of `"name"` ,  `"total_amount"`, `"end_time"`
+          name: post_lock_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              lock:
+                $ref: "#/definitions/LockParams"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /lock/description/{id}:
+    post:
+      summary: Describe a lock
+      description: Owner can set description of the lock, and the description need to be in json format. You can customize preferences or use recommended templates.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - ICS25
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - description:
+          name: post_issue_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
         400:
-          description: Invalid issueId
+          description: Invalid issue body
         500:
           description: Internal Server Error
   /issue/params:
@@ -3655,5 +3764,16 @@ definitions:
         type: string
       transfer_disabled:
         type: boolean
+      lock:
+        $ref: "#/definitions/LockBox"
+  LockParams:
+    type: object
+    properties:
+      name:
+        type: string
+      total_amount:
+        type: string
+      description:
+        type: string
       lock:
         $ref: "#/definitions/LockBox"

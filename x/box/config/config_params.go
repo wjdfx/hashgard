@@ -58,11 +58,11 @@ func (dp Params) Equal(dp2 Params) bool {
 // DefaultParams returns a default set of parameters.
 func DefaultParams(denom string) Params {
 	return Params{
-		LockCreateFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		DepositBoxCreateFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		FutureBoxCreateFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		DisableFeatureFee:   sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		DescribeFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		LockCreateFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1000, 18)),
+		DepositBoxCreateFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		FutureBoxCreateFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		DisableFeatureFee:   sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		DescribeFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
 	}
 }
 

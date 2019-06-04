@@ -39,6 +39,7 @@ const (
 	denom        = "agard"
 	keyFoo       = "foo"
 	keyBar       = "bar"
+	keyIssue     = "issue"
 	fooDenom     = "footoken"
 	feeDenom     = "feetoken"
 	fee2Denom    = "fee2token"
@@ -124,9 +125,11 @@ func InitFixtures(t *testing.T) (f *Fixtures) {
 	f.KeysDelete(keyBar)
 	f.KeysDelete(keyBar)
 	f.KeysDelete(keyFooBarBaz)
+	f.KeysDelete(keyIssue)
 	f.KeysAdd(keyFoo)
 	f.KeysAdd(keyBar)
 	f.KeysAdd(keyBaz)
+	f.KeysAdd(keyIssue)
 	f.KeysAdd(keyVesting)
 	f.KeysAdd(keyFooBarBaz, "--multisig-threshold=2", fmt.Sprintf(
 		"--multisig=%s,%s,%s", keyFoo, keyBar, keyBaz))
@@ -142,6 +145,9 @@ func InitFixtures(t *testing.T) (f *Fixtures) {
 
 	// start an account with tokens
 	f.AddGenesisAccount(f.KeyAddress(keyFoo), startCoins)
+	f.AddGenesisAccount(f.KeyAddress(keyIssue), sdk.Coins{
+		sdk.NewCoin(denom, sdk.TokensFromTendermintPower(1000000000)),
+	})
 	f.AddGenesisAccount(
 		f.KeyAddress(keyVesting), startCoins,
 		fmt.Sprintf("--vesting-amount=%s", vestingCoins),

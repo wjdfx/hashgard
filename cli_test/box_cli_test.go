@@ -33,7 +33,7 @@ var (
 
 func AddIssue(t *testing.T, f *Fixtures, sender sdk.AccAddress) string {
 	// create issue
-	f.TxIssueCreate(keyFoo, "foocoin", "FOO", uint64(IssueCoinAmount.Int64()), fmt.Sprintf("--decimals %d --gas 200000 -y", decimals))
+	f.TxIssueCreate(keyIssue, "foocoin", "FOO", uint64(IssueCoinAmount.Int64()), fmt.Sprintf("--decimals %d --gas 200000 -y", decimals))
 	tests.WaitForNextNBlocksTM(1, f.Port)
 	// Ensure transaction tags can be queried
 	txs := f.QueryTxs(1, 50, "action:issue", fmt.Sprintf("sender:%s", sender))
@@ -117,20 +117,20 @@ func TestHashgardCLILockBox(t *testing.T) {
 	proc := f.HGStart()
 	defer proc.Stop(false)
 	// Save key addresses for later use
-	fooAddr := f.KeyAddress(keyFoo)
+	issueAddr := f.KeyAddress(keyIssue)
 	//barAddr := f.KeyAddress(keyBar)
-	issueID := AddIssue(t, f, fooAddr)
-	boxID, params := CreateLockBox(t, f, issueID, fooAddr)
+	issueID := AddIssue(t, f, issueAddr)
+	boxID, params := CreateLockBox(t, f, issueID, issueAddr)
 
-	fooAcc := f.QueryAccount(fooAddr)
-	//require.Equal(t, fooAcc.GetCoins().AmountOf(issueID), IssueCoinAmount.Sub(BoxAmount))
-	require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), issueutils.MulDecimals(params.TotalAmount.Token.Amount, decimals))
+	issueAcc := f.QueryAccount(issueAddr)
+	//require.Equal(t, issueAcc.GetCoins().AmountOf(issueID), IssueCoinAmount.Sub(BoxAmount))
+	require.Equal(t, issueAcc.GetCoins().AmountOf(boxID), issueutils.MulDecimals(params.TotalAmount.Token.Amount, decimals))
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Lock.EndTime), f.Port)
 
-	fooAcc = f.QueryAccount(fooAddr)
-	//require.Equal(t, fooAcc.GetCoins().AmountOf(issueID), IssueCoinAmount)
-	require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), sdk.ZeroInt())
+	issueAcc = f.QueryAccount(issueAddr)
+	//require.Equal(t, issueAcc.GetCoins().AmountOf(issueID), IssueCoinAmount)
+	require.Equal(t, issueAcc.GetCoins().AmountOf(boxID), sdk.ZeroInt())
 }
 
 func TestHashgardCLIDepositBox(t *testing.T) {
@@ -140,31 +140,31 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 	proc := f.HGStart()
 	defer proc.Stop(false)
 	// Save key addresses for later use
-	fooAddr := f.KeyAddress(keyFoo)
+	issueAddr := f.KeyAddress(keyIssue)
 	barAddr := f.KeyAddress(keyBar)
 	//barAddr := f.KeyAddress(keyBar)
-	issueAID := AddIssue(t, f, fooAddr)
-	issueBID := AddIssue(t, f, fooAddr)
+	issueAID := AddIssue(t, f, issueAddr)
+	issueBID := AddIssue(t, f, issueAddr)
 
-	boxID, params := CreateDepositBox(t, f, issueAID, issueBID, fooAddr)
+	boxID, params := CreateDepositBox(t, f, issueAID, issueBID, issueAddr)
 
-	f.TxDepositBoxInterestInject(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestInject(keyIssue, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInject := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", fooAddr))
+	txsInject := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", issueAddr))
 	require.Len(t, txsInject, 1)
 
-	f.TxDepositBoxInterestCancel(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestCancel(keyIssue, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestCancel, fmt.Sprintf("sender:%s", fooAddr))
+	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestCancel, fmt.Sprintf("sender:%s", issueAddr))
 	require.Len(t, txsInject, 1)
 
-	f.TxDepositBoxInterestInject(keyFoo, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
+	f.TxDepositBoxInterestInject(keyIssue, boxID, params.Deposit.Interest.Token.Amount, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", fooAddr))
+	txsInject = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInterestInject, fmt.Sprintf("sender:%s", issueAddr))
 	require.Len(t, txsInject, 2)
 
 	depositTo := BoxAmount.QuoRaw(int64(2))
-	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueAID, depositTo), DefaultFlag)
+	f.TxSend(keyIssue, barAddr, sdk.NewCoin(issueAID, depositTo), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Deposit.StartTime), f.Port)
@@ -184,8 +184,8 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 2)
 
-	fooAcc := f.QueryAccount(barAddr)
-	require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), depositTo.Quo(params.Deposit.Price))
+	issueAcc := f.QueryAccount(barAddr)
+	require.Equal(t, issueAcc.GetCoins().AmountOf(boxID), depositTo.Quo(params.Deposit.Price))
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Deposit.MaturityTime), f.Port)
 
@@ -194,8 +194,8 @@ func TestHashgardCLIDepositBox(t *testing.T) {
 	txsWithdraw := f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxWithdraw, fmt.Sprintf("sender:%s", barAddr))
 	require.Len(t, txsWithdraw, 1)
 
-	fooAcc = f.QueryAccount(barAddr)
-	require.Equal(t, fooAcc.GetCoins().AmountOf(boxID), sdk.ZeroInt())
+	issueAcc = f.QueryAccount(barAddr)
+	require.Equal(t, issueAcc.GetCoins().AmountOf(boxID), sdk.ZeroInt())
 }
 
 func TestHashgardCLIFutureBox(t *testing.T) {
@@ -205,14 +205,14 @@ func TestHashgardCLIFutureBox(t *testing.T) {
 	proc := f.HGStart()
 	defer proc.Stop(false)
 	// Save key addresses for later use
-	fooAddr := f.KeyAddress(keyFoo)
+	issueAddr := f.KeyAddress(keyIssue)
 	barAddr := f.KeyAddress(keyBar)
-	issueID := AddIssue(t, f, fooAddr)
-	boxID, params := CreateFutureBox(t, f, issueID, fooAddr)
+	issueID := AddIssue(t, f, issueAddr)
+	boxID, params := CreateFutureBox(t, f, issueID, issueAddr)
 
 	depositTo := params.TotalAmount.Token.Amount
 
-	f.TxSend(keyFoo, barAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
+	f.TxSend(keyIssue, barAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
 	f.TxInject(keyBar, boxID, depositTo.QuoRaw(2), DefaultFlag)
@@ -225,12 +225,12 @@ func TestHashgardCLIFutureBox(t *testing.T) {
 	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxCancel, fmt.Sprintf("sender:%s", barAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
-	f.TxSend(keyBar, fooAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
+	f.TxSend(keyBar, issueAddr, sdk.NewCoin(issueID, depositTo.QuoRaw(2)), DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
 
-	f.TxInject(keyFoo, boxID, depositTo, DefaultFlag)
+	f.TxInject(keyIssue, boxID, depositTo, DefaultFlag)
 	tests.WaitForNextNBlocksTM(1, f.Port)
-	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", fooAddr.String()))
+	txsDeposit = f.QueryTxs(1, 50, "action:"+types.TypeMsgBoxInject, fmt.Sprintf("sender:%s", issueAddr.String()))
 	require.Len(t, txsDeposit, 1)
 
 	tests.WaitForNextNBlocksTM(getWaitBlocks(params.Future.TimeLine[len(params.Future.TimeLine)-1]), f.Port)
