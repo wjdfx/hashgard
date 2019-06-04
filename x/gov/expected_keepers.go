@@ -27,7 +27,7 @@ type AuthKeeper interface {
 type DistributionKeeper interface {
 	SetCommunityTax(ctx sdk.Context, percent sdk.Dec)
 	SetFoundationAddress(ctx sdk.Context, foundationAddress sdk.AccAddress)
-	AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool)
+	AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool) sdk.Error
 }
 
 type MintKeeper interface {

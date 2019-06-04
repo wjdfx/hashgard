@@ -24,6 +24,8 @@ func NormalizeProposalType(proposalType string) string {
 		return "ParameterChange"
 	case "SoftwareUpgrade", "software_upgrade":
 		return "SoftwareUpgrade"
+	case "TaxUsage", "tax_usage":
+		return "TaxUsage"
 	}
 	return ""
 }
