@@ -131,7 +131,7 @@ var _ ProposalContent = TaxUsageProposal{}
 
 // nolint
 func (tup TaxUsageProposal) ProposalType() ProposalKind {
-	return ProposalTypeParameterChange
+	return ProposalTypeTaxUsage
 }
 
 // Software Upgrade Proposals

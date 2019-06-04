@@ -5,6 +5,8 @@ import (
 	abci "github.com/tendermint/tendermint/abci/types"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
+	"github.com/hashgard/hashgard/x/distribution/types"
 )
 
 // allocate fees handles distribution of the collected fees
@@ -105,7 +107,7 @@ func (k Keeper) AllocateTokensToValidator(ctx sdk.Context, val sdk.Validator, to
 }
 
 // Allocate the community pool from the community fee pool, burn or send to specific account
-func (k Keeper) AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool) {
+func (k Keeper) AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, percent sdk.Dec, burn bool) sdk.Error {
 	logger := ctx.Logger()
 	feePool := k.GetFeePool(ctx)
 	communityPool := feePool.CommunityPool
@@ -117,13 +119,32 @@ func (k Keeper) AllocateCommunityPool(ctx sdk.Context, destAddr sdk.AccAddress, 
 
 	if burn {
 		logger.Info("Burn community tax", "burn_amount", allocateCoins.String())
+		if !allocateCoins.IsZero() {
+			foundationAddress := k.GetFoundationAddress(ctx)
+			_, err := k.bankKeeper.SubtractCoins(ctx, foundationAddress, allocateCoins)
+			if err != nil {
+				logger := ctx.Logger().With("module", "x/distr")
+				logger.Info(fmt.Sprintf("the fund of foundation address(%s) is insufficient", foundationAddress))
+				return types.ErrFoundationDryUp(types.DefaultCodespace)
+			}
+		}
 	} else {
 		logger.Info("Grant community tax to account", "grant_amount", allocateCoins.String(), "grant_address", destAddr.String())
 		if !allocateCoins.IsZero() {
-			_, err := k.bankKeeper.AddCoins(ctx, destAddr, allocateCoins)
+			foundationAddress := k.GetFoundationAddress(ctx)
+			_, err := k.bankKeeper.SubtractCoins(ctx, foundationAddress, allocateCoins)
 			if err != nil {
-				panic(err)
+				logger := ctx.Logger().With("module", "x/distr")
+				logger.Info(fmt.Sprintf("the fund of foundation address(%s) is insufficient", foundationAddress))
+				return types.ErrFoundationDryUp(types.DefaultCodespace)
+			}
+
+			_, err = k.bankKeeper.AddCoins(ctx, destAddr, allocateCoins)
+			if err != nil {
+				return err
 			}
 		}
 	}
+
+	return nil
 }

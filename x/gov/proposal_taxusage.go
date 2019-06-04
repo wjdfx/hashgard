@@ -12,8 +12,7 @@ type UsageType byte
 const (
 	UsageTypeNil        UsageType = 0x00
 	UsageTypeBurn       UsageType = 0x01
-	UsageTypeDistribute UsageType = 0x02
-	UsageTypeGrant      UsageType = 0x03
+	UsageTypeGrant		UsageType = 0x02
 )
 
 // String to UsageType byte.  Returns ff if invalid.
@@ -21,8 +20,6 @@ func UsageTypeFromString(str string) (UsageType, error) {
 	switch str {
 	case "Burn":
 		return UsageTypeBurn, nil
-	case "Distribute":
-		return UsageTypeDistribute, nil
 	case "Grant":
 		return UsageTypeGrant, nil
 	case "":
@@ -35,7 +32,6 @@ func UsageTypeFromString(str string) (UsageType, error) {
 // is defined UsageType?
 func ValidUsageType(ut UsageType) bool {
 	if ut == UsageTypeBurn ||
-		ut == UsageTypeDistribute ||
 		ut == UsageTypeGrant {
 		return true
 	}
@@ -79,8 +75,6 @@ func (ut UsageType) String() string {
 	switch ut {
 	case UsageTypeBurn:
 		return "Burn"
-	case UsageTypeDistribute:
-		return "Distribute"
 	case UsageTypeGrant:
 		return "Grant"
 	default:
