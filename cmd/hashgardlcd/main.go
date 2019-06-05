@@ -19,6 +19,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	deposit "github.com/hashgard/hashgard/x/deposit/client/rest"
+	exchange "github.com/hashgard/hashgard/x/exchange/client/rest"
 	future "github.com/hashgard/hashgard/x/future/client/rest"
 	issue "github.com/hashgard/hashgard/x/issue/client/rest"
 	lock "github.com/hashgard/hashgard/x/lock/client/rest"
@@ -87,6 +88,7 @@ func registerRoutes(rs *lcd.RestServer) {
 	lock.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	deposit.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	future.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
+	exchange.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 	mint.RegisterRoutes(rs.CliCtx, rs.Mux, rs.Cdc)
 }
 
