@@ -19,7 +19,6 @@ import (
 
 //___________________________________________________________________________________
 // hashgardcli box
-
 // TxLockBoxCreate is hashgardcli lock create
 //hashgardcli lock create foocoin 100coin174876e800 1557983880 --from joehe -y
 func (f *Fixtures) TxLockBoxCreate(sender string, params *params.BoxLockParams, flags ...string) (bool, string, string) {
@@ -31,7 +30,7 @@ func (f *Fixtures) TxLockBoxCreate(sender string, params *params.BoxLockParams, 
 // TxDepositBoxCreate is hashgardcli deposit create
 //hashgardcli deposit create foocoin 10000coin174876e800 --from joehe
 // --bottom-line=1000 --price=100 --start-time=1557982140 --establish-time=1557982141  --maturity-time=1557982142 --interest=200coin174876e801 -y
-func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxInjectParams, flags ...string) (bool, string, string) {
+func (f *Fixtures) TxDepositBoxCreate(sender string, params *params.BoxDepositParams, flags ...string) (bool, string, string) {
 	cmd := fmt.Sprintf("../build/hashgardcli deposit create %s %s "+
 		"--bottom-line=%s "+
 		"--price=%s --start-time=%d --establish-time=%d "+

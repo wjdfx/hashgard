@@ -59,8 +59,8 @@ func GetLockBoxInfo() *params.BoxLockParams {
 	box.Lock = types.LockBox{EndTime: time.Now().Add(time.Duration(5) * time.Second).Unix()}
 	return box
 }
-func GetDepositBoxInfo() *params.BoxInjectParams {
-	box := &params.BoxInjectParams{}
+func GetDepositBoxInfo() *params.BoxDepositParams {
+	box := &params.BoxDepositParams{}
 
 	box.Name = newBoxInfo.Name
 	box.TotalAmount = newBoxInfo.TotalAmount

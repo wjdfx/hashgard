@@ -16,30 +16,28 @@ func init() {
 
 var (
 	// key for constant fee parameter
-	ParamStoreKeyIssueFee               = []byte("IssueFee")
-	ParamStoreKeyMintFee                = []byte("IssueMintFee")
-	ParamStoreKeyFreezeFee              = []byte("IssueFreezeFee")
-	ParamStoreKeyUnFreezeFee            = []byte("IssueUnFreezeFee")
-	ParamStoreKeyBurnFee                = []byte("IssueBurnFee")
-	ParamStoreKeyBurnFromFee            = []byte("IssueBurnFromFee")
-	ParamStoreKeyTransferOwnerFee       = []byte("IssueTransferOwnerFee")
-	ParamStoreKeyIssueDisableFeatureFee = []byte("IssueDisableFeatureFee")
-	ParamStoreKeyDescribeFee            = []byte("IssueDescribeFee")
+	ParamStoreKeyIssueFee         = []byte("IssueFee")
+	ParamStoreKeyMintFee          = []byte("MintFee")
+	ParamStoreKeyFreezeFee        = []byte("FreezeFee")
+	ParamStoreKeyUnFreezeFee      = []byte("UnfreezeFee")
+	ParamStoreKeyBurnFee          = []byte("BurnFee")
+	ParamStoreKeyBurnFromFee      = []byte("BurnFromFee")
+	ParamStoreKeyTransferOwnerFee = []byte("TransferOwnerFee")
+	ParamStoreKeyDescribeFee      = []byte("DescribeFee")
 )
 
 var _ params.ParamSet = &Params{}
 
 // Param Config issue for issue
 type Params struct {
-	IssueFee          sdk.Coin `json:"issue_fee"`
-	MintFee           sdk.Coin `json:"mint_fee"`
-	FreezeFee         sdk.Coin `json:"freeze_fee"`
-	UnFreezeFee       sdk.Coin `json:"unfreeze_fee"`
-	BurnFee           sdk.Coin `json:"burn_fee"`
-	BurnFromFee       sdk.Coin `json:"burn_from_fee"`
-	TransferOwnerFee  sdk.Coin `json:"transfer_owner_fee"`
-	DisableFeatureFee sdk.Coin `json:"disable_feature_fee"`
-	DescribeFee       sdk.Coin `json:"describe_fee"`
+	IssueFee         sdk.Coin `json:"issue_fee"`
+	MintFee          sdk.Coin `json:"mint_fee"`
+	FreezeFee        sdk.Coin `json:"freeze_fee"`
+	UnFreezeFee      sdk.Coin `json:"unfreeze_fee"`
+	BurnFee          sdk.Coin `json:"burn_fee"`
+	BurnFromFee      sdk.Coin `json:"burn_from_fee"`
+	TransferOwnerFee sdk.Coin `json:"transfer_owner_fee"`
+	DescribeFee      sdk.Coin `json:"describe_fee"`
 }
 
 // ParamKeyTable for auth module
@@ -59,7 +57,6 @@ func (p *Params) ParamSetPairs() params.ParamSetPairs {
 		{ParamStoreKeyBurnFee, &p.BurnFee},
 		{ParamStoreKeyBurnFromFee, &p.BurnFromFee},
 		{ParamStoreKeyTransferOwnerFee, &p.TransferOwnerFee},
-		{ParamStoreKeyIssueDisableFeatureFee, &p.DisableFeatureFee},
 		{ParamStoreKeyDescribeFee, &p.DescribeFee},
 	}
 }
@@ -74,15 +71,14 @@ func (dp Params) Equal(dp2 Params) bool {
 // DefaultParams returns a default set of parameters.
 func DefaultParams(denom string) Params {
 	return Params{
-		IssueFee:          sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		MintFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		FreezeFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		UnFreezeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		BurnFee:           sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		BurnFromFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		TransferOwnerFee:  sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		DisableFeatureFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
-		DescribeFee:       sdk.NewCoin(denom, sdk.NewIntWithDecimal(1, 18)),
+		IssueFee:         sdk.NewCoin(denom, sdk.NewIntWithDecimal(20000, 18)),
+		MintFee:          sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		FreezeFee:        sdk.NewCoin(denom, sdk.NewIntWithDecimal(20000, 18)),
+		UnFreezeFee:      sdk.NewCoin(denom, sdk.NewIntWithDecimal(20000, 18)),
+		BurnFee:          sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		BurnFromFee:      sdk.NewCoin(denom, sdk.NewIntWithDecimal(10000, 18)),
+		TransferOwnerFee: sdk.NewCoin(denom, sdk.NewIntWithDecimal(20000, 18)),
+		DescribeFee:      sdk.NewCoin(denom, sdk.NewIntWithDecimal(4000, 18)),
 	}
 }
 
@@ -95,7 +91,6 @@ func (dp Params) String() string {
   BurnFee:			%s
   BurnFromFee:			%s
   TransferOwnerFee:			%s
-  DisableFeatureFee:			%s
   DescribeFee:			%s`,
 		dp.IssueFee.String(),
 		dp.MintFee.String(),
@@ -104,7 +99,6 @@ func (dp Params) String() string {
 		dp.BurnFee.String(),
 		dp.BurnFromFee.String(),
 		dp.TransferOwnerFee.String(),
-		dp.DisableFeatureFee.String(),
 		dp.DescribeFee.String(),
 	)
 }

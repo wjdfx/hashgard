@@ -2,9 +2,10 @@ package gov
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
-	codec "github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
 
@@ -513,8 +514,8 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 	switch proposal.ProposalType() {
 	case ProposalTypeParameterChange:
 		proposalParams := proposal.ProposalContent.(*ParameterChangeProposal).ProposalParams
-		for _, proposalParam := range proposalParams {
-			err := keeper.SetProposalParam(ctx, proposalParam)
+		for _, param := range proposalParams {
+			err := keeper.SetProposalParam(ctx, param)
 			if err != nil {
 				return err
 			}
@@ -537,6 +538,20 @@ func (keeper Keeper) ExecuteProposal(ctx sdk.Context, proposal Proposal) sdk.Err
 }
 
 func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalParam) sdk.Error {
+
+	if strings.HasPrefix(proposalParam.Key, BoxModule) || strings.HasPrefix(proposalParam.Key, IssueModule) {
+		subspaceKey := GetParamSpaceFromKey(proposalParam.Key)
+		subspaceSet, _ := keeper.paramsKeeper.GetSubspace(subspaceKey)
+		key := CamelString(GetParamKey(proposalParam.Key))
+		if strings.HasSuffix(key, Fee) {
+			coin, _ := sdk.ParseCoin(proposalParam.Value)
+			subspaceSet.Set(ctx, []byte(key), &coin)
+		} else {
+			subspaceSet.Set(ctx, []byte(key), &proposalParam.Value)
+		}
+		return nil
+	}
+
 	switch proposalParam.Key {
 	case communityTax:
 		val, err := sdk.NewDecFromStr(proposalParam.Value)

@@ -20,7 +20,7 @@ import (
 // RegisterRoutes - Central function to define routes that get registered by the main application
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router, cdc *codec.Codec) {
 	r.HandleFunc(fmt.Sprintf("/%s/%s", types.QuerierRoute, types.QueryParams), queryParamsHandlerFn(cdc, cliCtx)).Methods("GET")
-	r.HandleFunc(fmt.Sprintf("/%s/{%s}", types.QuerierRoute, IssueID), queryIssueHandlerFn(cdc, cliCtx)).Methods("GET")
+	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QueryIssue, IssueID), queryIssueHandlerFn(cdc, cliCtx)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/%s", types.QuerierRoute, types.QueryIssues), queryIssuesHandlerFn(cdc, cliCtx)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}", types.QuerierRoute, types.QuerySearch, Symbol), queryIssueSearchHandlerFn(cdc, cliCtx)).Methods("GET")
 	r.HandleFunc(fmt.Sprintf("/%s/%s/{%s}/{%s}", types.QuerierRoute, types.QueryFreeze, IssueID, restAddress), queryIssueFreezeHandlerFn(cdc, cliCtx)).Methods("GET")

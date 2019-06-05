@@ -95,9 +95,6 @@ func ValidateGenesis(data GenesisState) error {
 	if data.Params.TransferOwnerFee.IsNegative() {
 		return fmt.Errorf("invalid transfer owner fee: %s", data.Params.TransferOwnerFee.String())
 	}
-	if data.Params.DisableFeatureFee.IsNegative() {
-		return fmt.Errorf("invalid disable feature fee: %s", data.Params.DisableFeatureFee.String())
-	}
 	if data.Params.DescribeFee.IsNegative() {
 		return fmt.Errorf("invalid describe fee: %s", data.Params.DescribeFee.String())
 	}
