@@ -57,7 +57,7 @@ func CreateLockBox(t *testing.T, f *Fixtures, issueID string, sender sdk.AccAddr
 	boxId := string(bytes[2:])
 	return boxId, params
 }
-func CreateDepositBox(t *testing.T, f *Fixtures, issueAID string, issueBID string, sender sdk.AccAddress) (string, *params.BoxInjectParams) {
+func CreateDepositBox(t *testing.T, f *Fixtures, issueAID string, issueBID string, sender sdk.AccAddress) (string, *params.BoxDepositParams) {
 	params := boxtests.GetDepositBoxInfo()
 
 	params.TotalAmount.Token.Amount = BoxAmount
