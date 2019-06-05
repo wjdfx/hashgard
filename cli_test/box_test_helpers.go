@@ -19,7 +19,6 @@ import (
 
 //___________________________________________________________________________________
 // hashgardcli box
-
 // TxLockBoxCreate is hashgardcli lock create
 //hashgardcli lock create foocoin 100coin174876e800 1557983880 --from joehe -y
 func (f *Fixtures) TxLockBoxCreate(sender string, params *params.BoxLockParams, flags ...string) (bool, string, string) {
