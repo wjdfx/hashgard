@@ -2,6 +2,7 @@ package gov
 
 import (
 	"strings"
+	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -54,44 +55,37 @@ func ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
 	// check key
 	switch proposalParam.Key {
 	case communityTax, inflation, minSignedPerWindow, slashFractionDowntime:
-		var val sdk.Dec
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := sdk.NewDecFromStr(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 	case minDeposit:
-		var val sdk.Coins
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := sdk.ParseCoins(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 	case downtimeJailDuration, unbondingTime:
-		var val time.Duration
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := time.ParseDuration(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 	case signedBlocksWindow:
-		var val int64
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := strconv.ParseInt(proposalParam.Value, 10, 64)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 	case maxValidators:
-		var val uint16
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := strconv.ParseUint(proposalParam.Value, 10, 16)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 	case inflationBase:
-		var val sdk.Int
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		_, ok := sdk.NewIntFromString(proposalParam.Value)
+		if !ok {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, "invalid string to Int")
 		}
 	case foundationAddress:
-		var val sdk.AccAddress
-		err := cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		_, err := sdk.AccAddressFromBech32(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}

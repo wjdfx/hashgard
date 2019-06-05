@@ -2,6 +2,7 @@ package gov
 
 import (
 	"strings"
+	"strconv"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -553,8 +554,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 
 	switch proposalParam.Key {
 	case communityTax:
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := sdk.NewDecFromStr(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -562,19 +562,17 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case minDeposit:
-		var val sdk.Coins
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		coins, err := sdk.ParseCoins(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 		tParams := keeper.GetDepositParams(ctx)
-		tParams.MinDeposit = val
+		tParams.MinDeposit = coins
 		keeper.setDepositParams(ctx, tParams)
 		return nil
 
 	case inflation:
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := sdk.NewDecFromStr(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -584,10 +582,9 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case inflationBase:
-		var val sdk.Int
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
-		if err != nil {
-			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
+		val, ok := sdk.NewIntFromString(proposalParam.Value)
+		if !ok {
+			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, "invalid string to Int")
 		}
 		tParams := keeper.mintKeeper.GetParams(ctx)
 		tParams.InflationBase = val
@@ -595,8 +592,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case signedBlocksWindow:
-		var val int64
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := strconv.ParseInt(proposalParam.Value, 10, 64)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -606,8 +602,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case minSignedPerWindow:
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := sdk.NewDecFromStr(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -617,8 +612,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case downtimeJailDuration:
-		var val time.Duration
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := time.ParseDuration(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -628,8 +622,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case slashFractionDowntime:
-		var val sdk.Dec
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := sdk.NewDecFromStr(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -639,8 +632,7 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case unbondingTime:
-		var val time.Duration
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := time.ParseDuration(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
@@ -650,19 +642,17 @@ func (keeper Keeper) SetProposalParam(ctx sdk.Context, proposalParam ProposalPar
 		return nil
 
 	case maxValidators:
-		var val uint16
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := strconv.ParseUint(proposalParam.Value, 10, 16)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
 		tParams := keeper.stakingKeeper.GetParams(ctx)
-		tParams.MaxValidators = val
+		tParams.MaxValidators = uint16(val)
 		keeper.stakingKeeper.SetParams(ctx, tParams)
 		return nil
 
 	case foundationAddress:
-		var val sdk.AccAddress
-		err := keeper.cdc.UnmarshalJSON([]byte(proposalParam.Value), &val)
+		val, err := sdk.AccAddressFromBech32(proposalParam.Value)
 		if err != nil {
 			return ErrInvalidParamValue(DefaultCodespace, proposalParam.Key, proposalParam.Value, err.Error())
 		}
