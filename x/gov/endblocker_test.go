@@ -2,6 +2,7 @@ package gov
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -250,17 +251,17 @@ func TestParameterChangePassedVotingPeriod(t *testing.T) {
 	niceCoin, _ := sdk.ParseCoin(niceVal + sdk.DefaultBondDenom)
 
 	proposalParam := []ProposalParam{
-		//{Key: communityTax, Value: niceVal},
-		//{Key: minDeposit, Value: niceVal + sdk.DefaultBondDenom},
-		//{Key: inflation, Value: niceVal},
-		//{Key: inflationBase, Value: niceVal},
-		//{Key: signedBlocksWindow, Value: niceVal},
-		//{Key: minSignedPerWindow, Value: niceVal},
-		//{Key: downtimeJailDuration, Value: niceVal + "s"},
-		//{Key: slashFractionDowntime, Value: niceVal},
-		//{Key: unbondingTime, Value: niceVal},
-		//{Key: maxValidators, Value: niceVal},
-		//{Key: foundationAddress, Value: "gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7"},
+		{Key: communityTax, Value: niceVal},
+		{Key: minDeposit, Value: niceVal + sdk.DefaultBondDenom},
+		{Key: inflation, Value: niceVal},
+		{Key: inflationBase, Value: niceVal},
+		{Key: signedBlocksWindow, Value: niceVal},
+		{Key: minSignedPerWindow, Value: niceVal},
+		{Key: downtimeJailDuration, Value: niceVal + "s"},
+		{Key: slashFractionDowntime, Value: niceVal},
+		{Key: unbondingTime, Value: niceVal + "s"},
+		{Key: maxValidators, Value: niceVal},
+		{Key: foundationAddress, Value: addrs[0].String()},
 	}
 
 	boxDefaultParams := box.DefaultParams(sdk.DefaultBondDenom)
@@ -273,7 +274,7 @@ func TestParameterChangePassedVotingPeriod(t *testing.T) {
 
 	proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, sdk.TokensFromTendermintPower(5))}
 	newProposalMsg := NewMsgSubmitProposal("Test", "test", ProposalTypeParameterChange, addrs[0], proposalCoins, proposalParam, TaxUsage{})
-
+	fmt.Println(string(newProposalMsg.GetSignBytes()))
 	res := govHandler(ctx, newProposalMsg)
 	require.True(t, res.IsOK())
 	var proposalID uint64
@@ -283,7 +284,8 @@ func TestParameterChangePassedVotingPeriod(t *testing.T) {
 	proposal.Status = StatusPassed
 	keeper.SetProposal(ctx, proposal)
 
-	keeper.ExecuteProposal(ctx, proposal)
+	err := keeper.ExecuteProposal(ctx, proposal)
+	require.NoError(t, err)
 
 	boxParams := boxKeeper.GetParams(ctx)
 	issueParams := issueKeeper.GetParams(ctx)

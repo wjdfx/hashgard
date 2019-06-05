@@ -1,8 +1,8 @@
 package gov
 
 import (
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
