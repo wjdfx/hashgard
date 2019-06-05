@@ -35,7 +35,7 @@ import (
 func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper Keeper, sk staking.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
-	mapp, keeper, sk, _, _, addrs, pubKeys, privKeys = getMockAppParams(t, 2, GenesisState{}, nil)
+	mapp, keeper, sk, _, _, addrs, pubKeys, privKeys = getMockAppParams(t, numGenAccs, genState, genAccs)
 	return mapp, keeper, sk, addrs, pubKeys, privKeys
 }
 
