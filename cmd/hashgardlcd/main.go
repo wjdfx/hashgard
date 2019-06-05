@@ -18,9 +18,9 @@ import (
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/libs/cli"
 
+	deposit "github.com/hashgard/hashgard/x/deposit/client/rest"
+	future "github.com/hashgard/hashgard/x/future/client/rest"
 	issue "github.com/hashgard/hashgard/x/issue/client/rest"
-	deposit "github.com/hashgard/hashgard/x/lock/client/rest"
-	future "github.com/hashgard/hashgard/x/lock/client/rest"
 	lock "github.com/hashgard/hashgard/x/lock/client/rest"
 
 	distributioncmd "github.com/cosmos/cosmos-sdk/x/distribution"

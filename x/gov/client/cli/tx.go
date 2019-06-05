@@ -261,6 +261,9 @@ func getParamFromString(paramStrArr []string) (gov.ProposalParams, error) {
 		if len(str) != 2 {
 			return gov.ProposalParams{}, fmt.Errorf("%s is not valid", paramStr)
 		}
+		//str = []string{"mint/Inflation","0.0000000000"}
+		//params.GetParamSpaceFromKey(str[0]) == "mint"
+		//params.GetParamKey(str[0])          == "Inflation"
 		proposalParams = append(proposalParams,
 			gov.ProposalParam{
 				Key:   str[0],

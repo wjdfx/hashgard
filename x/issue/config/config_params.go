@@ -16,15 +16,14 @@ func init() {
 
 var (
 	// key for constant fee parameter
-	ParamStoreKeyIssueFee               = []byte("IssueFee")
-	ParamStoreKeyMintFee                = []byte("IssueMintFee")
-	ParamStoreKeyFreezeFee              = []byte("IssueFreezeFee")
-	ParamStoreKeyUnFreezeFee            = []byte("IssueUnFreezeFee")
-	ParamStoreKeyBurnFee                = []byte("IssueBurnFee")
-	ParamStoreKeyBurnFromFee            = []byte("IssueBurnFromFee")
-	ParamStoreKeyTransferOwnerFee       = []byte("IssueTransferOwnerFee")
-	ParamStoreKeyIssueDisableFeatureFee = []byte("IssueDisableFeatureFee")
-	ParamStoreKeyDescribeFee            = []byte("IssueDescribeFee")
+	ParamStoreKeyIssueFee         = []byte("IssueFee")
+	ParamStoreKeyMintFee          = []byte("MintFee")
+	ParamStoreKeyFreezeFee        = []byte("FreezeFee")
+	ParamStoreKeyUnFreezeFee      = []byte("UnfreezeFee")
+	ParamStoreKeyBurnFee          = []byte("BurnFee")
+	ParamStoreKeyBurnFromFee      = []byte("BurnFromFee")
+	ParamStoreKeyTransferOwnerFee = []byte("TransferOwnerFee")
+	ParamStoreKeyDescribeFee      = []byte("DescribeFee")
 )
 
 var _ params.ParamSet = &Params{}

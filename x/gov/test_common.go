@@ -6,6 +6,14 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/hashgard/hashgard/x/issue"
+
+	keeper2 "github.com/hashgard/hashgard/x/distribution/keeper"
+
+	boxtypes "github.com/hashgard/hashgard/x/box/types"
+	issuetypes "github.com/hashgard/hashgard/x/issue/types"
+
+	"github.com/hashgard/hashgard/x/box"
 	"github.com/stretchr/testify/require"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -18,9 +26,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
-// initialize the mock application for this module
 func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []auth.Account) (
 	mapp *mock.App, keeper Keeper, sk staking.Keeper, addrs []sdk.AccAddress,
+	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
+	mapp, keeper, sk, _, _, addrs, pubKeys, privKeys = getMockAppParams(t, 2, GenesisState{}, nil)
+	return mapp, keeper, sk, addrs, pubKeys, privKeys
+}
+
+// initialize the mock application for this module
+func getMockAppParams(t *testing.T, numGenAccs int, genState GenesisState, genAccs []auth.Account) (
+	mapp *mock.App, keeper Keeper, sk staking.Keeper, boxKeeper box.Keeper, issueKeeper issue.Keeper, addrs []sdk.AccAddress,
 	pubKeys []crypto.PubKey, privKeys []crypto.PrivKey) {
 
 	mapp = mock.NewApp()
@@ -50,13 +65,23 @@ func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []a
 		sk,
 	)
 
+	keyBox := sdk.NewKVStoreKey(boxtypes.StoreKey)
+	keyIssue := sdk.NewKVStoreKey(issuetypes.StoreKey)
+	//fck := keeper2.DummyFeeCollectionKeeper{}
+
+	issueKeeper = issue.NewKeeper(mapp.Cdc, keyIssue, mapp.ParamsKeeper, mapp.ParamsKeeper.Subspace(issuetypes.ModuleName), &ck,
+		keeper2.DummyFeeCollectionKeeper{}, issuetypes.DefaultCodespace)
+
+	boxKeeper = box.NewKeeper(mapp.Cdc, keyBox, mapp.ParamsKeeper, mapp.ParamsKeeper.Subspace(boxtypes.ModuleName),
+		&ck, issueKeeper, keeper2.DummyFeeCollectionKeeper{}, boxtypes.DefaultCodespace)
+
 	mapp.Router().AddRoute(RouterKey, NewHandler(keeper))
 	mapp.QueryRouter().AddRoute(QuerierRoute, NewQuerier(keeper))
 
 	mapp.SetEndBlocker(getEndBlocker(keeper))
-	mapp.SetInitChainer(getInitChainer(mapp, keeper, sk, genState))
+	mapp.SetInitChainer(getInitChainer(mapp, keeper, issueKeeper, boxKeeper, sk, genState))
 
-	require.NoError(t, mapp.CompleteSetup(keyStaking, tkeyStaking, keyGov))
+	require.NoError(t, mapp.CompleteSetup(keyStaking, tkeyStaking, keyGov, keyIssue, keyBox))
 
 	valTokens := sdk.TokensFromTendermintPower(42)
 	if genAccs == nil || len(genAccs) == 0 {
@@ -66,7 +91,7 @@ func getMockApp(t *testing.T, numGenAccs int, genState GenesisState, genAccs []a
 
 	mock.SetGenesis(mapp, genAccs)
 
-	return mapp, keeper, sk, addrs, pubKeys, privKeys
+	return mapp, keeper, sk, boxKeeper, issueKeeper, addrs, pubKeys, privKeys
 }
 
 // gov and staking endblocker
@@ -80,7 +105,7 @@ func getEndBlocker(keeper Keeper) sdk.EndBlocker {
 }
 
 // gov and staking initchainer
-func getInitChainer(mapp *mock.App, keeper Keeper, stakingKeeper staking.Keeper, genState GenesisState) sdk.InitChainer {
+func getInitChainer(mapp *mock.App, keeper Keeper, issueKeeper issue.Keeper, boxKeeper box.Keeper, stakingKeeper staking.Keeper, genState GenesisState) sdk.InitChainer {
 	return func(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
 		mapp.InitChainer(ctx, req)
 
@@ -94,6 +119,8 @@ func getInitChainer(mapp *mock.App, keeper Keeper, stakingKeeper staking.Keeper,
 		}
 		if genState.IsEmpty() {
 			InitGenesis(ctx, keeper, DefaultGenesisState())
+			box.InitGenesis(ctx, boxKeeper, box.DefaultGenesisState())
+			issue.InitGenesis(ctx, issueKeeper, issue.DefaultGenesisState())
 		} else {
 			InitGenesis(ctx, keeper, genState)
 		}

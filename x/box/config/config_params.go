@@ -15,10 +15,9 @@ var (
 	ParamStoreKeyLockCreateFee        = []byte("LockCreateFee")
 	ParamStoreKeyDepositBoxCreateFee  = []byte("DepositBoxCreateFee")
 	ParamStoreKeyFutureBoxCreateFee   = []byte("FutureBoxCreateFee")
-	ParamStoreKeyBoxDisableFeatureFee = []byte("BoxDisableFeatureFee")
-	ParamStoreKeyBoxDescribeFee       = []byte("BoxDescribeFee")
+	ParamStoreKeyBoxDisableFeatureFee = []byte("DisableFeatureFee")
+	ParamStoreKeyBoxDescribeFee       = []byte("DescribeFee")
 )
-
 var _ params.ParamSet = &Params{}
 
 // Param Config issue for issue

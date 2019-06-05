@@ -17,8 +17,8 @@ type PostLockBoxReq struct {
 	params.BoxLockParams `json:"box"`
 }
 type PostDepositBoxReq struct {
-	BaseReq                rest.BaseReq `json:"base_req"`
-	params.BoxInjectParams `json:"box"`
+	BaseReq                 rest.BaseReq `json:"base_req"`
+	params.BoxDepositParams `json:"box"`
 }
 type PostFutureBoxReq struct {
 	BaseReq                rest.BaseReq `json:"base_req"`
@@ -75,7 +75,7 @@ func PostDepositBoxCreateHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) 
 			return
 		}
 
-		params := params.BoxInjectParams{
+		params := params.BoxDepositParams{
 			Name:        req.Name,
 			TotalAmount: req.TotalAmount,
 			Description: req.Description,

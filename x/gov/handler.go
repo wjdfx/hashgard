@@ -2,6 +2,7 @@ package gov
 
 import (
 	"fmt"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
@@ -35,6 +36,28 @@ func handleMsgSubmitProposal(ctx sdk.Context, keeper Keeper, msg MsgSubmitPropos
 		softwareUpgradeProposal := NewSoftwareUpgradeProposal(msg.Title, msg.Description)
 		content = &softwareUpgradeProposal
 	case ProposalTypeParameterChange:
+		for _, param := range msg.ProposalParams {
+			if strings.HasPrefix(param.Key, BoxModule) || strings.HasPrefix(param.Key, IssueModule) {
+				subspace := GetParamSpaceFromKey(param.Key)
+				if p, ok := keeper.paramsKeeper.GetSubspace(subspace); ok {
+					key := CamelString(GetParamKey(param.Key))
+					if !p.Has(ctx, []byte(key)) {
+						return ErrInvalidParamValue(DefaultCodespace, param.Key, param.Value, "undefined").Result()
+					}
+					if strings.HasSuffix(key, Fee) {
+						coin, err := sdk.ParseCoin(param.Value)
+						if err != nil {
+							return sdk.ErrInvalidCoins(param.Value).Result()
+						}
+						if coin.IsNegative() {
+							return sdk.ErrInvalidCoins(param.Value).Result()
+						}
+					}
+				} else {
+					return ErrInvalidParamValue(DefaultCodespace, subspace, subspace, "undefined").Result()
+				}
+			}
+		}
 		parameterChangeProposal := NewParameterChangeProposal(msg.Title, msg.Description, msg.ProposalParams)
 		content = &parameterChangeProposal
 	case ProposalTypeTaxUsage:

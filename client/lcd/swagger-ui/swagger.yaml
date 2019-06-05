@@ -2,7 +2,7 @@
 swagger: "2.0"
 info:
   version: "3.0"
-  title: LCD for Hashgard-24
+  title: LCD for Hashgard
   description: A REST interface for state queries, transaction generation and broadcasting.
 tags:
 - name: ICS0
@@ -18,11 +18,15 @@ tags:
 - name: ICS24
   description: Fee distribution module APIs
 - name: ICS25
-  description: Token lock-up subcommands
+  description: Token lock-up APIs
 - name: HRC10
   description: Issue module APIs
 - name: HRC11
-  description: Exchange module APIs
+  description: Exchange module (HRC11)  APIs
+- name: HRC12
+  description: Deposit protocol (HRC12) APIs
+- name: HRC13
+  description: Future payment protocol (HRC13) APIs
 - name: version
   description: Query app version
 schemes:
@@ -1820,7 +1824,7 @@ paths:
       responses:
         500:
           description: Internal Server Error
-  /lock/{id}:
+  /lock/query/{id}:
     get:
       summary: Query details for a lock. You can find the id by running hashgardcli lock list
       produces:
@@ -1897,7 +1901,7 @@ paths:
         - ICS25
       parameters:
         - description: valid value of `"name"` ,  `"total_amount"`, `"end_time"`
-          name: post_lock_body
+          name: post_body
           in: body
           required: true
           schema:
@@ -1931,7 +1935,7 @@ paths:
           in: path
           x-example: 'boxaa3jlxpt2ps'
         - description:
-          name: post_issue_body
+          name: post_body
           in: body
           required: true
           schema:
@@ -1947,8 +1951,664 @@ paths:
           description: Tx was succesfully generated
           schema:
             $ref: "#/definitions/StdTx"
-        400:
-          description: Invalid issue body
+        500:
+          description: Internal Server Error
+  /deposit/params:
+    get:
+      summary: Query deposit params
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      responses:
+        500:
+          description: Internal Server Error
+  /deposit/query/{id}:
+    get:
+      summary: Query details for a deposit. You can find the id by running hashgardcli deposit list
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/DepositBoxInfo"
+        500:
+          description: Internal Server Error
+  /deposit/list:
+    get:
+      summary: Query all or one of the account deposit list, the limit default is 30
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: address
+          required: false
+          in: query
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: integer
+          name: limit
+          required: false
+          in: query
+          x-example: 30
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/DepositBoxInfo"
+        500:
+          description: Internal Server Error
+  /deposit/search/{name}:
+    get:
+      summary: Search deposit based on name
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: name
+          required: true
+          in: path
+          x-example: 'fo'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/DepositBoxInfo"
+        500:
+          description: Internal Server Error
+  /deposit:
+    post:
+      summary: Create a new deposit
+      description: Create a new deposit
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - description: valid value of `"name"` ,  `"total_amount"`
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              deposit:
+                $ref: "#/definitions/DepositParams"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/interest/inject/{id}/{amount}:
+    post:
+      summary: Inject interest to the deposit box
+      description: Inject interest to the deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/interest/cancel/{id}/{amount}:
+    post:
+      summary: Cancel interest to the deposit box
+      description: Cancel interest to the deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/inject/{id}/{amount}:
+    post:
+      summary: Deposit to the deposit box
+      description: Deposit to the deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/cancel/{id}/{amount}:
+    post:
+      summary: Cancel to the deposit box
+      description: Cancel to the deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/withdraw/{id}:
+    post:
+      summary: Withdraw from the deposit box
+      description: Withdraw from the deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/feature/disable/{id}/transfer:
+    post:
+      summary: Disable transfer from a deposit box
+      description: Disable transfer from a deposit box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /deposit/description/{id}:
+    post:
+      summary: Describe a deposit
+      description: Owner can set description of the deposit, and the description need to be in json format. You can customize preferences or use recommended templates.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC12
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxaa3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/params:
+    get:
+      summary: Query future params
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      responses:
+        500:
+          description: Internal Server Error
+  /future/query/{id}:
+    get:
+      summary: Query details for a future. You can find the id by running hashgardcli future list
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FutureBoxInfo"
+        500:
+          description: Internal Server Error
+  /future/list:
+    get:
+      summary: Query all or one of the account future list, the limit default is 30
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: address
+          required: false
+          in: query
+          x-example: 'gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7'
+        - type: integer
+          name: limit
+          required: false
+          in: query
+          x-example: 30
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FutureBoxInfo"
+        500:
+          description: Internal Server Error
+  /future/search/{name}:
+    get:
+      summary: Search future based on name
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: name
+          required: true
+          in: path
+          x-example: 'fo'
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/FutureBoxInfo"
+        500:
+          description: Internal Server Error
+  /future:
+    post:
+      summary: Create a new future
+      description: Create a new future
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - description: valid value of `"name"` ,  `"total_amount"`
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              future:
+                $ref: "#/definitions/FutureParams"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/inject/{id}/{amount}:
+    post:
+      summary: Future to the future box
+      description: Future to the future box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/cancel/{id}/{amount}:
+    post:
+      summary: Cancel to the future box
+      description: Cancel to the future box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+        - type: string
+          name: amount
+          required: true
+          in: path
+          x-example: '1000'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/withdraw/{id}:
+    post:
+      summary: Withdraw from the future box
+      description: Withdraw from the future box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/feature/disable/{id}/transfer:
+    post:
+      summary: Disable transfer from a future box
+      description: Disable transfer from a future box
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
+        500:
+          description: Internal Server Error
+  /future/description/{id}:
+    post:
+      summary: Describe a future
+      description: Owner can set description of the future, and the description need to be in json format. You can customize preferences or use recommended templates.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      tags:
+        - HRC13
+      parameters:
+        - type: string
+          name: id
+          required: true
+          in: path
+          x-example: 'boxac3jlxpt2ps'
+        - description:
+          name: post_body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              base_req:
+                $ref: "#/definitions/BaseReq"
+              description:
+                type: string
+                example: "{}"
+      responses:
+        200:
+          description: Tx was succesfully generated
+          schema:
+            $ref: "#/definitions/StdTx"
         500:
           description: Internal Server Error
   /issue/params:
@@ -1961,7 +2621,7 @@ paths:
       responses:
         500:
           description: Internal Server Error
-  /issue/{issueId}:
+  /issue/query/{issueId}:
     get:
       summary: Query a issue
       produces:
@@ -3757,7 +4417,7 @@ definitions:
       name:
         type: string
       created_time:
-        type: string
+        type: integer
       total_amount:
         type: string
       description:
@@ -3777,3 +4437,100 @@ definitions:
         type: string
       lock:
         $ref: "#/definitions/LockBox"
+  Interest:
+    type: object
+    properties:
+      token:
+        $ref: "#/definitions/Coin"
+      decimals:
+        type: integer
+  DepositBox:
+    type: object
+    properties:
+      start_time:
+        type: integer
+      establish_time:
+        type: integer
+      maturity_time:
+        type: integer
+      bottom_line:
+        type: string
+      price:
+        type: string
+      interest:
+        $ref: "#/definitions/Interest"
+  DepositParams:
+    type: object
+    properties:
+      name:
+        type: string
+      total_amount:
+        type: string
+      description:
+        type: string
+      transfer_disabled:
+        type: boolean
+      deposit:
+        $ref: "#/definitions/DepositBox"
+  DepositBoxInfo:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      owner:
+        type: string
+      name:
+        type: string
+      created_time:
+        type: integer
+      total_amount:
+        type: string
+      description:
+        type: string
+      transfer_disabled:
+        type: boolean
+      deposit:
+        $ref: "#/definitions/DepositBox"
+  FutureBox:
+    type: object
+    properties:
+      time:
+        type: string
+      receivers:
+        type: string
+  FutureParams:
+    type: object
+    properties:
+      name:
+        type: string
+      total_amount:
+        type: string
+      description:
+        type: string
+      transfer_disabled:
+        type: boolean
+      deposit:
+        $ref: "#/definitions/FutureBox"
+  FutureBoxInfo:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      owner:
+        type: string
+      name:
+        type: string
+      created_time:
+        type: integer
+      total_amount:
+        type: string
+      description:
+        type: string
+      transfer_disabled:
+        type: boolean
+      future:
+        $ref: "#/definitions/FutureBox"

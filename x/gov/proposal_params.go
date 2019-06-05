@@ -1,6 +1,7 @@
 package gov
 
 import (
+	"strings"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -21,6 +22,15 @@ const (
 	unbondingTime         = "staking/unbonding_time"
 )
 
+//fee
+const (
+	Fee         = "Fee"
+	BoxModule   = "box/"
+	IssueModule = "issue/"
+)
+
+//fee/box/lock_create=10000,fee/box/deposit_box_create=10000,fee/box/future_box_create=10000,
+//fee/box/disable_feature=10000,fee/box/describe_fee=10000,fee/issue/create=10000,fee/issue/mint=10000
 var cdc = MakeCodec()
 
 type ProposalParam struct {
@@ -38,6 +48,9 @@ func MakeCodec() *codec.Codec {
 }
 
 func ValidateProposalParam(proposalParam ProposalParam) sdk.Error {
+	if strings.HasPrefix(proposalParam.Key, BoxModule) || strings.HasPrefix(proposalParam.Key, IssueModule) {
+		return nil
+	}
 	// check key
 	switch proposalParam.Key {
 	case communityTax, inflation, minSignedPerWindow, slashFractionDowntime:

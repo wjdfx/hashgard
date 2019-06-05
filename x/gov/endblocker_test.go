@@ -1,8 +1,13 @@
 package gov
 
 import (
+	"encoding/json"
+	"strings"
 	"testing"
 	"time"
+
+	"github.com/hashgard/hashgard/x/box"
+	"github.com/hashgard/hashgard/x/issue"
 
 	"github.com/stretchr/testify/require"
 
@@ -221,4 +226,83 @@ func TestTickPassedVotingPeriod(t *testing.T) {
 	activeQueue = keeper.ActiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
 	require.False(t, activeQueue.Valid())
 	activeQueue.Close()
+}
+
+func TestParameterChangePassedVotingPeriod(t *testing.T) {
+	mapp, keeper, _, boxKeeper, issueKeeper, addrs, _, _ := getMockAppParams(t, 10, GenesisState{}, nil)
+	SortAddresses(addrs)
+
+	header := abci.Header{Height: mapp.LastBlockHeight() + 1}
+	mapp.BeginBlock(abci.RequestBeginBlock{Header: header})
+
+	ctx := mapp.BaseApp.NewContext(false, abci.Header{})
+	keeper.ck.SetSendEnabled(ctx, true)
+	govHandler := NewHandler(keeper)
+
+	inactiveQueue := keeper.InactiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
+	require.False(t, inactiveQueue.Valid())
+	inactiveQueue.Close()
+	activeQueue := keeper.ActiveProposalQueueIterator(ctx, ctx.BlockHeader().Time)
+	require.False(t, activeQueue.Valid())
+	activeQueue.Close()
+
+	niceVal := "9"
+	niceCoin, _ := sdk.ParseCoin(niceVal + sdk.DefaultBondDenom)
+
+	proposalParam := []ProposalParam{
+		//{Key: communityTax, Value: niceVal},
+		//{Key: minDeposit, Value: niceVal + sdk.DefaultBondDenom},
+		//{Key: inflation, Value: niceVal},
+		//{Key: inflationBase, Value: niceVal},
+		//{Key: signedBlocksWindow, Value: niceVal},
+		//{Key: minSignedPerWindow, Value: niceVal},
+		//{Key: downtimeJailDuration, Value: niceVal + "s"},
+		//{Key: slashFractionDowntime, Value: niceVal},
+		//{Key: unbondingTime, Value: niceVal},
+		//{Key: maxValidators, Value: niceVal},
+		//{Key: foundationAddress, Value: "gard12k2c9nzkz304ldku0jhz0urejtfqmhe4ys5tm7"},
+	}
+
+	boxDefaultParams := box.DefaultParams(sdk.DefaultBondDenom)
+	jsonStr, _ := json.Marshal(boxDefaultParams)
+	proposalParam = appendFeeParams(jsonStr, BoxModule, proposalParam, niceCoin)
+
+	issueDefaultParams := issue.DefaultParams(sdk.DefaultBondDenom)
+	jsonStr, _ = json.Marshal(issueDefaultParams)
+	proposalParam = appendFeeParams(jsonStr, IssueModule, proposalParam, niceCoin)
+
+	proposalCoins := sdk.Coins{sdk.NewCoin(sdk.DefaultBondDenom, sdk.TokensFromTendermintPower(5))}
+	newProposalMsg := NewMsgSubmitProposal("Test", "test", ProposalTypeParameterChange, addrs[0], proposalCoins, proposalParam, TaxUsage{})
+
+	res := govHandler(ctx, newProposalMsg)
+	require.True(t, res.IsOK())
+	var proposalID uint64
+	keeper.cdc.MustUnmarshalBinaryLengthPrefixed(res.Data, &proposalID)
+
+	proposal, _ := keeper.GetProposal(ctx, proposalID)
+	proposal.Status = StatusPassed
+	keeper.SetProposal(ctx, proposal)
+
+	keeper.ExecuteProposal(ctx, proposal)
+
+	boxParams := boxKeeper.GetParams(ctx)
+	issueParams := issueKeeper.GetParams(ctx)
+
+	require.Equal(t, boxParams.LockCreateFee.Amount, niceCoin.Amount)
+	require.Equal(t, issueParams.IssueFee.Amount, niceCoin.Amount)
+}
+
+func appendFeeParams(json []byte, module string, proposalParam []ProposalParam, niceCoin sdk.Coin) []ProposalParam {
+	content := string(json)
+	content = strings.ReplaceAll(content, "{", "")
+	content = strings.ReplaceAll(content, "}", "")
+	content = strings.ReplaceAll(content, "\"", "")
+	keys := strings.Split(content, ",")
+	for _, key := range keys {
+		strs := strings.Split(key, ":")
+		if strings.HasSuffix(strs[0], strings.ToLower(Fee)) {
+			proposalParam = append(proposalParam, ProposalParam{Key: module + strs[0], Value: niceCoin.String()})
+		}
+	}
+	return proposalParam
 }
