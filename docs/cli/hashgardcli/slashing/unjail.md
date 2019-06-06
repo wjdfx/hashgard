@@ -25,7 +25,7 @@ hashgardcli slashing unjail [flags]
 
 ```shell
 hashgardcli slashing signing-info \
-gardvaloper1m3m4l6g5774qe5jj8cwlyasue22yh32jmhrxfx \
+gardvalconspub1zcjduepqsd9dtuys30nryjqarjs5vfw6qszxsvz4h03ft360kjjfyyjcjdusullrtj \
 --node=localhost:36657 --trust-node
 ```
 
